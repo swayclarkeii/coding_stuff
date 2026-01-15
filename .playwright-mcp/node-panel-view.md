@@ -1,0 +1,276 @@
+### Page state
+- Page URL: https://n8n.oloxa.ai/workflow/MPjDdVMI88158iFW
+- Page Title: ▶️ Expense System - Workflow 1: PDF Intake & Parsing - n8n
+- Page Snapshot:
+```yaml
+- generic [ref=e4]:
+  - generic [ref=e9]:
+    - generic [ref=e11]:
+      - generic [ref=e14]:
+        - link "Personal" [ref=e16] [cursor=pointer]:
+          - /url: /projects/Rs8mhw052fnrzWZM
+          - generic [ref=e18]:
+            - generic "Personal" [ref=e19]:
+              - img [ref=e20]
+            - generic [ref=e24]: Personal
+        - list [ref=e25]:
+          - listitem [ref=e26]: /
+          - listitem "Expense System" [ref=e27]:
+            - link "Expense System" [ref=e28] [cursor=pointer]:
+              - /url: /projects/Rs8mhw052fnrzWZM/folders/kA1kSIATAT7DR0Bz/workflows
+              - generic [ref=e30]: Expense System
+        - generic [ref=e31]: /
+        - 'generic "Expense System - Workflow 1: PDF Intake & Parsing" [ref=e32]':
+          - generic [ref=e34] [cursor=pointer]: "Expense System - Workflow 1: PDF Intake & Parsing"
+      - generic [ref=e36]: + Add tag
+      - generic [ref=e38]:
+        - button "Publish" [disabled] [ref=e40]
+        - generic [ref=e42]: Saved
+        - link [ref=e43] [cursor=pointer]:
+          - /url: /workflow/MPjDdVMI88158iFW/history
+          - button [ref=e44]:
+            - img [ref=e46]
+        - button [ref=e53] [cursor=pointer]:
+          - img [ref=e55]
+    - radiogroup [ref=e61]:
+      - radio "Editor" [checked] [ref=e62]:
+        - generic [ref=e63] [cursor=pointer]: Editor
+      - radio "Executions" [ref=e64]:
+        - generic [ref=e65] [cursor=pointer]: Executions
+      - radio "Evaluations" [ref=e66]:
+        - generic [ref=e67] [cursor=pointer]: Evaluations
+  - generic [ref=e69]:
+    - generic [ref=e71]:
+      - button "Toggle sidebar" [ref=e72] [cursor=pointer]:
+        - img [ref=e74]
+      - menubar [ref=e77]:
+        - menuitem "Add new item" [ref=e78]:
+          - button "Add new item" [ref=e80] [cursor=pointer]:
+            - img [ref=e82]
+      - button "Open command palette" [ref=e84] [cursor=pointer]:
+        - img [ref=e86]
+    - generic [ref=e92]:
+      - generic [ref=e94]:
+        - menuitem [ref=e96] [cursor=pointer]:
+          - img [ref=e98]
+        - menuitem [ref=e103] [cursor=pointer]:
+          - img [ref=e105]
+        - menuitem [ref=e110] [cursor=pointer]:
+          - img [ref=e112]
+      - generic [ref=e116]:
+        - menuitem [ref=e118] [cursor=pointer]:
+          - img [ref=e120]
+        - menuitem [ref=e126] [cursor=pointer]:
+          - img [ref=e128]
+        - menuitem [ref=e131] [cursor=pointer]:
+          - img [ref=e133]
+        - menuitem [ref=e138] [cursor=pointer]:
+          - img [ref=e140]
+  - generic [ref=e5]:
+    - generic [ref=e145]:
+      - generic [ref=e147]:
+        - generic [ref=e149]:
+          - generic:
+            - img
+            - img:
+              - group "Edge from 57e59b24-d291-4209-8a91-59a61c13fdb4 to 2ac5e2bf-bb6d-425c-8d5b-b74b8cc502db":
+                - img
+            - img:
+              - group "Edge from 2ac5e2bf-bb6d-425c-8d5b-b74b8cc502db to 67fb890a-f117-461f-a8e6-b88be91270af":
+                - img
+            - img:
+              - group "Edge from 67fb890a-f117-461f-a8e6-b88be91270af to ac158557-c9bb-41bd-b782-4bdf4a21e359":
+                - img
+            - img:
+              - group "Edge from ac158557-c9bb-41bd-b782-4bdf4a21e359 to b7a79304-94aa-4a5f-b17d-b4724a3b4842":
+                - img
+            - img:
+              - group "Edge from b7a79304-94aa-4a5f-b17d-b4724a3b4842 to 3c0e0cd8-934a-4c8e-9798-2363c1e1ac94":
+                - img
+            - img:
+              - group "Edge from b7a79304-94aa-4a5f-b17d-b4724a3b4842 to ef9db69e-d93b-4da0-a2ba-4b256df8d9a8" [ref=e150] [cursor=pointer]:
+                - img
+            - img:
+              - group "Edge from 3c0e0cd8-934a-4c8e-9798-2363c1e1ac94 to aa07e622-f2a6-4c1a-ae6a-779bc2ab0a05":
+                - img
+            - generic:
+              - group [active] [ref=e154] [cursor=pointer]:
+                - generic [ref=e155]:
+                  - generic [ref=e160]:
+                    - button "Execute step" [ref=e161]:
+                      - img [ref=e163]
+                    - button "Deactivate" [ref=e165]:
+                      - img [ref=e167]
+                    - button "Delete" [ref=e170]:
+                      - img [ref=e172]
+                    - button [ref=e174]:
+                      - img [ref=e176]
+                  - generic [ref=e178]:
+                    - generic [ref=e181]:
+                      - img
+                    - generic:
+                      - generic: Watch Bank Statements Folder
+                      - generic: fileUpdated
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img
+                      - button "Execute workflow" [ref=e762]:
+                        - img [ref=e764]
+                        - generic [ref=e766]: Execute workflow
+              - group [ref=e182] [cursor=pointer]:
+                - generic [ref=e183]:
+                  - generic [ref=e192]:
+                    - button "Execute step" [ref=e193]:
+                      - img [ref=e195]
+                    - button "Deactivate" [ref=e197]:
+                      - img [ref=e199]
+                    - button "Delete" [ref=e202]:
+                      - img [ref=e204]
+                    - button [ref=e206]:
+                      - img [ref=e208]
+                  - generic [ref=e210]:
+                    - generic [ref=e213]:
+                      - img
+                    - generic:
+                      - generic: Download PDF
+                      - generic: "download: file"
+              - group [ref=e214] [cursor=pointer]:
+                - generic [ref=e215]:
+                  - generic [ref=e224]:
+                    - button "Execute step" [ref=e225]:
+                      - img [ref=e227]
+                    - button "Deactivate" [ref=e229]:
+                      - img [ref=e231]
+                    - button "Delete" [ref=e234]:
+                      - img [ref=e236]
+                    - button [ref=e238]:
+                      - img [ref=e240]
+                  - generic [ref=e242]:
+                    - generic [ref=e245]:
+                      - img
+                    - generic:
+                      - generic: Extract File Metadata
+              - group [ref=e246] [cursor=pointer]:
+                - generic [ref=e247]:
+                  - generic [ref=e256]:
+                    - button "Execute step" [ref=e257]:
+                      - img [ref=e259]
+                    - button "Deactivate" [ref=e261]:
+                      - img [ref=e263]
+                    - button "Delete" [ref=e266]:
+                      - img [ref=e268]
+                    - button [ref=e270]:
+                      - img [ref=e272]
+                  - generic [ref=e274]:
+                    - generic [ref=e277]:
+                      - img
+                    - generic:
+                      - generic: Parse PDF with OpenAI Vision
+                      - generic: "POST: https://api.anthropic.com/v1/messages"
+              - group [ref=e278] [cursor=pointer]:
+                - generic [ref=e279]:
+                  - generic [ref=e288]:
+                    - button "Execute step" [ref=e289]:
+                      - img [ref=e291]
+                    - button "Deactivate" [ref=e293]:
+                      - img [ref=e295]
+                    - button "Delete" [ref=e298]:
+                      - img [ref=e300]
+                    - button [ref=e302]:
+                      - img [ref=e304]
+                  - generic [ref=e306]:
+                    - generic [ref=e309]:
+                      - img
+                    - generic:
+                      - generic: Parse OpenAI Response
+              - group [ref=e310] [cursor=pointer]:
+                - generic [ref=e311]:
+                  - generic [ref=e320]:
+                    - button "Execute step" [ref=e321]:
+                      - img [ref=e323]
+                    - button "Deactivate" [ref=e325]:
+                      - img [ref=e327]
+                    - button "Delete" [ref=e330]:
+                      - img [ref=e332]
+                    - button [ref=e334]:
+                      - img [ref=e336]
+                  - generic [ref=e338]:
+                    - generic [ref=e341]:
+                      - img
+                    - generic:
+                      - generic: Write Transactions to Database
+                      - generic: "append: sheet"
+                    - img [ref=e343]
+              - group [ref=e345] [cursor=pointer]:
+                - generic [ref=e346]:
+                  - img [ref=e351]
+                  - generic [ref=e359]:
+                    - button "Execute step" [ref=e360]:
+                      - img [ref=e362]
+                    - button "Deactivate" [ref=e364]:
+                      - img [ref=e366]
+                    - button "Delete" [ref=e369]:
+                      - img [ref=e371]
+                    - button [ref=e373]:
+                      - img [ref=e375]
+                  - generic [ref=e377]:
+                    - generic [ref=e380]:
+                      - img
+                    - generic:
+                      - generic: Log Statement Record
+                      - generic: "append: sheet"
+                    - img [ref=e382]
+              - group [ref=e384] [cursor=pointer]:
+                - generic [ref=e385]:
+                  - img [ref=e390]
+                  - generic [ref=e398]:
+                    - button "Execute step" [ref=e399]:
+                      - img [ref=e401]
+                    - button "Deactivate" [ref=e403]:
+                      - img [ref=e405]
+                    - button "Delete" [ref=e408]:
+                      - img [ref=e410]
+                    - button [ref=e412]:
+                      - img [ref=e414]
+                  - generic [ref=e416]:
+                    - generic [ref=e419]:
+                      - img
+                    - generic:
+                      - generic: Move PDF to Archive
+                      - generic: "move: file"
+        - img [ref=e420]
+        - img [ref=e421]
+        - generic [ref=e423]:
+          - button [ref=e424] [cursor=pointer]:
+            - img [ref=e426]
+          - button [ref=e428] [cursor=pointer]:
+            - img [ref=e430]
+          - button [ref=e434] [cursor=pointer]:
+            - img [ref=e436]
+          - button [ref=e440] [cursor=pointer]:
+            - img [ref=e442]
+          - button [ref=e446] [cursor=pointer]:
+            - img [ref=e447]
+      - button "Execute workflow" [ref=e451] [cursor=pointer]:
+        - img [ref=e453]
+        - generic [ref=e455]: Execute workflow
+      - generic [ref=e456]:
+        - button [ref=e457] [cursor=pointer]:
+          - img [ref=e459]
+        - button [ref=e461] [cursor=pointer]:
+          - img [ref=e463]
+        - button [ref=e467] [cursor=pointer]:
+          - img [ref=e469]
+        - button [ref=e473] [cursor=pointer]:
+          - img [ref=e475]
+      - generic:
+        - complementary
+    - banner [ref=e750] [cursor=pointer]:
+      - generic [ref=e751]: Logs
+      - generic [ref=e753]:
+        - button "Pop out panel" [ref=e754]:
+          - img [ref=e756]
+        - button "Open panel" [ref=e758]:
+          - img [ref=e760]
+```

@@ -1,0 +1,442 @@
+{
+  "workflow_id": "zbxHkXOoD1qaz6OS",
+  "workflow_name": "AMA Chunk 0: Folder Initialization",
+  "backup_date": "2026-01-06T10:28:42+01:00",
+  "backup_reason": "Pre-Phase 2 testing backup - active production workflow",
+  "status": "active",
+  "nodes_count": 17,
+  "connections_count": 16,
+  "version_id": "1e87632b-a7c8-44ff-87f1-d4fb4129fe4c",
+  "version_counter": 78,
+  "last_updated": "2025-12-28T14:41:49.949Z",
+  "workflow_data": {
+    "id": "zbxHkXOoD1qaz6OS",
+    "name": "AMA Chunk 0: Folder Initialization",
+    "active": true,
+    "nodes": [
+      {
+        "parameters": {},
+        "id": "f8b0e0e8-9c7c-4cd4-89e0-2f4e7e7e7e7e",
+        "name": "When Called by Pre-Chunk 0",
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1,
+        "position": [240, 300]
+      },
+      {
+        "parameters": {
+          "jsCode": "const item = $input.first().json;\n\nreturn [{\n  json: {\n    clientNormalized: item.client_normalized || 'unknown',\n    stagingFolderId: item.staging_folder_id || null,\n    hasExistingFolders: !!item.staging_folder_id,\n    processedAt: new Date().toISOString()\n  }\n}];"
+        },
+        "id": "normalize-input-001",
+        "name": "Normalize Input",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [460, 300]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "boolean": [
+              {
+                "value1": "={{ $json.hasExistingFolders }}",
+                "value2": true
+              }
+            ]
+          }
+        },
+        "id": "if-folders-exist-001",
+        "name": "IF Folders Already Exist",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 1,
+        "position": [680, 300]
+      },
+      {
+        "parameters": {
+          "operation": "search",
+          "name": "00_AMA_Clients",
+          "options": {}
+        },
+        "id": "find-root-folder-001",
+        "name": "Find 00_AMA_Clients Root",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [900, 420],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "bfiE01Aam8evsKtG",
+            "name": "Google Drive account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "create",
+          "name": "={{ $('Normalize Input').first().json.clientNormalized }}",
+          "options": {
+            "parentId": {
+              "id": "={{ $json.id }}"
+            }
+          }
+        },
+        "id": "create-client-folder-001",
+        "name": "Create Client Folder",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [1120, 420],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "bfiE01Aam8evsKtG",
+            "name": "Google Drive account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "create",
+          "name": "38_Unknowns",
+          "options": {
+            "parentId": {
+              "id": "={{ $json.id }}"
+            }
+          }
+        },
+        "id": "create-unknowns-folder-001",
+        "name": "Create 38_Unknowns Folder",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [1340, 420],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "bfiE01Aam8evsKtG",
+            "name": "Google Drive account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "create",
+          "name": "01_Staging",
+          "options": {
+            "parentId": {
+              "id": "={{ $json.id }}"
+            }
+          }
+        },
+        "id": "create-staging-folder-001",
+        "name": "Create 01_Staging Folder",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [1560, 420],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "bfiE01Aam8evsKtG",
+            "name": "Google Drive account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const items = $input.all();\n\nconst clientFolderId = items.find(i => i.json.name === $('Normalize Input').first().json.clientNormalized)?.json.id;\nconst unknownsFolderId = items.find(i => i.json.name === '38_Unknowns')?.json.id;\nconst stagingFolderId = items.find(i => i.json.name === '01_Staging')?.json.id;\n\nreturn [{\n  json: {\n    clientNormalized: $('Normalize Input').first().json.clientNormalized,\n    client_folder_id: clientFolderId,\n    unknowns_folder_id: unknownsFolderId,\n    staging_folder_id: stagingFolderId,\n    folders_created: true,\n    created_at: new Date().toISOString()\n  }\n}];"
+        },
+        "id": "merge-folder-ids-001",
+        "name": "Merge Folder IDs",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [1780, 420]
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "value": "1W2rnvacmbVl-OZ8EPacS8L89uN80TA8xxmw2uAEdn54",
+            "mode": "id"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "id"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Client Normalized": "={{ $json.clientNormalized }}",
+              "Client Folder ID": "={{ $json.client_folder_id }}",
+              "Staging Folder ID": "={{ $json.staging_folder_id }}",
+              "Unknowns Folder ID": "={{ $json.unknowns_folder_id }}",
+              "Created Date": "={{ $json.created_at }}",
+              "Status": "Active"
+            }
+          },
+          "options": {}
+        },
+        "id": "add-to-registry-001",
+        "name": "Add to Client Registry",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.4,
+        "position": [2000, 420],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "CTjJaffx6qLE1kt7",
+            "name": "Google Sheets account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const newClientData = $input.first().json;\n\nreturn [{\n  json: {\n    client_normalized: newClientData.clientNormalized,\n    staging_folder_id: newClientData.staging_folder_id,\n    client_folder_id: newClientData.client_folder_id,\n    unknowns_folder_id: newClientData.unknowns_folder_id,\n    folders_created: true,\n    is_new_client: true\n  }\n}];"
+        },
+        "id": "normalize-new-output-001",
+        "name": "Normalize New Client Output",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [2220, 420]
+      },
+      {
+        "parameters": {
+          "jsCode": "const existingData = $input.first().json;\n\nreturn [{\n  json: {\n    client_normalized: $('Normalize Input').first().json.clientNormalized,\n    staging_folder_id: existingData.staging_folder_id,\n    client_folder_id: existingData.client_folder_id || null,\n    unknowns_folder_id: existingData.unknowns_folder_id || null,\n    folders_created: false,\n    is_new_client: false\n  }\n}];"
+        },
+        "id": "normalize-existing-output-001",
+        "name": "Normalize Existing Client Output",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [900, 180]
+      },
+      {
+        "parameters": {},
+        "id": "merge-paths-001",
+        "name": "Merge Paths",
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 2.1,
+        "position": [2440, 300]
+      },
+      {
+        "parameters": {
+          "operation": "send",
+          "sendTo": "swayclarkeii@gmail.com",
+          "subject": "✅ New Client Folders Created: {{ $json.client_normalized }}",
+          "emailType": "text",
+          "message": "New client folders have been created:\n\nClient: {{ $json.client_normalized }}\nClient Folder ID: {{ $json.client_folder_id }}\nStaging Folder ID: {{ $json.staging_folder_id }}\nUnknowns Folder ID: {{ $json.unknowns_folder_id }}\n\nCreated at: {{ $json.created_at }}",
+          "options": {}
+        },
+        "id": "send-notification-001",
+        "name": "Send New Client Notification",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [2220, 600],
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "w07toTWMd9w3lVoe",
+            "name": "Gmail account 3"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "boolean": [
+              {
+                "value1": "={{ $json.is_new_client }}",
+                "value2": true
+              }
+            ]
+          }
+        },
+        "id": "if-new-client-001",
+        "name": "IF New Client",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 1,
+        "position": [2440, 480]
+      },
+      {
+        "parameters": {
+          "jsCode": "const item = $input.first().json;\n\nreturn [{\n  json: {\n    client_normalized: item.client_normalized,\n    staging_folder_id: item.staging_folder_id,\n    client_folder_id: item.client_folder_id,\n    unknowns_folder_id: item.unknowns_folder_id,\n    is_new_client: item.is_new_client || false,\n    folders_ready: true\n  }\n}];"
+        },
+        "id": "final-output-001",
+        "name": "Final Output to Pre-Chunk 0",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [2660, 300]
+      },
+      {
+        "parameters": {},
+        "id": "no-op-001",
+        "name": "No Action Needed",
+        "type": "n8n-nodes-base.noOp",
+        "typeVersion": 1,
+        "position": [2220, 360]
+      }
+    ],
+    "connections": {
+      "When Called by Pre-Chunk 0": {
+        "main": [
+          [
+            {
+              "node": "Normalize Input",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Normalize Input": {
+        "main": [
+          [
+            {
+              "node": "IF Folders Already Exist",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF Folders Already Exist": {
+        "main": [
+          [
+            {
+              "node": "Normalize Existing Client Output",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Find 00_AMA_Clients Root",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Find 00_AMA_Clients Root": {
+        "main": [
+          [
+            {
+              "node": "Create Client Folder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Client Folder": {
+        "main": [
+          [
+            {
+              "node": "Create 38_Unknowns Folder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create 38_Unknowns Folder": {
+        "main": [
+          [
+            {
+              "node": "Create 01_Staging Folder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create 01_Staging Folder": {
+        "main": [
+          [
+            {
+              "node": "Merge Folder IDs",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge Folder IDs": {
+        "main": [
+          [
+            {
+              "node": "Add to Client Registry",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Add to Client Registry": {
+        "main": [
+          [
+            {
+              "node": "Normalize New Client Output",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Normalize New Client Output": {
+        "main": [
+          [
+            {
+              "node": "Merge Paths",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Normalize Existing Client Output": {
+        "main": [
+          [
+            {
+              "node": "Merge Paths",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Merge Paths": {
+        "main": [
+          [
+            {
+              "node": "IF New Client",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Final Output to Pre-Chunk 0",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF New Client": {
+        "main": [
+          [
+            {
+              "node": "Send New Client Notification",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "No Action Needed",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "staticData": null,
+    "tags": [],
+    "triggerCount": 0,
+    "updatedAt": "2025-12-28T14:41:49.949Z",
+    "versionId": "1e87632b-a7c8-44ff-87f1-d4fb4129fe4c"
+  }
+}

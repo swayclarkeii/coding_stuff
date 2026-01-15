@@ -1,0 +1,371 @@
+### Page state
+- Page URL: https://n8n.oloxa.ai/workflow/yDB93fLgM3vKOc4B
+- Page Title: ▶️ TEMP - Find Vendor Sender Addresses - n8n
+- Page Snapshot:
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e9]:
+      - generic [ref=e11]:
+        - generic [ref=e14]:
+          - link "Personal" [ref=e16] [cursor=pointer]:
+            - /url: /projects/Rs8mhw052fnrzWZM
+            - generic [ref=e18]:
+              - generic "Personal" [ref=e19]:
+                - img [ref=e20]
+              - generic [ref=e24]: Personal
+          - generic [ref=e25]: /
+          - generic "TEMP - Find Vendor Sender Addresses" [ref=e26]:
+            - generic [ref=e28] [cursor=pointer]: TEMP - Find Vendor Sender Addresses
+        - generic [ref=e30]: + Add tag
+        - generic [ref=e32]:
+          - button "Publish" [ref=e34] [cursor=pointer]
+          - generic [ref=e36]: Saved
+          - link [ref=e37] [cursor=pointer]:
+            - /url: /workflow/yDB93fLgM3vKOc4B/history
+            - button [ref=e38]:
+              - img [ref=e40]
+          - button [ref=e47] [cursor=pointer]:
+            - img [ref=e49]
+      - radiogroup [ref=e59]:
+        - radio "Editor" [checked] [ref=e60]:
+          - generic [ref=e61] [cursor=pointer]: Editor
+        - radio "Executions" [ref=e62]:
+          - generic [ref=e63] [cursor=pointer]: Executions
+        - radio "Evaluations" [ref=e64]:
+          - generic [ref=e65] [cursor=pointer]: Evaluations
+    - generic [ref=e67]:
+      - generic [ref=e69]:
+        - button "Toggle sidebar" [ref=e70] [cursor=pointer]:
+          - img [ref=e72]
+        - menubar [ref=e75]:
+          - menuitem "Add new item" [ref=e76]:
+            - button "Add new item" [ref=e78] [cursor=pointer]:
+              - img [ref=e80]
+        - button "Open command palette" [ref=e82] [cursor=pointer]:
+          - img [ref=e84]
+      - generic [ref=e90]:
+        - generic [ref=e92]:
+          - menuitem [ref=e94] [cursor=pointer]:
+            - img [ref=e96]
+          - menuitem [ref=e101] [cursor=pointer]:
+            - img [ref=e103]
+          - menuitem [ref=e108] [cursor=pointer]:
+            - img [ref=e110]
+        - generic [ref=e114]:
+          - menuitem [ref=e116] [cursor=pointer]:
+            - img [ref=e118]
+          - menuitem [ref=e124] [cursor=pointer]:
+            - img [ref=e126]
+          - menuitem [ref=e129] [cursor=pointer]:
+            - img [ref=e131]
+          - menuitem [ref=e136] [cursor=pointer]:
+            - img [ref=e138]
+    - generic [ref=e5]:
+      - generic [ref=e143]:
+        - generic [ref=e145]:
+          - generic [ref=e147]:
+            - generic:
+              - img
+              - img:
+                - group "Edge from trigger-1 to code-vendors":
+                  - img
+              - img:
+                - group "Edge from code-vendors to gmail-getmany":
+                  - img
+              - img:
+                - group "Edge from gmail-getmany to code-extract":
+                  - img
+              - img:
+                - group "Edge from code-extract to set-output":
+                  - img
+              - img:
+                - group "Edge from webhook-trigger to code-vendors" [ref=e148] [cursor=pointer]:
+                  - img
+              - generic:
+                - generic:
+                  - generic: 1 item
+                - generic:
+                  - generic: 15 items
+                - generic:
+                  - generic: 75 items
+                - generic:
+                  - generic: 1 item
+              - generic:
+                - group [ref=e152] [cursor=pointer]:
+                  - generic [ref=e153]:
+                    - generic [ref=e158]:
+                      - button "Execute step" [ref=e159]:
+                        - img [ref=e161]
+                      - button "Deactivate" [ref=e163]:
+                        - img [ref=e165]
+                      - button "Delete" [ref=e168]:
+                        - img [ref=e170]
+                      - button [ref=e172]:
+                        - img [ref=e174]
+                    - generic [ref=e176]:
+                      - generic [ref=e179]:
+                        - img
+                      - generic:
+                        - generic: Manual Trigger
+                      - img [ref=e469]
+                    - generic:
+                      - generic:
+                        - generic:
+                          - img
+                        - button "Execute workflow":
+                          - generic:
+                            - img
+                          - generic: Execute workflow
+                - group [ref=e180] [cursor=pointer]:
+                  - generic [ref=e181]:
+                    - generic [ref=e190]:
+                      - button "Execute step" [ref=e191]:
+                        - img [ref=e193]
+                      - button "Deactivate" [ref=e195]:
+                        - img [ref=e197]
+                      - button "Delete" [ref=e200]:
+                        - img [ref=e202]
+                      - button [ref=e204]:
+                        - img [ref=e206]
+                    - generic [ref=e208]:
+                      - generic [ref=e211]:
+                        - img
+                      - generic:
+                        - generic: Load Vendor Names
+                      - img [ref=e472]
+                - group [ref=e212] [cursor=pointer]:
+                  - generic [ref=e213]:
+                    - generic [ref=e222]:
+                      - button "Execute step" [ref=e223]:
+                        - img [ref=e225]
+                      - button "Deactivate" [ref=e227]:
+                        - img [ref=e229]
+                      - button "Delete" [ref=e232]:
+                        - img [ref=e234]
+                      - button [ref=e236]:
+                        - img [ref=e238]
+                    - generic [ref=e240]:
+                      - generic [ref=e243]:
+                        - img
+                      - generic:
+                        - generic: Search Gmail
+                        - generic: "getAll: message"
+                      - img [ref=e584]
+                - group [ref=e244] [cursor=pointer]:
+                  - generic [ref=e245]:
+                    - generic [ref=e254]:
+                      - button "Execute step" [ref=e255]:
+                        - img [ref=e257]
+                      - button "Deactivate" [ref=e259]:
+                        - img [ref=e261]
+                      - button "Delete" [ref=e264]:
+                        - img [ref=e266]
+                      - button [ref=e268]:
+                        - img [ref=e270]
+                    - generic [ref=e272]:
+                      - generic [ref=e275]:
+                        - img
+                      - generic:
+                        - generic: Extract Sender Info
+                      - img [ref=e587]
+                - group [ref=e276] [cursor=pointer]:
+                  - generic [ref=e277]:
+                    - generic [ref=e279]:
+                      - generic [ref=e589]: 1 item
+                      - img [ref=e282]
+                    - generic [ref=e290]:
+                      - button "Execute step" [ref=e291]:
+                        - img [ref=e293]
+                      - button "Deactivate" [ref=e295]:
+                        - img [ref=e297]
+                      - button "Delete" [ref=e300]:
+                        - img [ref=e302]
+                      - button [ref=e304]:
+                        - img [ref=e306]
+                    - generic [ref=e308]:
+                      - generic [ref=e311]:
+                        - img
+                      - generic:
+                        - generic: Output Results
+                        - generic: manual
+                      - img [ref=e591]
+                - group [ref=e312] [cursor=pointer]:
+                  - generic [ref=e313]:
+                    - generic [ref=e316]: POST
+                    - generic [ref=e319]:
+                      - button "Execute step" [ref=e320]:
+                        - img [ref=e322]
+                      - button "Deactivate" [ref=e324]:
+                        - img [ref=e326]
+                      - button "Delete" [ref=e329]:
+                        - img [ref=e331]
+                      - button [ref=e333]:
+                        - img [ref=e335]
+                    - generic [ref=e337]:
+                      - generic [ref=e340]:
+                        - img
+                      - generic:
+                        - generic: Webhook Trigger
+                    - generic:
+                      - generic:
+                        - generic:
+                          - img
+                        - button "Execute workflow":
+                          - generic:
+                            - img
+                          - generic: Execute workflow
+          - img [ref=e341]
+          - img [ref=e342]
+          - generic [ref=e344]:
+            - button [ref=e345] [cursor=pointer]:
+              - img [ref=e347]
+            - button [ref=e349] [cursor=pointer]:
+              - img [ref=e351]
+            - button [ref=e355] [cursor=pointer]:
+              - img [ref=e357]
+            - button [ref=e361] [cursor=pointer]:
+              - img [ref=e362]
+        - generic [ref=e365]:
+          - button "Execute workflow from Manual Trigger" [ref=e593] [cursor=pointer]:
+            - img [ref=e594]
+            - generic [ref=e370]:
+              - text: Execute workflow
+              - generic [ref=e371]:
+                - text: from
+                - generic [ref=e372]: Manual Trigger
+          - button "Select trigger node" [ref=e375] [cursor=pointer]:
+            - img [ref=e377]
+        - generic [ref=e379]:
+          - button [ref=e380] [cursor=pointer]:
+            - img [ref=e382]
+          - button [ref=e384] [cursor=pointer]:
+            - img [ref=e386]
+          - button [ref=e390] [cursor=pointer]:
+            - img [ref=e392]
+          - button [ref=e396] [cursor=pointer]:
+            - img [ref=e398]
+        - generic:
+          - complementary
+      - generic [ref=e407]:
+        - generic [ref=e409]:
+          - banner [ref=e410] [cursor=pointer]:
+            - generic [ref=e411]: Logs
+            - button "Clear execution" [ref=e596]:
+              - img [ref=e598]
+              - text: Clear execution
+          - generic [ref=e427]:
+            - generic [ref=e480]: Success in 18.756s
+            - tree [ref=e482]:
+              - treeitem "Manual Trigger" [ref=e483] [cursor=pointer]:
+                - generic [ref=e487]:
+                  - img
+                - generic [ref=e488]: Manual Trigger
+              - treeitem "Load Vendor Names" [ref=e904] [cursor=pointer]:
+                - generic [ref=e493]:
+                  - img
+                - generic [ref=e494]: Load Vendor Names
+              - treeitem "Search Gmail" [ref=e495] [cursor=pointer]:
+                - generic [ref=e499]:
+                  - img
+                - generic [ref=e500]: Search Gmail
+              - treeitem "Extract Sender Info" [selected] [ref=e1130] [cursor=pointer]:
+                - generic [ref=e604]:
+                  - img
+                - generic [ref=e605]: Extract Sender Info
+              - treeitem "Output Results" [ref=e1115] [cursor=pointer]:
+                - generic [ref=e610]:
+                  - img
+                - generic [ref=e611]: Output Results
+        - generic [ref=e507]:
+          - banner [ref=e508] [cursor=pointer]:
+            - generic [ref=e510]:
+              - generic [ref=e513]:
+                - img
+              - generic [ref=e514]: Extract Sender Info
+              - generic [ref=e516]: Success in 12ms
+            - generic [ref=e517]:
+              - generic [ref=e629]:
+                - button "Input" [ref=e630]
+                - button "Output" [active] [ref=e631]
+              - generic [ref=e518]:
+                - button [ref=e521]:
+                  - img [ref=e523]
+                - button "Collapse panel" [ref=e528]:
+                  - img [ref=e530]
+          - generic [ref=e689]:
+            - generic [ref=e690]:
+              - generic [ref=e692]: Input
+              - generic:
+                - generic [ref=e694]:
+                  - img [ref=e697] [cursor=pointer]
+                  - textbox "Search (⌘+F)" [ref=e1131] [cursor=pointer]
+                - radiogroup [ref=e702]:
+                  - radio [checked] [ref=e703]:
+                    - img [ref=e705] [cursor=pointer]
+                  - radio [ref=e707]:
+                    - img [ref=e709] [cursor=pointer]
+                  - radio [ref=e713]:
+                    - img [ref=e715] [cursor=pointer]
+              - generic [ref=e717]: 75 items
+            - generic [ref=e722]:
+              - generic [ref=e758]:
+                - generic [ref=e760]:
+                  - img [ref=e792]
+                  - generic [ref=e766]: id
+                - generic [ref=e768]: 19b9d8f9b7300b45
+              - generic [ref=e747]:
+                - generic [ref=e749]:
+                  - img [ref=e750]
+                  - generic [ref=e753]: threadId
+                - generic [ref=e755]: 19ae5e5fc38b07b4
+              - generic [ref=e736]:
+                - generic [ref=e738]:
+                  - img [ref=e739]
+                  - generic [ref=e742]: snippet
+                - generic [ref=e744]: "Hey Finni, how are you? Happy New Year as well! So I'm assuming you're referring to invoice #507, however, I'm unsure about what exactly you mean by VAT not shown. This is a standard"
+              - generic [ref=e725]:
+                - img [ref=e795] [cursor=pointer]
+                - generic [ref=e727]:
+                  - img [ref=e797]
+                  - generic [ref=e731]: payload
+              - generic [ref=e803]:
+                - generic [ref=e805]:
+                  - img [ref=e806]
+                  - generic [ref=e809]: mimeType
+                - generic [ref=e811]: multipart/alternative
+              - generic [ref=e814]:
+                - generic [ref=e816]:
+                  - img [ref=e817]
+                  - generic [ref=e820]: sizeEstimate
+                - generic [ref=e822]: "50449"
+              - generic [ref=e825]:
+                - generic [ref=e827]:
+                  - img [ref=e828]
+                  - generic [ref=e831]: historyId
+                - generic [ref=e833]: "11672953"
+              - generic [ref=e836]:
+                - generic [ref=e838]:
+                  - img [ref=e1116]
+                  - generic [ref=e842]: internalDate
+                - generic [ref=e844]: "1767874992000"
+              - generic [ref=e847]:
+                - img [ref=e1119] [cursor=pointer]
+                - generic [ref=e852]:
+                  - img [ref=e1121]
+                  - generic [ref=e856]: labels
+              - generic [ref=e859]:
+                - img [ref=e1124] [cursor=pointer]
+                - generic [ref=e864]:
+                  - img [ref=e1126]
+                  - generic [ref=e870]: labels[0]
+              - generic [ref=e1045]:
+                - generic [ref=e1047]:
+                  - img [ref=e1048]
+                  - generic [ref=e1051]: id
+                - generic [ref=e1053]: SENT
+  - tooltip "Or press O" [ref=e1132]:
+    - generic [ref=e1133]:
+      - generic [ref=e1134]: Or press
+      - generic [ref=e1137]: O
+```

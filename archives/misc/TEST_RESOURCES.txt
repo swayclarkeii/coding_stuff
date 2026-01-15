@@ -1,0 +1,216 @@
+WORKFLOW 1 TEST RESOURCES & IDS
+Generated: January 3, 2026
+
+===============================================================================
+TEST ARTIFACTS
+===============================================================================
+
+PDF Test File:
+  Path: /tmp/ING_2026-01_Statement.pdf
+  Size: 1,441 bytes
+  Filename: ING_2026-01_Statement.pdf
+  Status: Ready for upload
+
+Test Reports:
+  Summary: /Users/swayclarke/coding_stuff/WORKFLOW_1_TEST_SUMMARY.txt
+  Detailed: /Users/swayclarke/coding_stuff/WORKFLOW_1_TEST_REPORT.md
+
+===============================================================================
+WORKFLOW IDENTIFIERS
+===============================================================================
+
+Workflow Under Test:
+  ID: MPjDdVMI88158iFW
+  Name: Expense System - Workflow 1: PDF Intake & Parsing
+  Status: INACTIVE (needs activation)
+  Version: 32
+  Nodes: 8
+
+Helper Workflows Created:
+  Test Orchestrator: 9HiPFO0idQgSeaMf
+  Test Helper Upload: x3LJEy1fLPL45rKI
+
+Related Workflows:
+  Workflow 2 (Gmail Receipts): dHbwemg7hEB4vDmC
+  Workflow 3 (Matching): waPA94G2GXawDlCa
+
+===============================================================================
+FOLDER IDS
+===============================================================================
+
+Inbox Folder (Watch Target):
+  ID: 1tC0fEVUl1vH0XUBi7915Hh5Wf5Cr3XKY
+  Purpose: Where test PDFs are uploaded
+  Updated: YES - Workflow now watches this folder
+
+Old/Wrong Folder (DO NOT USE):
+  ID: 1stmB5nWmoViQKKuQqpkWICPrfPQ_GDN1
+  Status: DEPRECATED - Was incorrectly configured
+
+Archive Folder Base:
+  ID: 1Z5VTiBW7RBEZaLXbsCdvWZrhj9SLmp3r
+  Note: Path construction may need review
+
+===============================================================================
+DATABASE / SPREADSHEET IDS
+===============================================================================
+
+Transaction Database:
+  Spreadsheet ID: 1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM
+  
+  Sheets:
+    - Transactions (receives parsed transaction rows)
+    - Statements (receives statement summary records)
+    - Receipts (used by Workflow 2)
+    - Other sheets may exist
+
+Columns in Transactions:
+  TransactionID, Date, Bank, Amount, Currency, Description,
+  Vendor, Category, ReceiptID, StatementID, MatchStatus,
+  MatchConfidence, Notes, Tags, Type, AnnualInvoiceID
+
+Columns in Statements:
+  StatementID, Bank, Month, Year, FileID, FilePath,
+  ProcessedDate, TransactionCount
+
+===============================================================================
+API CREDENTIALS & SERVICES
+===============================================================================
+
+Google Service Account:
+  ID: VdNWQlkZQ0BxcEK2
+  Name: Google Service Account account
+  Used for: Google Drive operations, Google Sheets operations
+  Status: Configured and verified
+
+Anthropic API (Claude):
+  ID: MRSNO4UW3OEIA3tQ
+  Name: Anthropic account
+  Used for: PDF parsing with Claude 3.5 Sonnet
+  Model: claude-3-5-sonnet-20241022
+  Status: Configured and verified
+
+OpenAI API (Backup):
+  ID: xmJ7t6kaKgMwA1ce
+  Name: OpenAi account
+  Used for: Fallback (not primary in this workflow)
+  Status: Configured
+
+===============================================================================
+WORKFLOW NODES (IN ORDER)
+===============================================================================
+
+1. Watch Bank Statements Folder
+   Type: n8n-nodes-base.googleDriveTrigger
+   Watches: 1tC0fEVUl1vH0XUBi7915Hh5Wf5Cr3XKY
+   Polling: Every minute
+   Event: File created
+
+2. Download PDF
+   Type: n8n-nodes-base.googleDrive
+   Operation: download
+   Retrieves: Triggered PDF file
+
+3. Extract File Metadata
+   Type: n8n-nodes-base.code
+   Language: JavaScript
+   Outputs: fileName, fileId, bank, year, month, statementId
+
+4. Parse PDF with Claude
+   Type: n8n-nodes-base.httpRequest
+   Endpoint: https://api.anthropic.com/v1/messages
+   Model: claude-3-5-sonnet-20241022
+   Instructions: Extract German bank statement transactions
+
+5. Parse Response
+   Type: n8n-nodes-base.code
+   Language: JavaScript
+   Outputs: Array of transaction objects
+
+6. Write Transactions to Database
+   Type: n8n-nodes-base.googleSheets
+   Operation: append
+   Target: Transactions sheet in 1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM
+
+7. Log Statement Record
+   Type: n8n-nodes-base.googleSheets
+   Operation: append
+   Target: Statements sheet in 1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM
+
+8. Move PDF to Archive
+   Type: n8n-nodes-base.googleDrive
+   Operation: move
+   Target: Archive folder (path needs review)
+
+===============================================================================
+TEST SEQUENCE
+===============================================================================
+
+1. Activate Workflow MPjDdVMI88158iFW in n8n UI
+2. Upload /tmp/ING_2026-01_Statement.pdf to folder 1tC0fEVUl1vH0XUBi7915Hh5Wf5Cr3XKY
+3. Wait 1-2 minutes for trigger to detect file
+4. Monitor execution in n8n
+5. Check database spreadsheet 1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM for:
+   - New transactions in Transactions sheet
+   - New statement record in Statements sheet
+6. Verify data fields match expected values
+
+===============================================================================
+SUCCESS CRITERIA
+===============================================================================
+
+PASS:
+  Workflow executes successfully (no errors)
+  At least 1 transaction row appears in database
+  StatementID follows pattern: STMT-ING-202601-{TIMESTAMP}
+  Bank field shows: ING
+  All transaction fields populated correctly
+
+FAIL:
+  Workflow does not trigger
+  Execution returns error
+  No data appears in database
+  Incomplete fields in database records
+
+===============================================================================
+ISSUES FOUND
+===============================================================================
+
+Issue #1: Wrong Folder ID
+  Status: FIXED
+  Details: Workflow was watching 1stmB5nWmoViQKKuQqpkWICPrfPQ_GDN1
+  Solution: Updated to 1tC0fEVUl1vH0XUBi7915Hh5Wf5Cr3XKY
+  Verification: Confirmed in workflow version 32
+
+Issue #2: Workflow Inactive
+  Status: PENDING
+  Details: Polling triggers don't execute when workflow inactive
+  Action Required: Manually activate in n8n UI
+
+Issue #3: Archive Path Configuration
+  Status: NEEDS REVIEW
+  Details: Folder ID path may be malformed
+  Action Required: Verify path syntax when testing archive
+
+===============================================================================
+USEFUL COMMANDS
+===============================================================================
+
+Activate workflow via API:
+  PUT https://n8n.oloxa.ai/api/v1/workflows/MPjDdVMI88158iFW
+  Body: {"active": true}
+
+Check workflow executions:
+  GET https://n8n.oloxa.ai/api/v1/executions?filter={"workflowId":"MPjDdVMI88158iFW"}
+
+Get workflow details:
+  GET https://n8n.oloxa.ai/api/v1/workflows/MPjDdVMI88158iFW
+
+Upload file to inbox folder:
+  POST https://www.googleapis.com/drive/v3/files?uploadType=multipart
+  Parent: 1tC0fEVUl1vH0XUBi7915Hh5Wf5Cr3XKY
+
+Access database:
+  Open spreadsheet 1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM
+
+===============================================================================

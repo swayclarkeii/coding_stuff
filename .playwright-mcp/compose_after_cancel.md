@@ -1,0 +1,1572 @@
+### Page state
+- Page URL: https://mail.google.com/mail/u/0/#inbox?compose=DmwnWtMkMZPBQfVfDbtfmhGblJFndPrvZjGGGtBNqSkWXRntsVtrntQNvKcPSBbkxPQbBWSqvlPq
+- Page Title: Inbox (7,590) - swayclarkeii@gmail.com - Gmail
+- Page Snapshot:
+```yaml
+- generic [ref=e1]:
+  - iframe [ref=e2]:
+    
+  - generic [ref=e10]:
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - link "Skip to content" [ref=e14] [cursor=pointer]:
+          - /url: ""
+        - link "Using Gmail with screen readers" [ref=e15] [cursor=pointer]:
+          - /url: ""
+      - heading [level=1] [ref=e17]:
+        - banner [ref=e18]:
+          - generic [ref=e19]:
+            - generic [ref=e20]:
+              - button "Main menu" [ref=e21] [cursor=pointer]:
+                - img [ref=e22]
+              - link "Gmail" [ref=e26] [cursor=pointer]:
+                - /url: "#inbox"
+                - img [ref=e27]
+            - generic [ref=e28]:
+              - search [ref=e30]:
+                - heading "Search" [level=2] [ref=e31]
+                - table [ref=e1731]:
+                  - rowgroup [ref=e1732]:
+                    - row [ref=e1733]:
+                      - cell [ref=e1734]:
+                        - textbox "Search mail" [ref=e1735]
+                - button "Advanced search options" [ref=e34] [cursor=pointer]:
+                  - img [ref=e35]
+                - button "Search mail" [disabled] [ref=e37] [cursor=pointer]:
+                  - img [ref=e38]
+              - generic [ref=e41]:
+                - button "Support" [ref=e1737] [cursor=pointer]:
+                  - img [ref=e1738]
+                - button "Settings" [ref=e45] [cursor=pointer]:
+                  - img [ref=e46]
+                - generic [ref=e1742]:
+                  - generic:
+                    - button "Try Gemini" [ref=e1745] [cursor=pointer]:
+                      - img [ref=e1748]
+                    - tooltip [ref=e1751]: Try Gemini
+            - generic [ref=e50]:
+              - button "Google apps" [ref=e54] [cursor=pointer]:
+                - img [ref=e55]
+              - 'button "Google Account: Sway Clarke (swayclarkeii@gmail.com)" [ref=e60] [cursor=pointer]':
+                - img [ref=e62]
+                - img [ref=e68]
+      - alert [ref=e71]
+    - generic [ref=e74]:
+      - navigation [ref=e75]:
+        - button "Compose" [ref=e78] [cursor=pointer]
+        - generic [ref=e84]:
+          - generic "Labels" [ref=e86]:
+            - heading "Labels" [level=2] [ref=e87]
+            - generic [ref=e88]:
+              - generic [ref=e89]:
+                - generic [ref=e91]:
+                  - generic [ref=e96]:
+                    - link "Inbox 7590 unread" [ref=e98] [cursor=pointer]:
+                      - /url: https://mail.google.com/mail/u/0/#inbox
+                      - text: Inbox
+                    - generic: 7,590
+                  - link "Important" [ref=e105] [cursor=pointer]:
+                    - /url: https://mail.google.com/mail/u/0/#imp
+                  - link "Sent" [ref=e112] [cursor=pointer]:
+                    - /url: https://mail.google.com/mail/u/0/#sent
+                  - generic [ref=e2725]:
+                    - link "Drafts 492 unread" [ref=e2727] [cursor=pointer]:
+                      - /url: https://mail.google.com/mail/u/0/#drafts
+                      - text: Drafts
+                    - generic: "492"
+                - generic [ref=e126]:
+                  - link "Purchases 55 unread has menu" [ref=e128] [cursor=pointer]:
+                    - /url: https://mail.google.com/mail/u/0/#category/purchases
+                    - text: Purchases
+                  - generic: "55"
+              - button "More labels" [ref=e130] [cursor=pointer]:
+                - generic [ref=e131]: More
+          - button "Create new label" [ref=e135] [cursor=pointer]
+          - generic "Labels" [ref=e137]:
+            - heading "Labels" [level=2] [ref=e138]
+            - generic [ref=e139]:
+              - generic [ref=e142]:
+                - generic [ref=e147]:
+                  - link "Accounting 5 unread has menu" [ref=e149] [cursor=pointer]:
+                    - /url: https://mail.google.com/mail/u/0/#label/Accounting
+                    - text: Accounting
+                  - generic: "5"
+                - generic [ref=e154]:
+                  - link "AMA 52 unread has menu" [ref=e156] [cursor=pointer]:
+                    - /url: https://mail.google.com/mail/u/0/#label/AMA
+                    - text: AMA
+                  - generic: "52"
+                - generic [ref=e161]:
+                  - link "Invoices - Gmail 359 unread has menu" [ref=e163] [cursor=pointer]:
+                    - /url: https://mail.google.com/mail/u/0/#label/Invoices+-+Gmail
+                    - text: Invoices - Gmail
+                  - generic: "359"
+                - generic [ref=e168]:
+                  - link "Kwetu 9 unread has menu" [ref=e170] [cursor=pointer]:
+                    - /url: https://mail.google.com/mail/u/0/#label/Kwetu
+                    - text: Kwetu
+                  - generic: "9"
+                - generic [ref=e175]:
+                  - link "oloxa.ai 2 unread has menu" [ref=e177] [cursor=pointer]:
+                    - /url: https://mail.google.com/mail/u/0/#label/oloxa.ai
+                    - text: oloxa.ai
+                  - generic: "2"
+                - generic [ref=e182]:
+                  - link "Parenting Quiz 390 unread has menu" [ref=e184] [cursor=pointer]:
+                    - /url: https://mail.google.com/mail/u/0/#label/Parenting+Quiz
+                    - text: Parenting Quiz
+                  - generic: "390"
+                - generic [ref=e189]:
+                  - link "Portugal Plot 1 unread has menu" [ref=e191] [cursor=pointer]:
+                    - /url: https://mail.google.com/mail/u/0/#label/Portugal+Plot
+                    - text: Portugal Plot
+                  - generic: "1"
+                - generic [ref=e196]:
+                  - link "Reading 309 unread has menu" [ref=e198] [cursor=pointer]:
+                    - /url: https://mail.google.com/mail/u/0/#label/Reading
+                    - text: Reading
+                  - generic: "309"
+              - button "More labels" [ref=e200] [cursor=pointer]:
+                - generic [ref=e201]: More
+      - generic [ref=e208]:
+        - generic [ref=e210]:
+          - toolbar "search refinement"
+          - generic [ref=e211]:
+            - generic [ref=e214]:
+              - button "Select" [ref=e216] [cursor=pointer]:
+                - checkbox [ref=e218]
+              - button "Refresh" [ref=e221] [cursor=pointer]
+              - button "More email options" [ref=e225] [cursor=pointer]
+            - generic [ref=e230]:
+              - button "Show more messages" [ref=e231] [cursor=pointer]:
+                - generic [ref=e232]:
+                  - generic [ref=e233]: 1–50
+                  - text: of 18,180
+              - button "Newer" [disabled] [ref=e234]
+              - button "Older" [ref=e235] [cursor=pointer]
+        - generic [ref=e237]:
+          - main [ref=e240]:
+            - heading "Conversations" [level=2] [ref=e242]
+            - table [ref=e244]:
+              - rowgroup [ref=e245]:
+                - tablist [ref=e246]:
+                  - heading "Primary" [level=3] [ref=e1773]:
+                    - tab "Primary" [selected] [ref=e1774] [cursor=pointer]:
+                      - generic [ref=e254]: Primary
+                  - heading "Promotions, 15 new messages," [level=3] [ref=e256]:
+                    - tab "Promotions, 15 new messages," [ref=e257] [cursor=pointer]:
+                      - generic [ref=e259]:
+                        - generic [ref=e261]:
+                          - generic [ref=e262]: 15 new
+                          - generic [ref=e263]: Promotions
+                        - generic [ref=e264]: Yaacov Smukler — Goanna fund - SpaceX, Anthropic, OpenAI, Databricks and more
+                  - heading "Social" [level=3] [ref=e265]:
+                    - tab "Social" [ref=e266] [cursor=pointer]:
+                      - generic [ref=e271]: Social
+                  - heading "Updates, 7 new messages," [level=3] [ref=e272]:
+                    - tab "Updates, 7 new messages," [ref=e273] [cursor=pointer]:
+                      - generic [ref=e275]:
+                        - generic [ref=e277]:
+                          - generic [ref=e278]: 7 new
+                          - generic [ref=e279]: Updates
+                        - generic [ref=e280]: "Your Rougemount neighbours — Top post: Thank you for sharing…. We need to stay alert."
+                  - cell
+                  - cell
+                - row
+            - tabpanel "Primary" [ref=e283]:
+              - grid [ref=e286]:
+                - rowgroup [ref=e287]:
+                  - 'row "unread, Sway, Draft, Draft, Draft, Draft, Draft, Sway 11, v6 Phase 1 Test - Simplified Trigger - AMA, has attachment, 12:34 AM, From: Sway Clarke <swayfromthehook@gmail.com> Date: Sunday, 11. January 2026 at 00:31 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: FW: v6 Phase 1 Tes." [ref=e1775] [cursor=pointer]':
+                    - gridcell [ref=e2348]
+                    - 'gridcell "unread, Sway, Draft, Draft, Draft, Draft, Draft, Sway 11, v6 Phase 1 Test - Simplified Trigger - AMA, has attachment, 12:34 AM, From: Sway Clarke <swayfromthehook@gmail.com> Date: Sunday, 11. January 2026 at 00:31 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: FW: v6 Phase 1 Tes." [ref=e2349]':
+                      - 'checkbox "unread, Sway, Draft, Draft, Draft, Draft, Draft, Sway 11, v6 Phase 1 Test - Simplified Trigger - AMA, has attachment, 12:34 AM, From: Sway Clarke <swayfromthehook@gmail.com> Date: Sunday, 11. January 2026 at 00:31 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: FW: v6 Phase 1 Tes." [ref=e2350]'
+                    - gridcell "Not starred" [ref=e2351]:
+                      - button "Not starred" [ref=e2352]
+                    - gridcell "Not important" [ref=e2353]:
+                      - switch "Not important" [ref=e2354]
+                    - gridcell "Sway, Draft, Draft, Draft, Draft, Draft, Sway 11" [ref=e2356]:
+                      - generic [ref=e2357]:
+                        - generic [ref=e2358]: Sway, Draft, Draft, Draft, Draft, Draft, Sway
+                        - generic [ref=e2359]: "11"
+                    - 'gridcell "AMA v6 Phase 1 Test - Simplified Trigger - AMA - From: Sway Clarke <swayfromthehook@gmail.com> Date: Sunday, 11. January 2026 at 00:31 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: FW: v6 Phase 1 Tes Attachment: 251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf Attachment: 251103_Kalkulation Schlossberg.pdf Attachment: 251103_Kaufpreise Schlossberg.pdf" [ref=e2360]':
+                      - 'link "AMA v6 Phase 1 Test - Simplified Trigger - AMA - From: Sway Clarke <swayfromthehook@gmail.com> Date: Sunday, 11. January 2026 at 00:31 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: FW: v6 Phase 1 Tes" [ref=e2361]':
+                        - generic [ref=e2362]:
+                          - generic "AMA" [ref=e2365]:
+                            - generic [ref=e2367]: AMA
+                          - generic [ref=e2369]: v6 Phase 1 Test - Simplified Trigger - AMA
+                          - generic [ref=e2370]:
+                            - generic [ref=e2371]: "-"
+                            - text: "From: Sway Clarke <swayfromthehook@gmail.com> Date: Sunday, 11. January 2026 at 00:31 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: FW: v6 Phase 1 Tes"
+                      - generic [ref=e2372]:
+                        - generic "251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf" [ref=e2373]:
+                          - generic [ref=e2374]: "Attachment:"
+                          - img [ref=e2375]
+                          - generic [ref=e2376]: 251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf
+                        - generic "251103_Kalkulation Schlossberg.pdf" [ref=e2377]:
+                          - generic [ref=e2378]: "Attachment:"
+                          - img [ref=e2379]
+                          - generic [ref=e2380]: 251103_Kalkulation Schlossberg.pdf
+                        - generic "251103_Kaufpreise Schlossberg.pdf" [ref=e2381]:
+                          - generic [ref=e2382]: "Attachment:"
+                          - img [ref=e2383]
+                          - generic [ref=e2384]: 251103_Kaufpreise Schlossberg.pdf
+                    - gridcell [ref=e2385]
+                    - gridcell "Sun, Jan 11, 2026, 12:34 AM" [ref=e2386]:
+                      - generic "Sun, Jan 11, 2026, 12:34 AM" [ref=e2387]: 12:34 AM
+                    - gridcell
+                  - 'row "Draft, Draft, Draft, Sway 4, v6 Phase 1 Test - Simplified Trigger - AMA, has attachment, 4:35 PM, From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 16:23 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: FW: v6 Phase 1 T." [ref=e1816] [cursor=pointer]':
+                    - gridcell [ref=e2388]
+                    - 'gridcell "Draft, Draft, Draft, Sway 4, v6 Phase 1 Test - Simplified Trigger - AMA, has attachment, 4:35 PM, From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 16:23 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: FW: v6 Phase 1 T." [ref=e2389]':
+                      - 'checkbox "Draft, Draft, Draft, Sway 4, v6 Phase 1 Test - Simplified Trigger - AMA, has attachment, 4:35 PM, From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 16:23 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: FW: v6 Phase 1 T." [ref=e2390]'
+                    - gridcell "Not starred" [ref=e2391]:
+                      - button "Not starred" [ref=e2392]
+                    - gridcell "Not important" [ref=e2393]:
+                      - switch "Not important" [ref=e2394]
+                    - gridcell "Draft, Draft, Draft, Sway 4" [ref=e2396]:
+                      - generic [ref=e2397]:
+                        - generic [ref=e2398]: Draft, Draft, Draft, Sway
+                        - generic [ref=e2399]: "4"
+                    - 'gridcell "AMA v6 Phase 1 Test - Simplified Trigger - AMA - From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 16:23 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: FW: v6 Phase 1 T Attachment: 251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf Attachment: 251103_Kalkulation Schlossberg.pdf Attachment: 251103_Kaufpreise Schlossberg.pdf" [ref=e2400]':
+                      - 'link "AMA v6 Phase 1 Test - Simplified Trigger - AMA - From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 16:23 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: FW: v6 Phase 1 T" [ref=e2401]':
+                        - generic [ref=e2402]:
+                          - generic "AMA" [ref=e2405]:
+                            - generic [ref=e2407]: AMA
+                          - generic [ref=e2409]: v6 Phase 1 Test - Simplified Trigger - AMA
+                          - generic [ref=e2410]:
+                            - generic [ref=e2411]: "-"
+                            - text: "From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 16:23 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: FW: v6 Phase 1 T"
+                      - generic [ref=e2412]:
+                        - generic "251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf" [ref=e2413]:
+                          - generic [ref=e2414]: "Attachment:"
+                          - img [ref=e2415]
+                          - generic [ref=e2416]: 251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf
+                        - generic "251103_Kalkulation Schlossberg.pdf" [ref=e2417]:
+                          - generic [ref=e2418]: "Attachment:"
+                          - img [ref=e2419]
+                          - generic [ref=e2420]: 251103_Kalkulation Schlossberg.pdf
+                        - generic "251103_Kaufpreise Schlossberg.pdf" [ref=e2421]:
+                          - generic [ref=e2422]: "Attachment:"
+                          - img [ref=e2423]
+                          - generic [ref=e2424]: 251103_Kaufpreise Schlossberg.pdf
+                    - gridcell [ref=e2425]
+                    - gridcell "Sat, Jan 10, 2026, 4:35 PM" [ref=e2426]:
+                      - generic "Sat, Jan 10, 2026, 4:35 PM" [ref=e2427]: 4:35 PM
+                    - gridcell
+                  - 'row "Sway, Draft, Draft 5, v6 Phase 1 Test - Simplified Trigger - AMA, has attachment, 3:37 PM, From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 15:37 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: FW: v6 Phase 1 T." [ref=e1857] [cursor=pointer]':
+                    - gridcell [ref=e2428]
+                    - 'gridcell "Sway, Draft, Draft 5, v6 Phase 1 Test - Simplified Trigger - AMA, has attachment, 3:37 PM, From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 15:37 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: FW: v6 Phase 1 T." [ref=e2429]':
+                      - 'checkbox "Sway, Draft, Draft 5, v6 Phase 1 Test - Simplified Trigger - AMA, has attachment, 3:37 PM, From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 15:37 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: FW: v6 Phase 1 T." [ref=e2430]'
+                    - gridcell "Not starred" [ref=e2431]:
+                      - button "Not starred" [ref=e2432]
+                    - gridcell "Not important" [ref=e2433]:
+                      - switch "Not important" [ref=e2434]
+                    - gridcell "Sway, Draft, Draft 5" [ref=e2436]:
+                      - generic [ref=e2437]:
+                        - generic [ref=e2438]: Sway, Draft, Draft
+                        - generic [ref=e2439]: "5"
+                    - 'gridcell "AMA v6 Phase 1 Test - Simplified Trigger - AMA - From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 15:37 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: FW: v6 Phase 1 T Attachment: 251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf Attachment: 251103_Kalkulation Schlossberg.pdf Attachment: 251103_Kaufpreise Schlossberg.pdf" [ref=e2440]':
+                      - 'link "AMA v6 Phase 1 Test - Simplified Trigger - AMA - From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 15:37 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: FW: v6 Phase 1 T" [ref=e2441]':
+                        - generic [ref=e2442]:
+                          - generic "AMA" [ref=e2445]:
+                            - generic [ref=e2447]: AMA
+                          - generic [ref=e2449]: v6 Phase 1 Test - Simplified Trigger - AMA
+                          - generic [ref=e2450]:
+                            - generic [ref=e2451]: "-"
+                            - text: "From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 15:37 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: FW: v6 Phase 1 T"
+                      - generic [ref=e2452]:
+                        - generic "251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf" [ref=e2453]:
+                          - generic [ref=e2454]: "Attachment:"
+                          - img [ref=e2455]
+                          - generic [ref=e2456]: 251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf
+                        - generic "251103_Kalkulation Schlossberg.pdf" [ref=e2457]:
+                          - generic [ref=e2458]: "Attachment:"
+                          - img [ref=e2459]
+                          - generic [ref=e2460]: 251103_Kalkulation Schlossberg.pdf
+                        - generic "251103_Kaufpreise Schlossberg.pdf" [ref=e2461]:
+                          - generic [ref=e2462]: "Attachment:"
+                          - img [ref=e2463]
+                          - generic [ref=e2464]: 251103_Kaufpreise Schlossberg.pdf
+                    - gridcell [ref=e2465]
+                    - gridcell "Sat, Jan 10, 2026, 3:37 PM" [ref=e2466]:
+                      - generic "Sat, Jan 10, 2026, 3:37 PM" [ref=e2467]: 3:37 PM
+                    - gridcell
+                  - 'row "unread, Apple 2, Your invoice from Apple., 3:33 PM, Invoice 9. January 2026 Sequence: 1-12755678465 Order ID: MM9NMMBGLX Document: 824074962779 Apple Account: swayclarkeii@gmail.com tado° AI Assist / Auto-Assist (Monthly) Renews 10. February 2026 iPhone." [ref=e2468] [cursor=pointer]':
+                    - gridcell [ref=e2469]
+                    - 'gridcell "unread, Apple 2, Your invoice from Apple., 3:33 PM, Invoice 9. January 2026 Sequence: 1-12755678465 Order ID: MM9NMMBGLX Document: 824074962779 Apple Account: swayclarkeii@gmail.com tado° AI Assist / Auto-Assist (Monthly) Renews 10. February 2026 iPhone." [ref=e2470]':
+                      - 'checkbox "unread, Apple 2, Your invoice from Apple., 3:33 PM, Invoice 9. January 2026 Sequence: 1-12755678465 Order ID: MM9NMMBGLX Document: 824074962779 Apple Account: swayclarkeii@gmail.com tado° AI Assist / Auto-Assist (Monthly) Renews 10. February 2026 iPhone." [ref=e2471]'
+                    - gridcell "Not starred" [ref=e2472]:
+                      - button "Not starred" [ref=e2473]
+                    - gridcell "Not important" [ref=e2474]:
+                      - switch "Not important" [ref=e2475]
+                    - gridcell "Apple 2" [ref=e2477]:
+                      - generic [ref=e2478]:
+                        - generic [ref=e2479]: Apple
+                        - generic [ref=e2480]: "2"
+                    - 'gridcell "Invoices - Gmail Your invoice from Apple. - Invoice 9. January 2026 Sequence: 1-12755678465 Order ID: MM9NMMBGLX Document: 824074962779 Apple Account: swayclarkeii@gmail.com tado° AI Assist / Auto-Assist (Monthly) Renews 10. February 2026 iPhone" [ref=e2481]':
+                      - 'link "Invoices - Gmail Your invoice from Apple. - Invoice 9. January 2026 Sequence: 1-12755678465 Order ID: MM9NMMBGLX Document: 824074962779 Apple Account: swayclarkeii@gmail.com tado° AI Assist / Auto-Assist (Monthly) Renews 10. February 2026 iPhone" [ref=e2482]':
+                        - generic [ref=e2483]:
+                          - generic "Invoices - Gmail" [ref=e2486]:
+                            - generic [ref=e2488]: Invoices - Gmail
+                          - generic [ref=e2490]: Your invoice from Apple.
+                          - generic [ref=e2491]:
+                            - generic [ref=e2492]: "-"
+                            - text: "Invoice 9. January 2026 Sequence: 1-12755678465 Order ID: MM9NMMBGLX Document: 824074962779 Apple Account: swayclarkeii@gmail.com tado° AI Assist / Auto-Assist (Monthly) Renews 10. February 2026 iPhone"
+                    - gridcell [ref=e2493]
+                    - gridcell "Sat, Jan 10, 2026, 3:33 PM" [ref=e2494]:
+                      - generic "Sat, Jan 10, 2026, 3:33 PM" [ref=e2495]: 3:33 PM
+                    - gridcell
+                  - 'row "Sway, Draft 2, v6 Phase 1 Test - Simplified Trigger - AMA, has attachment, 1:09 PM, From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 13:09 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test ." [ref=e1926] [cursor=pointer]':
+                    - gridcell [ref=e2496]
+                    - 'gridcell "Sway, Draft 2, v6 Phase 1 Test - Simplified Trigger - AMA, has attachment, 1:09 PM, From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 13:09 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test ." [ref=e2497]':
+                      - 'checkbox "Sway, Draft 2, v6 Phase 1 Test - Simplified Trigger - AMA, has attachment, 1:09 PM, From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 13:09 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test ." [ref=e2498]'
+                    - gridcell "Not starred" [ref=e2499]:
+                      - button "Not starred" [ref=e2500]
+                    - gridcell "Not important" [ref=e2501]:
+                      - switch "Not important" [ref=e2502]
+                    - gridcell "Sway, Draft 2" [ref=e2504]:
+                      - generic [ref=e2505]:
+                        - generic [ref=e2506]: Sway, Draft
+                        - generic [ref=e2507]: "2"
+                    - 'gridcell "AMA v6 Phase 1 Test - Simplified Trigger - AMA - From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 13:09 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test Attachment: 251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf Attachment: 251103_Kalkulation Schlossberg.pdf Attachment: 251103_Kaufpreise Schlossberg.pdf" [ref=e2508]':
+                      - 'link "AMA v6 Phase 1 Test - Simplified Trigger - AMA - From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 13:09 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test" [ref=e2509]':
+                        - generic [ref=e2510]:
+                          - generic "AMA" [ref=e2513]:
+                            - generic [ref=e2515]: AMA
+                          - generic [ref=e2517]: v6 Phase 1 Test - Simplified Trigger - AMA
+                          - generic [ref=e2518]:
+                            - generic [ref=e2519]: "-"
+                            - text: "From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 13:09 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test"
+                      - generic [ref=e2520]:
+                        - generic "251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf" [ref=e2521]:
+                          - generic [ref=e2522]: "Attachment:"
+                          - img [ref=e2523]
+                          - generic [ref=e2524]: 251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf
+                        - generic "251103_Kalkulation Schlossberg.pdf" [ref=e2525]:
+                          - generic [ref=e2526]: "Attachment:"
+                          - img [ref=e2527]
+                          - generic [ref=e2528]: 251103_Kalkulation Schlossberg.pdf
+                        - generic "251103_Kaufpreise Schlossberg.pdf" [ref=e2529]:
+                          - generic [ref=e2530]: "Attachment:"
+                          - img [ref=e2531]
+                          - generic [ref=e2532]: 251103_Kaufpreise Schlossberg.pdf
+                    - gridcell [ref=e2533]
+                    - gridcell "Sat, Jan 10, 2026, 1:09 PM" [ref=e2534]:
+                      - generic "Sat, Jan 10, 2026, 1:09 PM" [ref=e2535]: 1:09 PM
+                    - gridcell
+                  - 'row "Sway, Draft 2, v6 Phase 1 Test - Simplified Trigger - AMA, has attachment, Jan 10, From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 12:44 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test ." [ref=e1967] [cursor=pointer]':
+                    - gridcell [ref=e2536]
+                    - 'gridcell "Sway, Draft 2, v6 Phase 1 Test - Simplified Trigger - AMA, has attachment, Jan 10, From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 12:44 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test ." [ref=e2537]':
+                      - 'checkbox "Sway, Draft 2, v6 Phase 1 Test - Simplified Trigger - AMA, has attachment, Jan 10, From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 12:44 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test ." [ref=e2538]'
+                    - gridcell "Not starred" [ref=e2539]:
+                      - button "Not starred" [ref=e2540]
+                    - gridcell "Not important" [ref=e2541]:
+                      - switch "Not important" [ref=e2542]
+                    - gridcell "Sway, Draft 2" [ref=e2544]:
+                      - generic [ref=e2545]:
+                        - generic [ref=e2546]: Sway, Draft
+                        - generic [ref=e2547]: "2"
+                    - 'gridcell "AMA v6 Phase 1 Test - Simplified Trigger - AMA - From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 12:44 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test Attachment: 251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf Attachment: 251103_Kalkulation Schlossberg.pdf Attachment: 251103_Kaufpreise Schlossberg.pdf" [ref=e2548]':
+                      - 'link "AMA v6 Phase 1 Test - Simplified Trigger - AMA - From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 12:44 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test" [ref=e2549]':
+                        - generic [ref=e2550]:
+                          - generic "AMA" [ref=e2553]:
+                            - generic [ref=e2555]: AMA
+                          - generic [ref=e2557]: v6 Phase 1 Test - Simplified Trigger - AMA
+                          - generic [ref=e2558]:
+                            - generic [ref=e2559]: "-"
+                            - text: "From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 12:44 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test"
+                      - generic [ref=e2560]:
+                        - generic "251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf" [ref=e2561]:
+                          - generic [ref=e2562]: "Attachment:"
+                          - img [ref=e2563]
+                          - generic [ref=e2564]: 251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf
+                        - generic "251103_Kalkulation Schlossberg.pdf" [ref=e2565]:
+                          - generic [ref=e2566]: "Attachment:"
+                          - img [ref=e2567]
+                          - generic [ref=e2568]: 251103_Kalkulation Schlossberg.pdf
+                        - generic "251103_Kaufpreise Schlossberg.pdf" [ref=e2569]:
+                          - generic [ref=e2570]: "Attachment:"
+                          - img [ref=e2571]
+                          - generic [ref=e2572]: 251103_Kaufpreise Schlossberg.pdf
+                    - gridcell [ref=e2573]
+                    - gridcell "Sat, Jan 10, 2026, 12:44 PM" [ref=e2574]:
+                      - generic "Sat, Jan 10, 2026, 12:44 PM" [ref=e2575]: Jan 10
+                    - gridcell
+                  - 'row "Sway, Draft 2, v6 Phase 1 Test - Simplified Trigger - AMA, has attachment, Jan 10, From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 12:27 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test ." [ref=e2008] [cursor=pointer]':
+                    - gridcell [ref=e2576]
+                    - 'gridcell "Sway, Draft 2, v6 Phase 1 Test - Simplified Trigger - AMA, has attachment, Jan 10, From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 12:27 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test ." [ref=e2577]':
+                      - 'checkbox "Sway, Draft 2, v6 Phase 1 Test - Simplified Trigger - AMA, has attachment, Jan 10, From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 12:27 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test ." [ref=e2578]'
+                    - gridcell "Not starred" [ref=e2579]:
+                      - button "Not starred" [ref=e2580]
+                    - gridcell "Not important" [ref=e2581]:
+                      - switch "Not important" [ref=e2582]
+                    - gridcell "Sway, Draft 2" [ref=e2584]:
+                      - generic [ref=e2585]:
+                        - generic [ref=e2586]: Sway, Draft
+                        - generic [ref=e2587]: "2"
+                    - 'gridcell "AMA v6 Phase 1 Test - Simplified Trigger - AMA - From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 12:27 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test Attachment: 251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf Attachment: 251103_Kalkulation Schlossberg.pdf Attachment: 251103_Kaufpreise Schlossberg.pdf" [ref=e2588]':
+                      - 'link "AMA v6 Phase 1 Test - Simplified Trigger - AMA - From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 12:27 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test" [ref=e2589]':
+                        - generic [ref=e2590]:
+                          - generic "AMA" [ref=e2593]:
+                            - generic [ref=e2595]: AMA
+                          - generic [ref=e2597]: v6 Phase 1 Test - Simplified Trigger - AMA
+                          - generic [ref=e2598]:
+                            - generic [ref=e2599]: "-"
+                            - text: "From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 12:27 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test"
+                      - generic [ref=e2600]:
+                        - generic "251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf" [ref=e2601]:
+                          - generic [ref=e2602]: "Attachment:"
+                          - img [ref=e2603]
+                          - generic [ref=e2604]: 251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf
+                        - generic "251103_Kalkulation Schlossberg.pdf" [ref=e2605]:
+                          - generic [ref=e2606]: "Attachment:"
+                          - img [ref=e2607]
+                          - generic [ref=e2608]: 251103_Kalkulation Schlossberg.pdf
+                        - generic "251103_Kaufpreise Schlossberg.pdf" [ref=e2609]:
+                          - generic [ref=e2610]: "Attachment:"
+                          - img [ref=e2611]
+                          - generic [ref=e2612]: 251103_Kaufpreise Schlossberg.pdf
+                    - gridcell [ref=e2613]
+                    - gridcell "Sat, Jan 10, 2026, 12:27 PM" [ref=e2614]:
+                      - generic "Sat, Jan 10, 2026, 12:27 PM" [ref=e2615]: Jan 10
+                    - gridcell
+                  - 'row "Sway, Draft 2, v6 Phase 1 Test - Simplified Trigger, has attachment, Jan 10, From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 12:14 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test ." [ref=e2049] [cursor=pointer]':
+                    - gridcell [ref=e2616]
+                    - 'gridcell "Sway, Draft 2, v6 Phase 1 Test - Simplified Trigger, has attachment, Jan 10, From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 12:14 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test ." [ref=e2617]':
+                      - 'checkbox "Sway, Draft 2, v6 Phase 1 Test - Simplified Trigger, has attachment, Jan 10, From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 12:14 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test ." [ref=e2618]'
+                    - gridcell "Not starred" [ref=e2619]:
+                      - button "Not starred" [ref=e2620]
+                    - gridcell "Not important" [ref=e2621]:
+                      - switch "Not important" [ref=e2622]
+                    - gridcell "Sway, Draft 2" [ref=e2624]:
+                      - generic [ref=e2625]:
+                        - generic [ref=e2626]: Sway, Draft
+                        - generic [ref=e2627]: "2"
+                    - 'gridcell "AMA v6 Phase 1 Test - Simplified Trigger - From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 12:14 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test Attachment: 251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf Attachment: 251103_Kalkulation Schlossberg.pdf Attachment: 251103_Kaufpreise Schlossberg.pdf" [ref=e2628]':
+                      - 'link "AMA v6 Phase 1 Test - Simplified Trigger - From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 12:14 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test" [ref=e2629]':
+                        - generic [ref=e2630]:
+                          - generic "AMA" [ref=e2633]:
+                            - generic [ref=e2635]: AMA
+                          - generic [ref=e2637]: v6 Phase 1 Test - Simplified Trigger
+                          - generic [ref=e2638]:
+                            - generic [ref=e2639]: "-"
+                            - text: "From: Sway Clarke <swayfromthehook@gmail.com> Date: Saturday, 10. January 2026 at 12:14 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test"
+                      - generic [ref=e2640]:
+                        - generic "251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf" [ref=e2641]:
+                          - generic [ref=e2642]: "Attachment:"
+                          - img [ref=e2643]
+                          - generic [ref=e2644]: 251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf
+                        - generic "251103_Kalkulation Schlossberg.pdf" [ref=e2645]:
+                          - generic [ref=e2646]: "Attachment:"
+                          - img [ref=e2647]
+                          - generic [ref=e2648]: 251103_Kalkulation Schlossberg.pdf
+                        - generic "251103_Kaufpreise Schlossberg.pdf" [ref=e2649]:
+                          - generic [ref=e2650]: "Attachment:"
+                          - img [ref=e2651]
+                          - generic [ref=e2652]: 251103_Kaufpreise Schlossberg.pdf
+                    - gridcell [ref=e2653]
+                    - gridcell "Sat, Jan 10, 2026, 12:14 PM" [ref=e2654]:
+                      - generic "Sat, Jan 10, 2026, 12:14 PM" [ref=e2655]: Jan 10
+                    - gridcell
+                  - row "unread, Questrade Success T., Tax slips—what to expect and when to expect them, Jan 9, Here's what you need to know ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ." [ref=e2090] [cursor=pointer]:
+                    - gridcell [ref=e2091]
+                    - gridcell "unread, Questrade Success T., Tax slips—what to expect and when to expect them, Jan 9, Here's what you need to know ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ." [ref=e2092]:
+                      - checkbox "unread, Questrade Success T., Tax slips—what to expect and when to expect them, Jan 9, Here's what you need to know ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ." [ref=e2093]
+                    - gridcell "Not starred" [ref=e2094]:
+                      - button "Not starred" [ref=e2095]
+                    - gridcell "Not important" [ref=e2096]:
+                      - switch "Not important" [ref=e2097]
+                    - gridcell "Questrade Success T." [ref=e2099]:
+                      - generic [ref=e2101]: Questrade Success T.
+                    - gridcell "Tax slips—what to expect and when to expect them - Here's what you need to know ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌" [ref=e2102]:
+                      - link "Tax slips—what to expect and when to expect them - Here's what you need to know ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌" [ref=e2103]:
+                        - generic [ref=e2104]:
+                          - generic [ref=e2106]: Tax slips—what to expect and when to expect them
+                          - generic [ref=e2107]:
+                            - generic [ref=e2108]: "-"
+                            - text: Here's what you need to know ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌
+                    - gridcell [ref=e2109]
+                    - gridcell "Fri, Jan 9, 2026, 8:04 PM" [ref=e2110]:
+                      - generic "Fri, Jan 9, 2026, 8:04 PM" [ref=e2111]: Jan 9
+                    - gridcell
+                  - row "unread, The Batch @ DeepLea., LLMs Go To Confession, Automated Scientific Research, What Copilot Users Want, Reasoning For Less, Jan 9, We just launched a course that shows people who have never coded before, in less than 30 minutes, how to describe an idea for an app and build it using AI. View." [ref=e2112] [cursor=pointer]:
+                    - gridcell [ref=e2113]
+                    - gridcell "unread, The Batch @ DeepLea., LLMs Go To Confession, Automated Scientific Research, What Copilot Users Want, Reasoning For Less, Jan 9, We just launched a course that shows people who have never coded before, in less than 30 minutes, how to describe an idea for an app and build it using AI. View." [ref=e2114]:
+                      - checkbox "unread, The Batch @ DeepLea., LLMs Go To Confession, Automated Scientific Research, What Copilot Users Want, Reasoning For Less, Jan 9, We just launched a course that shows people who have never coded before, in less than 30 minutes, how to describe an idea for an app and build it using AI. View." [ref=e2115]
+                    - gridcell "Not starred" [ref=e2116]:
+                      - button "Not starred" [ref=e2117]
+                    - gridcell "Not important" [ref=e2118]:
+                      - switch "Not important" [ref=e2119]
+                    - gridcell "The Batch @ DeepLea." [ref=e2121]:
+                      - generic [ref=e2123]: The Batch @ DeepLea.
+                    - gridcell "LLMs Go To Confession, Automated Scientific Research, What Copilot Users Want, Reasoning For Less - We just launched a course that shows people who have never coded before, in less than 30 minutes, how to describe an idea for an app and build it using AI. View" [ref=e2124]:
+                      - link "LLMs Go To Confession, Automated Scientific Research, What Copilot Users Want, Reasoning For Less - We just launched a course that shows people who have never coded before, in less than 30 minutes, how to describe an idea for an app and build it using AI. View" [ref=e2126]:
+                        - generic [ref=e2127]:
+                          - generic [ref=e2129]: LLMs Go To Confession, Automated Scientific Research, What Copilot Users Want, Reasoning For Less
+                          - generic:
+                            - generic [ref=e2130]: "-"
+                            - text: We just launched a course that shows people who have never coded before, in less than 30 minutes, how to describe an idea for an app and build it using AI. View
+                    - gridcell [ref=e2131]
+                    - gridcell "Fri, Jan 9, 2026, 6:04 PM" [ref=e2132]:
+                      - generic "Fri, Jan 9, 2026, 6:04 PM" [ref=e2133]: Jan 9
+                    - gridcell
+                  - 'row "Sway, Draft 2, v6 Phase 1 Test - Simplified Trigger, has attachment, Jan 9, From: Sway Clarke <swayfromthehook@gmail.com> Date: Friday, 9. January 2026 at 17:33 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test - S." [ref=e2656] [cursor=pointer]':
+                    - gridcell [ref=e2657]
+                    - 'gridcell "Sway, Draft 2, v6 Phase 1 Test - Simplified Trigger, has attachment, Jan 9, From: Sway Clarke <swayfromthehook@gmail.com> Date: Friday, 9. January 2026 at 17:33 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test - S." [ref=e2658]':
+                      - 'checkbox "Sway, Draft 2, v6 Phase 1 Test - Simplified Trigger, has attachment, Jan 9, From: Sway Clarke <swayfromthehook@gmail.com> Date: Friday, 9. January 2026 at 17:33 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test - S." [ref=e2659]'
+                    - gridcell "Not starred" [ref=e2660]:
+                      - button "Not starred" [ref=e2661]
+                    - gridcell "Not important" [ref=e2662]:
+                      - switch "Not important" [ref=e2663]
+                    - gridcell "Sway, Draft 2" [ref=e2665]:
+                      - generic [ref=e2666]:
+                        - generic [ref=e2667]: Sway, Draft
+                        - generic [ref=e2668]: "2"
+                    - 'gridcell "AMA v6 Phase 1 Test - Simplified Trigger - From: Sway Clarke <swayfromthehook@gmail.com> Date: Friday, 9. January 2026 at 17:33 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test - S Attachment: 251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf Attachment: 251103_Kalkulation Schlossberg.pdf Attachment: 251103_Kaufpreise Schlossberg.pdf" [ref=e2669]':
+                      - 'link "AMA v6 Phase 1 Test - Simplified Trigger - From: Sway Clarke <swayfromthehook@gmail.com> Date: Friday, 9. January 2026 at 17:33 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test - S" [ref=e2670]':
+                        - generic [ref=e2671]:
+                          - generic "AMA" [ref=e2674]:
+                            - generic [ref=e2676]: AMA
+                          - generic [ref=e2678]: v6 Phase 1 Test - Simplified Trigger
+                          - generic [ref=e2679]:
+                            - generic [ref=e2680]: "-"
+                            - text: "From: Sway Clarke <swayfromthehook@gmail.com> Date: Friday, 9. January 2026 at 17:33 To: Steve Sway Clarke <swayclarkeii@gmail.com> Subject: v6 Phase 1 Test - S"
+                      - generic [ref=e2681]:
+                        - generic "251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf" [ref=e2682]:
+                          - generic [ref=e2683]: "Attachment:"
+                          - img [ref=e2684]
+                          - generic [ref=e2685]: 251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf
+                        - generic "251103_Kalkulation Schlossberg.pdf" [ref=e2686]:
+                          - generic [ref=e2687]: "Attachment:"
+                          - img [ref=e2688]
+                          - generic [ref=e2689]: 251103_Kalkulation Schlossberg.pdf
+                        - generic "251103_Kaufpreise Schlossberg.pdf" [ref=e2690]:
+                          - generic [ref=e2691]: "Attachment:"
+                          - img [ref=e2692]
+                          - generic [ref=e2693]: 251103_Kaufpreise Schlossberg.pdf
+                    - gridcell [ref=e2694]
+                    - gridcell "Fri, Jan 9, 2026, 5:33 PM" [ref=e2695]:
+                      - generic "Fri, Jan 9, 2026, 5:33 PM" [ref=e2696]: Jan 9
+                    - gridcell
+                  - row "unread, Apify, Update to Apify General Terms and Conditions, Jan 9, Apify logo Hello Sway, We're reaching out to let you know that we've updated our General Terms and Conditions. These updates reflect how Apify has grown and will help us serve you better.." [ref=e690] [cursor=pointer]:
+                    - gridcell [ref=e691]
+                    - gridcell "unread, Apify, Update to Apify General Terms and Conditions, Jan 9, Apify logo Hello Sway, We're reaching out to let you know that we've updated our General Terms and Conditions. These updates reflect how Apify has grown and will help us serve you better.." [ref=e692]:
+                      - checkbox "unread, Apify, Update to Apify General Terms and Conditions, Jan 9, Apify logo Hello Sway, We're reaching out to let you know that we've updated our General Terms and Conditions. These updates reflect how Apify has grown and will help us serve you better.." [ref=e693]
+                    - gridcell "Not starred" [ref=e694]:
+                      - button "Not starred" [ref=e695]
+                    - gridcell "Not important" [ref=e696]:
+                      - switch "Not important" [ref=e697]
+                    - gridcell "Apify" [ref=e699]:
+                      - generic [ref=e701]: Apify
+                    - gridcell "Update to Apify General Terms and Conditions - Apify logo Hello Sway, We're reaching out to let you know that we've updated our General Terms and Conditions. These updates reflect how Apify has grown and will help us serve you better." [ref=e702]:
+                      - link "Update to Apify General Terms and Conditions - Apify logo Hello Sway, We're reaching out to let you know that we've updated our General Terms and Conditions. These updates reflect how Apify has grown and will help us serve you better." [ref=e704]:
+                        - generic [ref=e705]:
+                          - generic [ref=e707]: Update to Apify General Terms and Conditions
+                          - generic [ref=e708]:
+                            - generic [ref=e709]: "-"
+                            - text: Apify logo Hello Sway, We're reaching out to let you know that we've updated our General Terms and Conditions. These updates reflect how Apify has grown and will help us serve you better.
+                    - gridcell [ref=e710]
+                    - gridcell "Fri, Jan 9, 2026, 5:14 PM" [ref=e711]:
+                      - generic "Fri, Jan 9, 2026, 5:14 PM" [ref=e712]: Jan 9
+                    - gridcell
+                  - 'row "Eugene, Draft 2, v6 Phase 1 Test - Simplified Trigger, Jan 9, From: Eugene v6 Test <swayfromthehook@gmail.com> Date: Friday, 9. January 2026 at 16:01 To: swayclarkeii@gmail.com <swayclarkeii@gmail.com> Subject: v6 Phase 1 ." [ref=e2697] [cursor=pointer]':
+                    - gridcell [ref=e2698]
+                    - 'gridcell "Eugene, Draft 2, v6 Phase 1 Test - Simplified Trigger, Jan 9, From: Eugene v6 Test <swayfromthehook@gmail.com> Date: Friday, 9. January 2026 at 16:01 To: swayclarkeii@gmail.com <swayclarkeii@gmail.com> Subject: v6 Phase 1 ." [ref=e2699]':
+                      - 'checkbox "Eugene, Draft 2, v6 Phase 1 Test - Simplified Trigger, Jan 9, From: Eugene v6 Test <swayfromthehook@gmail.com> Date: Friday, 9. January 2026 at 16:01 To: swayclarkeii@gmail.com <swayclarkeii@gmail.com> Subject: v6 Phase 1 ." [ref=e2700]'
+                    - gridcell "Not starred" [ref=e2701]:
+                      - button "Not starred" [ref=e2702]
+                    - gridcell "Not important" [ref=e2703]:
+                      - switch "Not important" [ref=e2704]
+                    - gridcell "Eugene, Draft 2" [ref=e2706]:
+                      - generic [ref=e2707]:
+                        - generic [ref=e2708]: Eugene, Draft
+                        - generic [ref=e2709]: "2"
+                    - 'gridcell "v6 Phase 1 Test - Simplified Trigger - From: Eugene v6 Test <swayfromthehook@gmail.com> Date: Friday, 9. January 2026 at 16:01 To: swayclarkeii@gmail.com <swayclarkeii@gmail.com> Subject: v6 Phase 1" [ref=e2710]':
+                      - 'link "v6 Phase 1 Test - Simplified Trigger - From: Eugene v6 Test <swayfromthehook@gmail.com> Date: Friday, 9. January 2026 at 16:01 To: swayclarkeii@gmail.com <swayclarkeii@gmail.com> Subject: v6 Phase 1" [ref=e2711]':
+                        - generic [ref=e2712]:
+                          - generic [ref=e2714]: v6 Phase 1 Test - Simplified Trigger
+                          - generic [ref=e2715]:
+                            - generic [ref=e2716]: "-"
+                            - text: "From: Eugene v6 Test <swayfromthehook@gmail.com> Date: Friday, 9. January 2026 at 16:01 To: swayclarkeii@gmail.com <swayclarkeii@gmail.com> Subject: v6 Phase 1"
+                    - gridcell [ref=e2717]
+                    - gridcell "Fri, Jan 9, 2026, 4:01 PM" [ref=e2718]:
+                      - generic "Fri, Jan 9, 2026, 4:01 PM" [ref=e2719]: Jan 9
+                    - gridcell
+                  - row "Expensify, Want more SmartScans?, Jan 9, Hi there Sway, You've used all 25 of your free SmartScans for this month. Click here to get unlimited SmartScans for only $4.99 per month.." [ref=e736] [cursor=pointer]:
+                    - gridcell [ref=e737]
+                    - gridcell "Expensify, Want more SmartScans?, Jan 9, Hi there Sway, You've used all 25 of your free SmartScans for this month. Click here to get unlimited SmartScans for only $4.99 per month.." [ref=e738]:
+                      - checkbox "Expensify, Want more SmartScans?, Jan 9, Hi there Sway, You've used all 25 of your free SmartScans for this month. Click here to get unlimited SmartScans for only $4.99 per month.." [ref=e739]
+                    - gridcell "Not starred" [ref=e740]:
+                      - button "Not starred" [ref=e741]
+                    - gridcell "Not important" [ref=e742]:
+                      - switch "Not important" [ref=e743]
+                    - gridcell "Expensify" [ref=e745]:
+                      - generic [ref=e747]: Expensify
+                    - gridcell "Want more SmartScans? - Hi there Sway, You've used all 25 of your free SmartScans for this month. Click here to get unlimited SmartScans for only $4.99 per month." [ref=e748]:
+                      - link "Want more SmartScans? - Hi there Sway, You've used all 25 of your free SmartScans for this month. Click here to get unlimited SmartScans for only $4.99 per month." [ref=e749]:
+                        - generic [ref=e750]:
+                          - generic [ref=e752]: Want more SmartScans?
+                          - generic [ref=e753]:
+                            - generic [ref=e754]: "-"
+                            - text: Hi there Sway, You've used all 25 of your free SmartScans for this month. Click here to get unlimited SmartScans for only $4.99 per month.
+                    - gridcell [ref=e755]
+                    - gridcell "Fri, Jan 9, 2026, 3:32 PM" [ref=e756]:
+                      - generic "Fri, Jan 9, 2026, 3:32 PM" [ref=e757]: Jan 9
+                    - gridcell
+                  - 'row "unread, Expensify Concierge., Expensify Chat for Sway, Jan 9, Here''s what you missed: Concierge Jan 9, 2026 at 03:21 PM the receipt couldn''t be scanned, as it''s missing a merchant, date, or amount. Open in Expensify Reply to this message or open it in." [ref=e758] [cursor=pointer]':
+                    - gridcell [ref=e759]
+                    - 'gridcell "unread, Expensify Concierge., Expensify Chat for Sway, Jan 9, Here''s what you missed: Concierge Jan 9, 2026 at 03:21 PM the receipt couldn''t be scanned, as it''s missing a merchant, date, or amount. Open in Expensify Reply to this message or open it in." [ref=e760]':
+                      - 'checkbox "unread, Expensify Concierge., Expensify Chat for Sway, Jan 9, Here''s what you missed: Concierge Jan 9, 2026 at 03:21 PM the receipt couldn''t be scanned, as it''s missing a merchant, date, or amount. Open in Expensify Reply to this message or open it in." [ref=e761]'
+                    - gridcell "Not starred" [ref=e762]:
+                      - button "Not starred" [ref=e763]
+                    - gridcell "Not important" [ref=e764]:
+                      - switch "Not important" [ref=e765]
+                    - gridcell "Expensify Concierge." [ref=e767]:
+                      - generic [ref=e769]: Expensify Concierge.
+                    - 'gridcell "Expensify Chat for Sway - Here''s what you missed: Concierge Jan 9, 2026 at 03:21 PM the receipt couldn''t be scanned, as it''s missing a merchant, date, or amount. Open in Expensify Reply to this message or open it in" [ref=e770]':
+                      - 'link "Expensify Chat for Sway - Here''s what you missed: Concierge Jan 9, 2026 at 03:21 PM the receipt couldn''t be scanned, as it''s missing a merchant, date, or amount. Open in Expensify Reply to this message or open it in" [ref=e771]':
+                        - generic [ref=e772]:
+                          - generic [ref=e774]: Expensify Chat for Sway
+                          - generic [ref=e775]:
+                            - generic [ref=e776]: "-"
+                            - text: "Here's what you missed: Concierge Jan 9, 2026 at 03:21 PM the receipt couldn't be scanned, as it's missing a merchant, date, or amount. Open in Expensify Reply to this message or open it in"
+                    - gridcell [ref=e777]
+                    - gridcell "Fri, Jan 9, 2026, 3:31 PM" [ref=e778]:
+                      - generic "Fri, Jan 9, 2026, 3:31 PM" [ref=e779]: Jan 9
+                    - gridcell
+                  - 'row "Leonor Zuzarte, Accepted: Sindbad Iksel and Sway Clarke @ Thu Jan 15, 2026 11am - 11:45am (GMT+1) (swayclarkeii@gmail.com), has attachment, Jan 9, Sindbad Iksel and Sway Clarke Leonor Zuzarte has accepted this invitation. Join with Google Meet Meeting link meet.google.com/efb-xbgr-yct Event Name Discovery Call A simple and quick chat to." [ref=e780] [cursor=pointer]':
+                    - gridcell [ref=e781]
+                    - 'gridcell "Leonor Zuzarte, Accepted: Sindbad Iksel and Sway Clarke @ Thu Jan 15, 2026 11am - 11:45am (GMT+1) (swayclarkeii@gmail.com), has attachment, Jan 9, Sindbad Iksel and Sway Clarke Leonor Zuzarte has accepted this invitation. Join with Google Meet Meeting link meet.google.com/efb-xbgr-yct Event Name Discovery Call A simple and quick chat to." [ref=e782]':
+                      - 'checkbox "Leonor Zuzarte, Accepted: Sindbad Iksel and Sway Clarke @ Thu Jan 15, 2026 11am - 11:45am (GMT+1) (swayclarkeii@gmail.com), has attachment, Jan 9, Sindbad Iksel and Sway Clarke Leonor Zuzarte has accepted this invitation. Join with Google Meet Meeting link meet.google.com/efb-xbgr-yct Event Name Discovery Call A simple and quick chat to." [ref=e783]'
+                    - gridcell "Not starred" [ref=e784]:
+                      - button "Not starred" [ref=e785]
+                    - gridcell "Not important" [ref=e786]:
+                      - switch "Not important" [ref=e787]
+                    - gridcell "Leonor Zuzarte" [ref=e789]:
+                      - generic [ref=e791]: Leonor Zuzarte
+                    - 'gridcell "Accepted: Sindbad Iksel and Sway Clarke @ Thu Jan 15, 2026 11am - 11:45am (GMT+1) (swayclarkeii@gmail.com) - Sindbad Iksel and Sway Clarke Leonor Zuzarte has accepted this invitation. Join with Google Meet Meeting link meet.google.com/efb-xbgr-yct Event Name Discovery Call A simple and quick chat to" [ref=e792]':
+                      - 'link "Accepted: Sindbad Iksel and Sway Clarke @ Thu Jan 15, 2026 11am - 11:45am (GMT+1) (swayclarkeii@gmail.com) - Sindbad Iksel and Sway Clarke Leonor Zuzarte has accepted this invitation. Join with Google Meet Meeting link meet.google.com/efb-xbgr-yct Event Name Discovery Call A simple and quick chat to" [ref=e793]':
+                        - generic [ref=e794]:
+                          - generic [ref=e796]: "Accepted: Sindbad Iksel and Sway Clarke @ Thu Jan 15, 2026 11am - 11:45am (GMT+1) (swayclarkeii@gmail.com)"
+                          - generic:
+                            - generic [ref=e797]: "-"
+                            - text: Sindbad Iksel and Sway Clarke Leonor Zuzarte has accepted this invitation. Join with Google Meet Meeting link meet.google.com/efb-xbgr-yct Event Name Discovery Call A simple and quick chat to
+                    - gridcell "Calendar event" [ref=e798]:
+                      - img "Calendar event" [ref=e799]
+                    - gridcell "Fri, Jan 9, 2026, 3:13 PM" [ref=e800]:
+                      - generic "Fri, Jan 9, 2026, 3:13 PM" [ref=e801]: Jan 9
+                    - gridcell
+                  - 'row "sindbad ambushed.tv, Accepted: Sindbad Iksel and Sway Clarke @ Thu Jan 15, 2026 11am - 11:45am (GMT+1) (swayclarkeii@gmail.com), has attachment, Jan 9, Sindbad Iksel and Sway Clarke sindbad ambushed.tv has accepted this invitation. Join with Google Meet Meeting link meet.google.com/efb-xbgr-yct Event Name Discovery Call A simple and quick chat to." [ref=e802] [cursor=pointer]':
+                    - gridcell [ref=e803]
+                    - 'gridcell "sindbad ambushed.tv, Accepted: Sindbad Iksel and Sway Clarke @ Thu Jan 15, 2026 11am - 11:45am (GMT+1) (swayclarkeii@gmail.com), has attachment, Jan 9, Sindbad Iksel and Sway Clarke sindbad ambushed.tv has accepted this invitation. Join with Google Meet Meeting link meet.google.com/efb-xbgr-yct Event Name Discovery Call A simple and quick chat to." [ref=e804]':
+                      - 'checkbox "sindbad ambushed.tv, Accepted: Sindbad Iksel and Sway Clarke @ Thu Jan 15, 2026 11am - 11:45am (GMT+1) (swayclarkeii@gmail.com), has attachment, Jan 9, Sindbad Iksel and Sway Clarke sindbad ambushed.tv has accepted this invitation. Join with Google Meet Meeting link meet.google.com/efb-xbgr-yct Event Name Discovery Call A simple and quick chat to." [ref=e805]'
+                    - gridcell "Not starred" [ref=e806]:
+                      - button "Not starred" [ref=e807]
+                    - gridcell "Not important" [ref=e808]:
+                      - switch "Not important" [ref=e809]
+                    - gridcell "sindbad ambushed.tv" [ref=e811]:
+                      - generic [ref=e813]: sindbad ambushed.tv
+                    - 'gridcell "Accepted: Sindbad Iksel and Sway Clarke @ Thu Jan 15, 2026 11am - 11:45am (GMT+1) (swayclarkeii@gmail.com) - Sindbad Iksel and Sway Clarke sindbad ambushed.tv has accepted this invitation. Join with Google Meet Meeting link meet.google.com/efb-xbgr-yct Event Name Discovery Call A simple and quick chat to" [ref=e814]':
+                      - 'link "Accepted: Sindbad Iksel and Sway Clarke @ Thu Jan 15, 2026 11am - 11:45am (GMT+1) (swayclarkeii@gmail.com) - Sindbad Iksel and Sway Clarke sindbad ambushed.tv has accepted this invitation. Join with Google Meet Meeting link meet.google.com/efb-xbgr-yct Event Name Discovery Call A simple and quick chat to" [ref=e815]':
+                        - generic [ref=e816]:
+                          - generic [ref=e818]: "Accepted: Sindbad Iksel and Sway Clarke @ Thu Jan 15, 2026 11am - 11:45am (GMT+1) (swayclarkeii@gmail.com)"
+                          - generic:
+                            - generic [ref=e819]: "-"
+                            - text: Sindbad Iksel and Sway Clarke sindbad ambushed.tv has accepted this invitation. Join with Google Meet Meeting link meet.google.com/efb-xbgr-yct Event Name Discovery Call A simple and quick chat to
+                    - gridcell "Calendar event" [ref=e820]:
+                      - img "Calendar event" [ref=e821]
+                    - gridcell "Fri, Jan 9, 2026, 2:50 PM" [ref=e822]:
+                      - generic "Fri, Jan 9, 2026, 2:50 PM" [ref=e823]: Jan 9
+                    - gridcell
+                  - 'row "Sindbad Iksel, Accepted: Sindbad Iksel and Sway Clarke @ Tue Jan 13, 2026 11am - 11:45am (GMT+1) (swayclarkeii@gmail.com), has attachment, Jan 9, Sindbad Iksel and Sway Clarke Sindbad Iksel has accepted this invitation. Join with Google Meet Meeting link meet.google.com/vdv-hkup-yxh Event Name Discovery Call A simple and quick chat to understand." [ref=e824] [cursor=pointer]':
+                    - gridcell [ref=e825]
+                    - 'gridcell "Sindbad Iksel, Accepted: Sindbad Iksel and Sway Clarke @ Tue Jan 13, 2026 11am - 11:45am (GMT+1) (swayclarkeii@gmail.com), has attachment, Jan 9, Sindbad Iksel and Sway Clarke Sindbad Iksel has accepted this invitation. Join with Google Meet Meeting link meet.google.com/vdv-hkup-yxh Event Name Discovery Call A simple and quick chat to understand." [ref=e826]':
+                      - 'checkbox "Sindbad Iksel, Accepted: Sindbad Iksel and Sway Clarke @ Tue Jan 13, 2026 11am - 11:45am (GMT+1) (swayclarkeii@gmail.com), has attachment, Jan 9, Sindbad Iksel and Sway Clarke Sindbad Iksel has accepted this invitation. Join with Google Meet Meeting link meet.google.com/vdv-hkup-yxh Event Name Discovery Call A simple and quick chat to understand." [ref=e827]'
+                    - gridcell "Not starred" [ref=e828]:
+                      - button "Not starred" [ref=e829]
+                    - gridcell "Not important" [ref=e830]:
+                      - switch "Not important" [ref=e831]
+                    - gridcell "Sindbad Iksel" [ref=e833]:
+                      - generic [ref=e835]: Sindbad Iksel
+                    - 'gridcell "Accepted: Sindbad Iksel and Sway Clarke @ Tue Jan 13, 2026 11am - 11:45am (GMT+1) (swayclarkeii@gmail.com) - Sindbad Iksel and Sway Clarke Sindbad Iksel has accepted this invitation. Join with Google Meet Meeting link meet.google.com/vdv-hkup-yxh Event Name Discovery Call A simple and quick chat to understand" [ref=e836]':
+                      - 'link "Accepted: Sindbad Iksel and Sway Clarke @ Tue Jan 13, 2026 11am - 11:45am (GMT+1) (swayclarkeii@gmail.com) - Sindbad Iksel and Sway Clarke Sindbad Iksel has accepted this invitation. Join with Google Meet Meeting link meet.google.com/vdv-hkup-yxh Event Name Discovery Call A simple and quick chat to understand" [ref=e837]':
+                        - generic [ref=e838]:
+                          - generic [ref=e840]: "Accepted: Sindbad Iksel and Sway Clarke @ Tue Jan 13, 2026 11am - 11:45am (GMT+1) (swayclarkeii@gmail.com)"
+                          - generic:
+                            - generic [ref=e841]: "-"
+                            - text: Sindbad Iksel and Sway Clarke Sindbad Iksel has accepted this invitation. Join with Google Meet Meeting link meet.google.com/vdv-hkup-yxh Event Name Discovery Call A simple and quick chat to understand
+                    - gridcell "Calendar event" [ref=e842]:
+                      - img "Calendar event" [ref=e843]
+                    - gridcell "Fri, Jan 9, 2026, 2:40 PM" [ref=e844]:
+                      - generic "Fri, Jan 9, 2026, 2:40 PM" [ref=e845]: Jan 9
+                    - gridcell
+                  - row "unread, service@paypal.de, You sent a payment, Jan 9, Steve Marcus Randal Sway II Clarke, here's your receipt. Hello, Steve Marcus Randal Sway II Clarke You sent 29,00 € EUR to Suzan Sari Transaction Details Transaction ID 4W879661XP478073M." [ref=e846] [cursor=pointer]:
+                    - gridcell [ref=e847]
+                    - gridcell "unread, service@paypal.de, You sent a payment, Jan 9, Steve Marcus Randal Sway II Clarke, here's your receipt. Hello, Steve Marcus Randal Sway II Clarke You sent 29,00 € EUR to Suzan Sari Transaction Details Transaction ID 4W879661XP478073M." [ref=e848]:
+                      - checkbox "unread, service@paypal.de, You sent a payment, Jan 9, Steve Marcus Randal Sway II Clarke, here's your receipt. Hello, Steve Marcus Randal Sway II Clarke You sent 29,00 € EUR to Suzan Sari Transaction Details Transaction ID 4W879661XP478073M." [ref=e849]
+                    - gridcell "Not starred" [ref=e850]:
+                      - button "Not starred" [ref=e851]
+                    - gridcell "Not important" [ref=e852]:
+                      - switch "Not important" [ref=e853]
+                    - gridcell "service@paypal.de" [ref=e855]:
+                      - generic [ref=e857]: service@paypal.de
+                    - gridcell "Invoices - Gmail You sent a payment - Steve Marcus Randal Sway II Clarke, here's your receipt. Hello, Steve Marcus Randal Sway II Clarke You sent 29,00 € EUR to Suzan Sari Transaction Details Transaction ID 4W879661XP478073M" [ref=e858]:
+                      - link "Invoices - Gmail You sent a payment - Steve Marcus Randal Sway II Clarke, here's your receipt. Hello, Steve Marcus Randal Sway II Clarke You sent 29,00 € EUR to Suzan Sari Transaction Details Transaction ID 4W879661XP478073M" [ref=e859]:
+                        - generic [ref=e860]:
+                          - generic "Invoices - Gmail" [ref=e863]:
+                            - generic [ref=e865]: Invoices - Gmail
+                          - generic [ref=e867]: You sent a payment
+                          - generic [ref=e868]:
+                            - generic [ref=e869]: "-"
+                            - text: Steve Marcus Randal Sway II Clarke, here's your receipt. Hello, Steve Marcus Randal Sway II Clarke You sent 29,00 € EUR to Suzan Sari Transaction Details Transaction ID 4W879661XP478073M
+                    - gridcell [ref=e870]
+                    - gridcell "Fri, Jan 9, 2026, 1:20 PM" [ref=e871]:
+                      - generic "Fri, Jan 9, 2026, 1:20 PM" [ref=e872]: Jan 9
+                    - gridcell
+                  - row "unread, service@paypal.de, There's been a change to your WSJ/BAR/MW automatic payment, Jan 9, You have successfully canceled this automatic payment. Hello, Steve Marcus Randal Sway II Clarke Your automatic payment was canceled You successfully canceled the following automatic payment. You will." [ref=e873] [cursor=pointer]:
+                    - gridcell [ref=e874]
+                    - gridcell "unread, service@paypal.de, There's been a change to your WSJ/BAR/MW automatic payment, Jan 9, You have successfully canceled this automatic payment. Hello, Steve Marcus Randal Sway II Clarke Your automatic payment was canceled You successfully canceled the following automatic payment. You will." [ref=e875]:
+                      - checkbox "unread, service@paypal.de, There's been a change to your WSJ/BAR/MW automatic payment, Jan 9, You have successfully canceled this automatic payment. Hello, Steve Marcus Randal Sway II Clarke Your automatic payment was canceled You successfully canceled the following automatic payment. You will." [ref=e876]
+                    - gridcell "Not starred" [ref=e877]:
+                      - button "Not starred" [ref=e878]
+                    - gridcell "Not important" [ref=e879]:
+                      - switch "Not important" [ref=e880]
+                    - gridcell "service@paypal.de" [ref=e882]:
+                      - generic [ref=e884]: service@paypal.de
+                    - gridcell "Invoices - Gmail There's been a change to your WSJ/BAR/MW automatic payment - You have successfully canceled this automatic payment. Hello, Steve Marcus Randal Sway II Clarke Your automatic payment was canceled You successfully canceled the following automatic payment. You will" [ref=e885]:
+                      - link "Invoices - Gmail There's been a change to your WSJ/BAR/MW automatic payment - You have successfully canceled this automatic payment. Hello, Steve Marcus Randal Sway II Clarke Your automatic payment was canceled You successfully canceled the following automatic payment. You will" [ref=e886]:
+                        - generic [ref=e887]:
+                          - generic "Invoices - Gmail" [ref=e890]:
+                            - generic [ref=e892]: Invoices - Gmail
+                          - generic [ref=e894]: There's been a change to your WSJ/BAR/MW automatic payment
+                          - generic [ref=e895]:
+                            - generic [ref=e896]: "-"
+                            - text: You have successfully canceled this automatic payment. Hello, Steve Marcus Randal Sway II Clarke Your automatic payment was canceled You successfully canceled the following automatic payment. You will
+                    - gridcell [ref=e897]
+                    - gridcell "Fri, Jan 9, 2026, 1:18 PM" [ref=e898]:
+                      - generic "Fri, Jan 9, 2026, 1:18 PM" [ref=e899]: Jan 9
+                    - gridcell
+                  - row "unread, me, Test v6 Phase 1 - Chunk 2 Fix Validation, has attachment, Jan 9, Testing Pre-Chunk 0 → Chunk 2 flow with skipDownload optimization. This email contains a test PDF for document processing.." [ref=e900] [cursor=pointer]:
+                    - gridcell [ref=e901]
+                    - gridcell "unread, me, Test v6 Phase 1 - Chunk 2 Fix Validation, has attachment, Jan 9, Testing Pre-Chunk 0 → Chunk 2 flow with skipDownload optimization. This email contains a test PDF for document processing.." [ref=e902]:
+                      - checkbox "unread, me, Test v6 Phase 1 - Chunk 2 Fix Validation, has attachment, Jan 9, Testing Pre-Chunk 0 → Chunk 2 flow with skipDownload optimization. This email contains a test PDF for document processing.." [ref=e903]
+                    - gridcell "Not starred" [ref=e904]:
+                      - button "Not starred" [ref=e905]
+                    - gridcell "Important mainly because it was sent directly to you." [ref=e906]:
+                      - switch "Important mainly because it was sent directly to you." [checked] [ref=e907]
+                    - gridcell "me" [ref=e909]:
+                      - generic [ref=e911]: me
+                    - 'gridcell "Test v6 Phase 1 - Chunk 2 Fix Validation - Testing Pre-Chunk 0 → Chunk 2 flow with skipDownload optimization. This email contains a test PDF for document processing. Attachment: ADM10-Exposé.pdf" [ref=e912]':
+                      - link "Test v6 Phase 1 - Chunk 2 Fix Validation - Testing Pre-Chunk 0 → Chunk 2 flow with skipDownload optimization. This email contains a test PDF for document processing." [ref=e913]:
+                        - generic [ref=e914]:
+                          - generic [ref=e916]: Test v6 Phase 1 - Chunk 2 Fix Validation
+                          - generic [ref=e917]:
+                            - generic [ref=e918]: "-"
+                            - text: Testing Pre-Chunk 0 → Chunk 2 flow with skipDownload optimization. This email contains a test PDF for document processing.
+                      - generic "ADM10-Exposé.pdf" [ref=e920]:
+                        - generic [ref=e921]: "Attachment:"
+                        - img [ref=e922]
+                        - generic [ref=e923]: ADM10-Exposé.pdf
+                    - gridcell [ref=e924]
+                    - gridcell "Fri, Jan 9, 2026, 11:00 AM" [ref=e925]:
+                      - generic "Fri, Jan 9, 2026, 11:00 AM" [ref=e926]: Jan 9
+                    - gridcell
+                  - row "unread, info@praxisimforum.., Rechnung, has attachment, Jan 9, Guten Tag, anbei senden wir Ihnen eine aktuelle Zahlungserinnerungen. Leider konnten wir noch keinen Zahlungseingang verzeichnen. Sollten sie die Rechnung bereits beglichen haben, nennen sie uns bitte." [ref=e927] [cursor=pointer]:
+                    - gridcell [ref=e928]
+                    - gridcell "unread, info@praxisimforum.., Rechnung, has attachment, Jan 9, Guten Tag, anbei senden wir Ihnen eine aktuelle Zahlungserinnerungen. Leider konnten wir noch keinen Zahlungseingang verzeichnen. Sollten sie die Rechnung bereits beglichen haben, nennen sie uns bitte." [ref=e929]:
+                      - checkbox "unread, info@praxisimforum.., Rechnung, has attachment, Jan 9, Guten Tag, anbei senden wir Ihnen eine aktuelle Zahlungserinnerungen. Leider konnten wir noch keinen Zahlungseingang verzeichnen. Sollten sie die Rechnung bereits beglichen haben, nennen sie uns bitte." [ref=e930]
+                    - gridcell "Not starred" [ref=e931]:
+                      - button "Not starred" [ref=e932]
+                    - gridcell "Not important" [ref=e933]:
+                      - switch "Not important" [ref=e934]
+                    - gridcell "info@praxisimforum.." [ref=e936]:
+                      - generic [ref=e938]: info@praxisimforum..
+                    - 'gridcell "Rechnung - Guten Tag, anbei senden wir Ihnen eine aktuelle Zahlungserinnerungen. Leider konnten wir noch keinen Zahlungseingang verzeichnen. Sollten sie die Rechnung bereits beglichen haben, nennen sie uns bitte Attachment: Scan2026-01-09_104808.pdf" [ref=e939]':
+                      - link "Rechnung - Guten Tag, anbei senden wir Ihnen eine aktuelle Zahlungserinnerungen. Leider konnten wir noch keinen Zahlungseingang verzeichnen. Sollten sie die Rechnung bereits beglichen haben, nennen sie uns bitte" [ref=e940]:
+                        - generic [ref=e941]:
+                          - generic [ref=e943]: Rechnung
+                          - generic [ref=e944]:
+                            - generic [ref=e945]: "-"
+                            - text: Guten Tag, anbei senden wir Ihnen eine aktuelle Zahlungserinnerungen. Leider konnten wir noch keinen Zahlungseingang verzeichnen. Sollten sie die Rechnung bereits beglichen haben, nennen sie uns bitte
+                      - generic "Scan2026-01-09_104808.pdf" [ref=e947]:
+                        - generic [ref=e948]: "Attachment:"
+                        - img [ref=e949]
+                        - generic [ref=e950]: Scan2026-01-09_104808.pdf
+                    - gridcell [ref=e951]
+                    - gridcell "Fri, Jan 9, 2026, 10:49 AM" [ref=e952]:
+                      - generic "Fri, Jan 9, 2026, 10:49 AM" [ref=e953]: Jan 9
+                    - gridcell
+                  - row "unread, Feedspot Today, Kitchen Sink Ice Box Cookies, Is Having Only One Child Selfish?, ‘Romantasy,’ Anime, and More Baby Name.., Jan 9, Submit Website View in browser Switch to weekly Feedspot Upgrade Feedspot digest contains latest stories from the sites you're following on Feedspot. Configure. Parenting Blogs Family Focus Blog." [ref=e954] [cursor=pointer]:
+                    - gridcell [ref=e955]
+                    - gridcell "unread, Feedspot Today, Kitchen Sink Ice Box Cookies, Is Having Only One Child Selfish?, ‘Romantasy,’ Anime, and More Baby Name.., Jan 9, Submit Website View in browser Switch to weekly Feedspot Upgrade Feedspot digest contains latest stories from the sites you're following on Feedspot. Configure. Parenting Blogs Family Focus Blog." [ref=e956]:
+                      - checkbox "unread, Feedspot Today, Kitchen Sink Ice Box Cookies, Is Having Only One Child Selfish?, ‘Romantasy,’ Anime, and More Baby Name.., Jan 9, Submit Website View in browser Switch to weekly Feedspot Upgrade Feedspot digest contains latest stories from the sites you're following on Feedspot. Configure. Parenting Blogs Family Focus Blog." [ref=e957]
+                    - gridcell "Not starred" [ref=e958]:
+                      - button "Not starred" [ref=e959]
+                    - gridcell "Not important" [ref=e960]:
+                      - switch "Not important" [ref=e961]
+                    - gridcell "Feedspot Today" [ref=e963]:
+                      - generic [ref=e965]: Feedspot Today
+                    - gridcell "Kitchen Sink Ice Box Cookies, Is Having Only One Child Selfish?, ‘Romantasy,’ Anime, and More Baby Name.. - Submit Website View in browser Switch to weekly Feedspot Upgrade Feedspot digest contains latest stories from the sites you're following on Feedspot. Configure. Parenting Blogs Family Focus Blog" [ref=e966]:
+                      - link "Kitchen Sink Ice Box Cookies, Is Having Only One Child Selfish?, ‘Romantasy,’ Anime, and More Baby Name.. - Submit Website View in browser Switch to weekly Feedspot Upgrade Feedspot digest contains latest stories from the sites you're following on Feedspot. Configure. Parenting Blogs Family Focus Blog" [ref=e967]:
+                        - generic [ref=e968]:
+                          - generic [ref=e970]: Kitchen Sink Ice Box Cookies, Is Having Only One Child Selfish?, ‘Romantasy,’ Anime, and More Baby Name..
+                          - generic:
+                            - generic [ref=e971]: "-"
+                            - text: Submit Website View in browser Switch to weekly Feedspot Upgrade Feedspot digest contains latest stories from the sites you're following on Feedspot. Configure. Parenting Blogs Family Focus Blog
+                    - gridcell [ref=e972]
+                    - gridcell "Fri, Jan 9, 2026, 7:14 AM" [ref=e973]:
+                      - generic "Fri, Jan 9, 2026, 7:14 AM" [ref=e974]: Jan 9
+                    - gridcell
+                  - 'row "unread, Framer B.V., Your receipt from Framer B.V. #2553-7879, has attachment, Jan 9, Your receipt from Framer BV #2553-7879 ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏." [ref=e975] [cursor=pointer]':
+                    - gridcell [ref=e976]
+                    - 'gridcell "unread, Framer B.V., Your receipt from Framer B.V. #2553-7879, has attachment, Jan 9, Your receipt from Framer BV #2553-7879 ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏." [ref=e977]':
+                      - 'checkbox "unread, Framer B.V., Your receipt from Framer B.V. #2553-7879, has attachment, Jan 9, Your receipt from Framer BV #2553-7879 ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏." [ref=e978]'
+                    - gridcell "Not starred" [ref=e979]:
+                      - button "Not starred" [ref=e980]
+                    - gridcell "Not important" [ref=e981]:
+                      - switch "Not important" [ref=e982]
+                    - gridcell "Framer B.V." [ref=e984]:
+                      - generic [ref=e986]: Framer B.V.
+                    - 'gridcell "Your receipt from Framer B.V. #2553-7879 - Your receipt from Framer BV #2553-7879 ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ Attachment: Invoice-97A706DA-1896559.pdf Attachment: Receipt-2553-7879.pdf" [ref=e987]':
+                      - 'link "Your receipt from Framer B.V. #2553-7879 - Your receipt from Framer BV #2553-7879 ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏" [ref=e988]':
+                        - generic [ref=e989]:
+                          - generic [ref=e991]: "Your receipt from Framer B.V. #2553-7879"
+                          - generic [ref=e992]:
+                            - generic [ref=e993]: "-"
+                            - text: "Your receipt from Framer BV #2553-7879 ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏ ͏"
+                      - generic [ref=e994]:
+                        - generic "Invoice-97A706DA-1896559.pdf" [ref=e995]:
+                          - generic [ref=e996]: "Attachment:"
+                          - img [ref=e997]
+                          - generic [ref=e998]: Invoice-97A706DA-1896559.pdf
+                        - generic "Receipt-2553-7879.pdf" [ref=e999]:
+                          - generic [ref=e1000]: "Attachment:"
+                          - img [ref=e1001]
+                          - generic [ref=e1002]: Receipt-2553-7879.pdf
+                    - gridcell [ref=e1003]
+                    - gridcell "Fri, Jan 9, 2026, 1:33 AM" [ref=e1004]:
+                      - generic "Fri, Jan 9, 2026, 1:33 AM" [ref=e1005]: Jan 9
+                    - gridcell
+                  - row "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 9, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1006] [cursor=pointer]:
+                    - gridcell [ref=e1007]
+                    - gridcell "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 9, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1008]:
+                      - checkbox "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 9, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1009]
+                    - gridcell "Not starred" [ref=e1010]:
+                      - button "Not starred" [ref=e1011]
+                    - gridcell "Not important" [ref=e1012]:
+                      - switch "Not important" [ref=e1013]
+                    - gridcell "swayfromthehook" [ref=e1015]:
+                      - generic [ref=e1017]: swayfromthehook
+                    - 'gridcell "AMA Test Email from AMA with PDF Attachment - Document Organizer V4 - Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n Attachment: OCP-Anfrage-AM10.pdf" [ref=e1018]':
+                      - link "AMA Test Email from AMA with PDF Attachment - Document Organizer V4 - Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n" [ref=e1019]:
+                        - generic [ref=e1020]:
+                          - generic "AMA" [ref=e1023]:
+                            - generic [ref=e1025]: AMA
+                          - generic [ref=e1027]: Test Email from AMA with PDF Attachment - Document Organizer V4
+                          - generic [ref=e1028]:
+                            - generic [ref=e1029]: "-"
+                            - text: Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n
+                      - generic "OCP-Anfrage-AM10.pdf" [ref=e1031]:
+                        - generic [ref=e1032]: "Attachment:"
+                        - img [ref=e1033]
+                        - generic [ref=e1034]: OCP-Anfrage-AM10.pdf
+                    - gridcell [ref=e1035]
+                    - gridcell "Fri, Jan 9, 2026, 1:26 AM" [ref=e1036]:
+                      - generic "Fri, Jan 9, 2026, 1:26 AM" [ref=e1037]: Jan 9
+                    - gridcell
+                  - row "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 9, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1038] [cursor=pointer]:
+                    - gridcell [ref=e1039]
+                    - gridcell "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 9, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1040]:
+                      - checkbox "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 9, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1041]
+                    - gridcell "Not starred" [ref=e1042]:
+                      - button "Not starred" [ref=e1043]
+                    - gridcell "Not important" [ref=e1044]:
+                      - switch "Not important" [ref=e1045]
+                    - gridcell "swayfromthehook" [ref=e1047]:
+                      - generic [ref=e1049]: swayfromthehook
+                    - 'gridcell "AMA Test Email from AMA with PDF Attachment - Document Organizer V4 - Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n Attachment: OCP-Anfrage-AM10.pdf" [ref=e1050]':
+                      - link "AMA Test Email from AMA with PDF Attachment - Document Organizer V4 - Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n" [ref=e1051]:
+                        - generic [ref=e1052]:
+                          - generic "AMA" [ref=e1055]:
+                            - generic [ref=e1057]: AMA
+                          - generic [ref=e1059]: Test Email from AMA with PDF Attachment - Document Organizer V4
+                          - generic [ref=e1060]:
+                            - generic [ref=e1061]: "-"
+                            - text: Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n
+                      - generic "OCP-Anfrage-AM10.pdf" [ref=e1063]:
+                        - generic [ref=e1064]: "Attachment:"
+                        - img [ref=e1065]
+                        - generic [ref=e1066]: OCP-Anfrage-AM10.pdf
+                    - gridcell [ref=e1067]
+                    - gridcell "Fri, Jan 9, 2026, 12:17 AM" [ref=e1068]:
+                      - generic "Fri, Jan 9, 2026, 12:17 AM" [ref=e1069]: Jan 9
+                    - gridcell
+                  - row "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 9, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1070] [cursor=pointer]:
+                    - gridcell [ref=e1071]
+                    - gridcell "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 9, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1072]:
+                      - checkbox "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 9, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1073]
+                    - gridcell "Not starred" [ref=e1074]:
+                      - button "Not starred" [ref=e1075]
+                    - gridcell "Not important" [ref=e1076]:
+                      - switch "Not important" [ref=e1077]
+                    - gridcell "swayfromthehook" [ref=e1079]:
+                      - generic [ref=e1081]: swayfromthehook
+                    - 'gridcell "AMA Test Email from AMA with PDF Attachment - Document Organizer V4 - Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n Attachment: OCP-Anfrage-AM10.pdf" [ref=e1082]':
+                      - link "AMA Test Email from AMA with PDF Attachment - Document Organizer V4 - Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n" [ref=e1083]:
+                        - generic [ref=e1084]:
+                          - generic "AMA" [ref=e1087]:
+                            - generic [ref=e1089]: AMA
+                          - generic [ref=e1091]: Test Email from AMA with PDF Attachment - Document Organizer V4
+                          - generic [ref=e1092]:
+                            - generic [ref=e1093]: "-"
+                            - text: Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n
+                      - generic "OCP-Anfrage-AM10.pdf" [ref=e1095]:
+                        - generic [ref=e1096]: "Attachment:"
+                        - img [ref=e1097]
+                        - generic [ref=e1098]: OCP-Anfrage-AM10.pdf
+                    - gridcell [ref=e1099]
+                    - gridcell "Fri, Jan 9, 2026, 12:15 AM" [ref=e1100]:
+                      - generic "Fri, Jan 9, 2026, 12:15 AM" [ref=e1101]: Jan 9
+                    - gridcell
+                  - row "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 9, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1102] [cursor=pointer]:
+                    - gridcell [ref=e1103]
+                    - gridcell "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 9, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1104]:
+                      - checkbox "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 9, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1105]
+                    - gridcell "Not starred" [ref=e1106]:
+                      - button "Not starred" [ref=e1107]
+                    - gridcell "Not important" [ref=e1108]:
+                      - switch "Not important" [ref=e1109]
+                    - gridcell "swayfromthehook" [ref=e1111]:
+                      - generic [ref=e1113]: swayfromthehook
+                    - 'gridcell "AMA Test Email from AMA with PDF Attachment - Document Organizer V4 - Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n Attachment: OCP-Anfrage-AM10.pdf" [ref=e1114]':
+                      - link "AMA Test Email from AMA with PDF Attachment - Document Organizer V4 - Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n" [ref=e1115]:
+                        - generic [ref=e1116]:
+                          - generic "AMA" [ref=e1119]:
+                            - generic [ref=e1121]: AMA
+                          - generic [ref=e1123]: Test Email from AMA with PDF Attachment - Document Organizer V4
+                          - generic [ref=e1124]:
+                            - generic [ref=e1125]: "-"
+                            - text: Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n
+                      - generic "OCP-Anfrage-AM10.pdf" [ref=e1127]:
+                        - generic [ref=e1128]: "Attachment:"
+                        - img [ref=e1129]
+                        - generic [ref=e1130]: OCP-Anfrage-AM10.pdf
+                    - gridcell [ref=e1131]
+                    - gridcell "Fri, Jan 9, 2026, 12:07 AM" [ref=e1132]:
+                      - generic "Fri, Jan 9, 2026, 12:07 AM" [ref=e1133]: Jan 9
+                    - gridcell
+                  - row "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 8, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1134] [cursor=pointer]:
+                    - gridcell [ref=e1135]
+                    - gridcell "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 8, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1136]:
+                      - checkbox "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 8, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1137]
+                    - gridcell "Not starred" [ref=e1138]:
+                      - button "Not starred" [ref=e1139]
+                    - gridcell "Not important" [ref=e1140]:
+                      - switch "Not important" [ref=e1141]
+                    - gridcell "swayfromthehook" [ref=e1143]:
+                      - generic [ref=e1145]: swayfromthehook
+                    - 'gridcell "AMA Test Email from AMA with PDF Attachment - Document Organizer V4 - Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n Attachment: OCP-Anfrage-AM10.pdf" [ref=e1146]':
+                      - link "AMA Test Email from AMA with PDF Attachment - Document Organizer V4 - Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n" [ref=e1147]:
+                        - generic [ref=e1148]:
+                          - generic "AMA" [ref=e1151]:
+                            - generic [ref=e1153]: AMA
+                          - generic [ref=e1155]: Test Email from AMA with PDF Attachment - Document Organizer V4
+                          - generic [ref=e1156]:
+                            - generic [ref=e1157]: "-"
+                            - text: Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n
+                      - generic "OCP-Anfrage-AM10.pdf" [ref=e1159]:
+                        - generic [ref=e1160]: "Attachment:"
+                        - img [ref=e1161]
+                        - generic [ref=e1162]: OCP-Anfrage-AM10.pdf
+                    - gridcell [ref=e1163]
+                    - gridcell "Thu, Jan 8, 2026, 11:56 PM" [ref=e1164]:
+                      - generic "Thu, Jan 8, 2026, 11:56 PM" [ref=e1165]: Jan 8
+                    - gridcell
+                  - row "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 8, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1166] [cursor=pointer]:
+                    - gridcell [ref=e1167]
+                    - gridcell "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 8, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1168]:
+                      - checkbox "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 8, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1169]
+                    - gridcell "Not starred" [ref=e1170]:
+                      - button "Not starred" [ref=e1171]
+                    - gridcell "Not important" [ref=e1172]:
+                      - switch "Not important" [ref=e1173]
+                    - gridcell "swayfromthehook" [ref=e1175]:
+                      - generic [ref=e1177]: swayfromthehook
+                    - 'gridcell "AMA Test Email from AMA with PDF Attachment - Document Organizer V4 - Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n Attachment: OCP-Anfrage-AM10.pdf" [ref=e1178]':
+                      - link "AMA Test Email from AMA with PDF Attachment - Document Organizer V4 - Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n" [ref=e1179]:
+                        - generic [ref=e1180]:
+                          - generic "AMA" [ref=e1183]:
+                            - generic [ref=e1185]: AMA
+                          - generic [ref=e1187]: Test Email from AMA with PDF Attachment - Document Organizer V4
+                          - generic [ref=e1188]:
+                            - generic [ref=e1189]: "-"
+                            - text: Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n
+                      - generic "OCP-Anfrage-AM10.pdf" [ref=e1191]:
+                        - generic [ref=e1192]: "Attachment:"
+                        - img [ref=e1193]
+                        - generic [ref=e1194]: OCP-Anfrage-AM10.pdf
+                    - gridcell [ref=e1195]
+                    - gridcell "Thu, Jan 8, 2026, 11:52 PM" [ref=e1196]:
+                      - generic "Thu, Jan 8, 2026, 11:52 PM" [ref=e1197]: Jan 8
+                    - gridcell
+                  - row "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 8, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1198] [cursor=pointer]:
+                    - gridcell [ref=e1199]
+                    - gridcell "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 8, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1200]:
+                      - checkbox "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 8, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1201]
+                    - gridcell "Not starred" [ref=e1202]:
+                      - button "Not starred" [ref=e1203]
+                    - gridcell "Not important" [ref=e1204]:
+                      - switch "Not important" [ref=e1205]
+                    - gridcell "swayfromthehook" [ref=e1207]:
+                      - generic [ref=e1209]: swayfromthehook
+                    - 'gridcell "AMA Test Email from AMA with PDF Attachment - Document Organizer V4 - Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n Attachment: OCP-Anfrage-AM10.pdf" [ref=e1210]':
+                      - link "AMA Test Email from AMA with PDF Attachment - Document Organizer V4 - Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n" [ref=e1211]:
+                        - generic [ref=e1212]:
+                          - generic "AMA" [ref=e1215]:
+                            - generic [ref=e1217]: AMA
+                          - generic [ref=e1219]: Test Email from AMA with PDF Attachment - Document Organizer V4
+                          - generic [ref=e1220]:
+                            - generic [ref=e1221]: "-"
+                            - text: Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n
+                      - generic "OCP-Anfrage-AM10.pdf" [ref=e1223]:
+                        - generic [ref=e1224]: "Attachment:"
+                        - img [ref=e1225]
+                        - generic [ref=e1226]: OCP-Anfrage-AM10.pdf
+                    - gridcell [ref=e1227]
+                    - gridcell "Thu, Jan 8, 2026, 11:46 PM" [ref=e1228]:
+                      - generic "Thu, Jan 8, 2026, 11:46 PM" [ref=e1229]: Jan 8
+                    - gridcell
+                  - row "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 8, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1230] [cursor=pointer]:
+                    - gridcell [ref=e1231]
+                    - gridcell "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 8, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1232]:
+                      - checkbox "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 8, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1233]
+                    - gridcell "Not starred" [ref=e1234]:
+                      - button "Not starred" [ref=e1235]
+                    - gridcell "Not important" [ref=e1236]:
+                      - switch "Not important" [ref=e1237]
+                    - gridcell "swayfromthehook" [ref=e1239]:
+                      - generic [ref=e1241]: swayfromthehook
+                    - 'gridcell "AMA Test Email from AMA with PDF Attachment - Document Organizer V4 - Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n Attachment: OCP-Anfrage-AM10.pdf" [ref=e1242]':
+                      - link "AMA Test Email from AMA with PDF Attachment - Document Organizer V4 - Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n" [ref=e1243]:
+                        - generic [ref=e1244]:
+                          - generic "AMA" [ref=e1247]:
+                            - generic [ref=e1249]: AMA
+                          - generic [ref=e1251]: Test Email from AMA with PDF Attachment - Document Organizer V4
+                          - generic [ref=e1252]:
+                            - generic [ref=e1253]: "-"
+                            - text: Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n
+                      - generic "OCP-Anfrage-AM10.pdf" [ref=e1255]:
+                        - generic [ref=e1256]: "Attachment:"
+                        - img [ref=e1257]
+                        - generic [ref=e1258]: OCP-Anfrage-AM10.pdf
+                    - gridcell [ref=e1259]
+                    - gridcell "Thu, Jan 8, 2026, 11:42 PM" [ref=e1260]:
+                      - generic "Thu, Jan 8, 2026, 11:42 PM" [ref=e1261]: Jan 8
+                    - gridcell
+                  - row "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 8, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1262] [cursor=pointer]:
+                    - gridcell [ref=e1263]
+                    - gridcell "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 8, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1264]:
+                      - checkbox "unread, swayfromthehook, Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 8, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1265]
+                    - gridcell "Not starred" [ref=e1266]:
+                      - button "Not starred" [ref=e1267]
+                    - gridcell "Not important" [ref=e1268]:
+                      - switch "Not important" [ref=e1269]
+                    - gridcell "swayfromthehook" [ref=e1271]:
+                      - generic [ref=e1273]: swayfromthehook
+                    - 'gridcell "AMA Test Email from AMA with PDF Attachment - Document Organizer V4 - Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n Attachment: OCP-Anfrage-AM10.pdf" [ref=e1274]':
+                      - link "AMA Test Email from AMA with PDF Attachment - Document Organizer V4 - Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n" [ref=e1275]:
+                        - generic [ref=e1276]:
+                          - generic "AMA" [ref=e1279]:
+                            - generic [ref=e1281]: AMA
+                          - generic [ref=e1283]: Test Email from AMA with PDF Attachment - Document Organizer V4
+                          - generic [ref=e1284]:
+                            - generic [ref=e1285]: "-"
+                            - text: Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n
+                      - generic "OCP-Anfrage-AM10.pdf" [ref=e1287]:
+                        - generic [ref=e1288]: "Attachment:"
+                        - img [ref=e1289]
+                        - generic [ref=e1290]: OCP-Anfrage-AM10.pdf
+                    - gridcell [ref=e1291]
+                    - gridcell "Thu, Jan 8, 2026, 11:31 PM" [ref=e1292]:
+                      - generic "Thu, Jan 8, 2026, 11:31 PM" [ref=e1293]: Jan 8
+                    - gridcell
+                  - row "AAA Accelerator, Welcoming Two New Coaches to the Team!, Jan 8, Welcoming Two New Coaches to the Team! Accelerator Admin Posted in Announcements We're excited to announce two new additions to our coaching lineup! 🚀 @Guy Last - Business Coach Guy joins us as a." [ref=e1294] [cursor=pointer]:
+                    - gridcell [ref=e1295]
+                    - gridcell "AAA Accelerator, Welcoming Two New Coaches to the Team!, Jan 8, Welcoming Two New Coaches to the Team! Accelerator Admin Posted in Announcements We're excited to announce two new additions to our coaching lineup! 🚀 @Guy Last - Business Coach Guy joins us as a." [ref=e1296]:
+                      - checkbox "AAA Accelerator, Welcoming Two New Coaches to the Team!, Jan 8, Welcoming Two New Coaches to the Team! Accelerator Admin Posted in Announcements We're excited to announce two new additions to our coaching lineup! 🚀 @Guy Last - Business Coach Guy joins us as a." [ref=e1297]
+                    - gridcell "Not starred" [ref=e1298]:
+                      - button "Not starred" [ref=e1299]
+                    - gridcell "Not important" [ref=e1300]:
+                      - switch "Not important" [ref=e1301]
+                    - gridcell "AAA Accelerator" [ref=e1303]:
+                      - generic [ref=e1305]: AAA Accelerator
+                    - gridcell "Welcoming Two New Coaches to the Team! - Welcoming Two New Coaches to the Team! Accelerator Admin Posted in Announcements We're excited to announce two new additions to our coaching lineup! 🚀 @Guy Last - Business Coach Guy joins us as a" [ref=e1306]:
+                      - link "Welcoming Two New Coaches to the Team! - Welcoming Two New Coaches to the Team! Accelerator Admin Posted in Announcements We're excited to announce two new additions to our coaching lineup! 🚀 @Guy Last - Business Coach Guy joins us as a" [ref=e1307]:
+                        - generic [ref=e1308]:
+                          - generic [ref=e1310]: Welcoming Two New Coaches to the Team!
+                          - generic [ref=e1311]:
+                            - generic [ref=e1312]: "-"
+                            - text: Welcoming Two New Coaches to the Team! Accelerator Admin Posted in Announcements We're excited to announce two new additions to our coaching lineup!
+                            - img "🚀" [ref=e1313]
+                            - text: "@Guy Last - Business Coach Guy joins us as a"
+                    - gridcell [ref=e1314]
+                    - gridcell "Thu, Jan 8, 2026, 10:48 PM" [ref=e1315]:
+                      - generic "Thu, Jan 8, 2026, 10:48 PM" [ref=e1316]: Jan 8
+                    - gridcell
+                  - 'row "AAA Accelerator, This week on AAA Accelerator: January 1 - January 8, 2026, Jan 8, AAA Accelerator logo This week on AAA Accelerator January 1 - January 8, 2026 Entering Our Third Year in Operation - 2026 Hey all, Welcome back and happy new year! I''ve been sitting with this a bit." [ref=e1317] [cursor=pointer]':
+                    - gridcell [ref=e1318]
+                    - 'gridcell "AAA Accelerator, This week on AAA Accelerator: January 1 - January 8, 2026, Jan 8, AAA Accelerator logo This week on AAA Accelerator January 1 - January 8, 2026 Entering Our Third Year in Operation - 2026 Hey all, Welcome back and happy new year! I''ve been sitting with this a bit." [ref=e1319]':
+                      - 'checkbox "AAA Accelerator, This week on AAA Accelerator: January 1 - January 8, 2026, Jan 8, AAA Accelerator logo This week on AAA Accelerator January 1 - January 8, 2026 Entering Our Third Year in Operation - 2026 Hey all, Welcome back and happy new year! I''ve been sitting with this a bit." [ref=e1320]'
+                    - gridcell "Not starred" [ref=e1321]:
+                      - button "Not starred" [ref=e1322]
+                    - gridcell "Not important" [ref=e1323]:
+                      - switch "Not important" [ref=e1324]
+                    - gridcell "AAA Accelerator" [ref=e1326]:
+                      - generic [ref=e1328]: AAA Accelerator
+                    - 'gridcell "This week on AAA Accelerator: January 1 - January 8, 2026 - AAA Accelerator logo This week on AAA Accelerator January 1 - January 8, 2026 Entering Our Third Year in Operation - 2026 Hey all, Welcome back and happy new year! I''ve been sitting with this a bit" [ref=e1329]':
+                      - 'link "This week on AAA Accelerator: January 1 - January 8, 2026 - AAA Accelerator logo This week on AAA Accelerator January 1 - January 8, 2026 Entering Our Third Year in Operation - 2026 Hey all, Welcome back and happy new year! I''ve been sitting with this a bit" [ref=e1330]':
+                        - generic [ref=e1331]:
+                          - generic [ref=e1333]: "This week on AAA Accelerator: January 1 - January 8, 2026"
+                          - generic [ref=e1334]:
+                            - generic [ref=e1335]: "-"
+                            - text: AAA Accelerator logo This week on AAA Accelerator January 1 - January 8, 2026 Entering Our Third Year in Operation - 2026 Hey all, Welcome back and happy new year! I've been sitting with this a bit
+                    - gridcell [ref=e1336]
+                    - gridcell "Thu, Jan 8, 2026, 9:06 PM" [ref=e1337]:
+                      - generic "Thu, Jan 8, 2026, 9:06 PM" [ref=e1338]: Jan 8
+                    - gridcell
+                  - 'row "unread, Fathom, Recap for \"Impromptu Google Meet Meeting\", Jan 8, Meeting Purpose Identify Antonio''s most pressing business problem for a custom software solution. Key Takeaways - The Core Problem: Manually creating material lists from architectural PDFs is a." [ref=e1339] [cursor=pointer]':
+                    - gridcell [ref=e1340]
+                    - 'gridcell "unread, Fathom, Recap for \"Impromptu Google Meet Meeting\", Jan 8, Meeting Purpose Identify Antonio''s most pressing business problem for a custom software solution. Key Takeaways - The Core Problem: Manually creating material lists from architectural PDFs is a." [ref=e1341]':
+                      - 'checkbox "unread, Fathom, Recap for \"Impromptu Google Meet Meeting\", Jan 8, Meeting Purpose Identify Antonio''s most pressing business problem for a custom software solution. Key Takeaways - The Core Problem: Manually creating material lists from architectural PDFs is a." [ref=e1342]'
+                    - gridcell "Not starred" [ref=e1343]:
+                      - button "Not starred" [ref=e1344]
+                    - gridcell "Not important" [ref=e1345]:
+                      - switch "Not important" [ref=e1346]
+                    - gridcell "Fathom" [ref=e1348]:
+                      - generic [ref=e1350]: Fathom
+                    - 'gridcell "Recap for \"Impromptu Google Meet Meeting\" - Meeting Purpose Identify Antonio''s most pressing business problem for a custom software solution. Key Takeaways - The Core Problem: Manually creating material lists from architectural PDFs is a" [ref=e1351]':
+                      - 'link "Recap for \"Impromptu Google Meet Meeting\" - Meeting Purpose Identify Antonio''s most pressing business problem for a custom software solution. Key Takeaways - The Core Problem: Manually creating material lists from architectural PDFs is a" [ref=e1352]':
+                        - generic [ref=e1353]:
+                          - generic [ref=e1355]: Recap for "Impromptu Google Meet Meeting"
+                          - generic [ref=e1356]:
+                            - generic [ref=e1357]: "-"
+                            - text: "Meeting Purpose Identify Antonio's most pressing business problem for a custom software solution. Key Takeaways - The Core Problem: Manually creating material lists from architectural PDFs is a"
+                    - gridcell [ref=e1358]
+                    - gridcell "Thu, Jan 8, 2026, 7:43 PM" [ref=e1359]:
+                      - generic "Thu, Jan 8, 2026, 7:43 PM" [ref=e1360]: Jan 8
+                    - gridcell
+                  - 'row "unread, Fathom, Recap of your meeting with Linbec capital, Jan 8, Meeting Purpose Explore AI solutions for Antonio''s construction business challenges. Key Takeaways - Antonio''s construction business faces two critical issues: losing jobs due to slow,." [ref=e1361] [cursor=pointer]':
+                    - gridcell [ref=e1362]
+                    - 'gridcell "unread, Fathom, Recap of your meeting with Linbec capital, Jan 8, Meeting Purpose Explore AI solutions for Antonio''s construction business challenges. Key Takeaways - Antonio''s construction business faces two critical issues: losing jobs due to slow,." [ref=e1363]':
+                      - 'checkbox "unread, Fathom, Recap of your meeting with Linbec capital, Jan 8, Meeting Purpose Explore AI solutions for Antonio''s construction business challenges. Key Takeaways - Antonio''s construction business faces two critical issues: losing jobs due to slow,." [ref=e1364]'
+                    - gridcell "Not starred" [ref=e1365]:
+                      - button "Not starred" [ref=e1366]
+                    - gridcell "Not important" [ref=e1367]:
+                      - switch "Not important" [ref=e1368]
+                    - gridcell "Fathom" [ref=e1370]:
+                      - generic [ref=e1372]: Fathom
+                    - 'gridcell "Recap of your meeting with Linbec capital - Meeting Purpose Explore AI solutions for Antonio''s construction business challenges. Key Takeaways - Antonio''s construction business faces two critical issues: losing jobs due to slow," [ref=e1373]':
+                      - 'link "Recap of your meeting with Linbec capital - Meeting Purpose Explore AI solutions for Antonio''s construction business challenges. Key Takeaways - Antonio''s construction business faces two critical issues: losing jobs due to slow," [ref=e1374]':
+                        - generic [ref=e1375]:
+                          - generic [ref=e1377]: Recap of your meeting with Linbec capital
+                          - generic [ref=e1378]:
+                            - generic [ref=e1379]: "-"
+                            - text: "Meeting Purpose Explore AI solutions for Antonio's construction business challenges. Key Takeaways - Antonio's construction business faces two critical issues: losing jobs due to slow,"
+                    - gridcell [ref=e1380]
+                    - gridcell "Thu, Jan 8, 2026, 7:06 PM" [ref=e1381]:
+                      - generic "Thu, Jan 8, 2026, 7:06 PM" [ref=e1382]: Jan 8
+                    - gridcell
+                  - 'row "unread, Google Calendar, Notification: Antonio and Sway Clarke @ Thu Jan 8, 2026 6pm - 6:45pm (GMT+1) (Gmail), Jan 8, Antonio and Sway Clarke Join with Google Meet – Event Name Discovery Call A simple and quick chat to understand your business and how we can help you out. Location: This is a Google Meet web conference." [ref=e1383] [cursor=pointer]':
+                    - gridcell [ref=e1384]
+                    - 'gridcell "unread, Google Calendar, Notification: Antonio and Sway Clarke @ Thu Jan 8, 2026 6pm - 6:45pm (GMT+1) (Gmail), Jan 8, Antonio and Sway Clarke Join with Google Meet – Event Name Discovery Call A simple and quick chat to understand your business and how we can help you out. Location: This is a Google Meet web conference." [ref=e1385]':
+                      - 'checkbox "unread, Google Calendar, Notification: Antonio and Sway Clarke @ Thu Jan 8, 2026 6pm - 6:45pm (GMT+1) (Gmail), Jan 8, Antonio and Sway Clarke Join with Google Meet – Event Name Discovery Call A simple and quick chat to understand your business and how we can help you out. Location: This is a Google Meet web conference." [ref=e1386]'
+                    - gridcell "Not starred" [ref=e1387]:
+                      - button "Not starred" [ref=e1388]
+                    - gridcell "Not important" [ref=e1389]:
+                      - switch "Not important" [ref=e1390]
+                    - gridcell "Google Calendar" [ref=e1392]:
+                      - generic [ref=e1394]: Google Calendar
+                    - 'gridcell "Notification: Antonio and Sway Clarke @ Thu Jan 8, 2026 6pm - 6:45pm (GMT+1) (Gmail) - Antonio and Sway Clarke Join with Google Meet – Event Name Discovery Call A simple and quick chat to understand your business and how we can help you out. Location: This is a Google Meet web conference" [ref=e1395]':
+                      - 'link "Notification: Antonio and Sway Clarke @ Thu Jan 8, 2026 6pm - 6:45pm (GMT+1) (Gmail) - Antonio and Sway Clarke Join with Google Meet – Event Name Discovery Call A simple and quick chat to understand your business and how we can help you out. Location: This is a Google Meet web conference" [ref=e1396]':
+                        - generic [ref=e1397]:
+                          - generic [ref=e1399]: "Notification: Antonio and Sway Clarke @ Thu Jan 8, 2026 6pm - 6:45pm (GMT+1) (Gmail)"
+                          - generic [ref=e1400]:
+                            - generic [ref=e1401]: "-"
+                            - text: "Antonio and Sway Clarke Join with Google Meet – Event Name Discovery Call A simple and quick chat to understand your business and how we can help you out. Location: This is a Google Meet web conference"
+                    - gridcell [ref=e1402]
+                    - gridcell "Thu, Jan 8, 2026, 5:30 PM" [ref=e1403]:
+                      - generic "Thu, Jan 8, 2026, 5:30 PM" [ref=e1404]: Jan 8
+                    - gridcell
+                  - row "Lídia Neto, Inquiry about Skool in Portugal, Jan 8, Hello Sway, Thank you for reaching out and for your interest in Skool. We apologize for the delayed response, but replying to external inquiries is not our top priority and tends to take a back seat.." [ref=e1405] [cursor=pointer]:
+                    - gridcell [ref=e1406]
+                    - gridcell "Lídia Neto, Inquiry about Skool in Portugal, Jan 8, Hello Sway, Thank you for reaching out and for your interest in Skool. We apologize for the delayed response, but replying to external inquiries is not our top priority and tends to take a back seat.." [ref=e1407]:
+                      - checkbox "Lídia Neto, Inquiry about Skool in Portugal, Jan 8, Hello Sway, Thank you for reaching out and for your interest in Skool. We apologize for the delayed response, but replying to external inquiries is not our top priority and tends to take a back seat.." [ref=e1408]
+                    - gridcell "Not starred" [ref=e1409]:
+                      - button "Not starred" [ref=e1410]
+                    - gridcell "Important according to Google magic." [ref=e1411]:
+                      - switch "Important according to Google magic." [checked] [ref=e1412]
+                    - gridcell "Lídia Neto" [ref=e1414]:
+                      - generic [ref=e1416]: Lídia Neto
+                    - gridcell "Inquiry about Skool in Portugal - Hello Sway, Thank you for reaching out and for your interest in Skool. We apologize for the delayed response, but replying to external inquiries is not our top priority and tends to take a back seat." [ref=e1417]:
+                      - link "Inquiry about Skool in Portugal - Hello Sway, Thank you for reaching out and for your interest in Skool. We apologize for the delayed response, but replying to external inquiries is not our top priority and tends to take a back seat." [ref=e1418]:
+                        - generic [ref=e1419]:
+                          - generic [ref=e1421]: Inquiry about Skool in Portugal
+                          - generic [ref=e1422]:
+                            - generic [ref=e1423]: "-"
+                            - text: Hello Sway, Thank you for reaching out and for your interest in Skool. We apologize for the delayed response, but replying to external inquiries is not our top priority and tends to take a back seat.
+                    - gridcell [ref=e1424]
+                    - gridcell "Thu, Jan 8, 2026, 4:38 PM" [ref=e1425]:
+                      - generic "Thu, Jan 8, 2026, 4:38 PM" [ref=e1426]: Jan 8
+                    - gridcell
+                  - row "unread, Neil Patel, What if we’ve been doing AI marketing wrong?, Jan 8, The last two years have been a whirlwind of AI tools, content automation, and smart-sounding prompts. And now? Everyone's using the same tools. The edge is gone. It's time to reset. AI is Not." [ref=e1427] [cursor=pointer]:
+                    - gridcell [ref=e1428]
+                    - gridcell "unread, Neil Patel, What if we’ve been doing AI marketing wrong?, Jan 8, The last two years have been a whirlwind of AI tools, content automation, and smart-sounding prompts. And now? Everyone's using the same tools. The edge is gone. It's time to reset. AI is Not." [ref=e1429]:
+                      - checkbox "unread, Neil Patel, What if we’ve been doing AI marketing wrong?, Jan 8, The last two years have been a whirlwind of AI tools, content automation, and smart-sounding prompts. And now? Everyone's using the same tools. The edge is gone. It's time to reset. AI is Not." [ref=e1430]
+                    - gridcell "Not starred" [ref=e1431]:
+                      - button "Not starred" [ref=e1432]
+                    - gridcell "Not important" [ref=e1433]:
+                      - switch "Not important" [ref=e1434]
+                    - gridcell "Neil Patel" [ref=e1436]:
+                      - generic [ref=e1438]: Neil Patel
+                    - gridcell "What if we’ve been doing AI marketing wrong? - The last two years have been a whirlwind of AI tools, content automation, and smart-sounding prompts. And now? Everyone's using the same tools. The edge is gone. It's time to reset. AI is Not" [ref=e1439]:
+                      - link "What if we’ve been doing AI marketing wrong? - The last two years have been a whirlwind of AI tools, content automation, and smart-sounding prompts. And now? Everyone's using the same tools. The edge is gone. It's time to reset. AI is Not" [ref=e1441]:
+                        - generic [ref=e1442]:
+                          - generic [ref=e1444]: What if we’ve been doing AI marketing wrong?
+                          - generic [ref=e1445]:
+                            - generic [ref=e1446]: "-"
+                            - text: The last two years have been a whirlwind of AI tools, content automation, and smart-sounding prompts. And now? Everyone's using the same tools. The edge is gone. It's time to reset. AI is Not
+                    - gridcell [ref=e1447]
+                    - gridcell "Thu, Jan 8, 2026, 4:07 PM" [ref=e1448]:
+                      - generic "Thu, Jan 8, 2026, 4:07 PM" [ref=e1449]: Jan 8
+                    - gridcell
+                  - 'row "unread, GoFundMe, Action Required: Set up withdrawals, Jan 8, GoFundMe Please note: you must set up withdrawals before 6 June 2026 or donations will be refunded Currently, you have a balance that has not been withdrawn. If withdrawals are not set up before 6 June." [ref=e1450] [cursor=pointer]':
+                    - gridcell [ref=e1451]
+                    - 'gridcell "unread, GoFundMe, Action Required: Set up withdrawals, Jan 8, GoFundMe Please note: you must set up withdrawals before 6 June 2026 or donations will be refunded Currently, you have a balance that has not been withdrawn. If withdrawals are not set up before 6 June." [ref=e1452]':
+                      - 'checkbox "unread, GoFundMe, Action Required: Set up withdrawals, Jan 8, GoFundMe Please note: you must set up withdrawals before 6 June 2026 or donations will be refunded Currently, you have a balance that has not been withdrawn. If withdrawals are not set up before 6 June." [ref=e1453]'
+                    - gridcell "Not starred" [ref=e1454]:
+                      - button "Not starred" [ref=e1455]
+                    - gridcell "Not important" [ref=e1456]:
+                      - switch "Not important" [ref=e1457]
+                    - gridcell "GoFundMe" [ref=e1459]:
+                      - generic [ref=e1461]: GoFundMe
+                    - 'gridcell "Action Required: Set up withdrawals - GoFundMe Please note: you must set up withdrawals before 6 June 2026 or donations will be refunded Currently, you have a balance that has not been withdrawn. If withdrawals are not set up before 6 June" [ref=e1462]':
+                      - 'link "Action Required: Set up withdrawals - GoFundMe Please note: you must set up withdrawals before 6 June 2026 or donations will be refunded Currently, you have a balance that has not been withdrawn. If withdrawals are not set up before 6 June" [ref=e1463]':
+                        - generic [ref=e1464]:
+                          - generic [ref=e1466]: "Action Required: Set up withdrawals"
+                          - generic [ref=e1467]:
+                            - generic [ref=e1468]: "-"
+                            - text: "GoFundMe Please note: you must set up withdrawals before 6 June 2026 or donations will be refunded Currently, you have a balance that has not been withdrawn. If withdrawals are not set up before 6 June"
+                    - gridcell [ref=e1469]
+                    - gridcell "Thu, Jan 8, 2026, 2:35 PM" [ref=e1470]:
+                      - generic "Thu, Jan 8, 2026, 2:35 PM" [ref=e1471]: Jan 8
+                    - gridcell
+                  - row "unread, Google, Security alert for swayfromthehook@gmail.com, Jan 8, This is a copy of a security alert sent to swayfromthehook@gmail.com. swayclarkeii@gmail.com is the recovery email for this account. If you don't recognize this account, remove it. Microsoft apps." [ref=e1472] [cursor=pointer]:
+                    - gridcell [ref=e1473]
+                    - gridcell "unread, Google, Security alert for swayfromthehook@gmail.com, Jan 8, This is a copy of a security alert sent to swayfromthehook@gmail.com. swayclarkeii@gmail.com is the recovery email for this account. If you don't recognize this account, remove it. Microsoft apps." [ref=e1474]:
+                      - checkbox "unread, Google, Security alert for swayfromthehook@gmail.com, Jan 8, This is a copy of a security alert sent to swayfromthehook@gmail.com. swayclarkeii@gmail.com is the recovery email for this account. If you don't recognize this account, remove it. Microsoft apps." [ref=e1475]
+                    - gridcell "Not starred" [ref=e1476]:
+                      - button "Not starred" [ref=e1477]
+                    - gridcell "Not important" [ref=e1478]:
+                      - switch "Not important" [ref=e1479]
+                    - gridcell "Google" [ref=e1481]:
+                      - generic [ref=e1483]: Google
+                    - gridcell "Security alert for swayfromthehook@gmail.com - This is a copy of a security alert sent to swayfromthehook@gmail.com. swayclarkeii@gmail.com is the recovery email for this account. If you don't recognize this account, remove it. Microsoft apps" [ref=e1484]:
+                      - link "Security alert for swayfromthehook@gmail.com - This is a copy of a security alert sent to swayfromthehook@gmail.com. swayclarkeii@gmail.com is the recovery email for this account. If you don't recognize this account, remove it. Microsoft apps" [ref=e1486]:
+                        - generic [ref=e1487]:
+                          - generic [ref=e1489]: Security alert for swayfromthehook@gmail.com
+                          - generic [ref=e1490]:
+                            - generic [ref=e1491]: "-"
+                            - text: This is a copy of a security alert sent to swayfromthehook@gmail.com. swayclarkeii@gmail.com is the recovery email for this account. If you don't recognize this account, remove it. Microsoft apps
+                    - gridcell [ref=e1492]
+                    - gridcell "Thu, Jan 8, 2026, 12:55 PM" [ref=e1493]:
+                      - generic "Thu, Jan 8, 2026, 12:55 PM" [ref=e1494]: Jan 8
+                    - gridcell
+                  - 'row "unread, Fathom, Recap of your meeting with boldmove.tv, Jan 8, Meeting Purpose Explore AI solutions for Sindbad''s two businesses. Key Takeaways - Ambushed (Ad Pitches): Automate Sindbad''s 5–6 weekly hours of manual freelancer payment verification to free." [ref=e1495] [cursor=pointer]':
+                    - gridcell [ref=e1496]
+                    - 'gridcell "unread, Fathom, Recap of your meeting with boldmove.tv, Jan 8, Meeting Purpose Explore AI solutions for Sindbad''s two businesses. Key Takeaways - Ambushed (Ad Pitches): Automate Sindbad''s 5–6 weekly hours of manual freelancer payment verification to free." [ref=e1497]':
+                      - 'checkbox "unread, Fathom, Recap of your meeting with boldmove.tv, Jan 8, Meeting Purpose Explore AI solutions for Sindbad''s two businesses. Key Takeaways - Ambushed (Ad Pitches): Automate Sindbad''s 5–6 weekly hours of manual freelancer payment verification to free." [ref=e1498]'
+                    - gridcell "Not starred" [ref=e1499]:
+                      - button "Not starred" [ref=e1500]
+                    - gridcell "Not important" [ref=e1501]:
+                      - switch "Not important" [ref=e1502]
+                    - gridcell "Fathom" [ref=e1504]:
+                      - generic [ref=e1506]: Fathom
+                    - 'gridcell "Recap of your meeting with boldmove.tv - Meeting Purpose Explore AI solutions for Sindbad''s two businesses. Key Takeaways - Ambushed (Ad Pitches): Automate Sindbad''s 5–6 weekly hours of manual freelancer payment verification to free" [ref=e1507]':
+                      - 'link "Recap of your meeting with boldmove.tv - Meeting Purpose Explore AI solutions for Sindbad''s two businesses. Key Takeaways - Ambushed (Ad Pitches): Automate Sindbad''s 5–6 weekly hours of manual freelancer payment verification to free" [ref=e1508]':
+                        - generic [ref=e1509]:
+                          - generic [ref=e1511]: Recap of your meeting with boldmove.tv
+                          - generic [ref=e1512]:
+                            - generic [ref=e1513]: "-"
+                            - text: "Meeting Purpose Explore AI solutions for Sindbad's two businesses. Key Takeaways - Ambushed (Ad Pitches): Automate Sindbad's 5–6 weekly hours of manual freelancer payment verification to free"
+                    - gridcell [ref=e1514]
+                    - gridcell "Thu, Jan 8, 2026, 12:51 PM" [ref=e1515]:
+                      - generic "Thu, Jan 8, 2026, 12:51 PM" [ref=e1516]: Jan 8
+                    - gridcell
+                  - 'row "unread, Google Calendar, Notification: Sindbad and Sway Clarke @ Thu Jan 8, 2026 12pm - 1pm (GMT+1) (Gmail), Jan 8, Sindbad and Sway Clarke Join with Google Meet – Event Name Catch Up Location: This is a Google Meet web conference. You can join this meeting from your computer, tablet, or smartphone. https://calendly." [ref=e1517] [cursor=pointer]':
+                    - gridcell [ref=e1518]
+                    - 'gridcell "unread, Google Calendar, Notification: Sindbad and Sway Clarke @ Thu Jan 8, 2026 12pm - 1pm (GMT+1) (Gmail), Jan 8, Sindbad and Sway Clarke Join with Google Meet – Event Name Catch Up Location: This is a Google Meet web conference. You can join this meeting from your computer, tablet, or smartphone. https://calendly." [ref=e1519]':
+                      - 'checkbox "unread, Google Calendar, Notification: Sindbad and Sway Clarke @ Thu Jan 8, 2026 12pm - 1pm (GMT+1) (Gmail), Jan 8, Sindbad and Sway Clarke Join with Google Meet – Event Name Catch Up Location: This is a Google Meet web conference. You can join this meeting from your computer, tablet, or smartphone. https://calendly." [ref=e1520]'
+                    - gridcell "Not starred" [ref=e1521]:
+                      - button "Not starred" [ref=e1522]
+                    - gridcell "Not important" [ref=e1523]:
+                      - switch "Not important" [ref=e1524]
+                    - gridcell "Google Calendar" [ref=e1526]:
+                      - generic [ref=e1528]: Google Calendar
+                    - 'gridcell "Notification: Sindbad and Sway Clarke @ Thu Jan 8, 2026 12pm - 1pm (GMT+1) (Gmail) - Sindbad and Sway Clarke Join with Google Meet – Event Name Catch Up Location: This is a Google Meet web conference. You can join this meeting from your computer, tablet, or smartphone. https://calendly" [ref=e1529]':
+                      - 'link "Notification: Sindbad and Sway Clarke @ Thu Jan 8, 2026 12pm - 1pm (GMT+1) (Gmail) - Sindbad and Sway Clarke Join with Google Meet – Event Name Catch Up Location: This is a Google Meet web conference. You can join this meeting from your computer, tablet, or smartphone. https://calendly" [ref=e1530]':
+                        - generic [ref=e1531]:
+                          - generic [ref=e1533]: "Notification: Sindbad and Sway Clarke @ Thu Jan 8, 2026 12pm - 1pm (GMT+1) (Gmail)"
+                          - generic [ref=e1534]:
+                            - generic [ref=e1535]: "-"
+                            - text: "Sindbad and Sway Clarke Join with Google Meet – Event Name Catch Up Location: This is a Google Meet web conference. You can join this meeting from your computer, tablet, or smartphone. https://calendly"
+                    - gridcell [ref=e1536]
+                    - gridcell "Thu, Jan 8, 2026, 11:29 AM" [ref=e1537]:
+                      - generic "Thu, Jan 8, 2026, 11:29 AM" [ref=e1538]: Jan 8
+                    - gridcell
+                  - row "unread, Waking Up, Catch your mind in the act., Jan 8, Seth Gillihan shows us how to spot our own mental mischief. ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌." [ref=e1539] [cursor=pointer]:
+                    - gridcell [ref=e1540]
+                    - gridcell "unread, Waking Up, Catch your mind in the act., Jan 8, Seth Gillihan shows us how to spot our own mental mischief. ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌." [ref=e1541]:
+                      - checkbox "unread, Waking Up, Catch your mind in the act., Jan 8, Seth Gillihan shows us how to spot our own mental mischief. ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌." [ref=e1542]
+                    - gridcell "Not starred" [ref=e1543]:
+                      - button "Not starred" [ref=e1544]
+                    - gridcell "Not important" [ref=e1545]:
+                      - switch "Not important" [ref=e1546]
+                    - gridcell "Waking Up" [ref=e1548]:
+                      - generic [ref=e1550]: Waking Up
+                    - gridcell "Catch your mind in the act. - Seth Gillihan shows us how to spot our own mental mischief. ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌" [ref=e1551]:
+                      - link "Catch your mind in the act. - Seth Gillihan shows us how to spot our own mental mischief. ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌" [ref=e1553]:
+                        - generic [ref=e1554]:
+                          - generic [ref=e1556]: Catch your mind in the act.
+                          - generic [ref=e1557]:
+                            - generic [ref=e1558]: "-"
+                            - text: Seth Gillihan shows us how to spot our own mental mischief. ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌ ͏ ‌
+                    - gridcell [ref=e1559]
+                    - gridcell "Thu, Jan 8, 2026, 10:01 AM" [ref=e1560]:
+                      - generic "Thu, Jan 8, 2026, 10:01 AM" [ref=e1561]: Jan 8
+                    - gridcell
+                  - row "unread, Feedspot Today, The 41 Best Dinosaur Toys for Your Future Paleontologist, Want To Raise a Kinder Kid? These 7 Everyday.., Jan 8, Submit Website View in browser Switch to weekly Feedspot Upgrade Feedspot digest contains latest stories from the sites you're following on Feedspot. Configure. Parenting Blogs Parents Parents The." [ref=e1562] [cursor=pointer]:
+                    - gridcell [ref=e1563]
+                    - gridcell "unread, Feedspot Today, The 41 Best Dinosaur Toys for Your Future Paleontologist, Want To Raise a Kinder Kid? These 7 Everyday.., Jan 8, Submit Website View in browser Switch to weekly Feedspot Upgrade Feedspot digest contains latest stories from the sites you're following on Feedspot. Configure. Parenting Blogs Parents Parents The." [ref=e1564]:
+                      - checkbox "unread, Feedspot Today, The 41 Best Dinosaur Toys for Your Future Paleontologist, Want To Raise a Kinder Kid? These 7 Everyday.., Jan 8, Submit Website View in browser Switch to weekly Feedspot Upgrade Feedspot digest contains latest stories from the sites you're following on Feedspot. Configure. Parenting Blogs Parents Parents The." [ref=e1565]
+                    - gridcell "Not starred" [ref=e1566]:
+                      - button "Not starred" [ref=e1567]
+                    - gridcell "Not important" [ref=e1568]:
+                      - switch "Not important" [ref=e1569]
+                    - gridcell "Feedspot Today" [ref=e1571]:
+                      - generic [ref=e1573]: Feedspot Today
+                    - gridcell "The 41 Best Dinosaur Toys for Your Future Paleontologist, Want To Raise a Kinder Kid? These 7 Everyday.. - Submit Website View in browser Switch to weekly Feedspot Upgrade Feedspot digest contains latest stories from the sites you're following on Feedspot. Configure. Parenting Blogs Parents Parents The" [ref=e1574]:
+                      - link "The 41 Best Dinosaur Toys for Your Future Paleontologist, Want To Raise a Kinder Kid? These 7 Everyday.. - Submit Website View in browser Switch to weekly Feedspot Upgrade Feedspot digest contains latest stories from the sites you're following on Feedspot. Configure. Parenting Blogs Parents Parents The" [ref=e1575]:
+                        - generic [ref=e1576]:
+                          - generic [ref=e1578]: The 41 Best Dinosaur Toys for Your Future Paleontologist, Want To Raise a Kinder Kid? These 7 Everyday..
+                          - generic:
+                            - generic [ref=e1579]: "-"
+                            - text: Submit Website View in browser Switch to weekly Feedspot Upgrade Feedspot digest contains latest stories from the sites you're following on Feedspot. Configure. Parenting Blogs Parents Parents The
+                    - gridcell [ref=e1580]
+                    - gridcell "Thu, Jan 8, 2026, 7:15 AM" [ref=e1581]:
+                      - generic "Thu, Jan 8, 2026, 7:15 AM" [ref=e1582]: Jan 8
+                    - gridcell
+                  - row "Maud, me 2, Q4 2025 accounting, VAT return, Jan 8, Hey Maud, how are you doing? Happy New Year 🥳 I'm going to try and send you this all today. Sorry it's so late (again). 🤪 I also wanted to chat with you next week about how I should set up." [ref=e1583] [cursor=pointer]:
+                    - gridcell [ref=e1584]
+                    - gridcell "Maud, me 2, Q4 2025 accounting, VAT return, Jan 8, Hey Maud, how are you doing? Happy New Year 🥳 I'm going to try and send you this all today. Sorry it's so late (again). 🤪 I also wanted to chat with you next week about how I should set up." [ref=e1585]:
+                      - checkbox "Maud, me 2, Q4 2025 accounting, VAT return, Jan 8, Hey Maud, how are you doing? Happy New Year 🥳 I'm going to try and send you this all today. Sorry it's so late (again). 🤪 I also wanted to chat with you next week about how I should set up." [ref=e1586]
+                    - gridcell "Not starred" [ref=e1587]:
+                      - button "Not starred" [ref=e1588]
+                    - gridcell "Important according to Google magic." [ref=e1589]:
+                      - switch "Important according to Google magic." [checked] [ref=e1590]
+                    - gridcell "Maud, me 2" [ref=e1592]:
+                      - generic [ref=e1593]:
+                        - generic [ref=e1594]: Maud, me
+                        - generic [ref=e1595]: "2"
+                    - gridcell "Accounting Q4 2025 accounting, VAT return - Hey Maud, how are you doing? Happy New Year 🥳 I'm going to try and send you this all today. Sorry it's so late (again). 🤪 I also wanted to chat with you next week about how I should set up" [ref=e1596]:
+                      - link "Accounting Q4 2025 accounting, VAT return - Hey Maud, how are you doing? Happy New Year 🥳 I'm going to try and send you this all today. Sorry it's so late (again). 🤪 I also wanted to chat with you next week about how I should set up" [ref=e1597]:
+                        - generic [ref=e1598]:
+                          - generic "Accounting" [ref=e1601]:
+                            - generic [ref=e1603]: Accounting
+                          - generic [ref=e1605]: Q4 2025 accounting, VAT return
+                          - generic [ref=e1606]:
+                            - generic [ref=e1607]: "-"
+                            - text: Hey Maud, how are you doing? Happy New Year
+                            - img "🥳" [ref=e1608]
+                            - text: I'm going to try and send you this all today. Sorry it's so late (again).
+                            - img "🤪" [ref=e1609]
+                            - text: I also wanted to chat with you next week about how I should set up
+                    - gridcell [ref=e1610]
+                    - gridcell "Thu, Jan 8, 2026, 6:47 AM" [ref=e1611]:
+                      - generic "Thu, Jan 8, 2026, 6:47 AM" [ref=e1612]: Jan 8
+                    - gridcell
+                  - row "unread, Sway, Draft, Draft, Draft 5, Yoooooo....Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 8, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1613] [cursor=pointer]:
+                    - gridcell [ref=e1614]
+                    - gridcell "unread, Sway, Draft, Draft, Draft 5, Yoooooo....Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 8, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1615]:
+                      - checkbox "unread, Sway, Draft, Draft, Draft 5, Yoooooo....Test Email from AMA with PDF Attachment - Document Organizer V4, has attachment, Jan 8, Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n." [ref=e1616]
+                    - gridcell "Not starred" [ref=e1617]:
+                      - button "Not starred" [ref=e1618]
+                    - gridcell "Not important" [ref=e1619]:
+                      - switch "Not important" [ref=e1620]
+                    - gridcell "Sway, Draft, Draft, Draft 5" [ref=e1622]:
+                      - generic [ref=e1623]:
+                        - generic [ref=e1624]: Sway, Draft, Draft, Draft
+                        - generic [ref=e1625]: "5"
+                    - 'gridcell "AMA Yoooooo....Test Email from AMA with PDF Attachment - Document Organizer V4 - Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n Attachment: OCP-Anfrage-AM10.pdf" [ref=e1626]':
+                      - link "AMA Yoooooo....Test Email from AMA with PDF Attachment - Document Organizer V4 - Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n" [ref=e1627]:
+                        - generic [ref=e1628]:
+                          - generic "AMA" [ref=e1631]:
+                            - generic [ref=e1633]: AMA
+                          - generic [ref=e1635]: Yoooooo....Test Email from AMA with PDF Attachment - Document Organizer V4
+                          - generic [ref=e1636]:
+                            - generic [ref=e1637]: "-"
+                            - text: Hey AMA, this is a test email from swayfromthehook@gmail.com to trigger the V4 Pre-Chunk 0 workflow. Attached is a random PDF from the dummy_files folder. --- This email was sent automatically with n8n
+                      - generic "OCP-Anfrage-AM10.pdf" [ref=e1639]:
+                        - generic [ref=e1640]: "Attachment:"
+                        - img [ref=e1641]
+                        - generic [ref=e1642]: OCP-Anfrage-AM10.pdf
+                    - gridcell [ref=e1643]
+                    - gridcell "Thu, Jan 8, 2026, 12:14 AM" [ref=e1644]:
+                      - generic "Thu, Jan 8, 2026, 12:14 AM" [ref=e1645]: Jan 8
+                    - gridcell
+                  - 'row "AAA Accelerator, Sincere Apologies - Last Minute Cancellation: Morningside Event, Jan 7, Sincere Apologies - Last Minute Cancellation: Morningside Event Casey Kristof Posted in Announcements Hey everyone, We sincerely apologise. Due to an unexpected personal family situation, Josh is." [ref=e1646] [cursor=pointer]':
+                    - gridcell [ref=e1647]
+                    - 'gridcell "AAA Accelerator, Sincere Apologies - Last Minute Cancellation: Morningside Event, Jan 7, Sincere Apologies - Last Minute Cancellation: Morningside Event Casey Kristof Posted in Announcements Hey everyone, We sincerely apologise. Due to an unexpected personal family situation, Josh is." [ref=e1648]':
+                      - 'checkbox "AAA Accelerator, Sincere Apologies - Last Minute Cancellation: Morningside Event, Jan 7, Sincere Apologies - Last Minute Cancellation: Morningside Event Casey Kristof Posted in Announcements Hey everyone, We sincerely apologise. Due to an unexpected personal family situation, Josh is." [ref=e1649]'
+                    - gridcell "Not starred" [ref=e1650]:
+                      - button "Not starred" [ref=e1651]
+                    - gridcell "Not important" [ref=e1652]:
+                      - switch "Not important" [ref=e1653]
+                    - gridcell "AAA Accelerator" [ref=e1655]:
+                      - generic [ref=e1657]: AAA Accelerator
+                    - 'gridcell "Sincere Apologies - Last Minute Cancellation: Morningside Event - Sincere Apologies - Last Minute Cancellation: Morningside Event Casey Kristof Posted in Announcements Hey everyone, We sincerely apologise. Due to an unexpected personal family situation, Josh is" [ref=e1658]':
+                      - 'link "Sincere Apologies - Last Minute Cancellation: Morningside Event - Sincere Apologies - Last Minute Cancellation: Morningside Event Casey Kristof Posted in Announcements Hey everyone, We sincerely apologise. Due to an unexpected personal family situation, Josh is" [ref=e1659]':
+                        - generic [ref=e1660]:
+                          - generic [ref=e1662]: "Sincere Apologies - Last Minute Cancellation: Morningside Event"
+                          - generic [ref=e1663]:
+                            - generic [ref=e1664]: "-"
+                            - text: "Sincere Apologies - Last Minute Cancellation: Morningside Event Casey Kristof Posted in Announcements Hey everyone, We sincerely apologise. Due to an unexpected personal family situation, Josh is"
+                    - gridcell [ref=e1665]
+                    - gridcell "Wed, Jan 7, 2026, 10:55 PM" [ref=e1666]:
+                      - generic "Wed, Jan 7, 2026, 10:55 PM" [ref=e1667]: Jan 7
+                    - gridcell
+                  - 'row "unread, AAA Accelerator, Event Canceled: Bi-Weekly Morningside AI Updates, has attachment, Jan 7, We''re sorry, but the following event has been cancelled Bi-Weekly Morningside AI Updates Wed Jan 07, 2026 11:00 PM - 12:00 AM, CET - GMT(+01) Location Live stream We''ve changed the event in." [ref=e1668] [cursor=pointer]':
+                    - gridcell [ref=e1669]
+                    - 'gridcell "unread, AAA Accelerator, Event Canceled: Bi-Weekly Morningside AI Updates, has attachment, Jan 7, We''re sorry, but the following event has been cancelled Bi-Weekly Morningside AI Updates Wed Jan 07, 2026 11:00 PM - 12:00 AM, CET - GMT(+01) Location Live stream We''ve changed the event in." [ref=e1670]':
+                      - 'checkbox "unread, AAA Accelerator, Event Canceled: Bi-Weekly Morningside AI Updates, has attachment, Jan 7, We''re sorry, but the following event has been cancelled Bi-Weekly Morningside AI Updates Wed Jan 07, 2026 11:00 PM - 12:00 AM, CET - GMT(+01) Location Live stream We''ve changed the event in." [ref=e1671]'
+                    - gridcell "Not starred" [ref=e1672]:
+                      - button "Not starred" [ref=e1673]
+                    - gridcell "Not important" [ref=e1674]:
+                      - switch "Not important" [ref=e1675]
+                    - gridcell "AAA Accelerator" [ref=e1677]:
+                      - generic [ref=e1679]: AAA Accelerator
+                    - 'gridcell "Event Canceled: Bi-Weekly Morningside AI Updates - We''re sorry, but the following event has been cancelled Bi-Weekly Morningside AI Updates Wed Jan 07, 2026 11:00 PM - 12:00 AM, CET - GMT(+01) Location Live stream We''ve changed the event in" [ref=e1680]':
+                      - 'link "Event Canceled: Bi-Weekly Morningside AI Updates - We''re sorry, but the following event has been cancelled Bi-Weekly Morningside AI Updates Wed Jan 07, 2026 11:00 PM - 12:00 AM, CET - GMT(+01) Location Live stream We''ve changed the event in" [ref=e1681]':
+                        - generic [ref=e1682]:
+                          - generic [ref=e1684]: "Event Canceled: Bi-Weekly Morningside AI Updates"
+                          - generic [ref=e1685]:
+                            - generic [ref=e1686]: "-"
+                            - text: We're sorry, but the following event has been cancelled Bi-Weekly Morningside AI Updates Wed Jan 07, 2026 11:00 PM - 12:00 AM, CET - GMT(+01) Location Live stream We've changed the event in
+                    - gridcell "Calendar event" [ref=e1687]:
+                      - img "Calendar event" [ref=e1688]
+                    - gridcell "Wed, Jan 7, 2026, 10:53 PM" [ref=e1689]:
+                      - generic "Wed, Jan 7, 2026, 10:53 PM" [ref=e1690]: Jan 7
+                    - gridcell
+          - contentinfo [ref=e1692]:
+            - generic [ref=e1696]:
+              - link "12% of 200 GB used Follow link to manage storage" [ref=e1697] [cursor=pointer]:
+                - /url: https://drive.google.com/u/0/settings/storage?hl=en&utm_medium=web&utm_source=gmail&utm_campaign=storage_meter&utm_content=storage_normal
+                - generic [ref=e1700]:
+                  - generic [ref=e1701]: 12% of 200 GB used
+                  - img "Follow link to manage storage" [ref=e1702]
+              - link "Cancel subscription" [ref=e1703] [cursor=pointer]:
+                - /url: https://one.google.com/cancel?authuser=0&hl=en
+                - generic [ref=e1704]: Cancel subscription
+            - generic [ref=e1708]:
+              - link "Terms" [ref=e1709] [cursor=pointer]:
+                - /url: https://www.google.com/intl/en/policies/terms/
+              - text: ·
+              - link "Privacy" [ref=e1710] [cursor=pointer]:
+                - /url: https://www.google.com/intl/en/policies/privacy/
+              - text: ·
+              - link "Program Policies" [ref=e1711] [cursor=pointer]:
+                - /url: https://www.google.com/gmail/about/policy/
+            - generic [ref=e2134]:
+              - generic [ref=e2135]: "Last account activity: 0 minutes ago"
+              - text: Open in 2 other locations ·
+              - link "Details" [ref=e2136] [cursor=pointer]
+      - generic [ref=e1719]:
+        - complementary "Side panel" [ref=e1720]:
+          - tablist [ref=e1722]:
+            - tab "Calendar"
+            - tab "Keep"
+            - tab "Tasks"
+            - tab "Contacts"
+            - separator [disabled] [ref=e1756]
+            - tab "YAMM for Gmail™"
+            - tab "Save to Notion v2"
+            - tab "Mailmeteor"
+            - tab "Get Add-ons"
+        - generic:
+          - button "Hide side panel":
+            - img [ref=e1728] [cursor=pointer]
+  - 'dialog "Compose: v6 Test - AI Parsing Fix Validation" [ref=e2728]':
+    - table [ref=e2145] [cursor=pointer]:
+      - rowgroup [ref=e2146]:
+        - 'row "Compose: v6 Test - AI Parsing Fix Validation MinimizeFull screen (Shift for pop-out)Save & close" [ref=e2729]':
+          - 'cell "Compose: v6 Test - AI Parsing Fix Validation" [ref=e2730]':
+            - 'heading "Compose: v6 Test - AI Parsing Fix Validation" [level=2] [ref=e2731]':
+              - generic [ref=e2732]: "Compose:"
+              - generic [ref=e2733]: v6 Test - AI Parsing Fix Validation
+          - cell "MinimizeFull screen (Shift for pop-out)Save & close" [ref=e2153]:
+            - img "Minimize" [ref=e2154]
+            - img "Full screen (Shift for pop-out)" [ref=e2155]
+            - img "Save & close" [ref=e2156]
+    - region "v6 Test - AI Parsing Fix Validation" [ref=e2734]:
+      - generic [ref=e2162]:
+        - generic [ref=e2736]: swayclarkeii@gmail.com
+        - textbox "Subject" [ref=e2195]: v6 Test - AI Parsing Fix Validation
+      - table [ref=e2196]:
+        - rowgroup [ref=e2197]:
+          - row "Testing AI classification with 'Other' category support. Document should classify as 'Other' and route to 37_Others folder.Using same Baubeschreibung PDF as before (251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf)." [ref=e2738]:
+            - cell "Testing AI classification with 'Other' category support. Document should classify as 'Other' and route to 37_Others folder.Using same Baubeschreibung PDF as before (251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf)." [ref=e2739]:
+              - table [ref=e2207]:
+                - rowgroup [ref=e2208]:
+                  - row "Testing AI classification with 'Other' category support. Document should classify as 'Other' and route to 37_Others folder.Using same Baubeschreibung PDF as before (251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf)." [ref=e2740]:
+                    - cell "Testing AI classification with 'Other' category support. Document should classify as 'Other' and route to 37_Others folder.Using same Baubeschreibung PDF as before (251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf)." [ref=e2741]:
+                      - textbox "Message Body" [active] [ref=e2213]:
+                        - generic [ref=e2743]: Using same Baubeschreibung PDF as before (251030_Schlossberg_Verkaufsbaubeschreibung_Entwurf.pdf).
+          - row "Formatting options" [ref=e2744]:
+            - cell "Formatting options" [ref=e2745]:
+              - generic [ref=e2218]:
+                - toolbar "Formatting options" [ref=e2222]:
+                  - button "Undo ‪(⌘Z)‬" [ref=e2223] [cursor=pointer]
+                  - button "Redo ‪(⌘Y)‬" [ref=e2227] [cursor=pointer]
+                  - listbox "Font ‪(⌘⇧5, ⌘⇧6)‬" [ref=e2232] [cursor=pointer]:
+                    - option "Sans Serif" [selected] [ref=e2235]
+                  - button "Size ‪(⌘⇧-, ⌘⇧+)‬" [ref=e2238] [cursor=pointer]
+                  - button "Bold ‪(⌘B)‬" [ref=e2245] [cursor=pointer]
+                  - button "Italic ‪(⌘I)‬" [ref=e2249] [cursor=pointer]
+                  - button "Underline ‪(⌘U)‬" [ref=e2253] [cursor=pointer]
+                  - button "Text color" [ref=e2257] [cursor=pointer]
+                  - button "Align" [ref=e2264] [cursor=pointer]
+                  - button "Numbered list ‪(⌘⇧7)‬" [ref=e2270] [cursor=pointer]
+                  - button "Bulleted list ‪(⌘⇧8)‬" [ref=e2274] [cursor=pointer]
+                  - button "More formatting options" [ref=e2279] [cursor=pointer]
+                - group [ref=e2285]:
+                  - rowgroup [ref=e2286]:
+                    - row "Send ‪(⌘Enter)‬ More send options Formatting options Attach files Insert link ‪(⌘K)‬ Insert emoji ‪(⌘⇧2)‬ Insert files using Drive Insert photo Toggle confidential mode Insert signature More options Discard draft ‪(⌘⇧D)‬" [ref=e2287]:
+                      - cell "Send ‪(⌘Enter)‬ More send options" [ref=e2288]:
+                        - generic [ref=e2290]:
+                          - button "Send ‪(⌘Enter)‬" [ref=e2291] [cursor=pointer]: Send
+                          - button "More send options" [ref=e2292] [cursor=pointer]
+                      - cell "Formatting options" [ref=e2294]:
+                        - generic "Formatting options" [ref=e2295]:
+                          - button [expanded] [pressed] [ref=e2296] [cursor=pointer]
+                      - cell "Attach files Insert link ‪(⌘K)‬ Insert emoji ‪(⌘⇧2)‬ Insert files using Drive Insert photo Toggle confidential mode Insert signature" [ref=e2301]:
+                        - generic [ref=e2302]:
+                          - button "Attach files" [ref=e2303] [cursor=pointer]
+                          - button "Insert link ‪(⌘K)‬" [ref=e2308] [cursor=pointer]
+                          - button "Insert emoji ‪(⌘⇧2)‬" [ref=e2313] [cursor=pointer]
+                          - button "Insert files using Drive" [ref=e2318] [cursor=pointer]
+                          - button "Insert photo" [ref=e2323] [cursor=pointer]
+                          - button "Toggle confidential mode" [ref=e2328] [cursor=pointer]
+                          - button "Insert signature" [ref=e2333] [cursor=pointer]
+                      - cell "More options" [ref=e2338]:
+                        - button "More options" [ref=e2339] [cursor=pointer]
+                      - cell "Discard draft ‪(⌘⇧D)‬" [ref=e2342]:
+                        - button "Discard draft ‪(⌘⇧D)‬" [ref=e2344] [cursor=pointer]
+```

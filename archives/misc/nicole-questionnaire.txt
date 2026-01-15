@@ -1,0 +1,72 @@
+# Social Media Automation - Information Request
+
+Hi Nicole,
+
+To design the best social media automation solution for A Mother's Touch, I need to gather some information about your current setup and workflow. Please answer the questions below as thoroughly as possible.
+
+---
+
+## Current Volume & Patterns
+
+**1. How many Instagram/Facebook inquiries do you receive per week on average?**
+
+**2. Can you send me screenshots of 10-15 different Instagram/Facebook conversations from the past month?**
+- Please include a variety: simple inquiries, complex requests, and any that were particularly frustrating or time-consuming
+- Remove any personal information if needed
+
+**3. What percentage of social media conversations typically turn into actual orders?**
+- Your best estimate is fine
+
+---
+
+## Account Setup
+
+**4. Is your Instagram account set up as a Business account, Creator account, or Personal account?**
+
+**5. Do you have a Facebook Business Page connected to your Instagram account?**
+
+**6. Have you completed Meta Business verification for your accounts?**
+
+---
+
+## Budget & Goals
+
+**7. What's your monthly budget for a social media automation tool?**
+- This would be an ongoing subscription cost
+
+**8. What's the #1 question customers ask that wastes the most of your time?**
+
+**9. What information do you ALWAYS need to provide a quote that customers never give you upfront?**
+- For example: number of servings, delivery location, event date, budget, etc.
+
+---
+
+## Workflow Preferences
+
+**10. After the automation qualifies a lead through social media, what would you like to happen next?**
+- Should it email you a summary?
+- Create a contact in Dubsado automatically?
+- Send the customer to your order form?
+- Something else?
+
+**11. For qualified leads who are ready to book, should the system:**
+- Keep the conversation in Instagram/Facebook DMs, or
+- Direct them to your order form?
+
+**12. At what budget range do you immediately know a lead isn't qualified for your services?**
+
+---
+
+## Escalation & Boundaries
+
+**13. When should the automated system hand off the conversation to you directly?**
+- For example: customer specifically asks for the owner, complaint, very complex custom request, etc.
+
+**14. Should the automation respond 24/7, or only during specific business hours?**
+- If business hours only, what message should customers receive after hours?
+
+---
+
+Please send your responses at your earliest convenience. The more detail you can provide, the better I can tailor the solution to your needs.
+
+Thank you!

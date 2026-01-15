@@ -1,0 +1,221 @@
+{
+  "workflow_id": "g9J5kjVtqaF9GLyc",
+  "workflow_name": "AMA Chunk 2: Text Extraction",
+  "backup_date": "2026-01-06T10:28:42+01:00",
+  "backup_reason": "Pre-Phase 2 testing backup - inactive workflow (to be activated in Phase 2)",
+  "status": "inactive",
+  "nodes_count": 8,
+  "connections_count": 7,
+  "version_id": "0511f6a4-d2d2-4296-b76e-90d24e59a4f3",
+  "version_counter": 6,
+  "last_updated": "2025-12-24T11:00:42.969Z",
+  "workflow_data": {
+    "id": "g9J5kjVtqaF9GLyc",
+    "name": "AMA Chunk 2: Text Extraction",
+    "active": false,
+    "nodes": [
+      {
+        "parameters": {},
+        "id": "da5c5c5c-5c5c-5c5c-5c5c-5c5c5c5c5c5c",
+        "name": "When Called by Chunk 1",
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1,
+        "position": [240, 300]
+      },
+      {
+        "parameters": {
+          "jsCode": "const item = $input.first().json;\n\nreturn [{\n  json: {\n    fileId: item.file_id,\n    fileName: item.file_name,\n    mimeType: item.mime_type || 'application/pdf',\n    size: item.size || 0,\n    clientNormalized: item.client_normalized || 'unknown',\n    stagingFolderId: item.staging_folder_id,\n    processedAt: new Date().toISOString()\n  }\n}];"
+        },
+        "id": "normalize-chunk2-input-001",
+        "name": "Normalize Input",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [460, 300]
+      },
+      {
+        "parameters": {
+          "operation": "download",
+          "fileId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $json.fileId }}"
+          },
+          "options": {}
+        },
+        "id": "download-pdf-chunk2-001",
+        "name": "Download PDF",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [680, 300],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "bfiE01Aam8evsKtG",
+            "name": "Google Drive account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "extractFromFile",
+          "binaryPropertyName": "data",
+          "options": {}
+        },
+        "id": "extract-text-chunk2-001",
+        "name": "Extract Text from PDF",
+        "type": "n8n-nodes-base.extractFromFile",
+        "typeVersion": 1,
+        "position": [900, 300]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "number": [
+              {
+                "value1": "={{ $json.text.trim().length }}",
+                "operation": "smaller",
+                "value2": 100
+              }
+            ]
+          }
+        },
+        "id": "if-needs-ocr-001",
+        "name": "IF Needs OCR",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 1,
+        "position": [1120, 300]
+      },
+      {
+        "parameters": {
+          "operation": "analyzeDocument",
+          "inputDataSource": "n8n",
+          "binaryPropertyName": "data"
+        },
+        "id": "aws-textract-ocr-001",
+        "name": "AWS Textract OCR",
+        "type": "n8n-nodes-base.aws",
+        "typeVersion": 1,
+        "position": [1340, 420],
+        "credentials": {
+          "aws": {
+            "id": "AWS_CREDENTIAL_ID_PLACEHOLDER",
+            "name": "AWS account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const items = $input.all();\nconst digitalItem = $('IF Needs OCR').first();\nconst ocrItem = items.find(i => i.json.ocrUsed);\n\nconst resultItem = ocrItem || digitalItem;\n\nreturn [{\n  json: {\n    fileId: resultItem.json.fileId,\n    fileName: resultItem.json.fileName,\n    clientNormalized: $('Normalize Input').first().json.clientNormalized,\n    extractedText: resultItem.json.text || resultItem.json.extractedText || '',\n    textLength: (resultItem.json.text || resultItem.json.extractedText || '').trim().length,\n    extractionMethod: resultItem.json.ocrUsed ? 'ocr_textract' : 'digital',\n    isScanned: resultItem.json.ocrUsed || false,\n    ocrUsed: resultItem.json.ocrUsed || false,\n    processedAt: new Date().toISOString(),\n    readyForChunk2_5: true\n  }\n}];"
+        },
+        "id": "normalize-chunk2-output-001",
+        "name": "Normalize Output",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [1560, 300]
+      },
+      {
+        "parameters": {
+          "jsCode": "const item = $input.first().json;\n\nreturn [{\n  json: {\n    fileId: item.fileId,\n    fileName: item.fileName,\n    text: item.text,\n    extractedText: item.Blocks ? item.Blocks.map(b => b.Text).filter(Boolean).join(' ') : item.text,\n    ocrUsed: true\n  }\n}];"
+        },
+        "id": "parse-textract-response-001",
+        "name": "Parse Textract Response",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [1340, 300]
+      }
+    ],
+    "connections": {
+      "When Called by Chunk 1": {
+        "main": [
+          [
+            {
+              "node": "Normalize Input",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Normalize Input": {
+        "main": [
+          [
+            {
+              "node": "Download PDF",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Download PDF": {
+        "main": [
+          [
+            {
+              "node": "Extract Text from PDF",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Text from PDF": {
+        "main": [
+          [
+            {
+              "node": "IF Needs OCR",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF Needs OCR": {
+        "main": [
+          [
+            {
+              "node": "AWS Textract OCR",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Normalize Output",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AWS Textract OCR": {
+        "main": [
+          [
+            {
+              "node": "Parse Textract Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Textract Response": {
+        "main": [
+          [
+            {
+              "node": "Normalize Output",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "staticData": null,
+    "tags": [],
+    "triggerCount": 0,
+    "updatedAt": "2025-12-24T11:00:42.969Z",
+    "versionId": "0511f6a4-d2d2-4296-b76e-90d24e59a4f3"
+  }
+}

@@ -1,0 +1,250 @@
+{
+  "workflow_id": "djsBWsrAEKbj2omB",
+  "workflow_name": "AMA Chunk 1: Move to Staging",
+  "backup_date": "2026-01-06T10:28:42+01:00",
+  "backup_reason": "Pre-Phase 2 testing backup - active production workflow",
+  "status": "active",
+  "nodes_count": 11,
+  "connections_count": 10,
+  "version_id": "ffe7bee6-a56d-4bd4-b4e5-ffdfeb0bc95e",
+  "version_counter": 114,
+  "last_updated": "2026-01-04T20:50:17.535Z",
+  "workflow_data": {
+    "id": "djsBWsrAEKbj2omB",
+    "name": "AMA Chunk 1: Move to Staging",
+    "active": true,
+    "nodes": [
+      {
+        "parameters": {},
+        "id": "ca7d2f78-c1eb-4a7f-9b87-8c8b8b8b8b8b",
+        "name": "When Called by Pre-Chunk 0",
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1,
+        "position": [240, 300]
+      },
+      {
+        "parameters": {
+          "jsCode": "const item = $input.first().json;\n\nreturn [{\n  json: {\n    fileId: item.file_id,\n    clientNormalized: item.client_normalized,\n    stagingFolderId: item.staging_folder_id,\n    processedAt: new Date().toISOString()\n  }\n}];"
+        },
+        "id": "normalize-input-chunk1-001",
+        "name": "Normalize Input",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [460, 300]
+      },
+      {
+        "parameters": {
+          "operation": "move",
+          "fileId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $json.fileId }}"
+          },
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "",
+            "cachedResultName": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $json.stagingFolderId }}"
+          },
+          "options": {}
+        },
+        "id": "move-to-staging-001",
+        "name": "Move File to Staging",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [680, 300],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "bfiE01Aam8evsKtG",
+            "name": "Google Drive account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const item = $input.first().json;\n\nreturn [{\n  json: {\n    file_id: item.id,\n    file_name: item.name,\n    mime_type: item.mimeType,\n    staging_folder_id: $('Normalize Input').first().json.stagingFolderId,\n    client_normalized: $('Normalize Input').first().json.clientNormalized,\n    moved_at: new Date().toISOString(),\n    ready_for_chunk_2: true\n  }\n}];"
+        },
+        "id": "prepare-chunk2-output-001",
+        "name": "Prepare Output for Chunk 2",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [900, 300]
+      },
+      {
+        "parameters": {
+          "operation": "send",
+          "sendTo": "swayclarkeii@gmail.com",
+          "subject": "📁 File Moved to Staging: {{ $json.file_name }}",
+          "emailType": "text",
+          "message": "File has been moved to staging folder:\n\nClient: {{ $json.client_normalized }}\nFile: {{ $json.file_name }}\nStaging Folder ID: {{ $json.staging_folder_id }}\n\nMoved at: {{ $json.moved_at }}",
+          "options": {}
+        },
+        "id": "send-staging-notification-001",
+        "name": "Send Staging Notification",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [900, 480],
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "w07toTWMd9w3lVoe",
+            "name": "Gmail account 3"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "unzip",
+          "binaryPropertyName": "data",
+          "options": {}
+        },
+        "id": "extract-zip-001",
+        "name": "Extract ZIP (DISABLED)",
+        "type": "n8n-nodes-base.compression",
+        "typeVersion": 1,
+        "position": [1120, 420],
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "string": [
+              {
+                "value1": "={{ $json.mime_type }}",
+                "operation": "equals",
+                "value2": "application/zip"
+              }
+            ]
+          }
+        },
+        "id": "if-zip-file-001",
+        "name": "IF ZIP File (DISABLED)",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 1,
+        "position": [1120, 300],
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "operation": "upload",
+          "binaryPropertyName": "data",
+          "folderId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $json.staging_folder_id }}"
+          },
+          "options": {
+            "fileName": "={{ $json.name }}"
+          }
+        },
+        "id": "upload-extracted-files-001",
+        "name": "Upload Extracted Files (DISABLED)",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [1340, 420],
+        "disabled": true,
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "bfiE01Aam8evsKtG",
+            "name": "Google Drive account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "delete",
+          "fileId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $json.file_id }}"
+          },
+          "options": {}
+        },
+        "id": "delete-original-zip-001",
+        "name": "Delete Original ZIP (DISABLED)",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [1560, 420],
+        "disabled": true,
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "bfiE01Aam8evsKtG",
+            "name": "Google Drive account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const items = $input.all();\n\nreturn items.map(item => ({\n  json: {\n    file_id: item.json.id,\n    file_name: item.json.name,\n    mime_type: item.json.mimeType,\n    staging_folder_id: $('Normalize Input').first().json.stagingFolderId,\n    client_normalized: $('Normalize Input').first().json.clientNormalized,\n    extracted_from_zip: true,\n    ready_for_chunk_2: true\n  }\n}));"
+        },
+        "id": "prepare-extracted-output-001",
+        "name": "Prepare Extracted Output (DISABLED)",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [1780, 420],
+        "disabled": true
+      },
+      {
+        "parameters": {},
+        "id": "merge-zip-paths-001",
+        "name": "Merge ZIP Paths (DISABLED)",
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 2.1,
+        "position": [2000, 360],
+        "disabled": true
+      }
+    ],
+    "connections": {
+      "When Called by Pre-Chunk 0": {
+        "main": [
+          [
+            {
+              "node": "Normalize Input",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Normalize Input": {
+        "main": [
+          [
+            {
+              "node": "Move File to Staging",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Move File to Staging": {
+        "main": [
+          [
+            {
+              "node": "Prepare Output for Chunk 2",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Send Staging Notification",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "staticData": null,
+    "tags": [],
+    "triggerCount": 0,
+    "updatedAt": "2026-01-04T20:50:17.535Z",
+    "versionId": "ffe7bee6-a56d-4bd4-b4e5-ffdfeb0bc95e"
+  }
+}
