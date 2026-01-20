@@ -76,7 +76,7 @@ If the project folder or discovery documents are missing, ask for them briefly o
 
 ## Workflow
 
-### Step 1 – Load configuration and blueprint
+### Step 1 – Load configuration, blueprint, and style guide
 
 1. **Read proposal configuration**:
    ```
@@ -93,11 +93,23 @@ If the project folder or discovery documents are missing, ask for them briefly o
    /Users/swayclarke/coding_stuff/claude-code-os/09-templates/discovery-to-template-mapping.json
    ```
 
-4. **Verify configuration**:
+4. **Read presentation style guide** (CRITICAL):
+   ```
+   /Users/swayclarke/coding_stuff/claude-code-os/02-operations/templates/PRESENTATION_STYLE_GUIDE.md
+   ```
+
+5. **Verify configuration**:
    - Template ID is configured
-   - Blueprint mapping exists (47 variables across 10 slides)
+   - Blueprint mapping exists
+   - Style guide loaded (bullet points, short text, scannable)
    - Logo URL is set (optional)
    - Brand settings are defined
+
+**STYLE RULES**: All content must follow the style guide. Key rules:
+- **Bullet points over paragraphs** - Never use paragraphs in descriptions
+- **Numbers first** - Lead with metrics (€100K not "Outstanding amount")
+- **Max 3 bullets** - 8-10 words per bullet
+- **Sway speaks to slides** - Content is prompts for conversation, not scripts
 
 If configuration is incomplete, guide Sway to complete setup first.
 

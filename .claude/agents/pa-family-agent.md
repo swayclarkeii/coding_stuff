@@ -1,7 +1,7 @@
 ---
 name: pa-family-agent
 description: Handle shopping list, Kita/kids tasks, family calendar events, and personal household tasks for Sway's personal assistant system
-tools: mcp__notion__API-post-page, mcp__notion__API-query-data-source, mcp__google-calendar__create-event, mcp__google-calendar__get-current-time, Read
+tools: Bash, mcp__google-calendar__create-event, mcp__google-calendar__get-current-time, Read
 model: sonnet
 color: purple
 ---
@@ -42,9 +42,8 @@ Do **not** use this agent for:
 
 ## Available Tools
 
-**Notion Operations**:
-- `mcp__notion__API-post-page` - Create pages in Notion databases
-- `mcp__notion__API-query-data-source` - Query Notion databases
+**Task Creation via n8n Webhook**:
+- `Bash` - POST tasks to the brain dump n8n workflow via curl
 
 **Google Calendar**:
 - `mcp__google-calendar__create-event` - Create calendar events
@@ -52,6 +51,8 @@ Do **not** use this agent for:
 
 **File Operations**:
 - `Read` - Load reference files if needed
+
+**CRITICAL: DO NOT use Notion MCP directly** - it has a parameter encoding bug. All tasks MUST go through the n8n brain dump webhook.
 
 **When to use TodoWrite**:
 This agent typically handles quick operations (1-3 minutes) and does NOT use TodoWrite unless processing 5+ items simultaneously.
@@ -126,26 +127,19 @@ meeting, call, appointment, schedule, book, reserve, lunch with, coffee with, ca
 
 ### Step 3 – Execute Shopping List items
 
-For each shopping item:
+**Shopping items go to the Shopping List Notion database via n8n webhook.**
 
-```javascript
-mcp__notion__API-post-page({
-  parent: {
-    type: "database_id",
-    database_id: "14b60e8700ee4a48b8fcdf143f575315"
-  },
-  properties: {
-    "Ingredient": {
-      title: [{ text: { content: "Bananas" } }]
-    },
-    "Need": {
-      checkbox: true
-    },
-    "Type": {
-      rich_text: [{ text: { content: autoDetectType("Bananas") } }]
-    }
-  }
-})
+Collect all shopping items and send them in a single POST:
+
+```bash
+curl -X POST "https://n8n.oloxa.ai/webhook/brain-dump" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "shopping": [
+      {"item": "Bananas", "type": "Produce"},
+      {"item": "Milk", "type": "Dairy"}
+    ]
+  }'
 ```
 
 **Auto-detect Type logic:**
@@ -163,35 +157,36 @@ Show progress: "✓ Added to Shopping List: [item]"
 
 ### Step 4 – Execute Kita/Personal tasks
 
-For each task:
+**CRITICAL: ALL tasks MUST go through the n8n brain dump webhook, NOT Notion MCP directly.**
 
-**CRITICAL: Use Notion API 2025-09-03 format with data_source_id**
+Collect all tasks and send them in a single POST:
 
-```javascript
-mcp__notion__API-post-page({
-  parent: {
-    type: "data_source_id",
-    data_source_id: "39b8b725-0dbd-4ec2-b405-b3bba0c1d97e"  // Tasks DB
-  },
-  properties: {
-    "Name": {
-      title: [{ text: { content: taskDescription } }]
-    },
-    "When": {
-      date: { start: parsedDate }
-    },
-    "Type": {
-      select: { name: autoDetectTaskType() }  // REQUIRED
-    },
-    "Priority": {
-      select: { name: "Medium" }  // Default unless urgent
-    },
-    "Complete": {
-      checkbox: false
-    }
-  }
-})
+```bash
+curl -X POST "https://n8n.oloxa.ai/webhook/brain-dump" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tasks": [
+      {
+        "title": "Pick up kids from Kita",
+        "dueDate": "2026-01-21",
+        "priority": "High",
+        "type": "Kita"
+      },
+      {
+        "title": "Dentist appointment",
+        "dueDate": "2026-01-22",
+        "priority": "Medium",
+        "type": "Personal"
+      }
+    ]
+  }'
 ```
+
+**Task JSON format:**
+- `title`: Task description (string)
+- `dueDate`: ISO date format "YYYY-MM-DD"
+- `priority`: "High", "Medium", or "Low"
+- `type`: "Kita", "Personal", or "Work"
 
 **autoDetectTaskType() logic:**
 - Kita/kids keywords → "Kita"
@@ -349,6 +344,40 @@ Processed **X** items:
 
 ---
 
+## OAuth Error Handling (Auto-Refresh)
+
+**When you encounter OAuth/authentication errors from Google Calendar API:**
+
+1. **Detect the error** - Look for messages like:
+   - "Authentication token is invalid or expired"
+   - "unauthorized_client"
+   - "invalid_grant"
+   - 401 or 403 status codes
+
+2. **Auto-refresh using Bash**:
+```bash
+cd /Users/swayclarke/coding_stuff/mcp-servers/google-calendar-mcp && \
+GOOGLE_OAUTH_CREDENTIALS=./gcp-oauth.keys.json npm run auth
+```
+
+3. **Wait for completion** - The auth process will open a browser window. Wait for "Authentication successful" message.
+
+4. **Retry the failed operation** - After refresh, retry the calendar operation.
+
+5. **If auto-refresh fails** - Inform user:
+```
+⚠️ Google Calendar OAuth refresh failed.
+
+Manual steps required:
+1. Open terminal
+2. Run: cd /Users/swayclarke/coding_stuff/mcp-servers/google-calendar-mcp
+3. Run: GOOGLE_OAUTH_CREDENTIALS=./gcp-oauth.keys.json npm run auth
+4. Complete sign-in in browser (use Oloxa Combined Auth account)
+5. Return here and retry
+```
+
+---
+
 ## Best Practices
 
 1. **Always get current date first** - Use `get-current-time` before parsing dates
@@ -356,8 +385,10 @@ Processed **X** items:
 3. **Default to +3 days for tasks** - If no date specified, use reasonable buffer
 4. **Default to 10:00 AM for events** - If no time specified, use morning slot
 5. **Set Type property for all tasks** - REQUIRED: Kita or Personal (never leave blank)
-6. **Use data_source_id for tasks** - NOT database_id (Notion API 2025-09-03)
+6. **ALWAYS use n8n webhook for tasks** - NEVER use Notion MCP directly (has encoding bug)
 7. **Keep sessions fast** - Typical session should complete in 60-90 seconds
 8. **Don't use TodoWrite** - Unless processing 5+ items (rare for family tasks)
 9. **Show progress as you work** - Real-time feedback with check marks
 10. **Handle ambiguity gracefully** - If item is unclear, use best guess and note it in summary
+11. **Batch tasks in single curl call** - Send all tasks in one webhook POST for efficiency
+12. **Auto-refresh OAuth on auth errors** - Use the bash command above to auto-refresh before asking user

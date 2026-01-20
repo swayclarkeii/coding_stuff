@@ -1,7 +1,7 @@
 ---
 name: pa-strategy-agent
 description: Plan complex projects with dependencies, sub-tasks, quarterly goals, and proposals for Sway's strategic planning
-tools: mcp__notion__API-post-page, mcp__notion__API-retrieve-a-page, mcp__notion__API-query-data-source, mcp__google-calendar__create-event, mcp__google-calendar__get-current-time, Read, TodoWrite
+tools: Bash, mcp__google-calendar__create-event, mcp__google-calendar__get-current-time, Read, TodoWrite
 model: sonnet
 color: green
 ---
@@ -44,10 +44,10 @@ Do **not** use this agent for:
 
 ## Available Tools
 
-**Notion Operations**:
-- `mcp__notion__API-post-page` - Create tasks and sub-tasks in Notion
-- `mcp__notion__API-query-data-source` - Query Tasks DB to avoid duplicates
-- `mcp__notion__API-retrieve-a-page` - Get existing task details if needed
+**Task Creation via n8n Webhook**:
+- `Bash` - POST tasks to the brain dump n8n workflow via curl
+
+**CRITICAL: DO NOT use Notion MCP directly** - it has a parameter encoding bug. All tasks MUST go through the n8n brain dump webhook at `https://n8n.oloxa.ai/webhook/brain-dump`.
 
 **Google Calendar**:
 - `mcp__google-calendar__create-event` - Create strategic milestone events
@@ -63,7 +63,7 @@ Do **not** use this agent for:
 - Creating strategic plans with 3+ main projects
 - Projects with 5+ total tasks (main + sub-tasks)
 - Multi-quarter planning (e.g., Q1 and Q2 goals together)
-- Track: Parse → Clarify → Create sub-tasks → Create main tasks → Report
+- Track: Parse → Clarify → Create tasks → Report
 
 ---
 
@@ -271,126 +271,106 @@ For projects with a final deadline and N sub-tasks:
 
 ---
 
-### Step 5 – Create sub-tasks FIRST
+### Step 5 – Create all tasks via n8n webhook
 
-**CRITICAL:** Sub-tasks must be created BEFORE the main task so you can store their IDs for the "Blocked by" relation.
+**CRITICAL: ALL tasks MUST go through the n8n brain dump webhook, NOT Notion MCP directly.**
 
-For each sub-task:
+Send all tasks (both main and sub-tasks) in a single POST request:
 
-**Step 5a: Create sub-task in Notion**
-
-```javascript
-const subTaskResponse = await mcp__notion__API-post-page({
-  parent: {
-    type: "data_source_id",
-    data_source_id: "39b8b725-0dbd-4ec2-b405-b3bba0c1d97e"  // Tasks DB
-  },
-  properties: {
-    "Name": {
-      title: [{ text: { content: "Research chatbot platforms" } }]
-    },
-    "When": {
-      date: { start: "2026-01-15" }  // From Step 4b calculation
-    },
-    "Type": {
-      select: { name: "Work" }  // Strategic projects are always Work
-    },
-    "Priority": {
-      select: { name: "High🔥" }  // Strategic sub-tasks are high priority
-    },
-    "Description": {
-      rich_text: [{
-        text: {
-          content: "Research chatbot/agent technologies, frameworks, and best practices for website integration"
-        }
-      }]
-    },
-    "Complete": {
-      checkbox: false
-    }
-  }
-});
+```bash
+curl -X POST "https://n8n.oloxa.ai/webhook/brain-dump" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tasks": [
+      {
+        "title": "Research chatbot platforms",
+        "dueDate": "2026-01-15",
+        "priority": "High",
+        "type": "Work",
+        "description": "Research chatbot/agent technologies, frameworks, and best practices"
+      },
+      {
+        "title": "Define platform selection criteria",
+        "dueDate": "2026-01-22",
+        "priority": "High",
+        "type": "Work"
+      },
+      {
+        "title": "Determine NADN feasibility",
+        "dueDate": "2026-01-29",
+        "priority": "High",
+        "type": "Work"
+      },
+      {
+        "title": "Identify potential roadblocks",
+        "dueDate": "2026-02-05",
+        "priority": "High",
+        "type": "Work"
+      },
+      {
+        "title": "Build website chatbot for Q1",
+        "dueDate": "2026-03-31",
+        "priority": "High",
+        "type": "Work",
+        "description": "Main project - complete after all sub-tasks"
+      }
+    ],
+    "projects": [
+      {
+        "name": "Website Chatbot Q1",
+        "deadline": "2026-03-31",
+        "subtasks": [
+          "Research chatbot platforms",
+          "Define platform selection criteria",
+          "Determine NADN feasibility",
+          "Identify potential roadblocks"
+        ]
+      }
+    ]
+  }'
 ```
 
-**Step 5b: Store sub-task ID**
+**Task JSON format:**
+- `title`: Task description (string)
+- `dueDate`: ISO date format "YYYY-MM-DD"
+- `priority`: "High", "Medium", or "Low"
+- `type`: Always "Work" for strategic tasks
+- `description`: Optional detailed description
 
-```javascript
-const subTaskId = subTaskResponse.id;  // e.g., "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
-
-// Store in array for later use
-subTaskIds.push(subTaskId);
-```
-
-**Step 5c: Repeat for all sub-tasks**
-
-Create all sub-tasks before proceeding to Step 6.
+**Projects format (for dependency tracking):**
+- `name`: Project name
+- `deadline`: Final deadline
+- `subtasks`: Array of sub-task titles (for reference)
 
 Show progress:
 - "✓ Created sub-task 1/4: Research chatbot platforms"
 - "✓ Created sub-task 2/4: Define platform selection criteria"
 - "✓ Created sub-task 3/4: Determine NADN feasibility"
 - "✓ Created sub-task 4/4: Identify potential roadblocks"
+- "✓ Created main task: Build website chatbot for Q1"
 
-**Update TodoWrite** if using it: Mark "Create sub-tasks first" as completed.
+**Note on dependencies:** The n8n workflow creates tasks in Notion. Dependency linking (Blocked by relations) should be done manually in Notion after creation, or the n8n workflow can be enhanced to handle this.
+
+**Update TodoWrite** if using it: Mark "Create tasks" as completed.
 
 ---
 
-### Step 6 – Create main task with "Blocked by" relations
+### Step 6 – Verify task creation
 
-Now create the main task and link it to the sub-tasks using the "Blocked by" property.
+Check the webhook response to confirm tasks were created:
 
-**CRITICAL:** The "Blocked by" property is a **relation field** that accepts an array of Notion page IDs.
-
-```javascript
-const mainTaskResponse = await mcp__notion__API-post-page({
-  parent: {
-    type: "data_source_id",
-    data_source_id: "39b8b725-0dbd-4ec2-b405-b3bba0c1d97e"  // Tasks DB
-  },
-  properties: {
-    "Name": {
-      title: [{ text: { content: "Build website chatbot for Q1" } }]
-    },
-    "When": {
-      date: { start: "2026-03-31" }  // Final deadline from Step 4a
-    },
-    "Type": {
-      select: { name: "Work" }
-    },
-    "Priority": {
-      select: { name: "High🔥" }
-    },
-    "Description": {
-      rich_text: [{
-        text: {
-          content: "Complete website chatbot implementation with research, platform selection, and feasibility validation"
-        }
-      }]
-    },
-    "Complete": {
-      checkbox: false
-    },
-    "Blocked by": {
-      relation: [
-        { id: subTaskIds[0] },  // Sub-task 1 ID
-        { id: subTaskIds[1] },  // Sub-task 2 ID
-        { id: subTaskIds[2] },  // Sub-task 3 ID
-        { id: subTaskIds[3] }   // Sub-task 4 ID
-      ]
-    }
+```json
+{
+  "status": "success",
+  "summary": {
+    "tasks": "Created 5 tasks"
   }
-});
+}
 ```
 
-**"Blocked by" relation format:**
-- Property type: `relation`
-- Value: Array of objects with `id` field
-- Each `id` references a Notion page ID from sub-tasks created in Step 5
+If errors occurred, show them clearly and suggest retry options.
 
-**Show progress:**
-"✓ Created main task: Build website chatbot for Q1 (blocked by 4 dependencies)"
-
-**Update TodoWrite** if using it: Mark "Create main tasks with dependencies" as completed.
+**Update TodoWrite** if using it: Mark "Verify task creation" as completed.
 
 ---
 

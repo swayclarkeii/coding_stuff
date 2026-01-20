@@ -1,0 +1,311 @@
+{
+  "presentationId": "14vm54Yjro2IOQA5elxxnpIbQUu6xssiFKlfESaJZsdE",
+  "requests": [
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{presentation_title}}",
+          "matchCase": false
+        },
+        "replaceText": "Discovery Summary & Discussion"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{company_name}}",
+          "matchCase": false
+        },
+        "replaceText": "Ambush TV"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{date}}",
+          "matchCase": false
+        },
+        "replaceText": "January 2026"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{client_company_description}}",
+          "matchCase": false
+        },
+        "replaceText": "Over the past two weeks, I've had conversations with Sindbad and the admin team (Leonor, Madalena, Alice) to understand Ambush's operational challenges."
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{context_timeline}}",
+          "matchCase": false
+        },
+        "replaceText": "January 8-15, 2026"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "Thank you for watching.",
+          "matchCase": false
+        },
+        "replaceText": "Today I want to share what we discovered and get your perspective."
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{client_name}}",
+          "matchCase": false
+        },
+        "replaceText": "Sindbad & Pierre"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{discovery_1}}",
+          "matchCase": false
+        },
+        "replaceText": "Outstanding Client Payments"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{discovery_1_description}}",
+          "matchCase": false
+        },
+        "replaceText": "€150,000 in outstanding client payments, with €100,000 overdue by more than 30 days. Late invoicing and no systematic follow-up delays collection."
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{discovery_2}}",
+          "matchCase": false
+        },
+        "replaceText": "Data Doesn't Flow Between Systems"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{discovery_2_description}}",
+          "matchCase": false
+        },
+        "replaceText": "12+ sheets that don't sync. Names don't match, team changes require manual updates everywhere, rates need triple-entry."
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{discovery_3}}",
+          "matchCase": false
+        },
+        "replaceText": "Invoice Validation Burden"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{discovery_3_description}}",
+          "matchCase": false
+        },
+        "replaceText": "Sindbad validates 15-25 invoices weekly, catching 10% error rate. Each error costs €150 average to investigate."
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{discovery_4}}",
+          "matchCase": false
+        },
+        "replaceText": "Month-End Invoicing Delays"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{discovery_4_description}}",
+          "matchCase": false
+        },
+        "replaceText": "No systematic reminders for project close-out. Projects end, then 1-2 months pass before clients are invoiced."
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{direction_1}}",
+          "matchCase": false
+        },
+        "replaceText": "Single Source of Truth Architecture"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{direction_1_description}}",
+          "matchCase": false
+        },
+        "replaceText": "Data entered once, flows everywhere. Calendar to Dashboard to Project Directory. Names normalized. Team changes reflect automatically."
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{direction_2}}",
+          "matchCase": false
+        },
+        "replaceText": "Systematic Collection & Visibility"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{direction_2_description}}",
+          "matchCase": false
+        },
+        "replaceText": "Calendar-driven reminders for hours collection and invoicing. Aging dashboard shows who owes what. Freed admin capacity to chase overdue payments."
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{direction_3}}",
+          "matchCase": false
+        },
+        "replaceText": "Invoice Pre-Validation with Human Checkpoints"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{direction_3_description}}",
+          "matchCase": false
+        },
+        "replaceText": "Automated checks flag potential issues before Sindbad reviews. Exceptions surfaced for human decision. Keeps human judgment in the loop."
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{phase_1_time}}",
+          "matchCase": false
+        },
+        "replaceText": "4-6 weeks"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{phase_1_description}}",
+          "matchCase": false
+        },
+        "replaceText": "Foundation & Quick Wins: Single source of truth setup, rate sync, calendar reminders, Fathom integration."
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{phase_2_time}}",
+          "matchCase": false
+        },
+        "replaceText": "8-10 weeks"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{phase_2_description}}",
+          "matchCase": false
+        },
+        "replaceText": "Invoice Validation System: Invoice parsing, hours verification, exception dashboard, Wise payment preparation."
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{post_phase_2_time}}",
+          "matchCase": false
+        },
+        "replaceText": "Ongoing"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{post_phase_2_description}}",
+          "matchCase": false
+        },
+        "replaceText": "Continuous improvement based on usage patterns and feedback."
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{input_question_1}}",
+          "matchCase": false
+        },
+        "replaceText": "What's your perspective on these operational challenges?"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{input_question_2}}",
+          "matchCase": false
+        },
+        "replaceText": "Are there pain points from the recruitment side I should understand?"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{input_question_3}}",
+          "matchCase": false
+        },
+        "replaceText": "How do you see AI and automation fitting into Ambush's future direction?"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{discussion_point_1}}",
+          "matchCase": false
+        },
+        "replaceText": "Which of these challenges feels most urgent to address"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{discussion_point_2}}",
+          "matchCase": false
+        },
+        "replaceText": "Who else should be involved in decisions about next steps"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{discussion_point_3}}",
+          "matchCase": false
+        },
+        "replaceText": "Timeline for deciding how to proceed"
+      }
+    },
+    {
+      "replaceAllText": {
+        "containsText": {
+          "text": "{{unique_client_thank_you_message}}",
+          "matchCase": false
+        },
+        "replaceText": "Thank you for taking the time to share your perspective. Ambush has built something impressive - looking forward to exploring how we can help it run even smoother."
+      }
+    }
+  ]
+}

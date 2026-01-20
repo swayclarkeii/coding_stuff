@@ -71,13 +71,16 @@ If client path is missing, ask: "Which client project should I extract variables
 
 ## Workflow
 
-### Step 1 – Load blueprint and schema
+### Step 1 – Load blueprint, schema, and style guide
 
 1. Read blueprint: `/09-templates/google-slides-proposal-blueprint.md`
 2. Read mapping schema: `/09-templates/discovery-to-template-mapping.json`
-3. Load all 47 variable definitions
-4. Prepare extraction patterns (7 pattern types)
-5. Confirm client project path exists
+3. **Read style guide**: `/02-operations/templates/PRESENTATION_STYLE_GUIDE.md`
+4. Load all variable definitions
+5. Prepare extraction patterns (7 pattern types)
+6. Confirm client project path exists
+
+**CRITICAL**: All output must follow the style guide. Sway speaks to slides, not reads them.
 
 **Create TodoWrite plan**:
 ```
@@ -144,21 +147,40 @@ Extract: "Document Labeling Bottleneck" (first 3 words)
 Confidence: 100%
 ```
 
-#### Pattern 2: Synthesized Summary
-**Used for**: Client descriptions, benefit descriptions
+#### Pattern 2: Synthesized Summary (Bullet Format)
+**Used for**: Client descriptions, pain point descriptions, benefit descriptions
+
+**STYLE RULE**: Never use paragraphs. Always use bullet points.
 
 **Process**:
 1. Read full section specified in blueprint
-2. Identify key components (what, quantity, goal, constraint)
-3. Synthesize into target word count (12-40 words typically)
-4. Validate readability and completeness
+2. Identify key components (what, quantity, impact)
+3. **Convert to 3 bullet points** (max 8-10 words each)
+4. Lead with numbers/metrics when available
+5. Validate readability and brevity
 
-**Example**:
+**Example - Pain Point Description**:
+```
+Variable: pain_point_1_description
+Source: key_insights.md → "Critical Pain Point" section
+
+❌ BAD (paragraph):
+"€150,000 in outstanding client payments, with €100,000 overdue by more than 30 days. Late invoicing and no systematic follow-up delays collection."
+
+✅ GOOD (bullets):
+• €100K overdue 30+ days
+• No systematic follow-up
+• Late invoicing delays collection
+
+Confidence: 95%
+```
+
+**Example - Company Description** (one-liner exception):
 ```
 Variable: client_company_description
 Source: key_insights.md → "One-Liner" section
-Components: Business type, current metric, goal metric, constraint
-Output: "A real estate debt advisor processing 6 deals/year aiming to scale to 15 deals by reducing 80% time on manual document processing"
+Output: "Ad pitch presentations for commercial directors. 50+ projects/month. 9 core team + 70-80 freelancers."
+Note: Company description can be 1-2 sentence fragments (exception to bullet rule)
 Confidence: 95%
 ```
 
@@ -478,6 +500,9 @@ Return a concise extraction report:
 - **Don't fabricate data** - If source lacks information, mark as missing
 - **Maintain traceability** - Every value must be traceable to source document and line
 - **Confidence through evidence** - Higher confidence comes from direct quotes, not synthesis
+- **BULLET POINTS OVER PARAGRAPHS** - Sway speaks to slides. All descriptions must be bullet format
+- **Numbers first** - Lead with metrics (€100K not "Outstanding amount of €100K")
+- **Max 3 bullets per item** - Keep scannable, 8-10 words per bullet
 
 ---
 

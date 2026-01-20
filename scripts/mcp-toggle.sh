@@ -26,7 +26,7 @@ Commands:
   ${GREEN}status${NC}           Show current MCP server status
   ${GREEN}enable-all${NC}       Enable all MCP servers
   ${GREEN}core-mode${NC}        Enable core servers (n8n, playwriter, playwright, google-sheets, google-drive)
-  ${GREEN}pa-mode${NC}          Enable PA mode (calendar, github, sheets, notion)
+  ${GREEN}pa-mode${NC}          Enable PA mode (n8n, calendar, github, sheets, notion)
   ${GREEN}minimal${NC}          Enable minimal set (n8n only)
   ${GREEN}disable-all${NC}      Disable all MCP servers
   ${GREEN}list${NC}             List all available MCP servers
@@ -42,7 +42,7 @@ Token Costs (per conversation):
 
 Examples:
   ./mcp-toggle.sh core-mode      # Daily work mode (saves ~34K tokens)
-  ./mcp-toggle.sh pa-mode        # PA work: calendar + github + sheets + notion
+  ./mcp-toggle.sh pa-mode        # PA work: n8n + calendar + github + sheets + notion
   ./mcp-toggle.sh enable-all     # Full feature set (all 11 servers)
 
 EOF
@@ -141,6 +141,7 @@ CORE_SERVERS=(
 
 # PA mode servers (focused personal assistant work)
 PA_SERVERS=(
+    "n8n-mcp"
     "google-calendar"
     "github-mcp"
     "google-sheets"
@@ -168,18 +169,18 @@ enable_core() {
     show_status
 }
 
-# Enable PA mode (focused: calendar, github, sheets, notion)
+# Enable PA mode (focused: n8n, calendar, github, sheets, notion)
 enable_pa_mode() {
-    print_status "Enabling PA mode (calendar, github, sheets, notion)..."
+    print_status "Enabling PA mode (n8n, calendar, github, sheets, notion)..."
 
-    # Disable: n8n, playwriter, playwright, drive, fathom, slides, docs
-    DISABLED='["n8n-mcp","playwriter","playwright","google-drive","fathom","google-slides","google-docs"]'
+    # Disable: playwriter, playwright, drive, fathom, slides, docs
+    DISABLED='["playwriter","playwright","google-drive","fathom","google-slides","google-docs"]'
 
     update_disabled_servers "$DISABLED"
 
     print_success "PA mode enabled"
-    print_status "Includes: google-calendar + github + google-sheets + notion"
-    print_status "Token cost: ~34,289-38,289 tokens per conversation"
+    print_status "Includes: n8n-mcp + google-calendar + github + google-sheets + notion"
+    print_status "Token cost: ~40,000-44,000 tokens per conversation"
     echo ""
     show_status
 }

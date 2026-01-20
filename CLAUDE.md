@@ -43,10 +43,10 @@ Run the MCP toggle script: `/Users/swayclarke/coding_stuff/scripts/mcp-toggle.sh
   - Token cost: ~28K-32K per conversation
   - Use for: n8n workflows, browser automation, spreadsheet work, file operations
 
-- **pa-mode**: Personal assistant work (4 servers: google-calendar, github, google-sheets, notion)
-  - Token cost: ~34K-38K per conversation
-  - Use for: CRM tasks, task management, calendar events, GitHub work
-  - Note: No n8n or browser automation in PA mode
+- **pa-mode**: Personal assistant work (5 servers: n8n, google-calendar, github, google-sheets, notion)
+  - Token cost: ~40K-44K per conversation
+  - Use for: CRM tasks, task management, calendar events, GitHub work, brain dump workflows
+  - Note: No browser automation in PA mode (no playwriter/playwright)
 
 - **enable-all**: All servers (11 servers) - rarely needed
   - Token cost: ~52K per conversation

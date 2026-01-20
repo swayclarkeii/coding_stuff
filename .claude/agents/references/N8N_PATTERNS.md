@@ -60,6 +60,80 @@ mcp__n8n-mcp__n8n_get_workflow({ id: "...", mode: "minimal" })    // 200 tokens
 
 ---
 
+## 🚨 Critical Node Configuration Patterns
+
+**ALWAYS reference this section before configuring Google Drive or Gmail nodes.**
+
+### Google Drive: Searching Files in a Folder
+
+**THE PROBLEM:** "Bad request - please check your parameters (Invalid Value)" errors occur when using the wrong `searchMethod`.
+
+**ROOT CAUSE:** PDFs use standard MIME type `application/pdf` (not a Google-native type like Docs/Sheets). The simple "name" search method doesn't support standard file types.
+
+**✅ CORRECT Configuration for PDFs:**
+
+```javascript
+{
+  "resource": "fileFolder",           // NOT "file" or "folder"
+  "operation": "search",
+  "searchMethod": "query",            // CRITICAL: Use "query" for PDFs, NOT "name"
+  "queryString": "mimeType='application/pdf' and 'FOLDER_ID' in parents and trashed=false",
+  "returnAll": true
+}
+```
+
+**❌ WRONG Configuration (causes "Bad Request"):**
+
+```javascript
+{
+  "resource": "fileFolder",
+  "operation": "search",
+  "searchMethod": "name",             // ❌ WRONG for PDFs
+  "queryString": "mimeType='application/pdf' and '...' in parents",  // Query syntax not supported with "name"
+  "filter": {...}
+}
+```
+
+**Key Rules:**
+1. **For PDFs and standard files:** Use `searchMethod: "query"` with Google Drive API query syntax
+2. **For Google-native files (Docs, Sheets, Slides):** Use `searchMethod: "name"` with filter fields
+3. **Query syntax:** `mimeType='TYPE' and 'FOLDER_ID' in parents and trashed=false`
+4. **Resource:** Always use `"fileFolder"` for file searches (NOT "file")
+
+### Google OAuth Credentials: Combined Auth vs Service-Specific
+
+**THE PROBLEM:** "Combined Google Auth" credential may not appear in dropdown for all Google services, or may exist for one service (Drive, Gmail) but not another (Sheets).
+
+**ROOT CAUSE:** n8n credentials are service-specific. A single OAuth token can work for multiple services, but n8n requires separate credential entries for each API type (googleDriveOAuth2Api, googleSheetsOAuth2Api, gmailOAuth2).
+
+**✅ CORRECT Approach:**
+
+1. **Check which credential ID exists for each service:**
+   - Google Drive: Look for `googleDriveOAuth2Api` credentials
+   - Google Sheets: Look for `googleSheetsOAuth2Api` credentials
+   - Gmail: Look for `gmailOAuth2` credentials
+
+2. **Don't assume "Combined Google Auth" works for all services**
+   - It may exist for Drive/Gmail but not Sheets
+   - Each service needs its own credential entry in n8n
+
+3. **When in doubt, check existing workflows:**
+   - Find a working workflow that uses the same Google service
+   - Copy the credential ID from that workflow
+
+**Example Issue:**
+- Credential ID `a4m50EefR3DJoU0R` named "Combined Google Auth"
+- ✅ Works for: `googleDriveOAuth2Api`, `gmailOAuth2`
+- ❌ Doesn't exist for: `googleSheetsOAuth2Api`
+- **Solution:** Use different credential ID for Google Sheets nodes
+
+**When configuring Google nodes:**
+1. Don't guess credential names
+2. Check what credentials actually exist in n8n for that specific service type
+3. Use the correct credential type for each node (Drive ≠ Sheets ≠ Gmail)
+
+---
+
 ## n8n_update_partial_workflow Syntax
 
 ### Common Mistakes to AVOID
