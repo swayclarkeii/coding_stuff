@@ -1,0 +1,145 @@
+{
+  "name": "Expense System - Workflow 2: Gmail Receipt Monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {"field": "hours", "hoursInterval": 24}
+          ]
+        }
+      },
+      "id": "schedule-trigger-1",
+      "name": "Daily Receipt Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Define vendor email patterns from VendorMappings\nconst vendors = [\n  { name: 'OpenAI', emailPattern: 'from:noreply@openai.com' },\n  { name: 'Anthropic', emailPattern: 'from:billing@anthropic.com' },\n  { name: 'AWS', emailPattern: 'from:aws-billing@amazon.com' },\n  { name: 'Google Cloud', emailPattern: 'from:billing-noreply@google.com' },\n  { name: 'GitHub', emailPattern: 'from:billing@github.com' },\n  { name: 'Oura Ring', emailPattern: 'from:hello@ouraring.com' }\n];\n\n// Get date range for search (last 7 days)\nconst endDate = new Date();\nconst startDate = new Date();\nstartDate.setDate(startDate.getDate() - 7);\n\nconst formatDate = (date) => {\n  const year = date.getFullYear();\n  const month = (date.getMonth() + 1).toString().padStart(2, '0');\n  const day = date.getDate().toString().padStart(2, '0');\n  return `${year}/${month}/${day}`;\n};\n\nreturn vendors.map(vendor => ({\n  json: {\n    vendorName: vendor.name,\n    searchQuery: `${vendor.emailPattern} has:attachment after:${formatDate(startDate)} before:${formatDate(endDate)}`,\n    startDate: formatDate(startDate),\n    endDate: formatDate(endDate)\n  }\n}));"
+      },
+      "id": "code-vendors-1",
+      "name": "Load Vendor Patterns",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "q": "={{$json.searchQuery}}",
+        "maxResults": 10,
+        "returnAll": false,
+        "options": {}
+      },
+      "id": "gmail-search-1",
+      "name": "Search Gmail for Receipts",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{$json.id}}",
+        "format": "full",
+        "options": {}
+      },
+      "id": "gmail-get-1",
+      "name": "Get Email Details",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract email metadata\nconst email = $input.first().json;\nconst vendorName = $('Load Vendor Patterns').first().json.vendorName;\n\n// Get attachments with PDF or image extensions\nconst attachments = email.payload.parts\n  ?.filter(part => part.filename && /\\.(pdf|png|jpg|jpeg)$/i.test(part.filename))\n  .map(part => ({\n    filename: part.filename,\n    mimeType: part.mimeType,\n    attachmentId: part.body.attachmentId,\n    size: part.body.size\n  })) || [];\n\nif (attachments.length === 0) {\n  return [];\n}\n\n// Get email date\nconst dateHeader = email.payload.headers.find(h => h.name === 'Date');\nconst emailDate = dateHeader ? new Date(dateHeader.value) : new Date();\n\n// Get subject\nconst subjectHeader = email.payload.headers.find(h => h.name === 'Subject');\nconst subject = subjectHeader ? subjectHeader.value : 'No Subject';\n\nreturn attachments.map(att => ({\n  json: {\n    messageId: email.id,\n    vendorName,\n    emailDate: emailDate.toISOString().split('T')[0],\n    emailSubject: subject,\n    filename: att.filename,\n    mimeType: att.mimeType,\n    attachmentId: att.attachmentId,\n    size: att.size\n  }\n}));"
+      },
+      "id": "code-extract-1",
+      "name": "Extract Attachment Info",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "operation": "getAttachment",
+        "messageId": "={{$json.messageId}}",
+        "attachmentId": "={{$json.attachmentId}}"
+      },
+      "id": "gmail-attachment-1",
+      "name": "Download Attachment",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "upload",
+        "name": "={{$json.filename}}",
+        "driveId": {"__rl": true, "mode": "list", "value": "My Drive"},
+        "folderId": {"__rl": true, "mode": "id", "value": "={{$env.RECEIPT_POOL_FOLDER_ID}}"},
+        "options": {"binaryData": true}
+      },
+      "id": "gdrive-upload-1",
+      "name": "Upload to Receipt Pool",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1450, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate receipt ID\nconst timestamp = Date.now();\nconst vendor = $json.vendorName.replace(/\\s+/g, '-').toUpperCase();\nconst receiptId = `RCPT-${vendor}-${timestamp}`;\n\nconst uploadedFile = $input.first().json;\nconst emailData = $('Download Attachment').first().json;\n\nreturn {\n  json: {\n    ReceiptID: receiptId,\n    FileName: uploadedFile.name,\n    Vendor: emailData.vendorName,\n    Amount: '',\n    Date: emailData.emailDate,\n    FileID: uploadedFile.id,\n    DownloadDate: new Date().toISOString().split('T')[0],\n    SourceEmail: emailData.emailSubject,\n    Matched: 'unmatched',\n    Notes: `Auto-downloaded from Gmail message ${emailData.messageId}`\n  }\n};"
+      },
+      "id": "code-receipt-1",
+      "name": "Prepare Receipt Record",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1650, 300]
+    },
+    {
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {"__rl": true, "mode": "id", "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"},
+        "sheetName": {"__rl": true, "mode": "name", "value": "Receipts"},
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ReceiptID": "={{$json.ReceiptID}}",
+            "FileName": "={{$json.FileName}}",
+            "Vendor": "={{$json.Vendor}}",
+            "Amount": "={{$json.Amount}}",
+            "Date": "={{$json.Date}}",
+            "FileID": "={{$json.FileID}}",
+            "DownloadDate": "={{$json.DownloadDate}}",
+            "SourceEmail": "={{$json.SourceEmail}}",
+            "Matched": "={{$json.Matched}}",
+            "Notes": "={{$json.Notes}}"
+          }
+        },
+        "options": {}
+      },
+      "id": "gsheet-log-1",
+      "name": "Log Receipt in Database",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [1850, 300]
+    }
+  ],
+  "connections": {
+    "Daily Receipt Check": {"main": [[{"node": "Load Vendor Patterns", "type": "main", "index": 0}]]},
+    "Load Vendor Patterns": {"main": [[{"node": "Search Gmail for Receipts", "type": "main", "index": 0}]]},
+    "Search Gmail for Receipts": {"main": [[{"node": "Get Email Details", "type": "main", "index": 0}]]},
+    "Get Email Details": {"main": [[{"node": "Extract Attachment Info", "type": "main", "index": 0}]]},
+    "Extract Attachment Info": {"main": [[{"node": "Download Attachment", "type": "main", "index": 0}]]},
+    "Download Attachment": {"main": [[{"node": "Upload to Receipt Pool", "type": "main", "index": 0}]]},
+    "Upload to Receipt Pool": {"main": [[{"node": "Prepare Receipt Record", "type": "main", "index": 0}]]},
+    "Prepare Receipt Record": {"main": [[{"node": "Log Receipt in Database", "type": "main", "index": 0}]]}
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

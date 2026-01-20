@@ -1,0 +1,209 @@
+# Ambush TV - Proposal Variables (Back Pocket)
+# For: If Pierre asks about pricing during alignment call
+# Generated: 2026-01-19
+# Source: Discovery calls, key_insights.md, pricing_strategy.md
+
+---
+
+# SLIDE 1: TITLE
+company_name: "Ambush TV"
+date: "January 2026"
+
+---
+
+# SLIDE 2: CLIENT CONTEXT
+client_company_description: |
+  Ambush TV creates advertising pitch presentations for commercial directors,
+  managing 50+ projects monthly with a team of 9 core people and 70-80 freelancers.
+client_name: "Sindbad & Pierre"
+
+---
+
+# SLIDE 3: OPPORTUNITIES (PAIN POINTS)
+pain_point_1: "€150K in Outstanding Client Payments"
+pain_point_1_description: |
+  €100,000 overdue by more than 30 days. Late invoicing and no systematic
+  follow-up delays collection. Direct cost of capital: €5,000/year.
+
+pain_point_2: "Data Silos Creating 5+ Hours/Week of Manual Work"
+pain_point_2_description: |
+  12+ sheets that don't sync. Names don't match, team changes require manual
+  updates everywhere, rates require triple-entry. Admin team buried in data transfer.
+
+pain_point_3: "22 Hours/Month on Invoice Validation"
+pain_point_3_description: |
+  Sindbad manually validates 15-25 invoices weekly, catching 10% error rate.
+  Each error costs €150 average to investigate and correct.
+
+---
+
+# SLIDE 4: SOLUTIONS
+product_benefit_1: "Single Source of Truth Architecture"
+product_benefit_1_description: |
+  Data entered once, flows everywhere. Calendar to Dashboard to Project Directory.
+  Names normalized. Team changes reflect automatically.
+
+product_benefit_2: "Systematic Collection & Visibility"
+product_benefit_2_description: |
+  Calendar-driven reminders for hours collection and invoicing. Aging dashboard
+  shows who owes what. Freed admin capacity to chase overdue payments.
+
+product_benefit_3: "Invoice Pre-Validation with Human Checkpoints"
+product_benefit_3_description: |
+  Automated extraction and validation. Exceptions flagged for Sindbad's review.
+  Reduces validation time 50-80% while keeping human judgment.
+
+---
+
+# SLIDE 5: TIMELINE
+building_phase_time: "4-6 weeks"
+building_phase_description: |
+  Phase 1: Quick Wins - Rate sync, calendar reminders, Fathom integration,
+  dashboard validation rules.
+
+deployment_phase_time: "8-10 weeks"
+deployment_phase_description: |
+  Phase 2: Invoice Validation - Invoice parsing, cross-reference checks,
+  exception dashboard, Wise payment preparation.
+
+testing_phase_time: "2-4 weeks"
+testing_phase_description: |
+  Training, documentation, parallel run with manual process, gradual handoff.
+
+---
+
+# SLIDE 6: WHAT TO EXPECT
+Client_expectations_list: |
+  - Access to Google Sheets and relevant documentation
+  - 2-3 hours/week for feedback during build
+  - Participation in training sessions
+  - Champion from admin team for testing
+Client_Name: "Ambush TV"
+oloxa_delivery_list: |
+  - Production-ready automations
+  - Admin team training (1-2 sessions)
+  - Full documentation package
+  - 30-60 days post-launch support
+  - Weekly progress updates during build
+
+---
+
+# SLIDE 7: METRICS AND Q&A
+metric_1_title: "Time Savings"
+metric_1_description: "20+ hours/month returned to high-value work"
+
+metric_2_title: "Error Prevention"
+metric_2_description: "€9,000/year in avoided error costs"
+
+metric_additional_title: "Cash Flow Improvement"
+metric_additional_description: "€150K outstanding tracked, faster collection"
+
+question_1: "What if it doesn't work?"
+answer_1: |
+  Phase 1 is low-risk (4-6 weeks, proven patterns). No obligation for Phase 2
+  until Phase 1 proves value.
+
+question_2: "Can we start smaller?"
+answer_2: |
+  Yes - €8K minimum viable package proves concept first. Upgrade to full
+  solution once value is demonstrated.
+
+question_3: "What about ongoing support?"
+answer_3: |
+  30 days included. Extended support available at €1,500/quarter for priority
+  bug fixes and minor enhancements.
+
+question_4: "How does this work with our free tools?"
+answer_4: |
+  Built specifically for Google Sheets, Discord, Gmail. No enterprise licenses
+  needed. API-based integration works with free tools.
+
+---
+
+# SLIDE 8: INVESTMENT
+time_based_cost: "€20,000-22,500"
+value_based_cost: "€28,400/year"
+value_based_description: |
+  Total annual value: €28,400 (Sindbad time: €13,200 + Admin time: €1,200
+  + Error prevention: €9,000 + Cash flow: €5,000). Payback: 8-10 months.
+
+client_investment_1: |
+  Phase 1: Quick Wins - €6,500
+  (Rate sync, calendar reminders, Fathom, validation rules)
+  Timeline: 4-6 weeks | Payback: 2-4 months
+
+client_investment_2: |
+  Phase 2: Invoice Validation - €16,000
+  (Invoice parsing, cross-reference, exception dashboard, Wise prep)
+  Timeline: 8-10 weeks | Payback: 8-12 months
+
+  Combined: €20,000 (11% discount)
+
+# ALTERNATIVE: Minimum Viable Package
+minimum_viable_package: |
+  €8,000 - Core Automation Bundle
+  - Rate synchronization system
+  - Invoice pre-validation helper (50% time reduction)
+  - Fathom integration
+  Timeline: 4-5 weeks | Payback: 8 months
+
+---
+
+# SLIDE 9: NEXT STEPS
+step_1_description: |
+  Decide which package fits your budget and priorities
+  (Minimum Viable €8K | Phase 1 €6.5K | Full Solution €20K)
+
+step_2_description: |
+  Schedule kickoff call with admin team for requirements confirmation
+
+step_3_description: |
+  Begin Phase 1 development (start within 1 week of agreement)
+
+---
+
+# SLIDE 10: THANK YOU
+unique_client_thank_you_message: |
+  Ambush has built something impressive - €150K in monthly freelancer payments,
+  50+ projects, and a reputation for excellence. Looking forward to helping
+  it run even smoother.
+
+---
+
+# METADATA
+extraction_date: "2026-01-19"
+extraction_mode: "proposal"
+confidence_level: "high"
+verified_numbers: true
+
+# Pricing Summary (Quick Reference)
+pricing_summary:
+  minimum_viable: "€8,000"
+  phase_1: "€6,500"
+  phase_2: "€16,000"
+  combined: "€20,000"
+  annual_value: "€28,400"
+  payback_phase_1: "2-4 months"
+  payback_combined: "8-10 months"
+
+# Key Verified Data Points
+verified_data:
+  sindbad_hourly_value: "€50/hour"
+  admin_hourly_rate: "€20/hour"
+  outstanding_total: "€150,000"
+  outstanding_overdue: "€100,000"
+  validation_time_monthly: "22 hours"
+  error_rate: "~10%"
+  error_cost_average: "€150"
+
+# Budget Strategy (from pricing_strategy.md)
+budget_strategy:
+  sindbad_initial_expectation: "€2-3K (for just his invoice problem)"
+  full_admin_chain: "Substantially more (his words)"
+  lead_with: "Phase 1 at €6,500 (entry point)"
+  if_budget_concern: "€8K minimum viable as fallback"
+  dont_lead_with: "€20K-25K upfront (sticker shock)"
+  key_concerns:
+    - "Confidence that it helps (not adds complexity)"
+    - "Avoid bugs"
+    - "Needs Pierre approval for larger amounts"

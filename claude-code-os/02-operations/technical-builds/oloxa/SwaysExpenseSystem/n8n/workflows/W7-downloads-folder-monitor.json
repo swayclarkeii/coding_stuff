@@ -1,0 +1,744 @@
+{
+  "updatedAt": "2026-01-12T18:03:43.426Z",
+  "createdAt": "2026-01-11T00:06:56.215Z",
+  "id": "6x1sVuv4XKN0002B",
+  "name": "Expense System - Workflow 7: Downloads Folder Monitor",
+  "description": "⚠️ MODIFIED: Duplicate check nodes removed temporarily. See VERSION_LOG.md for details.",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1O3udIURR14LsEP3Wt4o1QnxzGsR2gciN",
+          "mode": "id"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "id": "1",
+      "name": "Google Drive Trigger",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        304
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const validExtensions = ['.pdf', '.jpg', '.jpeg', '.png'];\nconst skipExtensions = ['.csv', '.xlsx', '.exe', '.zip', '.dmg', '.pkg'];\nconst maxSizeMB = 25;\n// TEMPORARILY DISABLED FOR TESTING - RESTORE AFTER TESTING COMPLETE\n// const daysThreshold = 30;\n\nconst now = new Date();\nconst items = $input.all();\nconst validItems = [];\n\nfor (const item of items) {\n  const fileName = item.json.name || '';\n  const fileSize = item.json.size || 0;\n  // const modifiedTime = new Date(item.json.modifiedTime);\n  \n  // Get file extension\n  const ext = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();\n  \n  // Skip invalid extensions\n  if (skipExtensions.includes(ext)) {\n    continue;\n  }\n  \n  // Check valid extensions\n  if (!validExtensions.includes(ext)) {\n    continue;\n  }\n  \n  // Check file size (convert to MB)\n  const fileSizeMB = fileSize / (1024 * 1024);\n  if (fileSizeMB > maxSizeMB) {\n    continue;\n  }\n  \n  // TEMPORARILY DISABLED - Check modification date (last 30 days)\n  // const daysDiff = (now - modifiedTime) / (1000 * 60 * 60 * 24);\n  // if (daysDiff > daysThreshold) {\n  //   continue;\n  // }\n  \n  // Valid file - pass through\n  validItems.push(item);\n}\n\nreturn validItems;"
+      },
+      "id": "2",
+      "name": "Filter Valid Files",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const fileName = $input.item.json.name || '';\nlet category = 'unknown';\nlet invoiceNumber = null;\n\n// Check for Sway's invoice pattern: \"SC - SUPREME MUSIC GmbH - 122025 #540.pdf\"\nif (fileName.startsWith('SC - ')) {\n  category = 'sway_invoice';\n  const match = fileName.match(/#(\\d+)\\.pdf$/);\n  if (match) {\n    invoiceNumber = match[1];\n  }\n} \n// Check for client name patterns\nelse if (fileName.match(/SUPREME MUSIC|Massive Voices|BOXHOUSE/i)) {\n  category = 'client_invoice';\n} \n// Check for generic invoice keywords\nelse if (fileName.match(/invoice|rechnung/i)) {\n  category = 'invoice';\n} \n// Check for receipt keywords\nelse if (fileName.match(/receipt|beleg|quittung/i)) {\n  category = 'receipt';\n}\n\nreturn {\n  json: {\n    ...($input.item.json),\n    category: category,\n    invoiceNumber: invoiceNumber,\n    originalFileName: fileName\n  }\n};"
+      },
+      "id": "3",
+      "name": "Categorize by Filename",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ $json.category }}",
+              "rightValue": "unknown",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4",
+      "name": "Skip Unknown Files",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        912,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {}
+      },
+      "id": "5",
+      "name": "Download File",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1120,
+        208
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const category = $input.item.json.category;\nconst fileName = $input.item.json.name;\n\n// Get binary data - n8n's binary object structure\nconst binaryPropertyName = 'data';\nconst binaryData = $input.item.binary[binaryPropertyName];\n\n// For filesystem-v2, we need to get the buffer from the binary data\n// Use this.helpers.getBinaryDataBuffer() which IS available in Code node context\nconst buffer = await this.helpers.getBinaryDataBuffer(0, binaryPropertyName);\nconst base64String = buffer.toString('base64');\n\n// Determine MIME type and content type for Anthropic API\nlet mimeType = 'application/pdf';\nlet contentType = 'document'; // default for PDFs\n\nif (fileName.match(/\\.jpe?g$/i)) {\n  mimeType = 'image/jpeg';\n  contentType = 'image';\n} else if (fileName.match(/\\.png$/i)) {\n  mimeType = 'image/png';\n  contentType = 'image';\n} else if (fileName.match(/\\.gif$/i)) {\n  mimeType = 'image/gif';\n  contentType = 'image';\n} else if (fileName.match(/\\.webp$/i)) {\n  mimeType = 'image/webp';\n  contentType = 'image';\n}\n\n// Build prompt based on category\nlet prompt = '';\nif (category === 'receipt') {\n  prompt = 'Extract receipt details from this image/document. Return ONLY valid JSON with these exact fields: {\"vendor\": \"string\", \"amount\": \"number\", \"currency\": \"string (3-letter code)\", \"date\": \"string (DD.MM.YYYY format)\"}. If a field cannot be determined, use null.';\n} else {\n  // Invoice categories\n  prompt = 'Extract invoice details from this German invoice (RECHNUNG). Return ONLY valid JSON with these exact fields: {\"invoiceNumber\": \"string (number after RECHNUNG #:)\", \"clientName\": \"string (company name after RECHNUNG AN:)\", \"amount\": \"number (after INSGESAMT, number only without currency symbol)\", \"currency\": \"string (3-letter code like EUR)\", \"date\": \"string (DD.MM.YYYY format)\"}. If a field cannot be determined, use null.';\n}\n\nconst requestBody = {\n  model: 'claude-sonnet-4-5',\n  max_tokens: 2048,\n  messages: [\n    {\n      role: 'user',\n      content: [\n        {\n          type: 'text',\n          text: prompt\n        },\n        {\n          type: contentType, // 'document' for PDFs, 'image' for images\n          source: {\n            type: 'base64',\n            media_type: mimeType,\n            data: base64String\n          }\n        }\n      ]\n    }\n  ]\n};\n\nreturn {\n  json: {\n    ...($input.item.json),\n    requestBody: requestBody\n  },\n  binary: $input.item.binary\n};"
+      },
+      "id": "6",
+      "name": "Build Anthropic Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.requestBody }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "7",
+      "name": "Call Anthropic API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1568,
+        208
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "MRSNO4UW3OEIA3tQ",
+          "name": "Anthropic account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const response = $input.item.json;\nlet textContent = response.content[0].text;\n\n// Strip markdown code blocks if present\nif (textContent.includes('```')) {\n  textContent = textContent.replace(/```json\\n?/g, '').replace(/```/g, '').trim();\n}\n\n// Parse JSON from Claude response\nlet extractedData = {};\nlet parseSuccess = false;\n\ntry {\n  extractedData = JSON.parse(textContent);\n  parseSuccess = true;\n} catch (e) {\n  extractedData = { parseError: true, rawText: textContent, errorMessage: e.message };\n}\n\n// Get ALL fields from Categorize node (preserves Google Drive metadata + category)\nconst categorizeData = $('Categorize by Filename').item.json;\n\nreturn {\n  json: {\n    ...categorizeData,  // All fields from Categorize (id, name, category, originalFileName, etc.)\n    extractedData: extractedData,\n    extractionSuccess: parseSuccess\n  },\n  binary: $input.item.binary\n};"
+      },
+      "id": "8",
+      "name": "Parse Extraction Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ $json.category }}",
+              "rightValue": "sway_invoice",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "2",
+              "leftValue": "={{ $json.category }}",
+              "rightValue": "invoice",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "3",
+              "leftValue": "={{ $json.category }}",
+              "rightValue": "client_invoice",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9",
+      "name": "Route by Category",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ true }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "11",
+      "name": "Skip if Exists",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2448,
+        112
+      ],
+      "notes": "⚠️ MODIFIED: Always passes (true=true). Duplicate check temporarily disabled."
+    },
+    {
+      "parameters": {
+        "name": "={{ $json.originalFileName }}",
+        "folderId": {
+          "mode": "id",
+          "value": "1V7UmNvDP3a2t6IIbJJI7y8YXz6_X7F6l"
+        },
+        "options": {}
+      },
+      "id": "12",
+      "name": "Upload to Invoice Pool",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2672,
+        0
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const extracted = $input.item.json.extractedData || {};\nconst uploadResult = $input.item.json;\nconst fileId = uploadResult.id;\nconst filePath = uploadResult.webViewLink || '';\n\nreturn {\n  json: {\n    InvoiceID: extracted.invoiceNumber || 'N/A',\n    ClientName: extracted.clientName || 'Unknown',\n    Amount: extracted.amount || 0,\n    Currency: extracted.currency || 'EUR',\n    Date: extracted.date || new Date().toLocaleDateString('de-DE'),\n    FileID: fileId,\n    FilePath: filePath,\n    ProcessedDate: new Date().toISOString(),\n    Source: 'Downloads'\n  }\n};"
+      },
+      "id": "13",
+      "name": "Prepare Invoice Sheet Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Invoices",
+          "mode": "list"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "14",
+      "name": "Log to Invoices Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3104,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ true }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "16",
+      "name": "Skip if Exists Receipt",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2448,
+        304
+      ],
+      "notes": "⚠️ MODIFIED: Always passes (true=true). Duplicate check temporarily disabled."
+    },
+    {
+      "parameters": {
+        "name": "={{ $json.originalFileName }}",
+        "folderId": {
+          "mode": "id",
+          "value": "1NP5y-HvPfAv28wz2It6BtNZXD7Xfe5D4"
+        },
+        "options": {}
+      },
+      "id": "17",
+      "name": "Upload to Receipt Pool",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2672,
+        208
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const extracted = $input.item.json.extractedData || {};\nconst uploadResult = $input.item.json;\nconst fileId = uploadResult.id;\nconst filePath = uploadResult.webViewLink || '';\n\nreturn {\n  json: {\n    Vendor: extracted.vendor || 'Unknown',\n    Amount: extracted.amount || 0,\n    Currency: extracted.currency || 'EUR',\n    Date: extracted.date || new Date().toLocaleDateString('de-DE'),\n    FileID: fileId,\n    FilePath: filePath,\n    ProcessedDate: new Date().toISOString(),\n    Source: 'Downloads'\n  }\n};"
+      },
+      "id": "18",
+      "name": "Prepare Receipt Sheet Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2880,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Receipts",
+          "mode": "list"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "19",
+      "name": "Log to Receipts Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3104,
+        208
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Downloads Folder Monitor\n\n**Trigger:** Watches Downloads folder (synced via G Drive Desktop)\n**Poll interval:** Every 5 minutes\n\n**Filter criteria:**\n- Extensions: .pdf, .jpg, .jpeg, .png\n- Max size: 25MB\n- Modified: Last 30 days\n- Skip: .csv, .xlsx, .exe, .zip, .dmg, .pkg",
+        "height": 300,
+        "width": 340
+      },
+      "id": "20",
+      "name": "Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        224,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Categorization Logic\n\n**sway_invoice:** Filename starts with \"SC - \"\n**client_invoice:** Contains SUPREME MUSIC, Massive Voices, or BOXHOUSE\n**invoice:** Contains 'invoice' or 'rechnung'\n**receipt:** Contains 'receipt', 'beleg', or 'quittung'\n**unknown:** Skip (no processing)",
+        "height": 260,
+        "width": 360
+      },
+      "id": "21",
+      "name": "Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        640,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Claude Vision Extraction\n\n**Credential:** Anthropic API (MRSNO4UW3OEIA3tQ)\n**Model:** claude-sonnet-4-5\n\n**Invoice extraction:** invoiceNumber, clientName, amount, currency, date\n**Receipt extraction:** vendor, amount, currency, date",
+        "height": 220,
+        "width": 420
+      },
+      "id": "22",
+      "name": "Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1312,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Invoice Pool\n\n**Folder ID:** 1V7UmNvDP3a2t6IIbJJI7y8YXz6_X7F6l\n**Sheet:** Invoices\n**⚠️ Duplicate check DISABLED** - See VERSION_LOG.md",
+        "height": 180,
+        "width": 260
+      },
+      "id": "23",
+      "name": "Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2192,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Receipt Pool\n\n**Folder ID:** 1NP5y-HvPfAv28wz2It6BtNZXD7Xfe5D4\n**Sheet:** Receipts\n**⚠️ Duplicate check DISABLED** - See VERSION_LOG.md",
+        "height": 180,
+        "width": 260
+      },
+      "id": "24",
+      "name": "Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2192,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Filter Valid Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Valid Files": {
+      "main": [
+        [
+          {
+            "node": "Categorize by Filename",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Categorize by Filename": {
+      "main": [
+        [
+          {
+            "node": "Skip Unknown Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip Unknown Files": {
+      "main": [
+        [
+          {
+            "node": "Download File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download File": {
+      "main": [
+        [
+          {
+            "node": "Build Anthropic Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Anthropic Request": {
+      "main": [
+        [
+          {
+            "node": "Call Anthropic API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Anthropic API": {
+      "main": [
+        [
+          {
+            "node": "Parse Extraction Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Extraction Results": {
+      "main": [
+        [
+          {
+            "node": "Route by Category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip if Exists": {
+      "main": [
+        [
+          {
+            "node": "Upload to Invoice Pool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Invoice Pool": {
+      "main": [
+        [
+          {
+            "node": "Prepare Invoice Sheet Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Invoice Sheet Data": {
+      "main": [
+        [
+          {
+            "node": "Log to Invoices Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip if Exists Receipt": {
+      "main": [
+        [
+          {
+            "node": "Upload to Receipt Pool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Receipt Pool": {
+      "main": [
+        [
+          {
+            "node": "Prepare Receipt Sheet Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Receipt Sheet Data": {
+      "main": [
+        [
+          {
+            "node": "Log to Receipts Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Category": {
+      "main": [
+        [
+          {
+            "node": "Skip if Exists",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Skip if Exists Receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Berlin",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": {
+    "node:Google Drive Trigger": {
+      "lastTimeChecked": "2026-01-12T18:03:43Z"
+    }
+  },
+  "meta": null,
+  "pinData": {},
+  "versionId": "896b34d4-73ea-4266-8e41-2ef31cb55369",
+  "activeVersionId": "896b34d4-73ea-4266-8e41-2ef31cb55369",
+  "versionCounter": 221,
+  "triggerCount": 1,
+  "knownIssues": [
+    {
+      "issue": "Duplicate prevention removed",
+      "reason": "Google Drive query API syntax errors blocking workflow execution",
+      "workaround": "Workflow will now upload files even if duplicates exist",
+      "impact": "LOW - Same file uploaded twice will create duplicate entries in pools",
+      "plannedFix": "v2.2.0 - Implement client-side duplicate check or fix query syntax",
+      "temporaryMitigation": "Manual cleanup of duplicates if needed"
+    }
+  ]
+}

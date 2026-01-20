@@ -1,0 +1,192 @@
+{
+  "name": "Workflow 4: File Organization & Sorting",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "b5e72e5a-3c89-4a21-8f72-9e8d5c1a2b3c",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "list",
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "12SVQzuWtKva48LvdGbszg3UcKl7iy-1x"
+        },
+        "options": {}
+      },
+      "id": "c6f83f6b-4d9a-5b32-9g83-af9e6d2c3d4e",
+      "name": "Load Receipt Files",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [460, 250],
+      "credentials": {
+        "googleApi": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "Receipts"
+        },
+        "options": {
+          "rangeDefinition": "detectAutomatically"
+        }
+      },
+      "id": "d7g94g7c-5e0b-6c43-0h94-bg0f7e3d4e5f",
+      "name": "Read Receipt Metadata",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [460, 450],
+      "credentials": {
+        "googleApi": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "e8h05h8d-6f1c-7d54-1i05-ch1g8f4e5f6g",
+      "name": "Merge Data Streams",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [680, 350]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Match Google Drive files with database records\nconst items = $input.all();\n\n// Separate Drive files and Sheet records\nconst driveFiles = items.filter(item => item.json.mimeType); // Drive files have mimeType\nconst sheetRecords = items.filter(item => item.json.FileID); // Sheet rows have FileID\n\n// Create lookup map by FileID\nconst metadataMap = {};\nfor (const item of sheetRecords) {\n  const record = item.json;\n  if (record.FileID) {\n    metadataMap[record.FileID] = record;\n  }\n}\n\n// Match files to their metadata\nconst matched = [];\nconst errors = [];\n\nfor (const item of driveFiles) {\n  const file = item.json;\n  const fileId = file.id;\n  const meta = metadataMap[fileId];\n  \n  if (!meta) {\n    errors.push({\n      fileId: fileId,\n      fileName: file.name,\n      error: 'No metadata found in Receipts sheet'\n    });\n    continue;\n  }\n  \n  if (!meta.Date || !meta.Vendor) {\n    errors.push({\n      fileId: fileId,\n      fileName: file.name,\n      receiptId: meta.ReceiptID,\n      error: `Missing required fields - Date: ${meta.Date}, Vendor: ${meta.Vendor}`\n    });\n    continue;\n  }\n  \n  matched.push({\n    fileId: fileId,\n    fileName: file.name,\n    vendor: meta.Vendor,\n    date: meta.Date,\n    receiptId: meta.ReceiptID,\n    currentPath: meta.FilePath || '_Receipt-Pool'\n  });\n}\n\nif (errors.length > 0) {\n  console.log('Errors matching files:', JSON.stringify(errors, null, 2));\n}\n\nreturn matched.map(item => ({ json: item }));"
+      },
+      "id": "f9i16i9e-7g2d-8e65-2j16-di2h9g5f6g7h",
+      "name": "Match Files to Metadata",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 350]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Determine target folder based on date and vendor\nconst receipt = $input.item.json;\n\n// Parse date (format: YYYY-MM-DD)\nconst date = receipt.date;\nif (!date) {\n  return {\n    json: {\n      ...receipt,\n      error: 'Missing date field',\n      skip: true\n    }\n  };\n}\n\nconst [year, month] = date.split('-');\nconst monthNames = {\n  '01': '01-January', '02': '02-February', '03': '03-March', \n  '04': '04-April', '05': '05-May', '06': '06-June',\n  '07': '07-July', '08': '08-August', '09': '09-September',\n  '10': '10-October', '11': '11-November', '12': '12-December'\n};\nconst monthFolder = monthNames[month];\n\nif (!monthFolder) {\n  return {\n    json: {\n      ...receipt,\n      error: `Invalid month: ${month}`,\n      skip: true\n    }\n  };\n}\n\n// Normalize vendor name to match folder structure\n// Folders exist for: OpenAI, Anthropic, AWS, Google-Cloud, GitHub, Oura-Ring\nconst vendorFolderMap = {\n  'OpenAI': 'OpenAI',\n  'Anthropic': 'Anthropic',\n  'AWS': 'AWS',\n  'Google Cloud': 'Google-Cloud',\n  'Google-Cloud': 'Google-Cloud',\n  'GitHub': 'GitHub',\n  'Oura Ring': 'Oura-Ring',\n  'Oura-Ring': 'Oura-Ring'\n};\n\nconst vendorFolder = vendorFolderMap[receipt.vendor];\nif (!vendorFolder) {\n  return {\n    json: {\n      ...receipt,\n      error: `Unknown vendor: ${receipt.vendor}. Expected: OpenAI, Anthropic, AWS, Google Cloud, GitHub, or Oura Ring`,\n      skip: true\n    }\n  };\n}\n\n// Construct target path\nconst targetPath = `Receipts/${year}/${monthFolder}/${vendorFolder}`;\n\nreturn {\n  json: {\n    ...receipt,\n    targetYear: year,\n    targetMonth: monthFolder,\n    targetVendor: vendorFolder,\n    targetPath: targetPath,\n    skip: false\n  }\n};"
+      },
+      "id": "g0j27j0f-8h3e-9f76-3k27-ej3i0h6g7h8i",
+      "name": "Determine Target Folder",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 350]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Generate organization summary\nconst items = $input.all();\n\nconst summary = {\n  timestamp: new Date().toISOString(),\n  totalFiles: items.length,\n  readyToOrganize: 0,\n  skipped: 0,\n  byVendor: {},\n  byMonth: {},\n  errors: [],\n  fileDetails: []\n};\n\nfor (const item of items) {\n  const data = item.json;\n  \n  if (data.skip || data.error) {\n    summary.skipped++;\n    summary.errors.push({\n      receiptId: data.receiptId || 'unknown',\n      fileName: data.fileName,\n      error: data.error\n    });\n  } else {\n    summary.readyToOrganize++;\n    \n    // Count by vendor\n    if (!summary.byVendor[data.targetVendor]) {\n      summary.byVendor[data.targetVendor] = 0;\n    }\n    summary.byVendor[data.targetVendor]++;\n    \n    // Count by month\n    const monthKey = `${data.targetYear}-${data.targetMonth}`;\n    if (!summary.byMonth[monthKey]) {\n      summary.byMonth[monthKey] = 0;\n    }\n    summary.byMonth[monthKey]++;\n  }\n  \n  summary.fileDetails.push({\n    receiptId: data.receiptId,\n    fileName: data.fileName,\n    vendor: data.vendor,\n    date: data.date,\n    currentLocation: data.currentPath,\n    targetPath: data.targetPath || 'N/A',\n    status: data.skip ? 'skipped' : 'ready',\n    error: data.error || null\n  });\n}\n\n// Log summary for review\nconsole.log('=== FILE ORGANIZATION SUMMARY ===');\nconsole.log(JSON.stringify(summary, null, 2));\n\nreturn [{ json: summary }];"
+      },
+      "id": "h1k38k1g-9i4f-0g87-4l38-fk4j1i7h8i9j",
+      "name": "Generate Summary Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 350]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Load Receipt Files",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Receipt Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Receipt Files": {
+      "main": [
+        [
+          {
+            "node": "Merge Data Streams",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Receipt Metadata": {
+      "main": [
+        [
+          {
+            "node": "Merge Data Streams",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Data Streams": {
+      "main": [
+        [
+          {
+            "node": "Match Files to Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match Files to Metadata": {
+      "main": [
+        [
+          {
+            "node": "Determine Target Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Determine Target Folder": {
+      "main": [
+        [
+          {
+            "node": "Generate Summary Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-01-04T00:00:00.000Z",
+  "versionId": "1"
+}

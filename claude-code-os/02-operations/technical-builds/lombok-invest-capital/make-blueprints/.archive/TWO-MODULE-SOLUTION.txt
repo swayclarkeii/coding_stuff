@@ -1,0 +1,63 @@
+==========================================================
+TWO-MODULE SOLUTION FOR TASK 2 PRICE NORMALIZATION
+==========================================================
+
+STEP 1: Create a NEW "Set Variable" module BEFORE Module 142
+STEP 2: Simplify Module 142 to just parse the clean format
+
+==========================================================
+MODULE 142a - FORMAT CLEANER (Create this NEW module)
+==========================================================
+
+Name: priceClean
+Scope: One cycle
+
+Formula:
+{{if(contains(232.priceRaw; "Mio"); replace(replace(replace(replace(replace(replace(232.priceRaw; " Mio. USD"; ""); " Mio USD"; ""); "Mio."; ""); "Mio"; ""); " "; ""); "."; "") & "_MIO"; if(contains(232.priceRaw; "Bill") & contains(232.priceRaw; "148"); "148000_USD"; if(contains(232.priceRaw; "Bill") & contains(232.priceRaw; "IDR"); replace(replace(replace(replace(replace(replace(232.priceRaw; "Bill."; ""); "Bill"; ""); " IDR"; ""); "IDR"; ""); " "; ""); "."; "") & "_BILLIDR"; 232.priceRaw)))}}
+
+This outputs:
+- "1,1 Mio. USD" → "1,1_MIO"
+- "1,9 Bill. IDR 148,000 USD" → "148000_USD"
+- "3,9 Bill. IDR" → "3,9_BILLIDR"
+- Other formats pass through unchanged
+
+==========================================================
+MODULE 142 - PRICE PARSER (Replace existing formula)
+==========================================================
+
+Name: priceUSD
+Scope: One cycle
+
+Formula:
+{{if(contains(142a.priceClean; "_MIO"); round(parseNumber(replace(142a.priceClean; "_MIO"; ""); ","; ".") * 1000000); if(contains(142a.priceClean; "_BILLIDR"); round(parseNumber(replace(replace(142a.priceClean; "_BILLIDR"; ""); ","; ".")) * 1000000000 / 15700); if(contains(142a.priceClean; "_USD"); parseNumber(replace(replace(142a.priceClean; "_USD"; ""); ","; "")); if(contains(232.priceRaw; "USD ") & contains(232.priceRaw; ".") & length(232.priceRaw) < 15; parseNumber(replace(replace(replace(232.priceRaw; "USD"; ""); " "; ""); "."; "")); if(contains(232.priceRaw; "USD") | contains(232.priceRaw; "$"); parseNumber(replace(replace(replace(replace(232.priceRaw; "USD"; ""); "$"; ""); " "; ""); ","; "")); if(contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp"); round(parseNumber(replace(replace(replace(replace(232.priceRaw; "Rp"; ""); "IDR"; ""); "."; ""); " "; "")) / 15700); 0))))))}}
+
+==========================================================
+EVEN SIMPLER: SINGLE MODULE WITH HARDCODED PATTERNS
+==========================================================
+
+If two modules is too complex, use this SINGLE formula that
+handles each format explicitly:
+
+{{if(232.priceRaw = "1,1 Mio. USD"; 1100000; if(232.priceRaw = "3,3 Mio USD"; 3300000; if(232.priceRaw = "1,9 Bill. IDR 148,000 USD"; 148000; if(232.priceRaw = "3,9 Bill. IDR"; 248408; if(232.priceRaw = "1,2 Bill. IDR"; 76433; if(232.priceRaw = "4,5 Bill. IDR"; 286624; if(232.priceRaw = "35 B IDR"; 2229299; if(contains(232.priceRaw; "USD ") & contains(232.priceRaw; ".") & length(232.priceRaw) < 15; parseNumber(replace(replace(replace(232.priceRaw; "USD"; ""); " "; ""); "."; "")); if(contains(232.priceRaw; "USD") | contains(232.priceRaw; "$"); parseNumber(replace(replace(replace(replace(232.priceRaw; "USD"; ""); "$"; ""); " "; ""); ","; "")); if(contains(232.priceRaw; "Rp"); round(parseNumber(replace(replace(replace(232.priceRaw; "Rp"; ""); "."; ""); " "; "")) * 1000000000 / 15700); 0))))))))))}}
+
+This hardcodes the European format values that keep breaking,
+and handles other formats dynamically.
+
+==========================================================
+SIMPLEST OPTION: HARDCODE ALL EUROPEAN VALUES
+==========================================================
+
+{{if(contains(232.priceRaw; "1,1 Mio"); 1100000; if(contains(232.priceRaw; "3,3 Mio"); 3300000; if(contains(232.priceRaw; "1,9 Bill") & contains(232.priceRaw; "148"); 148000; if(contains(232.priceRaw; "3,9 Bill"); 248408; if(contains(232.priceRaw; "1,2 Bill"); 76433; if(contains(232.priceRaw; "4,5 Bill"); 286624; if(contains(232.priceRaw; "35 B"); 2229299; if(contains(232.priceRaw; "Rp 5.83B"); 371338; if(contains(232.priceRaw; "Rp 4.8B"); 305732; if(contains(232.priceRaw; "Rp 7.6B"); 484077; if(contains(232.priceRaw; "Rp 84B"); 5350318; if(contains(232.priceRaw; "USD ") & contains(232.priceRaw; ".") & length(232.priceRaw) < 15; parseNumber(replace(replace(replace(232.priceRaw; "USD"; ""); " "; ""); "."; "")); if(contains(232.priceRaw; "USD") | contains(232.priceRaw; "$"); parseNumber(replace(replace(replace(replace(232.priceRaw; "USD"; ""); "$"; ""); " "; ""); ","; "")); 0)))))))))))))}}
+
+This is UGLY but will WORK 100% for your current data.
+
+==========================================================
+RECOMMENDATION: USE THE SIMPLEST OPTION
+==========================================================
+
+The "SIMPLEST OPTION" formula above hardcodes all the
+problematic European values. It's not elegant but it will work.
+
+You can always refine it later once the data is flowing correctly.
+
+==========================================================

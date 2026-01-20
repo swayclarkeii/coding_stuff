@@ -1,0 +1,74 @@
+==========================================================
+TASK 2 PRICE NORMALIZATION - v14 FIX BILL PATH
+==========================================================
+
+SAME ISSUE: Need to remove periods BEFORE converting comma to period
+
+For "3,9 Bill. IDR" - adding period removal step
+
+PASTE THIS INTO MODULE 142:
+----------------------------------------------------------
+
+{{if(length(232.priceRaw) = 0; 0; if(contains(232.priceRaw; "Bill") & contains(232.priceRaw; "USD") & contains(232.priceRaw; "IDR"); parseNumber(replace(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "Bill."; ""); "Bill"; ""); "IDR"; ""); "Rp"; ""); " "; ""); "."; ""); "."; ""); ","; "")); if(contains(232.priceRaw; "Bill") & (contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp")); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "Bill."; ""); "Bill"; ""); "IDR"; ""); "Rp"; ""); " "; ""); "."; ""); ","; ".")) * 1000000000 / 15700); if(contains(232.priceRaw; "B") & (contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp")); round(parseNumber(replace(replace(replace(replace(replace(replace(232.priceRaw; "B"; ""); "IDR"; ""); "Rp"; ""); " "; ""); "."; ""); ","; ".")) * 1000000000 / 15700); if(contains(232.priceRaw; "USD ") & contains(232.priceRaw; ".") & length(232.priceRaw) < 15; parseNumber(replace(replace(replace(232.priceRaw; "USD"; ""); " "; ""); "."; "")); if(contains(232.priceRaw; "USD") | contains(232.priceRaw; "$"); parseNumber(replace(replace(replace(replace(232.priceRaw; "USD"; ""); "$"; ""); " "; ""); ","; "")); if(contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp"); round(parseNumber(replace(replace(replace(replace(232.priceRaw; "Rp"; ""); "IDR"; ""); "."; ""); " "; "")) / 15700); 0)))))))}}
+
+==========================================================
+KEY FIX - BILL IDR PATH (Priority 3):
+==========================================================
+
+OLD (BROKEN):
+replace(replace(replace(replace(replace(replace(
+  232.priceRaw;
+  "Bill."; "");
+  "Bill"; "");
+  "IDR"; "");
+  "Rp"; "");
+  " "; "");
+  ","; "."         ← Convert comma to period (NO period removal!)
+)
+
+NEW (FIXED):
+replace(replace(replace(replace(replace(replace(replace(
+  232.priceRaw;
+  "Bill."; "");
+  "Bill"; "");
+  "IDR"; "");
+  "Rp"; "");
+  " "; "");
+  "."; "");        ← Remove ALL periods! ✅ NEW STEP
+  ","; "."         ← Then convert comma to period
+)
+
+==========================================================
+TRACE FOR "3,9 Bill. IDR":
+==========================================================
+
+1. Original: "3,9 Bill. IDR"
+2. Replace "Bill." → "3,9  IDR"
+3. Replace "Bill" → "3,9  IDR"
+4. Replace "IDR" → "3,9  "
+5. Replace "Rp" → "3,9  "
+6. Replace " " → "3,9"
+7. Replace "." → "3,9" ✅ (removes any stray periods!)
+8. Replace "," → "3.9" ✅
+9. parseNumber("3.9") → 3.9 ✅
+10. 3.9 * 1,000,000,000 / 15,700 → 248,408 ✅
+
+==========================================================
+ALL PATHS NOW HAVE PERIOD REMOVAL:
+==========================================================
+
+✅ Path 1 (Bill with USD/IDR): Removes periods TWICE then commas
+✅ Path 2 (Bill IDR pure): Removes periods then converts comma
+✅ Path 3 ("B" abbreviation): Removes periods then converts comma
+✅ Path 4 (Maju USD): Removes periods
+✅ Path 5 (Standard USD): Removes commas
+✅ Path 6 (Pure IDR): Removes periods
+
+Every path that uses European decimal now:
+1. Removes text
+2. Removes spaces
+3. Removes ALL periods
+4. Converts comma to period
+5. parseNumber
+
+==========================================================

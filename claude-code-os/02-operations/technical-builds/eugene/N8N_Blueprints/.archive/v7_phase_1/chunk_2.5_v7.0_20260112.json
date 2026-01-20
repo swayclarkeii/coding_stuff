@@ -1,0 +1,118 @@
+{
+  "updatedAt": "2026-01-12T09:48:19.581Z",
+  "createdAt": "2026-01-08T21:33:22.263Z",
+  "id": "okg8wTqLtPUwjQ18",
+  "name": "Chunk 2.5 - Client Document Tracking (Eugene Document Organizer)",
+  "active": true,
+  "nodes": [
+    {
+      "id": "trigger-1",
+      "name": "Execute Workflow Trigger (Refreshed)",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [240, 320]
+    },
+    {
+      "id": "code-1",
+      "name": "Build AI Classification Prompt",
+      "type": "n8n-nodes-base.code",
+      "position": [464, 320]
+    },
+    {
+      "id": "http-openai-1",
+      "name": "Classify Document with GPT-4",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [688, 320]
+    },
+    {
+      "id": "code-2",
+      "name": "Parse Classification Result",
+      "type": "n8n-nodes-base.code",
+      "position": [1040, 320]
+    },
+    {
+      "id": "sheets-1",
+      "name": "Lookup Client in Client_Tracker",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [1264, 320]
+    },
+    {
+      "id": "code-3",
+      "name": "Find Client Row and Validate",
+      "type": "n8n-nodes-base.code",
+      "position": [1488, 320]
+    },
+    {
+      "id": "if-1",
+      "name": "Check Status",
+      "type": "n8n-nodes-base.if",
+      "position": [1712, 320]
+    },
+    {
+      "id": "code-8",
+      "name": "Prepare Tracker Update Data",
+      "type": "n8n-nodes-base.code",
+      "position": [1936, 224]
+    },
+    {
+      "id": "sheets-2",
+      "name": "Update Client_Tracker Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [2160, 224]
+    },
+    {
+      "id": "sheets-3",
+      "name": "Lookup Client in AMA_Folder_IDs",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [2384, 224]
+    },
+    {
+      "id": "code-4",
+      "name": "Get Destination Folder ID",
+      "type": "n8n-nodes-base.code",
+      "position": [2608, 224]
+    },
+    {
+      "id": "drive-1",
+      "name": "Move File to Final Location",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [2832, 224]
+    },
+    {
+      "id": "code-5",
+      "name": "Prepare Success Output",
+      "type": "n8n-nodes-base.code",
+      "position": [3056, 224]
+    },
+    {
+      "id": "sheets-4",
+      "name": "Lookup 38_Unknowns Folder",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [1936, 416]
+    },
+    {
+      "id": "code-6",
+      "name": "Get 38_Unknowns Folder ID",
+      "type": "n8n-nodes-base.code",
+      "position": [2160, 416]
+    },
+    {
+      "id": "drive-2",
+      "name": "Move File to 38_Unknowns",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [2384, 416]
+    },
+    {
+      "id": "code-7",
+      "name": "Prepare Error Email Body",
+      "type": "n8n-nodes-base.code",
+      "position": [2608, 416]
+    },
+    {
+      "id": "gmail-1",
+      "name": "Send Error Notification Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [2832, 416]
+    }
+  ],
+  "versionCounter": 154
+}

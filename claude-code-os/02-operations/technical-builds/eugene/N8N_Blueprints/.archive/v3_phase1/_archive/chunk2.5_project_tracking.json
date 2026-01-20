@@ -1,0 +1,335 @@
+{
+  "name": "Document Organizer V3.5 - Chunk 2.5: Project Tracking",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "node-input-text",
+      "name": "Input: Extracted Text",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "notes": "Receives extracted text from Chunk 2"
+    },
+    {
+      "parameters": {
+        "resource": "text",
+        "operation": "message",
+        "modelId": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a property/project name extraction assistant for German real estate construction projects (Bauträger). Extract the property or project name from the provided document text.\n\nRETURN FORMAT (JSON only):\n{\n  \"projectName\": \"Exact property/project name\",\n  \"confidence\": \"high/medium/low\",\n  \"extractedFrom\": \"Brief quote showing where name was found\"\n}\n\nEXAMPLES:\n- \"Neubau Müller Apartmenthaus, Berlin\" → {\"projectName\": \"Müller Apartmenthaus\", \"confidence\": \"high\", \"extractedFrom\": \"Neubau Müller Apartmenthaus, Berlin\"}\n- \"Wohnanlage Schmidt-Straße 15\" → {\"projectName\": \"Wohnanlage Schmidt-Straße 15\", \"confidence\": \"high\", \"extractedFrom\": \"Wohnanlage Schmidt-Straße 15\"}\n- Document with unclear property reference → {\"projectName\": \"Unknown Project\", \"confidence\": \"low\", \"extractedFrom\": \"No clear project name found\"}\n\nKEY PATTERNS:\n- Look for \"Projekt:\", \"Objekt:\", \"Bauvorhaben:\", \"Wohnanlage:\"\n- Look for street addresses (Straße, Weg, Platz)\n- Look for distinctive property names\n- If multiple names found, use the most prominent one\n\nIMPORTANT:\n- Return ONLY valid JSON\n- If no clear project name found, use \"Unknown Project\" with low confidence\n- Keep project names concise (max 50 characters)"
+            },
+            {
+              "role": "user",
+              "content": "=Extract the property/project name from this German real estate document:\n\n{{ $json.extractedText }}\n\nReturn JSON only."
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.2,
+          "maxTokens": 150
+        }
+      },
+      "id": "node-extract-project-name",
+      "name": "OpenAI: Extract Project Name",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.3,
+      "position": [460, 300],
+      "credentials": {
+        "openAiApi": {
+          "id": "PLACEHOLDER_OPENAI_CREDENTIAL",
+          "name": "OpenAI API"
+        }
+      },
+      "notes": "Uses GPT-4o-mini to extract property/project name from document text"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse OpenAI response and extract project name\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  let projectName = 'Unknown Project';\n  let confidence = 'low';\n  let extractedFrom = '';\n  \n  try {\n    // Get AI response\n    const aiResponse = item.json.output;\n    \n    // Try to parse as JSON\n    let parsed;\n    if (typeof aiResponse === 'string') {\n      // Remove markdown code blocks if present\n      const cleaned = aiResponse.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n      parsed = JSON.parse(cleaned);\n    } else {\n      parsed = aiResponse;\n    }\n    \n    // Extract project name\n    if (parsed.projectName && parsed.projectName !== 'Unknown Project') {\n      projectName = parsed.projectName.trim();\n      confidence = parsed.confidence || 'medium';\n      extractedFrom = parsed.extractedFrom || '';\n    }\n  } catch (error) {\n    // If parsing fails, try to extract from raw text\n    console.log('Failed to parse AI response as JSON:', error.message);\n    \n    // Fallback: Look for common patterns in raw response\n    const aiText = String(item.json.output || '');\n    const patterns = [\n      /\"projectName\"\\s*:\\s*\"([^\"]+)\"/,\n      /projectName:\\s*\"([^\"]+)\"/,\n      /Projekt:\\s*([^\\n,]+)/,\n      /Objekt:\\s*([^\\n,]+)/\n    ];\n    \n    for (const pattern of patterns) {\n      const match = aiText.match(pattern);\n      if (match && match[1] && match[1] !== 'Unknown Project') {\n        projectName = match[1].trim();\n        confidence = 'medium';\n        break;\n      }\n    }\n  }\n  \n  // Normalize project name (remove special characters, limit length)\n  projectName = projectName\n    .substring(0, 50)\n    .replace(/[\"']/g, '')\n    .trim();\n  \n  results.push({\n    json: {\n      ...item.json,\n      projectName,\n      projectConfidence: confidence,\n      projectExtractedFrom: extractedFrom\n    }\n  });\n}\n\nreturn results;"
+      },
+      "id": "node-parse-project-name",
+      "name": "Code: Parse Project Name",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300],
+      "notes": "Parses AI response and normalizes project name (max 50 chars)"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "documentId": "PLACEHOLDER_PROJECT_TRACKER_SPREADSHEET_ID",
+        "sheetName": "=Project Tracker",
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Project Name",
+              "lookupValue": "={{ $json.projectName }}"
+            }
+          ]
+        },
+        "options": {
+          "returnAllMatches": false
+        }
+      },
+      "id": "node-search-project-tracker",
+      "name": "Google Sheets: Search Project Tracker",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [900, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PLACEHOLDER_GOOGLE_SHEETS_CREDENTIAL",
+          "name": "Google Sheets OAuth2"
+        }
+      },
+      "notes": "Searches for existing project in Project Tracker sheet"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "combineOperation": "any"
+          },
+          "conditions": [
+            {
+              "id": "condition-project-found",
+              "leftValue": "={{ $json.rowNumber }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-if-project-exists",
+      "name": "IF: Project Exists in Tracker?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1120, 300],
+      "notes": "Routes based on whether project was found in tracker"
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": "PLACEHOLDER_PROJECT_TRACKER_SPREADSHEET_ID",
+        "sheetName": "=Project Tracker",
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Project Name",
+              "lookupValue": "={{ $json.projectName }}"
+            }
+          ]
+        },
+        "options": {
+          "returnAllMatches": false
+        }
+      },
+      "id": "node-get-existing-project",
+      "name": "Google Sheets: Get Existing Project",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [1340, 200],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PLACEHOLDER_GOOGLE_SHEETS_CREDENTIAL",
+          "name": "Google Sheets OAuth2"
+        }
+      },
+      "notes": "Retrieves existing project row data (TRUE branch)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare new project row data for creation\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const projectName = item.json.projectName || 'Unknown Project';\n  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD\n  \n  results.push({\n    json: {\n      ...item.json,\n      newProjectRow: {\n        'Project Name': projectName,\n        'Exposé': false,\n        'Grundbuch': false,\n        'Calculation': false,\n        'Exit Strategy': false,\n        'Last Updated': today,\n        'Notes': `Auto-created from document upload on ${today}`\n      }\n    }\n  });\n}\n\nreturn results;"
+      },
+      "id": "node-prepare-new-project",
+      "name": "Code: Prepare New Project Row",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 400],
+      "notes": "Prepares data for new project creation (FALSE branch)"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": "PLACEHOLDER_PROJECT_TRACKER_SPREADSHEET_ID",
+        "sheetName": "=Project Tracker",
+        "dataMode": "defineBelow",
+        "fieldsUi": {
+          "values": [
+            {
+              "fieldId": "Project Name",
+              "fieldValue": "={{ $json.newProjectRow['Project Name'] }}"
+            },
+            {
+              "fieldId": "Exposé",
+              "fieldValue": "={{ $json.newProjectRow['Exposé'] }}"
+            },
+            {
+              "fieldId": "Grundbuch",
+              "fieldValue": "={{ $json.newProjectRow['Grundbuch'] }}"
+            },
+            {
+              "fieldId": "Calculation",
+              "fieldValue": "={{ $json.newProjectRow['Calculation'] }}"
+            },
+            {
+              "fieldId": "Exit Strategy",
+              "fieldValue": "={{ $json.newProjectRow['Exit Strategy'] }}"
+            },
+            {
+              "fieldId": "Last Updated",
+              "fieldValue": "={{ $json.newProjectRow['Last Updated'] }}"
+            },
+            {
+              "fieldId": "Notes",
+              "fieldValue": "={{ $json.newProjectRow['Notes'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-create-new-project",
+      "name": "Google Sheets: Create New Project Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [1560, 400],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PLACEHOLDER_GOOGLE_SHEETS_CREDENTIAL",
+          "name": "Google Sheets OAuth2"
+        }
+      },
+      "notes": "Creates new project row in tracker (FALSE branch)"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "node-merge-project-data",
+      "name": "Merge: Combine Project Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1780, 300],
+      "notes": "Merges project data (existing or newly created) with document data for next chunk"
+    }
+  ],
+  "connections": {
+    "Input: Extracted Text": {
+      "main": [
+        [
+          {
+            "node": "OpenAI: Extract Project Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI: Extract Project Name": {
+      "main": [
+        [
+          {
+            "node": "Code: Parse Project Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Parse Project Name": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets: Search Project Tracker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets: Search Project Tracker": {
+      "main": [
+        [
+          {
+            "node": "IF: Project Exists in Tracker?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Project Exists in Tracker?": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets: Get Existing Project",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code: Prepare New Project Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets: Get Existing Project": {
+      "main": [
+        [
+          {
+            "node": "Merge: Combine Project Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Prepare New Project Row": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets: Create New Project Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets: Create New Project Row": {
+      "main": [
+        [
+          {
+            "node": "Merge: Combine Project Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge: Combine Project Data": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-21T00:00:00.000Z",
+  "versionId": "v3.5-chunk2.5"
+}

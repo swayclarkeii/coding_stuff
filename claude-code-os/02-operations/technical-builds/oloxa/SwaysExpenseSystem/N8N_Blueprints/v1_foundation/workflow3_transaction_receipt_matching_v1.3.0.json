@@ -1,0 +1,159 @@
+{
+  "name": "Expense System - Workflow 3: Transaction-Receipt Matching",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {"field": "hours", "hoursInterval": 24}
+          ]
+        }
+      },
+      "id": "schedule-1",
+      "name": "Daily Matching Run",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {"__rl": true, "mode": "id", "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"},
+        "sheetName": {"__rl": true, "mode": "name", "value": "Transactions"},
+        "filtersUI": {
+          "values": [{"lookupColumn": "MatchStatus", "lookupValue": "unmatched"}]
+        },
+        "combineFilters": "AND",
+        "options": {}
+      },
+      "id": "read-transactions-1",
+      "name": "Get Unmatched Transactions",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {"__rl": true, "mode": "id", "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"},
+        "sheetName": {"__rl": true, "mode": "name", "value": "Receipts"},
+        "filtersUI": {
+          "values": [{"lookupColumn": "Matched", "lookupValue": "unmatched"}]
+        },
+        "combineFilters": "AND",
+        "options": {}
+      },
+      "id": "read-receipts-1",
+      "name": "Get Unmatched Receipts",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [450, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all unmatched transactions and receipts\nconst transactions = $('Get Unmatched Transactions').all();\nconst receipts = $('Get Unmatched Receipts').all();\n\nif (transactions.length === 0 || receipts.length === 0) {\n  return [];\n}\n\n// Helper: Parse date from DD.MM.YYYY or YYYY-MM-DD\nconst parseDate = (dateStr) => {\n  if (!dateStr) return null;\n  const germanMatch = dateStr.match(/(\\d{2})\\.(\\d{2})\\.(\\d{4})/);\n  if (germanMatch) {\n    return new Date(`${germanMatch[3]}-${germanMatch[2]}-${germanMatch[1]}`);\n  }\n  return new Date(dateStr);\n};\n\n// Helper: Calculate day difference\nconst daysDiff = (date1, date2) => {\n  const diffMs = Math.abs(date1 - date2);\n  return Math.floor(diffMs / (1000 * 60 * 60 * 24));\n};\n\n// Helper: Parse amount to number\nconst parseAmount = (amountStr) => {\n  if (!amountStr) return 0;\n  return parseFloat(amountStr.toString().replace(/[€$,]/g, '').replace(',', '.'));\n};\n\n// Helper: Calculate confidence score\nconst calculateConfidence = (txn, receipt) => {\n  let score = 0;\n  \n  // Date proximity scoring\n  const txnDate = parseDate(txn.Date);\n  const rcptDate = parseDate(receipt.Date);\n  if (txnDate && rcptDate) {\n    const days = daysDiff(txnDate, rcptDate);\n    if (days === 0) score += 0.2;\n    else if (days === 1) score += 0.15;\n    else if (days === 2) score += 0.1;\n    else if (days === 3) score += 0.05;\n    else return 0;\n  }\n  \n  // Amount matching\n  const txnAmt = Math.abs(parseAmount(txn.Amount));\n  const rcptAmt = parseAmount(receipt.Amount);\n  const amtDiff = Math.abs(txnAmt - rcptAmt);\n  \n  if (amtDiff === 0) score += 0.6;\n  else if (amtDiff <= 0.50) score += 0.4;\n  else return 0;\n  \n  // Vendor matching\n  if (txn.Vendor && receipt.Vendor) {\n    if (txn.Vendor.toLowerCase() === receipt.Vendor.toLowerCase()) {\n      score += 0.2;\n    }\n  }\n  \n  return score;\n};\n\n// Find best matches\nconst matches = [];\nconst usedReceipts = new Set();\n\nfor (const txn of transactions) {\n  let bestMatch = null;\n  let bestScore = 0;\n  \n  for (const receipt of receipts) {\n    if (usedReceipts.has(receipt.ReceiptID)) continue;\n    \n    const score = calculateConfidence(txn, receipt);\n    \n    if (score >= 0.7 && score > bestScore) {\n      bestScore = score;\n      bestMatch = receipt;\n    }\n  }\n  \n  if (bestMatch) {\n    usedReceipts.add(bestMatch.ReceiptID);\n    matches.push({\n      json: {\n        TransactionID: txn.TransactionID,\n        ReceiptID: bestMatch.ReceiptID,\n        MatchConfidence: bestScore.toFixed(2),\n        TransactionDate: txn.Date,\n        ReceiptDate: bestMatch.Date,\n        TransactionAmount: txn.Amount,\n        ReceiptAmount: bestMatch.Amount,\n        Vendor: txn.Vendor || bestMatch.Vendor,\n        ReceiptFileID: bestMatch.FileID,\n        ReceiptFileName: bestMatch.FileName,\n        Bank: txn.Bank,\n        Month: txn.Date ? txn.Date.split('.')[1] : '',\n        Year: txn.Date ? txn.Date.split('.')[2] : ''\n      }\n    });\n  }\n}\n\nreturn matches;"
+      },
+      "id": "code-match-1",
+      "name": "Match Transactions to Receipts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "loop-matches-1",
+      "name": "Loop Through Matches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {"__rl": true, "mode": "id", "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"},
+        "sheetName": {"__rl": true, "mode": "name", "value": "Transactions"},
+        "filtersUI": {
+          "values": [{"lookupColumn": "TransactionID", "lookupValue": "={{$json.TransactionID}}"}]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ReceiptID": "={{$json.ReceiptID}}",
+            "MatchStatus": "matched",
+            "MatchConfidence": "={{$json.MatchConfidence}}"
+          }
+        },
+        "options": {}
+      },
+      "id": "update-txn-1",
+      "name": "Update Transaction Record",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {"__rl": true, "mode": "id", "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"},
+        "sheetName": {"__rl": true, "mode": "name", "value": "Receipts"},
+        "filtersUI": {
+          "values": [{"lookupColumn": "ReceiptID", "lookupValue": "={{$json.ReceiptID}}"}]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {"Matched": "matched"}
+        },
+        "options": {}
+      },
+      "id": "update-rcpt-1",
+      "name": "Update Receipt Record",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build target folder path\nconst match = $input.first().json;\n\nconst monthNames = {\n  '01': '01-January', '02': '02-February', '03': '03-March',\n  '04': '04-April', '05': '05-May', '06': '06-June',\n  '07': '07-July', '08': '08-August', '09': '09-September',\n  '10': '10-October', '11': '11-November', '12': '12-December'\n};\n\nconst folderPath = `Expenses-System/${match.Year}/${monthNames[match.Month]}/${match.Bank}/Receipts`;\n\nreturn {\n  json: {...match, targetFolderPath: folderPath}\n};"
+      },
+      "id": "code-folder-1",
+      "name": "Determine Target Folder",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1450, 300]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "move",
+        "fileId": {"__rl": true, "mode": "id", "value": "={{$json.ReceiptFileID}}"},
+        "driveId": {"__rl": true, "mode": "list", "value": "My Drive"},
+        "folderId": {"__rl": true, "mode": "name", "value": "={{$json.targetFolderPath}}"}
+      },
+      "id": "gdrive-move-1",
+      "name": "Move Receipt to Organized Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1650, 300]
+    }
+  ],
+  "connections": {
+    "Daily Matching Run": {"main": [[{"node": "Get Unmatched Transactions", "type": "main", "index": 0}, {"node": "Get Unmatched Receipts", "type": "main", "index": 0}]]},
+    "Get Unmatched Transactions": {"main": [[{"node": "Match Transactions to Receipts", "type": "main", "index": 0}]]},
+    "Get Unmatched Receipts": {"main": [[{"node": "Match Transactions to Receipts", "type": "main", "index": 0}]]},
+    "Match Transactions to Receipts": {"main": [[{"node": "Loop Through Matches", "type": "main", "index": 0}]]},
+    "Loop Through Matches": {"main": [[{"node": "Update Transaction Record", "type": "main", "index": 0}]]},
+    "Update Transaction Record": {"main": [[{"node": "Update Receipt Record", "type": "main", "index": 0}]]},
+    "Update Receipt Record": {"main": [[{"node": "Determine Target Folder", "type": "main", "index": 0}]]},
+    "Determine Target Folder": {"main": [[{"node": "Move Receipt to Organized Folder", "type": "main", "index": 0}]]}
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

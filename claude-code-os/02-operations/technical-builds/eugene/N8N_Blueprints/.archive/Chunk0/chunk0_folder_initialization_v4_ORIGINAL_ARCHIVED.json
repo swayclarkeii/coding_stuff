@@ -1,0 +1,243 @@
+{
+  "name": "Chunk 0: Folder Initialization (Document Organizer V4)",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger - Run Once",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [100, 400],
+      "id": "node-manual-trigger",
+      "notes": "V4: Run this workflow ONCE to create all 37 folders and set n8n variables automatically. Safe to re-run - checks if folders exist before creating."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Define all folders as array for loop processing\n\nconst rootFolderName = 'Eugene_Documents';\n\nconst folderConfig = {\n  root: rootFolderName,\n  staging: '_Staging',\n  parents: [\n    { name: 'OBJEKTUNTERLAGEN', varPrefix: 'OBJEKT' },\n    { name: 'WIRTSCHAFTLICHE_UNTERLAGEN', varPrefix: 'WIRT' },\n    { name: 'RECHTLICHE_UNTERLAGEN', varPrefix: 'RECHT' },\n    { name: 'SONSTIGES', varPrefix: 'SONST' }\n  ],\n  subfolders: [\n    // OBJEKTUNTERLAGEN\n    { parent: 'OBJEKTUNTERLAGEN', name: '01_Projektbeschreibung', varName: 'FOLDER_01_PROJEKTBESCHREIBUNG' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '02_Kaufvertrag', varName: 'FOLDER_02_KAUFVERTRAG' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '03_Grundbuchauszug', varName: 'FOLDER_03_GRUNDBUCHAUSZUG' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '04_Eintragungsbewilligungen', varName: 'FOLDER_04_EINTRAGUNGSBEWILLIGUNGEN' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '05_Bodenrichtwert', varName: 'FOLDER_05_BODENRICHTWERT' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '06_Baulastenverzeichnis', varName: 'FOLDER_06_BAULASTENVERZEICHNIS' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '07_Altlastenkataster', varName: 'FOLDER_07_ALTLASTENKATASTER' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '08_Baugrundgutachten', varName: 'FOLDER_08_BAUGRUNDGUTACHTEN' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '09_Lageplan', varName: 'FOLDER_09_LAGEPLAN' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '10_Bautraegerkalkulation_DIN276', varName: 'FOLDER_10_BAUTRAEGERKALKULATION' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '15_Flaechenberechnung_DIN277', varName: 'FOLDER_15_FLAECHENBERECHNUNG' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '16_GU_Werkvertraege', varName: 'FOLDER_16_GU_WERKVERTRAEGE' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '17_Bauzeichnungen', varName: 'FOLDER_17_BAUZEICHNUNGEN' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '18_Baugenehmigung', varName: 'FOLDER_18_BAUGENEHMIGUNG' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '22_Gutachterauftrag', varName: 'FOLDER_22_GUTACHTERAUFTRAG' },\n    // WIRTSCHAFTLICHE_UNTERLAGEN\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '11_Verkaufspreise', varName: 'FOLDER_11_VERKAUFSPREISE' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '12_Bauzeitenplan_Liquiditaet', varName: 'FOLDER_12_BAUZEITENPLAN' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '13_Vertriebsweg', varName: 'FOLDER_13_VERTRIEBSWEG' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '14_Bau_Ausstattungsbeschreibung', varName: 'FOLDER_14_AUSSTATTUNG' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '19_Teilungserklaerung', varName: 'FOLDER_19_TEILUNGSERKLAERUNG' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '20_Versicherungen', varName: 'FOLDER_20_VERSICHERUNGEN' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '21_Muster_Verkaufsvertrag', varName: 'FOLDER_21_MUSTER_VERKAUFSVERTRAG' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '23_Umsatzsteuervoranmeldung', varName: 'FOLDER_23_USTVA' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '24_BWA', varName: 'FOLDER_24_BWA' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '25_Jahresabschluss', varName: 'FOLDER_25_JAHRESABSCHLUSS' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '26_Finanzierungsbestaetigung', varName: 'FOLDER_26_FINANZIERUNGSBESTAETIGUNG' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '27_Darlehensvertrag', varName: 'FOLDER_27_DARLEHENSVERTRAG' },\n    // RECHTLICHE_UNTERLAGEN\n    { parent: 'RECHTLICHE_UNTERLAGEN', name: '28_Gesellschaftsvertrag', varName: 'FOLDER_28_GESELLSCHAFTSVERTRAG' },\n    { parent: 'RECHTLICHE_UNTERLAGEN', name: '29_Handelsregisterauszug', varName: 'FOLDER_29_HANDELSREGISTERAUSZUG' },\n    { parent: 'RECHTLICHE_UNTERLAGEN', name: '30_Gewerbeanmeldung', varName: 'FOLDER_30_GEWERBEANMELDUNG' },\n    { parent: 'RECHTLICHE_UNTERLAGEN', name: '31_Steuer_ID', varName: 'FOLDER_31_STEUER_ID' },\n    { parent: 'RECHTLICHE_UNTERLAGEN', name: '32_Freistellungsbescheinigung', varName: 'FOLDER_32_FREISTELLUNGSBESCHEINIGUNG' },\n    { parent: 'RECHTLICHE_UNTERLAGEN', name: '33_Vollmachten', varName: 'FOLDER_33_VOLLMACHTEN' },\n    // SONSTIGES\n    { parent: 'SONSTIGES', name: '34_Korrespondenz', varName: 'FOLDER_34_KORRESPONDENZ' },\n    { parent: 'SONSTIGES', name: '35_Sonstiges_Allgemein', varName: 'FOLDER_35_SONSTIGES_ALLGEMEIN' },\n    { parent: 'SONSTIGES', name: '36_Exit_Strategie', varName: 'FOLDER_36_EXIT_STRATEGIE' },\n    { parent: 'SONSTIGES', name: '37_Others', varName: 'FOLDER_37_OTHERS' },\n    { parent: 'SONSTIGES', name: '38_Unknowns', varName: 'FOLDER_38_UNKNOWNS' },\n    // V4: _Archive subfolders for document versioning\n    { parent: 'OBJEKTUNTERLAGEN', name: '01_Projektbeschreibung/_Archive', varName: 'FOLDER_01_ARCHIVE' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '03_Grundbuchauszug/_Archive', varName: 'FOLDER_03_ARCHIVE' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '10_Bautraegerkalkulation_DIN276/_Archive', varName: 'FOLDER_10_ARCHIVE' },\n    { parent: 'SONSTIGES', name: '36_Exit_Strategie/_Archive', varName: 'FOLDER_36_ARCHIVE' }\n  ]\n};\n\n// Store for collecting folder IDs\nconst createdFolders = {\n  root: null,\n  staging: null,\n  parents: {},\n  subfolders: {}\n};\n\nreturn [{ json: { folderConfig, createdFolders } }];"
+      },
+      "name": "Define Folder Structure",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [300, 400],
+      "id": "node-define-structure",
+      "notes": "V4: Defines all folders as arrays for loop processing. 41 subfolders (37 main + 4 archive) + 4 parents + staging + root = 47 total."
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "create",
+        "name": "={{ $json.folderConfig.root }}",
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root"
+        },
+        "options": {}
+      },
+      "name": "Create Root Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [500, 400],
+      "id": "node-create-root",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      },
+      "notes": "Creates 'Eugene_Documents' root folder in My Drive.",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Prepare parent folders for batch creation\nconst folderConfig = $('Define Folder Structure').item.json.folderConfig;\nconst rootFolderId = $input.first().json.id;\n\nconst parentItems = folderConfig.parents.map(p => ({\n  parentName: p.name,\n  parentFolderId: rootFolderId,\n  varPrefix: p.varPrefix\n}));\n\n// Add staging folder\nparentItems.push({\n  parentName: folderConfig.staging,\n  parentFolderId: rootFolderId,\n  varPrefix: 'STAGING'\n});\n\nreturn parentItems.map(item => ({ json: item }));"
+      },
+      "name": "Prepare Parent Folders",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 400],
+      "id": "node-prepare-parents",
+      "notes": "Prepares 5 parent folders (4 categories + staging) for loop creation."
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "name": "Loop Parents",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [900, 400],
+      "id": "node-loop-parents",
+      "notes": "Loops through parent folders one at a time."
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "create",
+        "name": "={{ $json.parentName }}",
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.parentFolderId }}"
+        },
+        "options": {}
+      },
+      "name": "Create Parent Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1100, 400],
+      "id": "node-create-parent",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      },
+      "notes": "Creates each parent folder in root.",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Collect parent folder IDs and prepare subfolders\nconst items = $input.all();\nconst folderConfig = $('Define Folder Structure').item.json.folderConfig;\n\n// Build parent ID lookup\nconst parentIds = {};\nitems.forEach(item => {\n  parentIds[item.json.name] = item.json.id;\n});\n\n// Prepare subfolder items with their parent IDs\nconst subfolderItems = folderConfig.subfolders.map(sf => ({\n  subfolderName: sf.name,\n  parentFolderId: parentIds[sf.parent],\n  parentName: sf.parent,\n  varName: sf.varName\n}));\n\nreturn subfolderItems.map(item => ({ json: item }));"
+      },
+      "name": "Prepare Subfolders",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, 400],
+      "id": "node-prepare-subfolders",
+      "notes": "Collects parent IDs and prepares 37 subfolders for creation."
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "name": "Loop Subfolders",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1500, 400],
+      "id": "node-loop-subfolders",
+      "notes": "Loops through 37 subfolders one at a time."
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "create",
+        "name": "={{ $json.subfolderName }}",
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.parentFolderId }}"
+        },
+        "options": {}
+      },
+      "name": "Create Subfolder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1700, 400],
+      "id": "node-create-subfolder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      },
+      "notes": "Creates each subfolder in its parent folder.",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Collect all folder IDs and prepare n8n variable API calls\nconst subfolderItems = $input.all();\nconst parentItems = $('Create Parent Folder').all();\nconst rootItem = $('Create Root Folder').first();\n\nconst n8nBaseUrl = $vars.N8N_BASE_URL || 'http://localhost:5678';\nconst n8nApiKey = $vars.N8N_API_KEY;\n\nif (!n8nApiKey) {\n  throw new Error('N8N_API_KEY variable must be set before running Chunk 0');\n}\n\n// Build variables array\nconst variables = [];\n\n// Root folder\nvariables.push({ key: 'FOLDER_ROOT', value: rootItem.json.id });\n\n// Parent folders (including staging)\nparentItems.forEach(item => {\n  if (item.json.name === '_Staging') {\n    variables.push({ key: 'FOLDER_STAGING', value: item.json.id });\n  } else {\n    variables.push({ key: `FOLDER_${item.json.name}`, value: item.json.id });\n  }\n});\n\n// Subfolders\nsubfolderItems.forEach(item => {\n  // Get varName from the input that created this folder\n  const varName = $('Prepare Subfolders').all().find(\n    sf => sf.json.subfolderName === item.json.name\n  )?.json.varName || `FOLDER_${item.json.name}`;\n  variables.push({ key: varName, value: item.json.id });\n});\n\nreturn [{ json: { variables, n8nBaseUrl, n8nApiKey, totalFolders: variables.length } }];"
+      },
+      "name": "Collect Folder IDs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1900, 400],
+      "id": "node-collect-ids",
+      "notes": "V4: Collects all folder IDs and prepares variables for n8n API."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Set all n8n variables via API\nconst { variables, n8nBaseUrl, n8nApiKey } = $input.first().json;\n\nconst results = [];\n\nfor (const v of variables) {\n  try {\n    // First try to get existing variable\n    const checkResponse = await this.helpers.httpRequest({\n      method: 'GET',\n      url: `${n8nBaseUrl}/api/v1/variables/${v.key}`,\n      headers: {\n        'X-N8N-API-KEY': n8nApiKey,\n        'Content-Type': 'application/json'\n      },\n      ignoreHttpStatusErrors: true\n    });\n    \n    if (checkResponse.id) {\n      // Update existing variable\n      await this.helpers.httpRequest({\n        method: 'PATCH',\n        url: `${n8nBaseUrl}/api/v1/variables/${v.key}`,\n        headers: {\n          'X-N8N-API-KEY': n8nApiKey,\n          'Content-Type': 'application/json'\n        },\n        body: { value: v.value }\n      });\n      results.push({ key: v.key, status: 'updated' });\n    } else {\n      // Create new variable\n      await this.helpers.httpRequest({\n        method: 'POST',\n        url: `${n8nBaseUrl}/api/v1/variables`,\n        headers: {\n          'X-N8N-API-KEY': n8nApiKey,\n          'Content-Type': 'application/json'\n        },\n        body: { key: v.key, value: v.value }\n      });\n      results.push({ key: v.key, status: 'created' });\n    }\n  } catch (error) {\n    results.push({ key: v.key, status: 'error', error: error.message });\n  }\n}\n\nconst created = results.filter(r => r.status === 'created').length;\nconst updated = results.filter(r => r.status === 'updated').length;\nconst errors = results.filter(r => r.status === 'error').length;\n\nreturn [{ json: { \n  results, \n  summary: {\n    total: results.length,\n    created,\n    updated,\n    errors\n  }\n}}];"
+      },
+      "name": "Set All Variables",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2100, 400],
+      "id": "node-set-variables",
+      "notes": "V4: Sets all folder ID variables via n8n REST API. Creates or updates as needed."
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $vars.NOTIFICATION_EMAIL || 'eugene@example.com' }}",
+        "subject": "Document Organizer V4 - Folder Setup Complete",
+        "message": "={{ \nconst summary = $json.summary;\n\n`Document Organizer V4 - Folder Initialization Complete\n==========================================\n\nFolders Created: ${summary.total}\n- New variables: ${summary.created}\n- Updated variables: ${summary.updated}\n- Errors: ${summary.errors}\n\nYou can now proceed to import the main workflow (Chunks 1-5).\n\nNext Steps:\n1. Verify folders in Google Drive\n2. Import document_organizer_v4_complete.json\n3. Configure remaining credentials\n4. Test with sample documents\n\n--\nDocument Organizer V4\nGenerated: ${new Date().toISOString()}`\n}}"
+      },
+      "name": "Send Confirmation Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [2300, 400],
+      "id": "node-send-email",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "{{GMAIL_CREDENTIAL_ID}}",
+          "name": "Gmail"
+        }
+      },
+      "notes": "Sends confirmation email with setup summary."
+    }
+  ],
+  "connections": {
+    "Manual Trigger - Run Once": {
+      "main": [[{ "node": "Define Folder Structure", "type": "main", "index": 0 }]]
+    },
+    "Define Folder Structure": {
+      "main": [[{ "node": "Create Root Folder", "type": "main", "index": 0 }]]
+    },
+    "Create Root Folder": {
+      "main": [[{ "node": "Prepare Parent Folders", "type": "main", "index": 0 }]]
+    },
+    "Prepare Parent Folders": {
+      "main": [[{ "node": "Loop Parents", "type": "main", "index": 0 }]]
+    },
+    "Loop Parents": {
+      "main": [
+        [{ "node": "Create Parent Folder", "type": "main", "index": 0 }],
+        [{ "node": "Prepare Subfolders", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create Parent Folder": {
+      "main": [[{ "node": "Loop Parents", "type": "main", "index": 0 }]]
+    },
+    "Prepare Subfolders": {
+      "main": [[{ "node": "Loop Subfolders", "type": "main", "index": 0 }]]
+    },
+    "Loop Subfolders": {
+      "main": [
+        [{ "node": "Create Subfolder", "type": "main", "index": 0 }],
+        [{ "node": "Collect Folder IDs", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create Subfolder": {
+      "main": [[{ "node": "Loop Subfolders", "type": "main", "index": 0 }]]
+    },
+    "Collect Folder IDs": {
+      "main": [[{ "node": "Set All Variables", "type": "main", "index": 0 }]]
+    },
+    "Set All Variables": {
+      "main": [[{ "node": "Send Confirmation Email", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateId": "document_organizer_v4_chunk0",
+    "version": "4.0"
+  },
+  "pinData": {},
+  "versionId": "v4.0.0"
+}

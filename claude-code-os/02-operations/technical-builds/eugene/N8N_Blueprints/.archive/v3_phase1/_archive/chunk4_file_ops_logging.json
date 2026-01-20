@@ -1,0 +1,310 @@
+{
+  "name": "Chunk 4: File Operations + Logging (Document Organizer V3)",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.driveFileId }}"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars[$json.targetFolderVar] || $vars.FOLDER_37_OTHERS }}"
+        },
+        "options": {}
+      },
+      "name": "Move to Target Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [250, 400],
+      "id": "node-move-file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      },
+      "notes": "Moves file from staging to target folder based on classification. Uses folder ID from n8n variable (e.g., FOLDER_03_GRUNDBUCH). Falls back to Others folder if variable not set."
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.driveFileId }}"
+        },
+        "updateFields": {
+          "name": "={{ $json.newFileName }}"
+        },
+        "options": {}
+      },
+      "name": "Rename File",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [450, 400],
+      "id": "node-rename-file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      },
+      "notes": "Renames file with standardized prefix. Example: KALK276_Eugene_20251221.pdf"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare log entry data for Google Sheets\n\nconst items = $input.all();\nconst logEntries = [];\n\nfor (const item of items) {\n  const now = new Date();\n  const timestamp = now.toISOString();\n  const dateStr = now.toLocaleDateString('de-DE');\n  const timeStr = now.toLocaleTimeString('de-DE');\n  \n  logEntries.push({\n    json: {\n      ...item.json,\n      // Log fields for Google Sheets\n      logTimestamp: timestamp,\n      logDate: dateStr,\n      logTime: timeStr,\n      logOriginalFileName: item.json.originalFileName || 'unknown',\n      logNewFileName: item.json.newFileName || 'unknown',\n      logDocumentType: item.json.documentType || 'unknown',\n      logCategory: item.json.category || 'unknown',\n      logTargetFolder: item.json.targetFolderPath || 'unknown',\n      logConfidence: item.json.confidence || 'N/A',\n      logClientName: item.json.clientName || $vars.CLIENT_NAME || 'Eugene',\n      logFileId: item.json.driveFileId || 'N/A',\n      logProcessingStatus: 'SUCCESS',\n      logErrorMessage: '',\n      // Track for summary email\n      processingSuccess: true\n    },\n    binary: item.binary\n  });\n}\n\nreturn logEntries;"
+      },
+      "name": "Prepare Log Entry",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 400],
+      "id": "node-prepare-log",
+      "notes": "Prepares structured log entry for Google Sheets with timestamp, filenames, classification results, and processing status."
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.MAIN_LOG_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Processing Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.logTimestamp }}",
+            "Date": "={{ $json.logDate }}",
+            "Time": "={{ $json.logTime }}",
+            "Original Filename": "={{ $json.logOriginalFileName }}",
+            "New Filename": "={{ $json.logNewFileName }}",
+            "Document Type": "={{ $json.logDocumentType }}",
+            "Category": "={{ $json.logCategory }}",
+            "Target Folder": "={{ $json.logTargetFolder }}",
+            "Confidence": "={{ $json.logConfidence }}",
+            "Client": "={{ $json.logClientName }}",
+            "File ID": "={{ $json.logFileId }}",
+            "Status": "={{ $json.logProcessingStatus }}",
+            "Error": "={{ $json.logErrorMessage }}"
+          }
+        },
+        "options": {}
+      },
+      "name": "Log to Main Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [850, 400],
+      "id": "node-log-main",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
+          "name": "Google Sheets"
+        }
+      },
+      "notes": "Appends processing record to main log spreadsheet. Creates audit trail for all processed documents."
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.PROJECT_TRACKER_SHEET_ID || $vars.MAIN_LOG_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Project Tracker"
+        },
+        "dataMode": "autoMap",
+        "columnToMatchOn": "Project Name",
+        "valueToMatchOn": "={{ $json.projectName || 'Unknown Project' }}",
+        "fieldsUi": {
+          "values": [
+            {
+              "fieldId": "={{ $json.documentType === 'expose' ? 'Exposé' : '' }}",
+              "fieldValue": "={{ $json.documentType === 'expose' ? true : '' }}"
+            },
+            {
+              "fieldId": "={{ $json.documentType === 'grundbuch' ? 'Grundbuch' : '' }}",
+              "fieldValue": "={{ $json.documentType === 'grundbuch' ? true : '' }}"
+            },
+            {
+              "fieldId": "={{ $json.documentType === 'calculation' ? 'Calculation' : '' }}",
+              "fieldValue": "={{ $json.documentType === 'calculation' ? true : '' }}"
+            },
+            {
+              "fieldId": "={{ $json.documentType === 'exitstrategie' ? 'Exit Strategy' : '' }}",
+              "fieldValue": "={{ $json.documentType === 'exitstrategie' ? true : '' }}"
+            },
+            {
+              "fieldId": "Last Updated",
+              "fieldValue": "={{ $now.toFormat('yyyy-MM-dd') }}"
+            }
+          ]
+        },
+        "options": {
+          "useAppend": true
+        }
+      },
+      "name": "Update Project Tracker",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1050, 400],
+      "id": "node-update-project-tracker",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
+          "name": "Google Sheets"
+        }
+      },
+      "notes": "V3.5: Marks the received document type as ✓ in Project Tracker sheet. Updates 'Last Updated' date."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V3.5: Calculate project completion status after updating tracker\n// Reads the updated project row and calculates how many priority docs are complete\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const projectName = item.json.projectName || 'Unknown Project';\n  \n  // Count completed priority documents\n  const expose = item.json['Exposé'] === true ? 1 : 0;\n  const grundbuch = item.json['Grundbuch'] === true ? 1 : 0;\n  const calculation = item.json['Calculation'] === true ? 1 : 0;\n  const exitStrategy = item.json['Exit Strategy'] === true ? 1 : 0;\n  \n  const totalComplete = expose + grundbuch + calculation + exitStrategy;\n  const totalPriority = 4;\n  \n  // Determine status\n  let projectStatus = '';\n  let isComplete = false;\n  \n  if (totalComplete === 4) {\n    projectStatus = 'COMPLETE';\n    isComplete = true;\n  } else if (totalComplete === 0) {\n    projectStatus = 'NEW';\n  } else {\n    projectStatus = `IN PROGRESS (${totalComplete}/${totalPriority})`;\n  }\n  \n  // Identify missing documents\n  const missingDocs = [];\n  if (!expose) missingDocs.push('Exposé');\n  if (!grundbuch) missingDocs.push('Grundbuch');\n  if (!calculation) missingDocs.push('Calculation');\n  if (!exitStrategy) missingDocs.push('Exit Strategy');\n  \n  results.push({\n    json: {\n      ...item.json,\n      // Project completion data\n      projectName: projectName,\n      projectStatus: projectStatus,\n      projectComplete: isComplete,\n      projectCompletionRatio: `${totalComplete}/${totalPriority}`,\n      projectMissingDocs: missingDocs,\n      projectHasExpose: expose === 1,\n      projectHasGrundbuch: grundbuch === 1,\n      projectHasCalculation: calculation === 1,\n      projectHasExitStrategy: exitStrategy === 1\n    },\n    binary: item.binary\n  });\n}\n\nreturn results;"
+      },
+      "name": "Calculate Project Completion",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 400],
+      "id": "node-calculate-completion",
+      "notes": "V3.5: Calculates project completion status (2/4, 3/4, 4/4) and identifies missing documents for email summary."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V3.5 UPDATED: Aggregate results for Eugene notification email WITH PROJECT STATUS\n// This runs after all documents are processed in a batch\n\nconst items = $input.all();\n\n// Get project data from last item (passed through from Calculate Project Completion)\nconst lastItem = items[items.length - 1].json;\nconst projectName = lastItem.projectName || 'Unknown Project';\nconst projectStatus = lastItem.projectStatus || 'UNKNOWN';\nconst projectComplete = lastItem.projectComplete || false;\nconst projectCompletionRatio = lastItem.projectCompletionRatio || '0/4';\nconst projectMissingDocs = lastItem.projectMissingDocs || [];\n\nconst summary = {\n  totalProcessed: items.length,\n  successCount: 0,\n  byType: {\n    expose: [],\n    grundbuch: [],\n    calculation: [],\n    exitstrategie: [],\n    others: [],\n    unknown: []\n  },\n  processingTime: new Date().toISOString()\n};\n\nfor (const item of items) {\n  if (item.json.processingSuccess) {\n    summary.successCount++;\n  }\n  \n  const docType = item.json.documentType || 'unknown';\n  if (summary.byType[docType]) {\n    summary.byType[docType].push({\n      originalName: item.json.logOriginalFileName,\n      newName: item.json.logNewFileName,\n      folder: item.json.logTargetFolder\n    });\n  }\n}\n\n// Build email subject with project status\nconst priorityDocsCount = summary.byType.expose.length + summary.byType.grundbuch.length + summary.byType.calculation.length + summary.byType.exitstrategie.length;\nconst emailSubject = `[Doc Organizer] Project ${projectName} - ${projectCompletionRatio} complete`;\n\n// Build email body\nlet emailBody = `Document Organizer - Processing Summary\\n`;\nemailBody += `========================================\\n\\n`;\n\n// V3.5 NEW: PROJECT STATUS SECTION\nemailBody += `--- PROJECT STATUS ---\\n\\n`;\nemailBody += `Project: ${projectName}\\n`;\nemailBody += `Completion: ${projectCompletionRatio} Priority Documents\\n`;\nemailBody += `Status: ${projectStatus}\\n\\n`;\n\n// Show checkmarks for received docs\nemailBody += `${lastItem.projectHasExpose ? '✓' : '✗'} Exposé\\n`;\nemailBody += `${lastItem.projectHasGrundbuch ? '✓' : '✗'} Grundbuch\\n`;\nemailBody += `${lastItem.projectHasCalculation ? '✓' : '✗'} Calculation\\n`;\nemailBody += `${lastItem.projectHasExitStrategy ? '✓' : '✗'} Exit Strategy\\n\\n`;\n\nif (projectMissingDocs.length > 0) {\n  emailBody += `⚠️  Still missing: ${projectMissingDocs.join(', ')}\\n\\n`;\n} else if (projectComplete) {\n  emailBody += `🎉 ALL PRIORITY DOCUMENTS COMPLETE!\\n\\n`;\n}\n\nemailBody += `\\n`;\n\n// Latest batch processed section\nemailBody += `--- LATEST BATCH PROCESSED ---\\n\\n`;\nemailBody += `Documents: ${summary.totalProcessed}\\n`;\nemailBody += `Successful: ${summary.successCount}\\n`;\nemailBody += `Time: ${summary.processingTime}\\n\\n`;\n\n// Priority documents section\nif (priorityDocsCount > 0) {\n  emailBody += `📄 PRIORITY DOCUMENTS IN THIS BATCH:\\n\\n`;\n  \n  if (summary.byType.expose.length > 0) {\n    emailBody += `  EXPOSÉ (${summary.byType.expose.length}):\\n`;\n    summary.byType.expose.forEach(doc => {\n      emailBody += `    • ${doc.newName}\\n`;\n    });\n    emailBody += `\\n`;\n  }\n  \n  if (summary.byType.grundbuch.length > 0) {\n    emailBody += `  GRUNDBUCH (${summary.byType.grundbuch.length}):\\n`;\n    summary.byType.grundbuch.forEach(doc => {\n      emailBody += `    • ${doc.newName}\\n`;\n    });\n    emailBody += `\\n`;\n  }\n  \n  if (summary.byType.calculation.length > 0) {\n    emailBody += `  KALKULATION DIN 276 (${summary.byType.calculation.length}):\\n`;\n    summary.byType.calculation.forEach(doc => {\n      emailBody += `    • ${doc.newName}\\n`;\n    });\n    emailBody += `\\n`;\n  }\n  \n  if (summary.byType.exitstrategie.length > 0) {\n    emailBody += `  EXIT STRATEGIE (${summary.byType.exitstrategie.length}):\\n`;\n    summary.byType.exitstrategie.forEach(doc => {\n      emailBody += `    • ${doc.newName}\\n`;\n    });\n    emailBody += `\\n`;\n  }\n}\n\n// Catch-all folders section\nif (summary.byType.others.length > 0 || summary.byType.unknown.length > 0) {\n  emailBody += `--- NEEDS MANUAL SORTING ---\\n\\n`;\n  \n  if (summary.byType.others.length > 0) {\n    emailBody += `📁 OTHERS - Identifiable docs for manual sorting (${summary.byType.others.length}):\\n`;\n    summary.byType.others.forEach(doc => {\n      emailBody += `  • ${doc.originalName} → ${doc.folder}\\n`;\n    });\n    emailBody += `\\n`;\n  }\n  \n  if (summary.byType.unknown.length > 0) {\n    emailBody += `❓ UNKNOWN - Needs review (${summary.byType.unknown.length}):\\n`;\n    summary.byType.unknown.forEach(doc => {\n      emailBody += `  • ${doc.originalName}\\n`;\n    });\n    emailBody += `\\n`;\n  }\n}\n\nemailBody += `\\n---\\n`;\nemailBody += `View full log: https://docs.google.com/spreadsheets/d/${$vars.MAIN_LOG_SHEET_ID}\\n`;\nemailBody += `Project tracker: https://docs.google.com/spreadsheets/d/${$vars.PROJECT_TRACKER_SHEET_ID || $vars.MAIN_LOG_SHEET_ID}\\n`;\n\nreturn [{\n  json: {\n    emailSubject: emailSubject,\n    emailBody: emailBody,\n    summary: summary,\n    projectName: projectName,\n    projectStatus: projectStatus,\n    projectComplete: projectComplete,\n    // Pass through last item's data\n    ...lastItem\n  }\n}];"
+      },
+      "name": "Build Email Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1450, 400],
+      "id": "node-build-email",
+      "notes": "V3.5: Aggregates all processed documents into enhanced summary email for Eugene with project completion status. Shows which priority docs are complete/missing."
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $vars.EUGENE_EMAIL }}",
+        "subject": "={{ $json.emailSubject }}",
+        "message": "={{ $json.emailBody }}",
+        "options": {}
+      },
+      "name": "Email Eugene Summary",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [1650, 400],
+      "id": "node-email-eugene",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "{{GMAIL_CREDENTIAL_ID}}",
+          "name": "Gmail OAuth2"
+        }
+      },
+      "notes": "V3.5: Sends enhanced processing summary to Eugene with project completion status. NO emails to clients. Shows which priority docs are complete/missing."
+    }
+  ],
+  "connections": {
+    "Move to Target Folder": {
+      "main": [
+        [
+          {
+            "node": "Rename File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename File": {
+      "main": [
+        [
+          {
+            "node": "Prepare Log Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Log Entry": {
+      "main": [
+        [
+          {
+            "node": "Log to Main Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Main Sheet": {
+      "main": [
+        [
+          {
+            "node": "Update Project Tracker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Project Tracker": {
+      "main": [
+        [
+          {
+            "node": "Calculate Project Completion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Project Completion": {
+      "main": [
+        [
+          {
+            "node": "Build Email Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Email Summary": {
+      "main": [
+        [
+          {
+            "node": "Email Eugene Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "chunk4-file-ops-logging"
+  },
+  "pinData": {},
+  "versionId": "v3-chunk4-2025-12-21",
+  "triggerCount": 0
+}

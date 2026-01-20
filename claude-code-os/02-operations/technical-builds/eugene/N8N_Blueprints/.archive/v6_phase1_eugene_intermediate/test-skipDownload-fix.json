@@ -1,0 +1,12 @@
+{
+  "skipDownload": true,
+  "extractedText": "This is test text content that was already extracted in Pre-Chunk 0. The text should be long enough to pass the 100-character threshold for skipDownload logic. This simulates a digital PDF that was already processed.",
+  "textLength": 287,
+  "extractionMethod": "digital_pre_chunk",
+  "fileId": "1test123_mock_file_id",
+  "fileName": "test-skipDownload-document.pdf",
+  "mimeType": "application/pdf",
+  "size": 150000,
+  "client_normalized": "test_client",
+  "staging_folder_id": "mock_staging_folder_id"
+}

@@ -1,0 +1,87 @@
+==========================================================
+TASK 2 PRICE NORMALIZATION - v11 PERIOD FIX
+==========================================================
+
+FIXES: '1.1.' error on "1,1 Mio. USD"
+
+The issue: Period from "Mio." wasn't being removed before comma→period conversion
+
+SOLUTION: Explicitly remove ALL periods before converting comma to period
+
+PASTE THIS INTO MODULE 142:
+----------------------------------------------------------
+
+{{if(length(232.priceRaw) = 0; 0; if(contains(232.priceRaw; "Mio") & contains(232.priceRaw; "USD"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "Mio."; ""); "Mio"; ""); "USD"; ""); "$"; ""); " "; ""); "."; ""); ","; ".")) * 1000000); if(contains(232.priceRaw; "Bill") & contains(232.priceRaw; "USD") & contains(232.priceRaw; "IDR"); parseNumber(replace(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "Bill."; ""); "Bill"; ""); "Bill "; ""); "IDR"; ""); "Rp"; ""); " "; ""); "."; ""); ","; "")); if(contains(232.priceRaw; "Bill") & (contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp")); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "Bill."; ""); "Bill"; ""); "IDR"; ""); "Rp"; ""); " "; ""); "."; ""); ","; ".")) * 1000000000 / 15700); if(contains(232.priceRaw; "B") & (contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp")); round(parseNumber(replace(replace(replace(replace(replace(replace(232.priceRaw; "B"; ""); "IDR"; ""); "Rp"; ""); " "; ""); "."; ""); ","; ".")) * 1000000000 / 15700); if(contains(232.priceRaw; "USD ") & contains(232.priceRaw; ".") & length(232.priceRaw) < 15; parseNumber(replace(replace(replace(232.priceRaw; "USD"; ""); " "; ""); "."; "")); if(contains(232.priceRaw; "USD") | contains(232.priceRaw; "$"); parseNumber(replace(replace(replace(replace(232.priceRaw; "USD"; ""); "$"; ""); " "; ""); ","; "")); if(contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp"); round(parseNumber(replace(replace(replace(replace(232.priceRaw; "Rp"; ""); "IDR"; ""); "."; ""); " "; "")) / 15700); 0))))))))}}
+
+==========================================================
+KEY CHANGE FOR MIO PATH:
+==========================================================
+
+OLD (BROKEN):
+replace(replace(replace(replace(replace(replace(
+  232.priceRaw;
+  "Mio."; "");    ← Remove "Mio."
+  "Mio"; "");     ← Remove remaining "Mio"
+  "USD"; "");     ← Remove "USD"
+  "$"; "");       ← Remove "$"
+  " "; "");       ← Remove spaces
+  ","; ".")       ← Convert comma to period
+)
+Result: "1,1 Mio. USD" → "1,1 ." → "1.1." ❌
+
+NEW (FIXED):
+replace(replace(replace(replace(replace(replace(replace(
+  232.priceRaw;
+  "Mio."; "");    ← Remove "Mio."
+  "Mio"; "");     ← Remove remaining "Mio"
+  "USD"; "");     ← Remove "USD"
+  "$"; "");       ← Remove "$"
+  " "; "");       ← Remove spaces
+  "."; "");       ← Remove ALL periods ✅ NEW!
+  ","; ".")       ← Convert comma to period
+)
+Result: "1,1 Mio. USD" → "1,1" → "1.1" ✅
+
+==========================================================
+TRACE FOR "1,1 Mio. USD":
+==========================================================
+
+1. Original: "1,1 Mio. USD"
+2. Replace "Mio." → "1,1  USD"
+3. Replace "Mio" → "1,1  USD" (no change)
+4. Replace "USD" → "1,1  "
+5. Replace "$" → "1,1  " (no change)
+6. Replace " " → "1,1"
+7. Replace "." → "1,1" ✅ (removes any stray periods!)
+8. Replace "," → "1.1" ✅
+9. parseNumber("1.1") → 1.1 ✅
+10. 1.1 * 1,000,000 → 1,100,000 ✅
+
+==========================================================
+SAME FIX APPLIED TO:
+==========================================================
+
+✅ Mio USD path (Priority 2)
+✅ Bill IDR without USD path (Priority 4)
+✅ "B" abbreviation path (Priority 5)
+
+All three now remove periods BEFORE converting comma to period!
+
+==========================================================
+WHAT CHANGED FROM PREVIOUS VERSION:
+==========================================================
+
+Added one more replace() to each path that uses European decimal:
+
+Path 1 (Mio USD): Added `."; "")` before `,"; ".")`
+Path 2 (Bill IDR): Added `."; "")` before `,"; ".")`
+Path 3 (B abbreviation): Added `."; "")` before `,"; ".")`
+
+This ensures the order is:
+1. Remove text (Mio, Bill, USD, etc.)
+2. Remove spaces
+3. Remove ALL periods (thousands separators)
+4. Convert comma to period (decimal point)
+5. parseNumber()
+
+==========================================================

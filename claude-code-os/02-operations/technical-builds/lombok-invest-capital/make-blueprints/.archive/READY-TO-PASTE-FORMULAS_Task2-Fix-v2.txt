@@ -1,0 +1,52 @@
+==========================================================
+TASK 2 PRICE NORMALIZATION - FIXED FORMULA v2 (READY TO PASTE)
+==========================================================
+
+ERROR FIXED: '1.1.' is not a valid number
+ROOT CAUSE: Trailing period after "Mio." not being removed properly
+
+This updated formula handles edge cases better by:
+1. Removing "Mio." and "Mill." with and without spaces
+2. Cleaning up trailing periods before parseNumber()
+
+PASTE THIS INTO THE "Normalize Price USD for Task 2" MODULE:
+----------------------------------------------------------
+
+{{if(contains(232.priceRaw; "Rp") | contains(232.priceRaw; "IDR"); if(contains(232.priceRaw; "Billion") | contains(232.priceRaw; "Bill") | contains(232.priceRaw; "Miliar"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "Rp "; ""); "Rp"; ""); "IDR "; ""); " Billion"; ""); " Bill."; ""); " Bill"; ""); ","; ".")) * 1000000000 / 15700); if(contains(232.priceRaw; "Million") | contains(232.priceRaw; "Mio") | contains(232.priceRaw; "Juta"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "Rp "; ""); "Rp"; ""); "IDR "; ""); " Million"; ""); " Mio."; ""); " Mio"; ""); "Mio."; ""); " Juta"; ""); ","; ".")) * 1000000 / 15700); round(parseNumber(replace(replace(replace(replace(232.priceRaw; "Rp"; ""); "IDR"; ""); "."; ""); ","; "")) / 15700))); if(contains(232.priceRaw; "$") | contains(232.priceRaw; "USD"); if(contains(232.priceRaw; "Mio"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "$"; ""); "USD"; ""); " USD"; ""); " Mio."; ""); " Mio"; ""); "Mio."; ""); "Mio"; ""); ","; ".")) * 1000000); if(contains(232.priceRaw; "K"); parseNumber(replace(replace(replace(replace(232.priceRaw; "$"; ""); "USD"; ""); ","; ""); "K"; "")) * 1000; parseNumber(replace(replace(replace(232.priceRaw; "$"; ""); "USD"; ""); ","; "")))); if(contains(232.priceRaw; "€") | contains(232.priceRaw; "EUR"); round(parseNumber(replace(replace(replace(232.priceRaw; "€"; ""); "EUR"; ""); ","; ".")) * 1.1); 0)))}}
+
+==========================================================
+KEY CHANGES FROM v1:
+==========================================================
+
+1. ✅ Added "Mio." removal (with period)
+2. ✅ Added "Mio" removal (without period)
+3. ✅ Added " Mio." removal (with space and period)
+4. ✅ Added " Mio" removal (with space, no period)
+5. ✅ Same for "Bill." and "Bill"
+
+This handles ALL these formats:
+- "1,1 Mio. USD"
+- "1,1 Mio USD"
+- "1,1Mio. USD"
+- "1,1Mio USD"
+- "1.1 Mio. USD" (if source has period)
+
+==========================================================
+TESTING CHECKLIST:
+==========================================================
+
+After pasting, test with these sample values:
+
+✅ "1,1 Mio. USD"     → Should output: 1100000
+✅ "900,000 USD"      → Should output: 900000
+✅ "615,000 USD"      → Should output: 615000
+✅ "1,9 Bill. IDR"    → Should output: 121019
+✅ "4,5 Bill. IDR"    → Should output: 286624
+
+==========================================================
+SAME FIX FOR TASK 3:
+==========================================================
+
+{{if(contains(233.priceRaw; "Rp") | contains(233.priceRaw; "IDR"); if(contains(233.priceRaw; "Billion") | contains(233.priceRaw; "Bill") | contains(233.priceRaw; "Miliar"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(233.priceRaw; "Rp "; ""); "Rp"; ""); "IDR "; ""); " Billion"; ""); " Bill."; ""); " Bill"; ""); ","; ".")) * 1000000000 / 15700); if(contains(233.priceRaw; "Million") | contains(233.priceRaw; "Mio") | contains(233.priceRaw; "Juta"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(replace(replace(233.priceRaw; "Rp "; ""); "Rp"; ""); "IDR "; ""); " Million"; ""); " Mio."; ""); " Mio"; ""); "Mio."; ""); " Juta"; ""); ","; ".")) * 1000000 / 15700); round(parseNumber(replace(replace(replace(replace(233.priceRaw; "Rp"; ""); "IDR"; ""); "."; ""); ","; "")) / 15700))); if(contains(233.priceRaw; "$") | contains(233.priceRaw; "USD"); if(contains(233.priceRaw; "Mio"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(replace(233.priceRaw; "$"; ""); "USD"; ""); " USD"; ""); " Mio."; ""); " Mio"; ""); "Mio."; ""); "Mio"; ""); ","; ".")) * 1000000); if(contains(233.priceRaw; "K"); parseNumber(replace(replace(replace(replace(233.priceRaw; "$"; ""); "USD"; ""); ","; ""); "K"; "")) * 1000; parseNumber(replace(replace(replace(233.priceRaw; "$"; ""); "USD"; ""); ","; "")))); if(contains(233.priceRaw; "€") | contains(233.priceRaw; "EUR"); round(parseNumber(replace(replace(replace(233.priceRaw; "€"; ""); "EUR"; ""); ","; ".")) * 1.1); 0)))}}
+
+==========================================================

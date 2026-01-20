@@ -1,0 +1,249 @@
+{
+  "name": "Chunk 2.5: Project Tracking (Document Organizer V4)",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// V4: Normalize input from Chunk 2\nconst item = $input.first().json;\n\nreturn [{\n  json: {\n    fileId: item.fileId,\n    fileName: item.fileName,\n    originalFileName: item.originalFileName,\n    mimeType: item.mimeType,\n    extension: item.extension,\n    size: item.size,\n    emailId: item.emailId,\n    emailFrom: item.emailFrom,\n    emailSubject: item.emailSubject,\n    emailDate: item.emailDate,\n    extractedText: item.extractedText || '',\n    isScanned: item.isScanned || false,\n    ocrUsed: item.ocrUsed || false,\n    extractionMethod: item.extractionMethod,\n    processedAt: new Date().toISOString(),\n    extractedFromZip: item.extractedFromZip || false,\n    zipFileName: item.zipFileName || null,\n    stagingPath: item.stagingPath,\n    // Initialize project fields\n    rawProjectName: null,\n    normalizedProjectName: null,\n    matchedProjectName: null,\n    isNewProject: null\n  }\n}];"
+      },
+      "name": "Normalize Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [100, 400],
+      "id": "node-normalize-input",
+      "notes": "V4: Ensures consistent field names from Chunk 2."
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.1,
+          "maxTokens": 500
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a document analyzer specializing in German real estate documents. Extract the project or property name from the document text. The project name is typically a building name, property address, or development project title.\n\nExamples of project names:\n- \"Müller Apartment Building\"\n- \"Parkstraße 42 Development\"\n- \"Riverside Residence Berlin\"\n\nRespond with JSON only: {\"projectName\": \"extracted name\", \"confidence\": 0.95}\nIf no project name found, return: {\"projectName\": \"Unknown\", \"confidence\": 0}"
+            },
+            {
+              "role": "user",
+              "content": "={{ 'Extract the project/property name from this document text (first 2000 chars):\\n\\n' + $json.extractedText.substring(0, 2000) }}"
+            }
+          ]
+        }
+      },
+      "name": "Extract Project Name",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [300, 400],
+      "id": "node-extract-project",
+      "credentials": {
+        "openAiApi": {
+          "id": "{{OPENAI_CREDENTIAL_ID}}",
+          "name": "OpenAI"
+        }
+      },
+      "notes": "V4: Uses AI to extract project name from document text."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Parse AI response and normalize project name\nconst aiResponse = $input.first().json;\nconst originalData = $('Normalize Input').first().json;\n\nlet projectName = 'Unknown';\nlet extractionConfidence = 0;\n\ntry {\n  const parsed = JSON.parse(aiResponse.message?.content || aiResponse.text || '{}');\n  projectName = parsed.projectName || 'Unknown';\n  extractionConfidence = parsed.confidence || 0;\n} catch (e) {\n  // If parsing fails, try to extract from raw text\n  const text = aiResponse.message?.content || aiResponse.text || '';\n  const match = text.match(/projectName[\"']?\\s*:\\s*[\"']([^\"']+)[\"']/i);\n  if (match) projectName = match[1];\n}\n\n// V4 FIX: Normalize project name for fuzzy matching\nfunction normalizeProjectName(name) {\n  if (!name) return '';\n  return name\n    .toLowerCase()\n    .replace(/ü/g, 'u')\n    .replace(/ö/g, 'o')\n    .replace(/ä/g, 'a')\n    .replace(/ß/g, 'ss')\n    .replace(/[^a-z0-9]/g, '')\n    .trim();\n}\n\nconst normalizedName = normalizeProjectName(projectName);\n\nreturn [{\n  json: {\n    ...originalData,\n    rawProjectName: projectName,\n    normalizedProjectName: normalizedName,\n    projectExtractionConfidence: extractionConfidence\n  }\n}];"
+      },
+      "name": "Normalize Project Name",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 400],
+      "id": "node-normalize-project",
+      "notes": "V4 FIX: Normalizes German characters (ü→u, ö→o, ä→a, ß→ss)."
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.PROJECT_TRACKER_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Projects"
+        },
+        "options": {}
+      },
+      "name": "Get All Projects",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [700, 400],
+      "id": "node-get-projects",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
+          "name": "Google Sheets"
+        }
+      },
+      "notes": "V4: Fetches all existing projects for fuzzy comparison."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4 FIX: Fuzzy matching with Levenshtein distance\nconst docData = $('Normalize Project Name').first().json;\nconst existingProjects = $input.all().map(i => i.json);\n\nconst normalizedSearch = docData.normalizedProjectName;\n\n// Levenshtein distance implementation\nfunction levenshtein(a, b) {\n  if (!a || !b) return Math.max(a?.length || 0, b?.length || 0);\n  const matrix = [];\n  for (let i = 0; i <= b.length; i++) matrix[i] = [i];\n  for (let j = 0; j <= a.length; j++) matrix[0][j] = j;\n  for (let i = 1; i <= b.length; i++) {\n    for (let j = 1; j <= a.length; j++) {\n      matrix[i][j] = b.charAt(i-1) === a.charAt(j-1)\n        ? matrix[i-1][j-1]\n        : Math.min(matrix[i-1][j-1] + 1, matrix[i][j-1] + 1, matrix[i-1][j] + 1);\n    }\n  }\n  return matrix[b.length][a.length];\n}\n\nfunction similarity(a, b) {\n  if (!a || !b) return 0;\n  const maxLen = Math.max(a.length, b.length);\n  if (maxLen === 0) return 1;\n  return 1 - (levenshtein(a, b) / maxLen);\n}\n\n// Normalize function for comparison\nfunction normalizeProjectName(name) {\n  if (!name) return '';\n  return name\n    .toLowerCase()\n    .replace(/ü/g, 'u')\n    .replace(/ö/g, 'o')\n    .replace(/ä/g, 'a')\n    .replace(/ß/g, 'ss')\n    .replace(/[^a-z0-9]/g, '')\n    .trim();\n}\n\n// Find best match with 80% threshold\nlet bestMatch = null;\nlet bestSimilarity = 0;\nconst THRESHOLD = 0.8;\n\nfor (const project of existingProjects) {\n  if (!project['Project Name']) continue;\n  \n  const existingNormalized = project['Normalized Name'] || normalizeProjectName(project['Project Name']);\n  const sim = similarity(normalizedSearch, existingNormalized);\n  \n  if (sim > bestSimilarity && sim >= THRESHOLD) {\n    bestSimilarity = sim;\n    bestMatch = project;\n  }\n}\n\nconst isNewProject = !bestMatch;\nconst matchedProjectName = bestMatch ? bestMatch['Project Name'] : docData.rawProjectName;\nconst matchedProjectRow = bestMatch ? bestMatch.row_number || null : null;\n\nreturn [{\n  json: {\n    ...docData,\n    matchedProjectName: matchedProjectName,\n    matchSimilarity: bestSimilarity,\n    isNewProject: isNewProject,\n    existingProjectRow: matchedProjectRow,\n    // Use raw name for new projects, matched name for existing\n    projectName: matchedProjectName\n  }\n}];"
+      },
+      "name": "Fuzzy Match Projects",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 400],
+      "id": "node-fuzzy-match",
+      "notes": "V4 FIX: Uses Levenshtein distance with 80% similarity threshold."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "leftValue": "", "caseSensitive": true, "typeValidation": "strict" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "is-new-project",
+              "leftValue": "={{ $json.isNewProject }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "IF New Project",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1100, 400],
+      "id": "node-if-new",
+      "notes": "Routes to create new project or update existing."
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.PROJECT_TRACKER_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Projects"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Project Name": "={{ $json.projectName }}",
+            "Normalized Name": "={{ $json.normalizedProjectName }}",
+            "Exposé": false,
+            "Exposé Version": "",
+            "Grundbuch": false,
+            "Grundbuch Version": "",
+            "Calculation": false,
+            "Calculation Version": "",
+            "Exit Strategy": false,
+            "Exit Version": "",
+            "Total Complete": 0,
+            "Status": "New",
+            "Last Updated": "={{ new Date().toISOString() }}",
+            "Created From Email": "={{ $json.emailId }}",
+            "Source": "={{ $json.emailFrom }}"
+          }
+        },
+        "options": {}
+      },
+      "name": "Create New Project",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [1300, 300],
+      "id": "node-create-project",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
+          "name": "Google Sheets"
+        }
+      },
+      "notes": "V4: Creates new project row in tracker."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Log project match or creation\nconst data = $input.first().json;\n\nconsole.log(`Project: ${data.projectName}`);\nconsole.log(`New Project: ${data.isNewProject}`);\nconsole.log(`Match Similarity: ${(data.matchSimilarity * 100).toFixed(1)}%`);\n\nreturn [$input.first()];"
+      },
+      "name": "Log Project Status",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, 500],
+      "id": "node-log-project",
+      "notes": "V4: Logs project matching result for debugging."
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "mergeByFields": {
+          "values": []
+        },
+        "options": {}
+      },
+      "name": "Merge Project Paths",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1500, 400],
+      "id": "node-merge-paths",
+      "notes": "Combines new and existing project paths."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Normalize output with project info for Chunk 3\nconst items = $input.all();\nconst projectData = items[0]?.json || items[1]?.json;\n\nreturn [{\n  json: {\n    // V4 Standard field names\n    fileId: projectData.fileId,\n    fileName: projectData.fileName,\n    originalFileName: projectData.originalFileName,\n    mimeType: projectData.mimeType,\n    extension: projectData.extension,\n    size: projectData.size,\n    // Email context\n    emailId: projectData.emailId,\n    emailFrom: projectData.emailFrom,\n    emailSubject: projectData.emailSubject,\n    emailDate: projectData.emailDate,\n    // Extraction results\n    extractedText: projectData.extractedText,\n    isScanned: projectData.isScanned,\n    ocrUsed: projectData.ocrUsed,\n    extractionMethod: projectData.extractionMethod,\n    // Project info (V4)\n    projectName: projectData.projectName,\n    normalizedProjectName: projectData.normalizedProjectName,\n    isNewProject: projectData.isNewProject,\n    matchSimilarity: projectData.matchSimilarity,\n    // Metadata\n    processedAt: new Date().toISOString(),\n    extractedFromZip: projectData.extractedFromZip,\n    zipFileName: projectData.zipFileName,\n    stagingPath: projectData.stagingPath,\n    // Placeholder for downstream chunks\n    documentType: null,\n    confidence: null\n  }\n}];"
+      },
+      "name": "Normalize Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1700, 400],
+      "id": "node-normalize-output",
+      "notes": "V4: Ensures consistent field names for Chunk 3."
+    }
+  ],
+  "connections": {
+    "Normalize Input": {
+      "main": [[{ "node": "Extract Project Name", "type": "main", "index": 0 }]]
+    },
+    "Extract Project Name": {
+      "main": [[{ "node": "Normalize Project Name", "type": "main", "index": 0 }]]
+    },
+    "Normalize Project Name": {
+      "main": [[{ "node": "Get All Projects", "type": "main", "index": 0 }]]
+    },
+    "Get All Projects": {
+      "main": [[{ "node": "Fuzzy Match Projects", "type": "main", "index": 0 }]]
+    },
+    "Fuzzy Match Projects": {
+      "main": [[{ "node": "IF New Project", "type": "main", "index": 0 }]]
+    },
+    "IF New Project": {
+      "main": [
+        [{ "node": "Create New Project", "type": "main", "index": 0 }],
+        [{ "node": "Log Project Status", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create New Project": {
+      "main": [[{ "node": "Merge Project Paths", "type": "main", "index": 0 }]]
+    },
+    "Log Project Status": {
+      "main": [[{ "node": "Merge Project Paths", "type": "main", "index": 1 }]]
+    },
+    "Merge Project Paths": {
+      "main": [[{ "node": "Normalize Output", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateId": "document_organizer_v4_chunk2.5",
+    "version": "4.0"
+  }
+}

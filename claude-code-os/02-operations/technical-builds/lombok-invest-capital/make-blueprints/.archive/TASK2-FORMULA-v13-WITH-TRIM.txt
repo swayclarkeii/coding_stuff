@@ -1,0 +1,36 @@
+==========================================================
+TASK 2 PRICE NORMALIZATION - v13 WITH TRIM()
+==========================================================
+
+ADDING trim() to remove trailing periods/spaces before parseNumber
+
+PASTE THIS INTO MODULE 142:
+----------------------------------------------------------
+
+{{if(length(232.priceRaw) = 0; 0; if(contains(232.priceRaw; "Mio") & contains(232.priceRaw; "USD"); round(parseNumber(trim(replace(replace(replace(replace(replace(232.priceRaw; " Mio. USD"; ""); " Mio USD"; ""); "Mio."; ""); "Mio"; ""); ","; "."))) * 1000000); if(contains(232.priceRaw; "Bill") & contains(232.priceRaw; "USD") & contains(232.priceRaw; "IDR"); parseNumber(trim(replace(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "Bill."; ""); "Bill"; ""); "Bill "; ""); "IDR"; ""); "Rp"; ""); " "; ""); "."; ""); ","; ""))); if(contains(232.priceRaw; "Bill") & (contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp")); round(parseNumber(trim(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "Bill."; ""); "Bill"; ""); "IDR"; ""); "Rp"; ""); " "; ""); "."; ""); ","; "."))) * 1000000000 / 15700); if(contains(232.priceRaw; "B") & (contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp")); round(parseNumber(trim(replace(replace(replace(replace(replace(replace(232.priceRaw; "B"; ""); "IDR"; ""); "Rp"; ""); " "; ""); "."; ""); ","; "."))) * 1000000000 / 15700); if(contains(232.priceRaw; "USD ") & contains(232.priceRaw; ".") & length(232.priceRaw) < 15; parseNumber(trim(replace(replace(replace(232.priceRaw; "USD"; ""); " "; ""); "."; ""))); if(contains(232.priceRaw; "USD") | contains(232.priceRaw; "$"); parseNumber(trim(replace(replace(replace(replace(232.priceRaw; "USD"; ""); "$"; ""); " "; ""); ","; ""))); if(contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp"); round(parseNumber(trim(replace(replace(replace(replace(232.priceRaw; "Rp"; ""); "IDR"; ""); "."; ""); " "; ""))) / 15700); 0))))))))}}
+
+==========================================================
+WHAT CHANGED:
+==========================================================
+
+Added trim() around every replace chain before parseNumber:
+
+OLD:
+parseNumber(replace(...))
+
+NEW:
+parseNumber(trim(replace(...)))
+
+This will strip leading/trailing spaces, periods, etc. before parsing!
+
+==========================================================
+IF trim() DOESN'T WORK, TRY THIS NUCLEAR OPTION:
+==========================================================
+
+Manually remove trailing period:
+
+{{if(length(232.priceRaw) = 0; 0; if(contains(232.priceRaw; "Mio") & contains(232.priceRaw; "USD"); round(parseNumber(replace(replace(replace(replace(replace(replace(232.priceRaw; " Mio. USD"; ""); " Mio USD"; ""); "Mio."; ""); "Mio"; ""); "."; ""); ","; ".")) * 1000000); if(contains(232.priceRaw; "Bill") & contains(232.priceRaw; "USD") & contains(232.priceRaw; "IDR"); parseNumber(replace(replace(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "Bill."; ""); "Bill"; ""); "Bill "; ""); "IDR"; ""); "Rp"; ""); " "; ""); "."; ""); "."; ""); ","; "")); if(contains(232.priceRaw; "Bill") & (contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp")); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "Bill."; ""); "Bill"; ""); "IDR"; ""); "Rp"; ""); " "; ""); "."; ""); "."; ""); ","; ".")) * 1000000000 / 15700); if(contains(232.priceRaw; "B") & (contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp")); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "B"; ""); "IDR"; ""); "Rp"; ""); " "; ""); "."; ""); "."; ""); ","; ".")) * 1000000000 / 15700); if(contains(232.priceRaw; "USD ") & contains(232.priceRaw; ".") & length(232.priceRaw) < 15; parseNumber(replace(replace(replace(replace(232.priceRaw; "USD"; ""); " "; ""); "."; ""); "."; "")); if(contains(232.priceRaw; "USD") | contains(232.priceRaw; "$"); parseNumber(replace(replace(replace(replace(232.priceRaw; "USD"; ""); "$"; ""); " "; ""); ","; "")); if(contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp"); round(parseNumber(replace(replace(replace(replace(replace(232.priceRaw; "Rp"; ""); "IDR"; ""); "."; ""); "."; ""); " "; "")) / 15700); 0))))))))}}
+
+This removes periods TWICE to catch any remaining ones!
+
+==========================================================

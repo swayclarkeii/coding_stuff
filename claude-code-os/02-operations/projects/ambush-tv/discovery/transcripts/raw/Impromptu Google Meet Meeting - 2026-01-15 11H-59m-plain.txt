@@ -1,0 +1,215 @@
+[00:00:00] Leonor Zuzarte: Yeah.
+[00:00:01] Leonor Zuzarte: From my end, I think in terms of automatization, there's just one big thing that pops into mind, which is regarding the rates.
+[00:00:15] Leonor Zuzarte: So currently, whenever I raise someone or their rates change, like, for instance, people move to the UK and they start wanting to get paid in pounds rather than in euros because it's It's easier for them.
+[00:00:31] Leonor Zuzarte: Stuff like that.
+[00:00:32] Leonor Zuzarte: I have to manually integrate it into the team directory.
+[00:00:42] Leonor Zuzarte: And then from the team directory, I have to then make sure that it's changed in the freelancer cost assumptions sheet so that it will show up correctly on the dashboard.
+[00:00:58] Leonor Zuzarte: Okay.
+[00:00:59] Leonor Zuzarte: Okay.
+[00:00:59] Leonor Zuzarte: Amen.
+[00:00:59] Leonor Zuzarte: Amen.
+[00:00:59] Leonor Zuzarte: Amen.
+[00:00:59] Sway Clarke: Amen.
+[00:01:02] Sway Clarke: The second sheet you mentioned is the freelancer cost you just said.
+[00:01:08] Leonor Zuzarte: Cost assumption.
+[00:01:09] Leonor Zuzarte: I can share my screen.
+[00:01:10] Leonor Zuzarte: Am I still sharing?
+[00:01:11] Leonor Zuzarte: Oh no, that was a different call.
+[00:01:14] Madalena Ribeiro da Fonseca: It's okay, it's okay, I got it.
+[00:01:16] Madalena Ribeiro da Fonseca: So this is an issue with rates particularly?
+[00:01:19] Leonor Zuzarte: Yes.
+[00:01:20] Leonor Zuzarte: I just feel like for me personally, it opens me up to a lot of error.
+[00:01:26] Leonor Zuzarte: Okay.
+[00:01:28] Leonor Zuzarte: So this is our freelancer cost assumption sheet, which is essentially where we input the rate that each freelancer's at, and Madalena marvelously set it up so that for each month that amount automatically shows up when you write that freelancer's name in the dashboard.
+[00:01:51] Madalena Ribeiro da Fonseca: This is all in chat GPT and I still had to like, almost anything that's automated was either there.
+[00:02:00] Madalena Ribeiro da Fonseca: Like just Googling chat GPT-ing and always like trying out several iterations because at one point I was like trying to get the project directory to copy itself to another sheet only if there was a sanitized thing or maybe something else like that and I just couldn't get it to like I spent maybe two hours trying to do that and I just couldn't get it to do.
+[00:02:21] Madalena Ribeiro da Fonseca: No worries.
+[00:02:24] Sway Clarke: Okay, so you're talking about the rate discrepancy when somebody moves to another country or...
+[00:02:29] Leonor Zuzarte: Or when they're raised.
+[00:02:32] Leonor Zuzarte: Because especially for me the way that we do things is like we meet once a week, we talk about the team, so the core team, me, Madalena, Alice, Simbad, not Simbad, but Pierre, whatever, the art directors.
+[00:02:45] Leonor Zuzarte: And we meet once a week and we kind of talk about the team, how are the new people progressing, are there any projects or situations that we want to flag, et cetera, et cetera.
+[00:02:57] Leonor Zuzarte: So what happens is that when we raise...
+[00:03:00] Leonor Zuzarte: These people, we usually raise them in, not usually, but often enough, bunches.
+[00:03:09] Leonor Zuzarte: So, like, we go over the team and we're, like, trying to see if there's anyone we miss that we feel like should be leveled up.
+[00:03:16] Leonor Zuzarte: And then I go and I talk to each of these people and I try to give them, like, personalized feedback, like, this is what we really liked, the direction that you're going in and progressing.
+[00:03:27] Leonor Zuzarte: This is kind of, like, what we would like to see from you more, or we would, you know, we would like to see you, like, investing more time and, like, getting better AI skills, or we would like to see you really, like, master some crazy effects on ReadyMag or whatever.
+[00:03:46] Leonor Zuzarte: And then I have to go and make a note in the team directory, so basically change the rate in the team directory.
+[00:03:55] Leonor Zuzarte: And then from the team directory, I then have to change the rate.
+[00:03:59] Leonor Zuzarte: And
+[00:04:00] Leonor Zuzarte: In the dashboard, in the FCA, and because we do these in bunches, I feel like maybe it's just me, but I do feel like there's a lot of space for human error because I'm having these calls and sometimes I'm like, oh, okay, wait, I'll just like change everyone's admin later, but then later, like something comes up.
+[00:04:23] Leonor Zuzarte: And so maybe it's changed in the team directory, but it's not changed in the FCA, or maybe it's changed in the FCA, but I haven't changed it yet in the team directory.
+[00:04:33] Leonor Zuzarte: Yeah, and it just creates this like whole day a month where I go and I spend like two hours making sure that everything is right and corresponds and like that the people's time sheets also corresponds and that they like really actually understood that they were raised.
+[00:04:54] Leonor Zuzarte: So it feels like it could be a little bit simpler.
+[00:04:58] Sway Clarke: I'm curious about
+[00:05:00] Sway Clarke: Just very quickly, I'm curious about the calls that you're having with, I'm sorry, how often are you raising people?
+[00:05:05] Sway Clarke: And this is just their general pay, right?
+[00:05:07] Sway Clarke: Their hourly rate you're talking about.
+[00:05:09] Sway Clarke: And how often is this happening?
+[00:05:10] Sway Clarke: Like, people going, like, does one freelancer go through two, three or four raises a year?
+[00:05:16] Sway Clarke: Or is it once a year?
+[00:05:18] Sway Clarke: Or is it every, like, how often is that happening?
+[00:05:20] Leonor Zuzarte: It depends really on the, on your, like, on your standing as a freelancer.
+[00:05:28] Leonor Zuzarte: So I'll share my, I'll share the team directory with you again really quickly.
+[00:05:32] Leonor Zuzarte: Because the thing is, where, where, where, where am I?
+[00:05:38] Leonor Zuzarte: Here.
+[00:05:40] Leonor Zuzarte: So, essentially, all of these people that are at 22 have been raised, like, somewhere in the last year.
+[00:05:50] Leonor Zuzarte: Between 24 and 25.
+[00:05:52] Leonor Zuzarte: But then, as you can see, this person was raised once in 2023, four times in 20.
+[00:06:00] Leonor Zuzarte: 2024 and two times in 2025 that happens because we work on this sliding scale of rates and we do want people to get as close to the top end of our scale as possible.
+[00:06:16] Leonor Zuzarte: And so it's very slow for the people at the top, but it like, for instance, we onboarded a few visual researchers at the end of last year.
+[00:06:30] Leonor Zuzarte: I would expect them to be raised at least twice or three times this year.
+[00:06:35] Leonor Zuzarte: Twice or three times this year.
+[00:06:37] Sway Clarke: Okay.
+[00:06:37] Sway Clarke: Okay.
+[00:06:38] Sway Clarke: So, and then with the, with the amount of people that you have, it does happen quite frequently that this is something that you're like.
+[00:06:44] Leonor Zuzarte: Yeah.
+[00:06:44] Leonor Zuzarte: And then if like in two months, we're onboarding more new people, then I would expect those people to also be raised like two to three times in a year.
+[00:06:53] Sway Clarke: And, and I wanted to ask just in a general sense, when you are having these calls with these freelance.
+[00:06:59] Sway Clarke: Next.
+[00:06:59] Sway Clarke: Next.
+[00:07:00] Sway Clarke: Just because it sounds like sometimes you're having a call, you have all of this information, you can't really get to it right now, you've got to do it at the end of the month, and then you've got to refer back to notes or whatever it is that you're doing.
+[00:07:08] Sway Clarke: Are you recording these calls?
+[00:07:10] Sway Clarke: Are you having like a transcript or anything that is like pulling information from your calls?
+[00:07:16] Sway Clarke: No.
+[00:07:17] Sway Clarke: Okay.
+[00:07:17] Leonor Zuzarte: I really should, shouldn't I?
+[00:07:19] Sway Clarke: No, you know, it's a very, you know, these are kind of very easy things to set up where, you know, for example, I use Fathom, right?
+[00:07:27] Sway Clarke: And it's free.
+[00:07:28] Sway Clarke: Yeah, I don't pay for it.
+[00:07:31] Sway Clarke: It'll record a call, and it'll record an hour call, and you can then get the transcript.
+[00:07:37] Sway Clarke: You can set up little automations that say, in this call, pull out this information.
+[00:07:43] Sway Clarke: What did we talk about?
+[00:07:44] Sway Clarke: Pull out the rates, pull out any general information that you want to have on hand, and then that can be produced in a document or in a file or in an email, like however you want it, right?
+[00:07:54] Sway Clarke: So we're really kind of, we call them like very quick wins.
+[00:08:00] Sway Clarke: They're kind of very easy to implement, but they have high impact if you guys are having conversations with each other or having conversations with clients or freelancers regularly, and then you have to recap what was that called about, and then, you know, your to-dos and all that kind of stuff, right?
+[00:08:16] Sway Clarke: So those are things that you can do, and you can automate it where after the call, it will automatically be sent up here, and you'll get the information, and you can do all these really crazy stuff, right?
+[00:08:25] Sway Clarke: Really cool .
+[00:08:27] Sway Clarke: But I just was noticing that, right?
+[00:08:29] Sway Clarke: I'm wondering if these are tools that you're using that would help you day to day.
+[00:08:34] Sway Clarke: I think you should all check out Fathom.
+[00:08:36] Sway Clarke: I mean, even if you're having, the three of you having a meeting, it'll just parse out, these are Madalena's tasks, these are Alice's tasks, these are follow-ups, like, just very, very quickly, and then present you with those things, you know?
+[00:08:49] Madalena Ribeiro da Fonseca: I feel like I've tried a couple, and it's like, the more you use it, the more useful they get.
+[00:08:56] Madalena Ribeiro da Fonseca: But I think if you could maybe, like, whisper.
+[00:08:59] Madalena Ribeiro da Fonseca: is – you.
+[00:09:00] Madalena Ribeiro da Fonseca: I think it would be good to get like an enterprise one for just the core team because, for example, Oliver uses Otter and then Gertani uses Fireflies and I tried using Fireflies for a second, but then they all have like limits and stuff and so I my problem is like you get the transcripts and you get the summaries with the action items and stuff, but then that just sits in that tab of that AI thing that none of us are opening because we have like 60 sheets open instead.
+[00:09:26] Madalena Ribeiro da Fonseca: Yeah, and that's the problem.
+[00:09:29] Sway Clarke: The thing is, I don't use Otter and I don't use those other ones because they're not free, they're too expensive and you got to upgrade to another plan and all that.
+[00:09:38] Sway Clarke: Fathom is like fully free?
+[00:09:40] Sway Clarke: Fathom, I've been using Fathom now for like two months and it's just, check it out.
+[00:09:46] Sway Clarke: But the problem, the problem you're talking about is a real problem where you're getting data, but what are you doing with the data, right?
+[00:09:52] Sway Clarke: And so like you're saying, it's sitting on Fathom, but how is it getting outside of Fathom?
+[00:09:57] Sway Clarke: Nobody's ever seeing it after this, right?
+[00:09:59] Sway Clarke: Because nobody what you...
+[00:10:00] Sway Clarke: I have all these other Excel sheets that you're looking at, or sheets, and you're not getting back to those meetings.
+[00:10:04] Sway Clarke: So you can set up things where it'll take the transcript automatically after the meeting, and then it will send each person per email or put it into wherever place that you look, Slack or whatever it is.
+[00:10:19] Sway Clarke: No, but yeah, that's another thing.
+[00:10:21] Madalena Ribeiro da Fonseca: These all have certain integrations with certain other services that normal companies would use.
+[00:10:28] Madalena Ribeiro da Fonseca: But because we are cutting costs at every corner, like, this says it integrates with Slack or Salesforce or Notion.
+[00:10:34] Madalena Ribeiro da Fonseca: I tried to do the team directory on Notion once, and I tried to get the bosses to move everything from Google to Notion.
+[00:10:39] Madalena Ribeiro da Fonseca: They were like, that's expensive.
+[00:10:40] Madalena Ribeiro da Fonseca: We don't use Slack.
+[00:10:41] Madalena Ribeiro da Fonseca: We use Discord, which is almost exactly the same, but it's like a, it's like, you know, Discord.
+[00:10:46] Madalena Ribeiro da Fonseca: It's like a Twitch streaming group.
+[00:10:49] Madalena Ribeiro da Fonseca: Yeah, yeah, yeah.
+[00:10:50] Madalena Ribeiro da Fonseca: Like, it doesn't, it's not something that would have integrations with other things because it's another, like, it's another free program.
+[00:10:58] Madalena Ribeiro da Fonseca: Right.
+[00:10:58] Madalena Ribeiro da Fonseca: Well, I mean.
+[00:11:00] Sway Clarke: I you have direct integrations, and then you have API integrations, meaning that an API integration means I can integrate any system with any system.
+[00:11:12] Sway Clarke: As long as you can, like, quote it in yourself.
+[00:11:15] Sway Clarke: Yeah, I can integrate, for example, my Fathom with my email.
+[00:11:20] Sway Clarke: I can just make sure that after this call, it gets transcribed, and it gets sent to my email address.
+[00:11:27] Sway Clarke: And then I get an email after that says, here's the call, or here's the transcript.
+[00:11:31] Sway Clarke: Or I can have it sent to my Google Drive, where it drops a document or something.
+[00:11:36] Sway Clarke: Now, in Fathom, it may not say, click this button, we're integrating with Notion, but I can send it to Notion via an API or an HTTP.
+[00:11:45] Sway Clarke: I mean, I'm getting super technical right now, and it's probably going to bore everybody.
+[00:11:50] Madalena Ribeiro da Fonseca: No, no, this is exactly what we don't know about, so this is exactly what we're interested in.
+[00:11:54] Madalena Ribeiro da Fonseca: Yeah, can really connect everything, right?
+[00:11:57] Sway Clarke: And so the systems that...
+[00:12:00] Sway Clarke: You have systems that are things like automation systems, which are things like companies like Make, brands like Make or N8N, and these are basic automation systems that allow you to do the back-end connection.
+[00:12:14] Sway Clarke: It allows you to say, I want to connect Fathom to my Discord account, and how do I make sure that when my Discord account, something pops up, some information, I can get a notification to my email or something like this.
+[00:12:26] Sway Clarke: And you can set up these systems in these programs, this is what I use, and you would set them up so that they can do all of these things.
+[00:12:34] Sway Clarke: So, for example, one of the things I've set up for myself is that every day I do what I call a brain dump, where I'm like, okay, I've got this to do, I've got to pick up my kids, I've got to call this person, oh yeah, I've got to update this CRM person, I've got to do da-da-da-da-da-da-da-da, right?
+[00:12:51] Sway Clarke: And I've set up a system that it'll go through this conversation that I have with it, and it will pull out, these are to-do tasks, and if they're to-do tasks...
+[00:13:00] Sway Clarke: Put them in my Notion Tasks to Database, and if these are calendar bookings, like I need to do something on a certain date, then it will pull that out, and it will set it up in my Gmail account, or my Gmail, or not Gmail, my Google Calendar, and then if it's this, it'll go there, you know what mean?
+[00:13:17] Sway Clarke: You can do all these kind of if statements, and this is, these things you can totally do, you just have to build these systems for it, right?
+[00:13:23] Sway Clarke: And the, but the question is always, is it important enough to build a system for, like, and that's all, that's like, I, you know, I want to take some time and go through our conversation now, and really kind of get a sense of where and what, and then I would love to have another conversation with you three, at least, to sit down and be like, are these the most painful things, right, like, you know, and could we agree that, like, one of the things I think is the interactivity between these sheets, that that's like a painful thing, I gotta go here, and I gotta read many
+[00:14:00] Sway Clarke: It seems like this is a really, really big problem.
+[00:14:03] Sway Clarke: And if you can solve this, it will free up time for a lot of other things, you know?
+[00:14:08] Sway Clarke: So in my mind already, I'm like, that's a major, major, major pain point.
+[00:14:13] Sway Clarke: That's a major, major problem.
+[00:14:14] Sway Clarke: And I think there's a lot of things that come together with that.
+[00:14:17] Sway Clarke: Like the rate card comes together with that.
+[00:14:19] Sway Clarke: The time, the schedules come together like that.
+[00:14:22] Sway Clarke: It's all about getting this thing interactively working together.
+[00:14:26] Sway Clarke: Calculations come in together with that.
+[00:14:27] Sway Clarke: And then there's other things like, how are you following up with clients, you know, when they don't have an invoice?
+[00:14:33] Sway Clarke: How automated is that process versus how manual is that process?
+[00:14:39] Sway Clarke: Or things like, how are you following up with people who haven't filled out their time cards yet?
+[00:14:46] Sway Clarke: Because this is all time, right?
+[00:14:48] Sway Clarke: Every email you send, every call you have to get on, it's all time, right?
+[00:14:51] Sway Clarke: And so you want to automate all of the things that are like, okay, if somebody books a job, and they're booked for a job, and that job ends on the 15th.
+[00:15:01] Sway Clarke: And seven days from then, they haven't filled out their time card, just send them a message, just send them a message that says, hey, we're going to try to close this thing in four days, just reminder to send, you know, even like, these are the kind of things and you're like, now I don't have to send that email, I can spend time doing other things, right?
+[00:15:18] Madalena Ribeiro da Fonseca: So yeah, think even even freeing up mental space, if we had some sort of way of like, the calendar, because at the moment, the dashboard, we input the estimated beginning date and estimated like end date, but sometimes the end shifts.
+[00:15:30] Madalena Ribeiro da Fonseca: And so if the calendar could tell the dashboard when it ends, and then the dashboard could tell us like, four days later, like put in everyone's hours, and then seven days later, like, send out the invoicing email with the recap today, because sometimes we get to the end of them, like, we haven't started invoicing for January.
+[00:15:48] Madalena Ribeiro da Fonseca: For any projects that were completed, like on the, I mean, now it's not too bad, like the 10th, because we want to make sure December is closed.
+[00:15:55] Madalena Ribeiro da Fonseca: But obviously, by like the 25th of January, if we're still closing December, and we haven't.
+[00:16:02] Madalena Ribeiro da Fonseca: So if we could, like, get those automated, if we could get things filling in on their own, if we could get reminders, like, this was something, like, it's been five days, like, you need everyone's hours, it's been seven days, you need to email the producer, because we do often, like, the order in which those things get done is, sorry, it's either, it's a top priority, so, like, Unibet is really old, it's a top priority, or we're going through it that day, and so it gets done, or it's been requested, or it's simple, but then, so, like, the Unibet of January is going to get left to the bottom of February, and if we were just on top of it earlier, it could be better, it's also really awkward for us to go back, like, a month and a half later and be like, hi, I'm sorry we didn't say anything, it's because your project sucked, please pay us so much, and there's overhours, and there's this, you're like, we just,
+[00:17:00] Sway Clarke: If there's three months later and they're on a new project, their mind is on another space and you're, yeah, so I totally get it.
+[00:17:06] Sway Clarke: Yeah.
+[00:17:06] Sway Clarke: Yeah.
+[00:17:06] Sway Clarke: Yeah.
+[00:17:06] Sway Clarke: Makes sense.
+[00:17:07] Sway Clarke: Okay.
+[00:17:07] Sway Clarke: Okay.
+[00:17:08] Sway Clarke: Well, let's, yeah, let's wrap up here.
+[00:17:10] Sway Clarke: Um, thank you for your time.
+[00:17:12] Sway Clarke: This has been, um, really, really interesting.
+[00:17:16] Sway Clarke: And, uh, no, you're welcome.
+[00:17:18] Sway Clarke: You're welcome.
+[00:17:18] Sway Clarke: And so I'm going to go over this, um, next week.
+[00:17:23] Sway Clarke: I'll, I'll try to, um, send another link or I'll try to, I'll send another link by the end of this week to book call for next week.
+[00:17:31] Sway Clarke: I would like to have a followup with the end of this week.
+[00:17:34] Madalena Ribeiro da Fonseca: Do you mean the end of next week?
+[00:17:35] Madalena Ribeiro da Fonseca: today is Thursday, Thursday, right?
+[00:17:37] Madalena Ribeiro da Fonseca: Yeah.
+[00:17:38] Madalena Ribeiro da Fonseca: Probably send it out Monday.
+[00:17:40] Leonor Zuzarte: Would you like us to set up the link?
+[00:17:44] Leonor Zuzarte: Cause our links are time limitless.
+[00:17:48] Sway Clarke: Ah, um, well, the only thing is I'm recording.
+[00:17:52] Sway Clarke: Oh, the next call I would like, it wouldn't be like a three hour call.
+[00:17:57] Sway Clarke: It's not.
+[00:17:58] Sway Clarke: Yeah.
+[00:17:58] Sway Clarke: Yeah.
+[00:18:01] Sway Clarke: So I'll set up a new call with Sinbad, with all of us, and then we can kind of sit down and the idea of the next call is for me to kind of have an idea of what you want to attack, and then for you all to have a buy-in to this, okay, this makes sense, and I'll have some kind of follow-up proposal in terms of like this.
+[00:18:21] Madalena Ribeiro da Fonseca: I'm actually going to be on holiday for a while.
+[00:18:24] Madalena Ribeiro da Fonseca: Okay.
+[00:18:25] Madalena Ribeiro da Fonseca: So if we could have the following calls up until the 22nd, or then on Mondays, so Monday 26th and 2nd would be great, or then I could also, I'm back on the 9th, through the end of next week, and then either the following two Mondays, or after that I'm fully back.
+[00:18:49] Madalena Ribeiro da Fonseca: I can also try and find some time, but I'm not sure exactly how I'm going to, or am I asking for a lot for it to be on a Monday?
+[00:18:57] Madalena Ribeiro da Fonseca: No, no, the follow-up calls for the 22nd.
+[00:19:00] Sway Clarke: Second is possible, and a follow-up call on the Monday on the 26th is also possible.
+[00:19:05] Madalena Ribeiro da Fonseca: Great.
+[00:19:06] Madalena Ribeiro da Fonseca: Whatever works for you guys.
+[00:19:08] Sway Clarke: I think maybe I can also do a roundtable where I give you guys options, and then you just fill in with the best days.
+[00:19:14] Sway Clarke: be cool.
+[00:19:15] Leonor Zuzarte: I can also probably make it work.
+[00:19:18] Madalena Ribeiro da Fonseca: I'm just thinking about it now.
+[00:19:20] Madalena Ribeiro da Fonseca: Yeah, I'm not going to be in a remote jungle or anything, so it'll be fine.
+[00:19:23] Madalena Ribeiro da Fonseca: All right, no problem.
+[00:19:26] Sway Clarke: Okay, well...
+[00:19:26] Sway Clarke: Definitely let us know, should you need any, uh...
+[00:19:30] Leonor Zuzarte: may need to look at this...
+[00:19:31] Leonor Zuzarte: Portugal advice.
+[00:19:33] Leonor Zuzarte: Something.
+[00:19:33] Leonor Zuzarte: Oh, yeah, yeah, 100%.
+[00:19:35] Madalena Ribeiro da Fonseca: I may need to look at this dashboard to give myself an idea.
+[00:19:38] Sway Clarke: And for Portugal, yes, I will definitely need some Portugal advice.
+[00:19:42] Sway Clarke: we'll have another three-hour conversation.
+[00:19:47] Leonor Zuzarte: Sounds good.
+[00:19:48] Alice Carreto: Have a good day.
+[00:19:49] Alice Carreto: You as well.
+[00:19:50] Madalena Ribeiro da Fonseca: Thank you so it was lovely meeting you.
+[00:19:52] Madalena Ribeiro da Fonseca: Bye, Sway.
+[00:19:52] Madalena Ribeiro da Fonseca: Bye-bye.
+[00:19:56] Sway Clarke: Bye Bye Bye Bye-bye.
+[00:19:57] Sway Clarke: Bye-bye.-bye.-bye.
+[00:19:59] Sway Clarke: Bye

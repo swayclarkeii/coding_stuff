@@ -1,0 +1,548 @@
+{
+  "metadata": {
+    "template_id": "17BkLuHdj-iNlmnZ2jkP_cLLYMOzvTriCmejpDqe-UhQ",
+    "template_name": "Google Slides Proposal Template",
+    "version": "1.0",
+    "last_updated": "2025-12-14",
+    "reference_project": "eugene"
+  },
+  "variables": {
+    "company_name": {
+      "slide": 1,
+      "source_files": ["config/company_info"],
+      "extraction_pattern": "constant",
+      "format": "text",
+      "word_count": {"min": 1, "max": 3},
+      "required": true,
+      "example": "Oloxa.ai"
+    },
+    "date": {
+      "slide": 1,
+      "source_files": ["generated"],
+      "extraction_pattern": "current_date",
+      "format": "Month YYYY",
+      "word_count": {"min": 2, "max": 2},
+      "required": true,
+      "example": "December 2025"
+    },
+    "client_company_description": {
+      "slide": 2,
+      "source_files": [
+        "discovery/analysis/key_insights.md"
+      ],
+      "extraction_pattern": "synthesized_summary",
+      "extraction_sections": ["One-Liner", "Executive Summary"],
+      "format": "text",
+      "word_count": {"min": 25, "max": 40},
+      "required": true,
+      "example": "A real estate debt advisor processing 6 deals/year aiming to scale to 15 deals by reducing 80% time on manual document processing"
+    },
+    "client_name": {
+      "slide": 2,
+      "source_files": [
+        "project_folder_name",
+        "discovery/metadata"
+      ],
+      "extraction_pattern": "direct_quote",
+      "format": "FirstName (CompanyName) or CompanyName",
+      "word_count": {"min": 2, "max": 4},
+      "required": true,
+      "example": "Eugene (AMA Capital)"
+    },
+    "pain_point_1": {
+      "slide": 3,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "direct_quote",
+      "extraction_sections": ["Critical Pain Point", "Confirmed Pain Points"],
+      "format": "heading",
+      "word_count": {"min": 2, "max": 5},
+      "required": true,
+      "example": "Document Labeling Bottleneck"
+    },
+    "pain_point_1_description": {
+      "slide": 3,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "synthesized_summary",
+      "extraction_sections": ["Critical Pain Point"],
+      "format": "text",
+      "word_count": {"min": 15, "max": 25},
+      "required": true,
+      "components": ["quantified_time_or_cost", "specific_action", "impact"],
+      "example": "Eugene spends 5-10 hours per deal manually opening, identifying, and labeling unlabeled German real estate documents"
+    },
+    "pain_point_2": {
+      "slide": 3,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "direct_quote",
+      "extraction_sections": ["Business Impact", "Confirmed Pain Points"],
+      "format": "heading",
+      "word_count": {"min": 2, "max": 5},
+      "required": true,
+      "example": "Capacity Limitation"
+    },
+    "pain_point_2_description": {
+      "slide": 3,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "synthesized_summary",
+      "extraction_sections": ["Business Impact"],
+      "format": "text",
+      "word_count": {"min": 15, "max": 25},
+      "required": true,
+      "example": "Current bottleneck prevents scaling from 6 deals per year to potential 15-20 deals annually"
+    },
+    "pain_point_3": {
+      "slide": 3,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "direct_quote",
+      "extraction_sections": ["Business Impact", "ROI Calculation"],
+      "format": "heading",
+      "word_count": {"min": 2, "max": 5},
+      "required": true,
+      "example": "Revenue Loss"
+    },
+    "pain_point_3_description": {
+      "slide": 3,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "quantified_metric",
+      "extraction_sections": ["Business Impact", "ROI Calculation"],
+      "format": "text",
+      "word_count": {"min": 15, "max": 25},
+      "required": true,
+      "example": "Lost opportunity of €27,000-42,000 annually due to inability to handle increased deal volume"
+    },
+    "product_benefit_1": {
+      "slide": 4,
+      "source_files": [
+        "discovery/analysis/key_insights.md",
+        "discovery/requirements/project_requirements.md"
+      ],
+      "extraction_pattern": "direct_quote",
+      "extraction_sections": ["Phasing Strategy - Phase 1", "Phase 1 Requirements"],
+      "format": "heading",
+      "word_count": {"min": 3, "max": 6},
+      "required": true,
+      "example": "Email Forwarding Automation"
+    },
+    "product_benefit_1_description": {
+      "slide": 4,
+      "source_files": [
+        "discovery/analysis/key_insights.md",
+        "discovery/requirements/project_requirements.md"
+      ],
+      "extraction_pattern": "synthesized_summary",
+      "extraction_sections": ["Phasing Strategy - Phase 1 - What"],
+      "format": "text",
+      "word_count": {"min": 12, "max": 20},
+      "required": true,
+      "example": "AI automatically identifies, labels, and organizes documents from forwarded emails within 5 minutes"
+    },
+    "product_benefit_2": {
+      "slide": 4,
+      "source_files": [
+        "discovery/analysis/key_insights.md",
+        "discovery/requirements/project_requirements.md"
+      ],
+      "extraction_pattern": "direct_quote",
+      "extraction_sections": ["Phasing Strategy - Phase 2", "Integration Requirements"],
+      "format": "heading",
+      "word_count": {"min": 3, "max": 6},
+      "required": true,
+      "example": "PipeDrive CRM Integration"
+    },
+    "product_benefit_2_description": {
+      "slide": 4,
+      "source_files": [
+        "discovery/analysis/key_insights.md",
+        "discovery/requirements/project_requirements.md"
+      ],
+      "extraction_pattern": "synthesized_summary",
+      "extraction_sections": ["Phasing Strategy - Phase 2 - What"],
+      "format": "text",
+      "word_count": {"min": 12, "max": 20},
+      "required": true,
+      "example": "Automatic PipeDrive updates with document checklists and deal status synchronization"
+    },
+    "product_benefit_3": {
+      "slide": 4,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "direct_quote",
+      "extraction_sections": ["Business Impact", "Success Metrics"],
+      "format": "heading",
+      "word_count": {"min": 3, "max": 6},
+      "required": true,
+      "example": "80% Time Savings"
+    },
+    "product_benefit_3_description": {
+      "slide": 4,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "quantified_metric",
+      "extraction_sections": ["Business Impact", "Success Metrics"],
+      "format": "text",
+      "word_count": {"min": 12, "max": 20},
+      "required": true,
+      "example": "Reduce document processing from 5-10 hours to 1-2 hours per deal"
+    },
+    "building_phase_time": {
+      "slide": 5,
+      "source_files": [
+        "discovery/requirements/project_requirements.md",
+        "discovery/analysis/key_insights.md"
+      ],
+      "extraction_pattern": "quantified_metric",
+      "extraction_sections": ["Timeline", "Phasing Strategy - Phase 1"],
+      "format": "duration",
+      "word_count": {"min": 2, "max": 3},
+      "required": true,
+      "example": "8-12 weeks"
+    },
+    "building_phase_description": {
+      "slide": 5,
+      "source_files": ["discovery/requirements/project_requirements.md"],
+      "extraction_pattern": "synthesized_summary",
+      "extraction_sections": ["Phase 1", "Development"],
+      "format": "text",
+      "word_count": {"min": 2, "max": 4},
+      "required": true,
+      "example": "Core system development"
+    },
+    "deployment_phase_time": {
+      "slide": 5,
+      "source_files": ["discovery/requirements/project_requirements.md"],
+      "extraction_pattern": "quantified_metric",
+      "extraction_sections": ["Timeline", "Testing & Launch"],
+      "format": "duration",
+      "word_count": {"min": 2, "max": 3},
+      "required": true,
+      "example": "1-2 weeks"
+    },
+    "deployment_phase_description": {
+      "slide": 5,
+      "source_files": ["discovery/requirements/project_requirements.md"],
+      "extraction_pattern": "synthesized_summary",
+      "extraction_sections": ["Testing & Launch"],
+      "format": "text",
+      "word_count": {"min": 2, "max": 4},
+      "required": true,
+      "example": "Testing and launch"
+    },
+    "testing_phase_time": {
+      "slide": 5,
+      "source_files": ["discovery/requirements/project_requirements.md"],
+      "extraction_pattern": "quantified_metric",
+      "extraction_sections": ["Timeline", "Testing"],
+      "format": "duration",
+      "word_count": {"min": 2, "max": 3},
+      "required": true,
+      "example": "2 weeks"
+    },
+    "testing_phase_description": {
+      "slide": 5,
+      "source_files": ["discovery/requirements/project_requirements.md"],
+      "extraction_pattern": "synthesized_summary",
+      "extraction_sections": ["Testing"],
+      "format": "text",
+      "word_count": {"min": 2, "max": 4},
+      "required": true,
+      "example": "Real deal validation"
+    },
+    "Client_expectations_list": {
+      "slide": 6,
+      "source_files": ["discovery/requirements/project_requirements.md"],
+      "extraction_pattern": "list_aggregation",
+      "extraction_sections": ["Dependencies", "Assumptions", "Eugene provides"],
+      "format": "markdown_list",
+      "word_count": {"min_items": 5, "max_items": 7, "words_per_item": {"min": 5, "max": 10}},
+      "required": true,
+      "example": "- Provide 3-5 sample documents per type\n- Share current ChatGPT prompts and workflow\n- PipeDrive API access and credentials\n- Feedback during testing phase\n- Availability for weekly progress check-ins"
+    },
+    "Client_Name": {
+      "slide": 6,
+      "source_files": ["project_metadata"],
+      "extraction_pattern": "direct_quote",
+      "format": "text",
+      "word_count": {"min": 1, "max": 2},
+      "required": true,
+      "example": "Eugene"
+    },
+    "oloxa_delivery_list": {
+      "slide": 6,
+      "source_files": ["discovery/requirements/project_requirements.md"],
+      "extraction_pattern": "list_aggregation",
+      "extraction_sections": ["Deliverables", "Success Criteria", "Phasing Strategy - What"],
+      "format": "markdown_list",
+      "word_count": {"min_items": 5, "max_items": 7, "words_per_item": {"min": 5, "max": 10}},
+      "required": true,
+      "example": "- Customized document intake form\n- AI-powered document identification system\n- Organized Google Drive folder structure\n- PipeDrive CRM integration\n- Weekly progress updates and demos\n- Complete system documentation\n- 30 days post-launch support"
+    },
+    "metric_1_title": {
+      "slide": 7,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "direct_quote",
+      "extraction_sections": ["Success Metrics", "Business Impact"],
+      "format": "heading",
+      "word_count": {"min": 3, "max": 6},
+      "required": true,
+      "example": "Conservative Time Savings"
+    },
+    "metric_1_description": {
+      "slide": 7,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "quantified_metric",
+      "extraction_sections": ["Business Impact - Potential State"],
+      "format": "text",
+      "word_count": {"min": 15, "max": 25},
+      "required": true,
+      "example": "Reduce processing from 10 hours to 2 hours per deal, enabling 6 to 10 deals annually"
+    },
+    "metric_2_title": {
+      "slide": 7,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "direct_quote",
+      "extraction_sections": ["Success Metrics", "Business Impact"],
+      "format": "heading",
+      "word_count": {"min": 3, "max": 6},
+      "required": true,
+      "example": "Optimistic Capacity Growth"
+    },
+    "metric_2_description": {
+      "slide": 7,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "quantified_metric",
+      "extraction_sections": ["Business Impact - Potential State", "ROI Calculation"],
+      "format": "text",
+      "word_count": {"min": 15, "max": 25},
+      "required": true,
+      "example": "Achieve 80% time reduction, scaling to 15-20 deals with €27-42K revenue increase annually"
+    },
+    "metric_additional_title": {
+      "slide": 7,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "quantified_metric",
+      "extraction_sections": ["Business Impact", "Success Metrics"],
+      "format": "text",
+      "word_count": {"min": 6, "max": 12},
+      "required": true,
+      "example": "50-80% reduction in document processing time"
+    },
+    "metric_additional_description": {
+      "slide": 7,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "quantified_metric",
+      "extraction_sections": ["ROI Calculation", "Success Metrics"],
+      "format": "text",
+      "word_count": {"min": 10, "max": 20},
+      "required": false,
+      "example": "Translates to 30-48 hours saved annually at current volume, 60-80 hours at target capacity"
+    },
+    "question_1": {
+      "slide": 7,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "risk_to_question",
+      "extraction_sections": ["Risk Assessment"],
+      "format": "question",
+      "word_count": {"min": 6, "max": 12},
+      "required": true,
+      "example": "What if AI accuracy falls below 95%?"
+    },
+    "answer_1": {
+      "slide": 7,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "direct_quote",
+      "extraction_sections": ["Risk Assessment - Mitigation"],
+      "format": "text",
+      "word_count": {"min": 15, "max": 25},
+      "required": true,
+      "example": "Confidence scoring flags low-accuracy identifications for manual review with prompt engineering ensuring target"
+    },
+    "question_2": {
+      "slide": 7,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "risk_to_question",
+      "extraction_sections": ["Risk Assessment"],
+      "format": "question",
+      "word_count": {"min": 6, "max": 12},
+      "required": true,
+      "example": "What if clients send scanned documents?"
+    },
+    "answer_2": {
+      "slide": 7,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "direct_quote",
+      "extraction_sections": ["Risk Assessment - Mitigation"],
+      "format": "text",
+      "word_count": {"min": 15, "max": 25},
+      "required": true,
+      "example": "System flags scanned PDFs for manual review with OCR capability added in Phase 2"
+    },
+    "question_3": {
+      "slide": 7,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "risk_to_question",
+      "extraction_sections": ["Risk Assessment"],
+      "format": "question",
+      "word_count": {"min": 6, "max": 12},
+      "required": true,
+      "example": "What if email forwarding feels cumbersome?"
+    },
+    "answer_3": {
+      "slide": 7,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "direct_quote",
+      "extraction_sections": ["Risk Assessment - Mitigation"],
+      "format": "text",
+      "word_count": {"min": 15, "max": 25},
+      "required": true,
+      "example": "One-click forwarding with templates; client portal alternative available in Phase 2"
+    },
+    "question_4": {
+      "slide": 7,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "risk_to_question",
+      "extraction_sections": ["Risk Assessment"],
+      "format": "question",
+      "word_count": {"min": 6, "max": 12},
+      "required": true,
+      "example": "What about PipeDrive integration failures?"
+    },
+    "answer_4": {
+      "slide": 7,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "direct_quote",
+      "extraction_sections": ["Risk Assessment - Mitigation"],
+      "format": "text",
+      "word_count": {"min": 15, "max": 25},
+      "required": true,
+      "example": "Abstraction layer with retry logic and manual fallback ensures no data loss"
+    },
+    "time_based_cost": {
+      "slide": 8,
+      "source_files": ["discovery/transcripts/**/*.md"],
+      "extraction_pattern": "calculated_value",
+      "calculation": "hourly_rate * estimated_hours",
+      "format": "currency",
+      "word_count": {"min": 1, "max": 2},
+      "required": true,
+      "example": "€2,500"
+    },
+    "value_based_cost": {
+      "slide": 8,
+      "source_files": ["discovery/analysis/key_insights.md"],
+      "extraction_pattern": "calculated_value",
+      "calculation": "roi_value * percentage",
+      "format": "currency",
+      "word_count": {"min": 1, "max": 2},
+      "required": true,
+      "example": "€15,000"
+    },
+    "value_based_description": {
+      "slide": 8,
+      "source_files": ["discovery/analysis/key_insights.md", "discovery/transcripts/**/*.md"],
+      "extraction_pattern": "synthesized_summary",
+      "extraction_sections": ["ROI Calculation"],
+      "format": "text",
+      "word_count": {"min": 10, "max": 20},
+      "required": true,
+      "components": ["calculation_basis", "hourly_rate", "time_savings"],
+      "example": "Based on client's first year time savings at €200/hour plus revenue increase value"
+    },
+    "client_investment_1": {
+      "slide": 8,
+      "source_files": ["proposal_terms", "agreements"],
+      "extraction_pattern": "direct_quote",
+      "extraction_sections": ["Client Commitments", "Testimonial Agreements"],
+      "format": "text",
+      "word_count": {"min": 10, "max": 20},
+      "required": true,
+      "example": "Client provides one video + written testimonial upon satisfaction of Phase 1"
+    },
+    "client_investment_2": {
+      "slide": 8,
+      "source_files": ["discovery/requirements/project_requirements.md"],
+      "extraction_pattern": "synthesized_summary",
+      "extraction_sections": ["Dependencies", "Client Responsibilities"],
+      "format": "text",
+      "word_count": {"min": 10, "max": 20},
+      "required": true,
+      "example": "Client's time spent on giving feedback and testing the product's integration"
+    },
+    "step_1_description": {
+      "slide": 9,
+      "source_files": ["discovery/requirements/project_requirements.md"],
+      "extraction_pattern": "direct_quote",
+      "extraction_sections": ["Next Steps"],
+      "format": "text",
+      "word_count": {"min": 6, "max": 12},
+      "required": true,
+      "example": "Schedule kickoff call to finalize requirements"
+    },
+    "step_2_description": {
+      "slide": 9,
+      "source_files": ["discovery/requirements/project_requirements.md"],
+      "extraction_pattern": "direct_quote",
+      "extraction_sections": ["Next Steps"],
+      "format": "text",
+      "word_count": {"min": 6, "max": 12},
+      "required": true,
+      "example": "Client provides sample documents and API access"
+    },
+    "step_3_description": {
+      "slide": 9,
+      "source_files": ["discovery/requirements/project_requirements.md"],
+      "extraction_pattern": "direct_quote",
+      "extraction_sections": ["Next Steps"],
+      "format": "text",
+      "word_count": {"min": 6, "max": 12},
+      "required": true,
+      "example": "Begin Phase 1 development with weekly updates"
+    },
+    "unique_client_thank_you_message": {
+      "slide": 10,
+      "source_files": ["discovery/transcripts/**/*.md"],
+      "extraction_pattern": "memorable_moment",
+      "extraction_sections": ["Entire transcript - search for emotional moments"],
+      "format": "text",
+      "word_count": {"min": 15, "max": 30},
+      "required": true,
+      "components": ["personal_callback", "client_vision", "excitement"],
+      "example": "From 'Are you fucking kidding me?' to building your document automation dream - excited to eliminate that 80% time drain together!"
+    }
+  },
+  "extraction_patterns": {
+    "constant": {
+      "description": "Use a predefined constant value",
+      "implementation": "Return hardcoded value from config"
+    },
+    "current_date": {
+      "description": "Generate current date in specified format",
+      "implementation": "Format Date.now() as 'Month YYYY'"
+    },
+    "direct_quote": {
+      "description": "Extract exact text from specified section",
+      "implementation": "Locate section header, extract first 2-N words or sentence"
+    },
+    "synthesized_summary": {
+      "description": "Read full section and create summary",
+      "implementation": "Read section, identify key components, synthesize within word count"
+    },
+    "quantified_metric": {
+      "description": "Extract numerical values with context",
+      "implementation": "Search for numbers, percentages, currency, durations - extract with units"
+    },
+    "list_aggregation": {
+      "description": "Combine multiple sources into bulleted list",
+      "implementation": "Scan multiple sections, aggregate into 5-7 items, format as markdown"
+    },
+    "calculated_value": {
+      "description": "Compute value from multiple sources",
+      "implementation": "Extract base values, apply formula, format result"
+    },
+    "risk_to_question": {
+      "description": "Convert risk statement into question",
+      "implementation": "Find risk in table/list, rephrase as 'What if...' question"
+    },
+    "memorable_moment": {
+      "description": "Find emotional or breakthrough moment in transcripts",
+      "implementation": "Search for exclamations, explicit excitement, 'aha moments', strong quotes"
+    }
+  }
+}

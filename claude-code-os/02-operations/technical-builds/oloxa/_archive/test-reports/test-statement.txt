@@ -1,0 +1,10 @@
+MOCK BANK STATEMENT
+Account: 1234-5678-9012
+Date: January 3, 2026
+
+TRANSACTIONS:
+2026-01-01 | Coffee Shop | -$5.50
+2026-01-02 | Gas Station | -$45.00
+2026-01-03 | Grocery Store | -$125.30
+
+Total Debits: -$175.80

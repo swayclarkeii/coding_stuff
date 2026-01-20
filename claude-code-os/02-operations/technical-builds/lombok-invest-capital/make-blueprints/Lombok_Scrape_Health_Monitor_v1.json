@@ -1,0 +1,689 @@
+{
+  "name": "Lombok Scrape Health Monitor",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": null,
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 0,
+          "y": 0,
+          "name": "Receive Apify Webhook"
+        },
+        "restore": {
+          "parameters": {
+            "hook": {
+              "label": "Create a new webhook"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hook",
+            "type": "hook:gateway-webhook",
+            "label": "Webhook",
+            "required": true
+          },
+          {
+            "name": "maxResults",
+            "type": "number",
+            "label": "Maximum number of results"
+          }
+        ],
+        "expect": [],
+        "interface": [
+          {
+            "name": "runId",
+            "type": "text",
+            "label": "Run ID"
+          },
+          {
+            "name": "status",
+            "type": "text",
+            "label": "Status"
+          },
+          {
+            "name": "datasetId",
+            "type": "text",
+            "label": "Dataset ID"
+          },
+          {
+            "name": "taskName",
+            "type": "text",
+            "label": "Task Name"
+          },
+          {
+            "name": "startedAt",
+            "type": "text",
+            "label": "Started At"
+          },
+          {
+            "name": "finishedAt",
+            "type": "text",
+            "label": "Finished At"
+          }
+        ],
+        "advanced": true
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": null,
+      "metadata": {
+        "designer": {
+          "x": 300,
+          "y": 0,
+          "name": "Check Run Status"
+        }
+      },
+      "routes": [
+        {
+          "flow": [
+            {
+              "id": 3,
+              "module": "email:ActionSendEmail",
+              "version": 2,
+              "parameters": {
+                "__IMTCONN__": null
+              },
+              "mapper": {
+                "to": "swayclarkeii@gmail.com",
+                "cc": "",
+                "bcc": "",
+                "html": "<h2>Lombok Scrape Run Failed</h2>\n<p><strong>Run ID:</strong> {{1.runId}}</p>\n<p><strong>Status:</strong> {{1.status}}</p>\n<p><strong>Task:</strong> {{1.taskName}}</p>\n<p><strong>Started:</strong> {{1.startedAt}}</p>\n<p><strong>Finished:</strong> {{1.finishedAt}}</p>\n<hr>\n<p><strong>Action Required:</strong></p>\n<ul>\n<li>Check Apify console: https://console.apify.com/actors/runs/{{1.runId}}</li>\n<li>Verify target websites are accessible</li>\n<li>Contact support if issue persists</li>\n</ul>",
+                "text": "",
+                "subject": "ALERT: Lombok Scrape FAILED - {{1.status}}",
+                "attachments": []
+              },
+              "metadata": {
+                "designer": {
+                  "x": 600,
+                  "y": -150,
+                  "name": "Send Failure Alert"
+                },
+                "restore": {
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "label": "Email connection (configure after import)"
+                    }
+                  }
+                },
+                "parameters": [
+                  {
+                    "name": "__IMTCONN__",
+                    "type": "account:email",
+                    "label": "Connection",
+                    "required": true
+                  }
+                ],
+                "expect": [
+                  {
+                    "name": "to",
+                    "type": "text",
+                    "label": "To",
+                    "required": true
+                  },
+                  {
+                    "name": "subject",
+                    "type": "text",
+                    "label": "Subject"
+                  },
+                  {
+                    "name": "html",
+                    "type": "text",
+                    "label": "HTML Content"
+                  }
+                ]
+              }
+            }
+          ],
+          "filter": {
+            "name": "Run Failed or Timed Out",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.status}}",
+                  "b": "SUCCEEDED",
+                  "o": "text:notequal"
+                }
+              ]
+            ]
+          }
+        },
+        {
+          "flow": [
+            {
+              "id": 4,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": {
+                "handleErrors": true
+              },
+              "mapper": {
+                "url": "https://api.apify.com/v2/datasets/{{1.datasetId}}/items?format=json",
+                "method": "get",
+                "headers": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer YOUR_APIFY_TOKEN_HERE"
+                  }
+                ],
+                "qs": [],
+                "serializeUrl": false,
+                "shareCookies": false,
+                "parseResponse": true,
+                "followRedirect": true,
+                "useQuerystring": false,
+                "followAllRedirects": false,
+                "rejectUnauthorized": true
+              },
+              "metadata": {
+                "designer": {
+                  "x": 600,
+                  "y": 150,
+                  "name": "Fetch Dataset from Apify"
+                },
+                "restore": {},
+                "parameters": [
+                  {
+                    "name": "handleErrors",
+                    "type": "boolean",
+                    "label": "Evaluate all states as errors"
+                  }
+                ],
+                "expect": [
+                  {
+                    "name": "url",
+                    "type": "url",
+                    "label": "URL",
+                    "required": true
+                  },
+                  {
+                    "name": "method",
+                    "type": "select",
+                    "label": "Method",
+                    "required": true
+                  }
+                ]
+              }
+            },
+            {
+              "id": 5,
+              "module": "util:SetVariable2",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "name": "totalProperties",
+                "scope": "roundtrip",
+                "value": "{{length(4.data)}}"
+              },
+              "metadata": {
+                "designer": {
+                  "x": 900,
+                  "y": 150,
+                  "name": "Count Total Properties"
+                },
+                "restore": {
+                  "expect": {
+                    "scope": {
+                      "label": "One cycle"
+                    }
+                  }
+                },
+                "expect": [
+                  {
+                    "name": "name",
+                    "type": "text",
+                    "label": "Variable name",
+                    "required": true
+                  },
+                  {
+                    "name": "scope",
+                    "type": "select",
+                    "label": "Variable lifetime",
+                    "required": true
+                  },
+                  {
+                    "name": "value",
+                    "type": "any",
+                    "label": "Variable value"
+                  }
+                ],
+                "interface": [
+                  {
+                    "name": "totalProperties",
+                    "type": "any",
+                    "label": "totalProperties"
+                  }
+                ]
+              }
+            },
+            {
+              "id": 6,
+              "module": "util:SetVariable2",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "name": "reefCount",
+                "scope": "roundtrip",
+                "value": "{{length(filter(4.data; \"item\"; item.source = \"Reef Property Lombok\"))}}"
+              },
+              "metadata": {
+                "designer": {
+                  "x": 1200,
+                  "y": 0,
+                  "name": "Count Reef Properties"
+                },
+                "restore": {
+                  "expect": {
+                    "scope": {
+                      "label": "One cycle"
+                    }
+                  }
+                },
+                "expect": [
+                  {
+                    "name": "name",
+                    "type": "text",
+                    "label": "Variable name",
+                    "required": true
+                  },
+                  {
+                    "name": "scope",
+                    "type": "select",
+                    "label": "Variable lifetime",
+                    "required": true
+                  },
+                  {
+                    "name": "value",
+                    "type": "any",
+                    "label": "Variable value"
+                  }
+                ],
+                "interface": [
+                  {
+                    "name": "reefCount",
+                    "type": "any",
+                    "label": "reefCount"
+                  }
+                ]
+              }
+            },
+            {
+              "id": 7,
+              "module": "util:SetVariable2",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "name": "islandCount",
+                "scope": "roundtrip",
+                "value": "{{length(filter(4.data; \"item\"; item.source = \"Island Properties Lombok\"))}}"
+              },
+              "metadata": {
+                "designer": {
+                  "x": 1200,
+                  "y": 150,
+                  "name": "Count Island Properties"
+                },
+                "restore": {
+                  "expect": {
+                    "scope": {
+                      "label": "One cycle"
+                    }
+                  }
+                },
+                "expect": [
+                  {
+                    "name": "name",
+                    "type": "text",
+                    "label": "Variable name",
+                    "required": true
+                  },
+                  {
+                    "name": "scope",
+                    "type": "select",
+                    "label": "Variable lifetime",
+                    "required": true
+                  },
+                  {
+                    "name": "value",
+                    "type": "any",
+                    "label": "Variable value"
+                  }
+                ],
+                "interface": [
+                  {
+                    "name": "islandCount",
+                    "type": "any",
+                    "label": "islandCount"
+                  }
+                ]
+              }
+            },
+            {
+              "id": 8,
+              "module": "util:SetVariable2",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "name": "discoverCount",
+                "scope": "roundtrip",
+                "value": "{{length(filter(4.data; \"item\"; item.source = \"Discover Lombok Property\"))}}"
+              },
+              "metadata": {
+                "designer": {
+                  "x": 1200,
+                  "y": 300,
+                  "name": "Count Discover Properties"
+                },
+                "restore": {
+                  "expect": {
+                    "scope": {
+                      "label": "One cycle"
+                    }
+                  }
+                },
+                "expect": [
+                  {
+                    "name": "name",
+                    "type": "text",
+                    "label": "Variable name",
+                    "required": true
+                  },
+                  {
+                    "name": "scope",
+                    "type": "select",
+                    "label": "Variable lifetime",
+                    "required": true
+                  },
+                  {
+                    "name": "value",
+                    "type": "any",
+                    "label": "Variable value"
+                  }
+                ],
+                "interface": [
+                  {
+                    "name": "discoverCount",
+                    "type": "any",
+                    "label": "discoverCount"
+                  }
+                ]
+              }
+            },
+            {
+              "id": 9,
+              "module": "util:SetVariable2",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "name": "nourCount",
+                "scope": "roundtrip",
+                "value": "{{length(filter(4.data; \"item\"; item.source = \"Nour Estates\"))}}"
+              },
+              "metadata": {
+                "designer": {
+                  "x": 1200,
+                  "y": 450,
+                  "name": "Count Nour Estates"
+                },
+                "restore": {
+                  "expect": {
+                    "scope": {
+                      "label": "One cycle"
+                    }
+                  }
+                },
+                "expect": [
+                  {
+                    "name": "name",
+                    "type": "text",
+                    "label": "Variable name",
+                    "required": true
+                  },
+                  {
+                    "name": "scope",
+                    "type": "select",
+                    "label": "Variable lifetime",
+                    "required": true
+                  },
+                  {
+                    "name": "value",
+                    "type": "any",
+                    "label": "Variable value"
+                  }
+                ],
+                "interface": [
+                  {
+                    "name": "nourCount",
+                    "type": "any",
+                    "label": "nourCount"
+                  }
+                ]
+              }
+            },
+            {
+              "id": 10,
+              "module": "util:SetVariable2",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "name": "hasIssues",
+                "scope": "roundtrip",
+                "value": "{{if(6.reefCount < 20; true; if(7.islandCount < 5; true; if(8.discoverCount < 3; true; if(9.nourCount < 40; true; false))))}}"
+              },
+              "metadata": {
+                "designer": {
+                  "x": 1500,
+                  "y": 150,
+                  "name": "Check Threshold Issues"
+                },
+                "restore": {
+                  "expect": {
+                    "scope": {
+                      "label": "One cycle"
+                    }
+                  }
+                },
+                "expect": [
+                  {
+                    "name": "name",
+                    "type": "text",
+                    "label": "Variable name",
+                    "required": true
+                  },
+                  {
+                    "name": "scope",
+                    "type": "select",
+                    "label": "Variable lifetime",
+                    "required": true
+                  },
+                  {
+                    "name": "value",
+                    "type": "any",
+                    "label": "Variable value"
+                  }
+                ],
+                "interface": [
+                  {
+                    "name": "hasIssues",
+                    "type": "any",
+                    "label": "hasIssues"
+                  }
+                ]
+              }
+            },
+            {
+              "id": 11,
+              "module": "builtin:BasicRouter",
+              "version": 1,
+              "parameters": {},
+              "mapper": null,
+              "metadata": {
+                "designer": {
+                  "x": 1800,
+                  "y": 150,
+                  "name": "Check If Issues Found"
+                }
+              },
+              "routes": [
+                {
+                  "flow": [
+                    {
+                      "id": 12,
+                      "module": "email:ActionSendEmail",
+                      "version": 2,
+                      "parameters": {
+                        "__IMTCONN__": null
+                      },
+                      "mapper": {
+                        "to": "swayclarkeii@gmail.com",
+                        "cc": "",
+                        "bcc": "",
+                        "html": "<h2>Lombok Scrape Health Alert</h2>\n<p>The latest scrape completed but detected potential issues.</p>\n\n<h3>Results Summary</h3>\n<table border=\"1\" cellpadding=\"8\">\n<tr><th>Source</th><th>Count</th><th>Expected</th><th>Status</th></tr>\n<tr><td>Reef Property Lombok</td><td>{{6.reefCount}}</td><td>20+</td><td>{{if(6.reefCount < 20; \"LOW\"; \"OK\")}}</td></tr>\n<tr><td>Island Properties Lombok</td><td>{{7.islandCount}}</td><td>5+</td><td>{{if(7.islandCount < 5; \"LOW\"; \"OK\")}}</td></tr>\n<tr><td>Discover Lombok Property</td><td>{{8.discoverCount}}</td><td>3+</td><td>{{if(8.discoverCount < 3; \"LOW\"; \"OK\")}}</td></tr>\n<tr><td>Nour Estates</td><td>{{9.nourCount}}</td><td>40+</td><td>{{if(9.nourCount < 40; \"LOW\"; \"OK\")}}</td></tr>\n</table>\n\n<p><strong>Total Properties:</strong> {{5.totalProperties}}</p>\n\n<hr>\n<p><strong>Recommended Actions:</strong></p>\n<ul>\n<li>Check each LOW source website for changes</li>\n<li>Verify crawler is reaching all pages</li>\n<li>Review Apify run: https://console.apify.com/actors/runs/{{1.runId}}</li>\n</ul>",
+                        "text": "",
+                        "subject": "Lombok Scrape Alert - Low Property Count Detected",
+                        "attachments": []
+                      },
+                      "metadata": {
+                        "designer": {
+                          "x": 2100,
+                          "y": 0,
+                          "name": "Send Health Alert"
+                        },
+                        "restore": {
+                          "parameters": {
+                            "__IMTCONN__": {
+                              "label": "Email connection (configure after import)"
+                            }
+                          }
+                        },
+                        "parameters": [
+                          {
+                            "name": "__IMTCONN__",
+                            "type": "account:email",
+                            "label": "Connection",
+                            "required": true
+                          }
+                        ],
+                        "expect": [
+                          {
+                            "name": "to",
+                            "type": "text",
+                            "label": "To",
+                            "required": true
+                          },
+                          {
+                            "name": "subject",
+                            "type": "text",
+                            "label": "Subject"
+                          },
+                          {
+                            "name": "html",
+                            "type": "text",
+                            "label": "HTML Content"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "filter": {
+                    "name": "Issues Detected",
+                    "conditions": [
+                      [
+                        {
+                          "a": "{{10.hasIssues}}",
+                          "b": "true",
+                          "o": "boolean:equal"
+                        }
+                      ]
+                    ]
+                  }
+                },
+                {
+                  "flow": [],
+                  "filter": {
+                    "name": "No Issues (Silent)",
+                    "conditions": [
+                      [
+                        {
+                          "a": "{{10.hasIssues}}",
+                          "b": "false",
+                          "o": "boolean:equal"
+                        }
+                      ]
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "filter": {
+            "name": "Run Succeeded",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.status}}",
+                  "b": "SUCCEEDED",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": {
+      "orphans": []
+    },
+    "zone": "us1.make.com"
+  },
+  "_comment": {
+    "description": "Lombok Scrape Health Monitor - Monitors Apify scrape runs and sends email alerts when issues occur",
+    "version": "1.0",
+    "created": "2024-12-17",
+    "author": "Claude Code",
+    "setup_instructions": [
+      "1. Import this blueprint into Make.com",
+      "2. Create the webhook and note the URL",
+      "3. Configure email connection",
+      "4. Replace 'YOUR_APIFY_TOKEN_HERE' with actual Apify API token",
+      "5. In Apify, add webhook to each task with the Make webhook URL",
+      "6. Apify webhook payload template: {\"runId\": \"{{resource.id}}\", \"status\": \"{{resource.status}}\", \"datasetId\": \"{{resource.defaultDatasetId}}\", \"taskName\": \"{{resource.actorTaskId}}\", \"startedAt\": \"{{resource.startedAt}}\", \"finishedAt\": \"{{resource.finishedAt}}\"}",
+      "7. Enable webhook for events: ACTOR.RUN.SUCCEEDED, ACTOR.RUN.FAILED, ACTOR.RUN.TIMED_OUT"
+    ],
+    "thresholds": {
+      "task1": {
+        "Reef Property Lombok": 20,
+        "Island Properties Lombok": 5,
+        "Discover Lombok Property": 3,
+        "Nour Estates": 40
+      },
+      "note": "This blueprint is configured for Task 1. For Task 2 and Task 3, create separate scenarios with different thresholds."
+    }
+  }
+}

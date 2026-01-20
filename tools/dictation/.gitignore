@@ -1,0 +1,28 @@
+# Environment and secrets
+.env
+*.key
+
+# Virtual environment
+venv/
+env/
+*.pyc
+__pycache__/
+
+# Logs and runtime files
+*.log
+*.pid
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+temp/

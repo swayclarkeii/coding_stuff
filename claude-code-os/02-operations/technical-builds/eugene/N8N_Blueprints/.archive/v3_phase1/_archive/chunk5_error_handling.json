@@ -1,0 +1,391 @@
+{
+  "name": "Chunk 5: Error Handling (Document Organizer V3.5)",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Error Trigger: Workflow Errors",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [240, 400],
+      "id": "node-error-trigger",
+      "notes": "Catches all unhandled errors from the workflow. Receives error details including node name, error message, and execution data."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Classify error severity and determine if retry is appropriate\n// CRITICAL: Workflow cannot continue, requires immediate attention\n// HIGH: Major feature broken, retry may help\n// MEDIUM: Partial failure, degraded functionality\n// LOW: Minor issue, can continue\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const error = item.json.error || {};\n  const errorMessage = error.message || String(error) || 'Unknown error';\n  const errorNode = error.node?.name || 'Unknown node';\n  const errorType = error.name || 'Error';\n  \n  let severity = 'MEDIUM';\n  let shouldRetry = true;\n  let retryable = true;\n  let maxRetries = 3;\n  \n  // Classify severity based on error type and node\n  if (errorMessage.includes('ENOTFOUND') || errorMessage.includes('ETIMEDOUT') || errorMessage.includes('network')) {\n    severity = 'HIGH';\n    shouldRetry = true;\n    retryable = true;\n  } else if (errorMessage.includes('credentials') || errorMessage.includes('authentication') || errorMessage.includes('unauthorized')) {\n    severity = 'CRITICAL';\n    shouldRetry = false;\n    retryable = false;\n  } else if (errorMessage.includes('quota') || errorMessage.includes('rate limit')) {\n    severity = 'HIGH';\n    shouldRetry = true;\n    retryable = true;\n    maxRetries = 5; // More retries for rate limits\n  } else if (errorNode.includes('Gmail') || errorNode.includes('Drive') || errorNode.includes('Sheets')) {\n    severity = 'HIGH';\n    shouldRetry = true;\n  } else if (errorNode.includes('OpenAI') || errorNode.includes('Textract')) {\n    severity = 'MEDIUM';\n    shouldRetry = true;\n  } else if (errorMessage.includes('validation') || errorMessage.includes('invalid')) {\n    severity = 'LOW';\n    shouldRetry = false;\n    retryable = false;\n  }\n  \n  // Generate unique error ID\n  const errorId = `ERR-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;\n  \n  results.push({\n    json: {\n      ...item.json,\n      errorId: errorId,\n      errorSeverity: severity,\n      shouldRetry: shouldRetry,\n      retryable: retryable,\n      maxRetries: maxRetries,\n      errorNode: errorNode,\n      errorMessage: errorMessage,\n      errorType: errorType,\n      timestamp: new Date().toISOString(),\n      retryCount: 0\n    }\n  });\n}\n\nreturn results;"
+      },
+      "name": "Classify Error Severity",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 400],
+      "id": "node-classify-error",
+      "notes": "Analyzes error and determines severity (CRITICAL/HIGH/MEDIUM/LOW). Decides if retry is appropriate. Generates unique error ID."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.shouldRetry }}",
+              "value2": true
+            },
+            {
+              "value1": "={{ $json.retryCount < $json.maxRetries }}",
+              "value2": true
+            }
+          ],
+          "combineOperation": "all"
+        }
+      },
+      "name": "IF: Should Retry?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 400],
+      "id": "node-if-retry",
+      "notes": "Checks if error is retryable and retry limit not exceeded. TRUE = attempt retry, FALSE = log and alert."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Implement exponential backoff for retries\n// Retry 1: 5 seconds\n// Retry 2: 15 seconds (5 * 3)\n// Retry 3: 45 seconds (15 * 3)\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const retryCount = item.json.retryCount || 0;\n  const newRetryCount = retryCount + 1;\n  \n  // Calculate backoff delay (exponential: 5, 15, 45 seconds)\n  const baseDelay = 5000; // 5 seconds\n  const backoffMultiplier = 3;\n  const delayMs = baseDelay * Math.pow(backoffMultiplier, retryCount);\n  \n  results.push({\n    json: {\n      ...item.json,\n      retryCount: newRetryCount,\n      retryDelay: delayMs,\n      retryScheduledFor: new Date(Date.now() + delayMs).toISOString()\n    }\n  });\n}\n\nreturn results;"
+      },
+      "name": "Calculate Retry Backoff",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300],
+      "id": "node-calc-backoff",
+      "notes": "Calculates exponential backoff delay for retry attempt. Retry 1: 5s, Retry 2: 15s, Retry 3: 45s. (TRUE branch)"
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.retryDelay }}",
+        "unit": "ms"
+      },
+      "name": "Wait: Retry Backoff Delay",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [1120, 300],
+      "id": "node-wait-backoff",
+      "notes": "Pauses workflow for calculated backoff period before retry. Prevents overwhelming failed service with rapid retries."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare to re-execute the failed node\n// This is a simplified retry - in production, you'd use n8n's Execute Workflow node\n// to actually retry the specific failed operation\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  results.push({\n    json: {\n      ...item.json,\n      retryStatus: 'ATTEMPTED',\n      retryMessage: `Retry attempt ${item.json.retryCount} of ${item.json.maxRetries} for ${item.json.errorNode}`\n    }\n  });\n}\n\n// In full implementation, this would trigger re-execution of the failed node\n// For now, it marks the retry as attempted and continues to error logging\n\nreturn results;"
+      },
+      "name": "Retry Failed Operation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 300],
+      "id": "node-retry-operation",
+      "notes": "Attempts to re-execute the failed operation. In production, use Execute Workflow node to retry specific node."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare error log entry with all relevant details\n// Includes error context, retry history, and resolution guidance\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const now = new Date();\n  const errorEntry = {\n    'Error ID': item.json.errorId,\n    'Timestamp': now.toISOString(),\n    'Date': now.toLocaleDateString('de-DE'),\n    'Time': now.toLocaleTimeString('de-DE'),\n    'Severity': item.json.errorSeverity,\n    'Node Name': item.json.errorNode,\n    'Error Type': item.json.errorType,\n    'Error Message': item.json.errorMessage.substring(0, 500), // Truncate long errors\n    'Retry Count': item.json.retryCount || 0,\n    'Max Retries': item.json.maxRetries || 0,\n    'Retryable': item.json.retryable ? 'Yes' : 'No',\n    'Status': item.json.retryCount >= item.json.maxRetries ? 'FAILED' : 'RETRYING',\n    'Resolution': item.json.errorSeverity === 'CRITICAL' ? 'REQUIRES MANUAL INTERVENTION' : 'Auto-retry or ignore',\n    'Execution ID': $execution.id || 'N/A',\n    'Workflow Name': $workflow.name || 'Document Organizer V3.5'\n  };\n  \n  results.push({\n    json: {\n      ...item.json,\n      errorLogEntry: errorEntry\n    }\n  });\n}\n\nreturn results;"
+      },
+      "name": "Prepare Error Log Entry",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 500],
+      "id": "node-prepare-error-log",
+      "notes": "Formats error details for logging to Error Log spreadsheet. Includes severity, retry status, and resolution guidance. (FALSE branch + after retry)"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "name": "Merge: Retry + Non-Retry Paths",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [1560, 400],
+      "id": "node-merge-error-paths",
+      "notes": "Combines errors from retry path (after retry attempt) and non-retry path (immediate log). All errors proceed to logging."
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.ERROR_LOG_SHEET_ID || $vars.MAIN_LOG_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Error Log"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": "={{ $json.errorLogEntry }}"
+        },
+        "options": {}
+      },
+      "name": "Log Error to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1780, 400],
+      "id": "node-log-error",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
+          "name": "Google Sheets OAuth2"
+        }
+      },
+      "notes": "Appends error record to Error Log spreadsheet. Creates audit trail of all failures for debugging and monitoring."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.errorSeverity }}",
+              "operation": "equals",
+              "value2": "CRITICAL"
+            },
+            {
+              "value1": "={{ $json.errorSeverity }}",
+              "operation": "equals",
+              "value2": "HIGH"
+            }
+          ],
+          "combineOperation": "any"
+        }
+      },
+      "name": "IF: Critical/High Severity?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [2000, 400],
+      "id": "node-if-alert",
+      "notes": "Sends alert email for CRITICAL and HIGH severity errors. MEDIUM and LOW errors only logged, no alert."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build alert email for Eugene about critical/high errors\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const severity = item.json.errorSeverity;\n  const errorId = item.json.errorId;\n  const errorNode = item.json.errorNode;\n  const errorMessage = item.json.errorMessage;\n  const retryCount = item.json.retryCount || 0;\n  const maxRetries = item.json.maxRetries || 0;\n  \n  const emoji = severity === 'CRITICAL' ? '🚨' : '⚠️';\n  \n  const subject = `${emoji} [Doc Organizer] ${severity} Error - ${errorNode}`;\n  \n  let body = `Document Organizer - Error Alert\\n`;\n  body += `========================================\\n\\n`;\n  body += `${emoji} SEVERITY: ${severity}\\n\\n`;\n  body += `Error ID: ${errorId}\\n`;\n  body += `Node: ${errorNode}\\n`;\n  body += `Time: ${new Date().toLocaleString('de-DE')}\\n\\n`;\n  body += `--- ERROR DETAILS ---\\n\\n`;\n  body += `${errorMessage}\\n\\n`;\n  body += `--- RETRY STATUS ---\\n\\n`;\n  body += `Attempts: ${retryCount}/${maxRetries}\\n`;\n  \n  if (retryCount >= maxRetries) {\n    body += `Status: ❌ FAILED - All retry attempts exhausted\\n\\n`;\n    body += `ACTION REQUIRED: Manual intervention needed\\n`;\n  } else if (item.json.retryable) {\n    body += `Status: 🔄 Retrying...\\n\\n`;\n  } else {\n    body += `Status: ⛔ Not retryable - Immediate action required\\n\\n`;\n  }\n  \n  if (severity === 'CRITICAL') {\n    body += `\\n⚠️  CRITICAL ERROR - WORKFLOW MAY BE STOPPED\\n`;\n    body += `Check credentials, API keys, and service status.\\n`;\n  }\n  \n  body += `\\n---\\n`;\n  body += `View error log: https://docs.google.com/spreadsheets/d/${$vars.ERROR_LOG_SHEET_ID || $vars.MAIN_LOG_SHEET_ID}\\n`;\n  body += `Execution ID: ${$execution.id}\\n`;\n  \n  results.push({\n    json: {\n      ...item.json,\n      alertSubject: subject,\n      alertBody: body\n    }\n  });\n}\n\nreturn results;"
+      },
+      "name": "Build Alert Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2220, 300],
+      "id": "node-build-alert",
+      "notes": "Formats alert email with error details, severity indicator, and resolution guidance. (TRUE branch)"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $vars.EUGENE_EMAIL }}",
+        "subject": "={{ $json.alertSubject }}",
+        "message": "={{ $json.alertBody }}",
+        "options": {}
+      },
+      "name": "Email Eugene: Error Alert",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [2440, 300],
+      "id": "node-email-alert",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "{{GMAIL_CREDENTIAL_ID}}",
+          "name": "Gmail OAuth2"
+        }
+      },
+      "notes": "Sends error alert email to Eugene for CRITICAL and HIGH severity errors. Includes error details and required actions."
+    },
+    {
+      "parameters": {},
+      "name": "No Alert Needed",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [2220, 500],
+      "id": "node-no-alert",
+      "notes": "MEDIUM and LOW severity errors are logged but don't trigger email alerts. (FALSE branch)"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "name": "Merge: Final Error Handling",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [2660, 400],
+      "id": "node-merge-final",
+      "notes": "Combines alert and no-alert paths. All errors are now logged and (if appropriate) alerted. Workflow error handling complete."
+    }
+  ],
+  "connections": {
+    "Error Trigger: Workflow Errors": {
+      "main": [
+        [
+          {
+            "node": "Classify Error Severity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Error Severity": {
+      "main": [
+        [
+          {
+            "node": "IF: Should Retry?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Should Retry?": {
+      "main": [
+        [
+          {
+            "node": "Calculate Retry Backoff",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Error Log Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Retry Backoff": {
+      "main": [
+        [
+          {
+            "node": "Wait: Retry Backoff Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait: Retry Backoff Delay": {
+      "main": [
+        [
+          {
+            "node": "Retry Failed Operation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry Failed Operation": {
+      "main": [
+        [
+          {
+            "node": "Prepare Error Log Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Error Log Entry": {
+      "main": [
+        [
+          {
+            "node": "Merge: Retry + Non-Retry Paths",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge: Retry + Non-Retry Paths": {
+      "main": [
+        [
+          {
+            "node": "Log Error to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Error to Sheet": {
+      "main": [
+        [
+          {
+            "node": "IF: Critical/High Severity?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Critical/High Severity?": {
+      "main": [
+        [
+          {
+            "node": "Build Alert Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Alert Needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Alert Email": {
+      "main": [
+        [
+          {
+            "node": "Email Eugene: Error Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Eugene: Error Alert": {
+      "main": [
+        [
+          {
+            "node": "Merge: Final Error Handling",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Alert Needed": {
+      "main": [
+        [
+          {
+            "node": "Merge: Final Error Handling",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge: Final Error Handling": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "chunk5-error-handling"
+  },
+  "pinData": {},
+  "versionId": "v3.5-chunk5-2025-12-21",
+  "triggerCount": 0
+}

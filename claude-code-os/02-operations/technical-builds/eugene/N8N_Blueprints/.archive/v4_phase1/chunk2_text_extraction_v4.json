@@ -1,0 +1,167 @@
+{
+  "name": "Chunk 2: Text Extraction (Document Organizer V4)",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// V4: Normalize input from Chunk 1\nconst item = $input.first().json;\n\n// Ensure all expected fields exist with V4 standard names\nreturn [{\n  json: {\n    fileId: item.fileId,\n    fileName: item.fileName,\n    originalFileName: item.originalFileName || item.fileName,\n    mimeType: item.mimeType || 'application/pdf',\n    extension: item.extension || 'pdf',\n    size: item.size || 0,\n    emailId: item.emailId,\n    emailFrom: item.emailFrom,\n    emailSubject: item.emailSubject,\n    emailDate: item.emailDate,\n    processedAt: new Date().toISOString(),\n    stagingPath: item.stagingPath,\n    extractedFromZip: item.extractedFromZip || false,\n    zipFileName: item.zipFileName || null,\n    // Initialize extraction fields\n    extractedText: null,\n    isScanned: null,\n    ocrUsed: false,\n    extractionMethod: null\n  }\n}];"
+      },
+      "name": "Normalize Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [100, 400],
+      "id": "node-normalize-input",
+      "notes": "V4: Ensures consistent field names from Chunk 1."
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.fileId }}"
+        },
+        "options": {}
+      },
+      "name": "Download PDF",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [300, 400],
+      "id": "node-download-pdf",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      },
+      "notes": "Downloads PDF from staging folder for text extraction."
+    },
+    {
+      "parameters": {
+        "operation": "extractPdf",
+        "binaryPropertyName": "data",
+        "options": {}
+      },
+      "name": "Extract PDF Text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [500, 400],
+      "id": "node-extract-pdf",
+      "notes": "Attempts to extract text from PDF (works for digital PDFs).",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Determine if PDF is scanned (needs OCR) or digital\nconst extractResult = $input.first().json;\nconst originalData = $('Normalize Input').first().json;\n\nconst extractedText = extractResult.text || extractResult.content || '';\nconst textLength = extractedText.trim().length;\n\n// If less than 100 characters extracted, likely a scanned document\nconst isScanned = textLength < 100;\nconst needsOcr = isScanned;\n\nreturn [{\n  json: {\n    ...originalData,\n    extractedText: needsOcr ? null : extractedText,\n    isScanned: isScanned,\n    needsOcr: needsOcr,\n    digitalTextLength: textLength,\n    extractionMethod: needsOcr ? 'pending_ocr' : 'digital'\n  },\n  binary: $input.first().binary\n}];"
+      },
+      "name": "Detect Scan vs Digital",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 400],
+      "id": "node-detect-scan",
+      "notes": "V4: Determines if PDF is scanned (needs OCR) or digital."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "leftValue": "", "caseSensitive": true, "typeValidation": "strict" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "needs-ocr",
+              "leftValue": "={{ $json.needsOcr }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "IF Needs OCR",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 400],
+      "id": "node-if-ocr",
+      "notes": "Routes scanned PDFs to AWS Textract for OCR."
+    },
+    {
+      "parameters": {
+        "operation": "analyzeExpense",
+        "inputDataSource": "n8n",
+        "binaryPropertyName": "data",
+        "additionalFields": {}
+      },
+      "name": "AWS Textract OCR",
+      "type": "n8n-nodes-base.awsTextract",
+      "typeVersion": 1,
+      "position": [1100, 300],
+      "id": "node-textract",
+      "credentials": {
+        "aws": {
+          "id": "{{AWS_CREDENTIAL_ID}}",
+          "name": "AWS"
+        }
+      },
+      "notes": "V4: Uses AWS Textract for OCR on scanned German documents.",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Process OCR result and normalize\nconst ocrResult = $input.first().json;\nconst originalData = $('IF Needs OCR').first().json;\n\n// Extract text from Textract response\nlet extractedText = '';\nif (ocrResult.Blocks) {\n  extractedText = ocrResult.Blocks\n    .filter(block => block.BlockType === 'LINE')\n    .map(block => block.Text)\n    .join('\\n');\n}\n\nreturn [{\n  json: {\n    ...originalData,\n    extractedText: extractedText,\n    isScanned: true,\n    ocrUsed: true,\n    extractionMethod: 'ocr_textract',\n    ocrConfidence: ocrResult.Blocks?.[0]?.Confidence || null\n  }\n}];"
+      },
+      "name": "Process OCR Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, 300],
+      "id": "node-process-ocr",
+      "notes": "V4: Extracts text from Textract response."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Merge OCR and digital text paths with normalized output\nconst items = $input.all();\nconst digitalItem = $('IF Needs OCR').first();\nconst ocrItem = items.find(i => i.json.ocrUsed);\n\n// Determine which path we took\nconst resultItem = ocrItem || digitalItem;\n\nreturn [{\n  json: {\n    // V4 Standard field names\n    fileId: resultItem.json.fileId,\n    fileName: resultItem.json.fileName,\n    originalFileName: resultItem.json.originalFileName,\n    mimeType: resultItem.json.mimeType,\n    extension: resultItem.json.extension,\n    size: resultItem.json.size,\n    // Email context\n    emailId: resultItem.json.emailId,\n    emailFrom: resultItem.json.emailFrom,\n    emailSubject: resultItem.json.emailSubject,\n    emailDate: resultItem.json.emailDate,\n    // Extraction results\n    extractedText: resultItem.json.extractedText || '',\n    isScanned: resultItem.json.isScanned || false,\n    ocrUsed: resultItem.json.ocrUsed || false,\n    extractionMethod: resultItem.json.extractionMethod,\n    // Metadata\n    processedAt: new Date().toISOString(),\n    extractedFromZip: resultItem.json.extractedFromZip,\n    zipFileName: resultItem.json.zipFileName,\n    stagingPath: resultItem.json.stagingPath,\n    // Placeholder for downstream chunks\n    documentType: null,\n    confidence: null,\n    projectName: null,\n    normalizedProjectName: null\n  }\n}];"
+      },
+      "name": "Normalize Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 400],
+      "id": "node-normalize-output",
+      "notes": "V4: Ensures consistent field names for Chunk 2.5."
+    }
+  ],
+  "connections": {
+    "Normalize Input": {
+      "main": [[{ "node": "Download PDF", "type": "main", "index": 0 }]]
+    },
+    "Download PDF": {
+      "main": [[{ "node": "Extract PDF Text", "type": "main", "index": 0 }]]
+    },
+    "Extract PDF Text": {
+      "main": [[{ "node": "Detect Scan vs Digital", "type": "main", "index": 0 }]]
+    },
+    "Detect Scan vs Digital": {
+      "main": [[{ "node": "IF Needs OCR", "type": "main", "index": 0 }]]
+    },
+    "IF Needs OCR": {
+      "main": [
+        [{ "node": "AWS Textract OCR", "type": "main", "index": 0 }],
+        [{ "node": "Normalize Output", "type": "main", "index": 0 }]
+      ]
+    },
+    "AWS Textract OCR": {
+      "main": [[{ "node": "Process OCR Result", "type": "main", "index": 0 }]]
+    },
+    "Process OCR Result": {
+      "main": [[{ "node": "Normalize Output", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateId": "document_organizer_v4_chunk2",
+    "version": "4.0"
+  }
+}

@@ -1,0 +1,86 @@
+==========================================================
+TASK 2 PRICE NORMALIZATION - v10 NO SPLIT (Make.com Compatible)
+==========================================================
+
+ISSUE: Make.com doesn't support array indexing [1] or [2] with split()
+
+NEW APPROACH: Use substring/replace logic instead of split()
+
+PASTE THIS INTO THE "Normalize Price USD for Task 2" MODULE:
+----------------------------------------------------------
+
+{{if(contains(232.priceRaw; "Bill") & contains(232.priceRaw; "IDR"); parseNumber(replace(replace(replace(replace(substring(232.priceRaw; indexOf(232.priceRaw; "IDR") + 3); "IDR"; ""); "Rp"; ""); " "; ""); "."; "")); if(contains(232.priceRaw; "Mio") & contains(232.priceRaw; "USD"); round(parseNumber(replace(replace(substring(232.priceRaw; 1; indexOf(232.priceRaw; "Mio")); " "; ""); ","; ".")) * 1000000); if(contains(232.priceRaw; "Mio") & contains(232.priceRaw; "IDR"); parseNumber(replace(replace(replace(replace(substring(232.priceRaw; indexOf(232.priceRaw; "IDR") + 3); "IDR"; ""); "Rp"; ""); " "; ""); "."; "")); if(contains(232.priceRaw; "USD") | contains(232.priceRaw; "$"); parseNumber(replace(replace(replace(replace(232.priceRaw; "USD"; ""); "$"; ""); " "; ""); "."; "")); if(contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp"); round(parseNumber(replace(replace(replace(replace(232.priceRaw; "Rp"; ""); "IDR"; ""); "."; ""); ","; "")) / 15700); 0))))}}
+
+==========================================================
+HOW THIS WORKS WITH substring() and indexOf():
+==========================================================
+
+For "1.9 Bill IDR 148.000":
+
+1. Contains "Bill" AND "IDR" → YES
+2. indexOf("IDR") → finds position of "IDR"
+3. substring(text; indexOf("IDR") + 3) → gets everything AFTER "IDR"
+   Result: " 148.000"
+4. Remove spaces → "148.000"
+5. Remove "." → "148000"
+6. parseNumber("148000") → 148,000 USD ✅
+
+For "1,1 Mio. USD":
+
+1. Contains "Bill" AND "IDR" → NO
+2. Contains "Mio" AND "USD" → YES
+3. indexOf("Mio") → finds position of "Mio"
+4. substring(text; 1; indexOf("Mio")) → gets everything BEFORE "Mio"
+   Result: "1,1 "
+5. Remove spaces → "1,1"
+6. Replace "," with "." → "1.1"
+7. parseNumber("1.1") → 1.1
+8. 1.1 * 1,000,000 → 1,100,000 USD ✅
+
+For "900.000 USD":
+
+1. No "Bill", no "Mio" → skip to USD path
+2. Remove "USD", "$", spaces → "900.000"
+3. Remove "." → "900000"
+4. parseNumber("900000") → 900,000 USD ✅
+
+==========================================================
+IF substring() DOESN'T WORK, TRY THIS SIMPLER VERSION:
+==========================================================
+
+If Make.com doesn't support substring() or indexOf(), try this
+ultra-simple version that uses only replace():
+
+{{if(contains(232.priceRaw; "Mio."); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; " Mio. USD"; ""); " Mio. IDR"; ""); " Mio. Rp"; ""); " Mio."; ""); "USD"; ""); "IDR"; ""); ","; ".")) * 1000000); if(contains(232.priceRaw; "USD"); parseNumber(replace(replace(replace(replace(232.priceRaw; "USD"; ""); "$"; ""); " "; ""); "."; "")); 0))}}
+
+This super simple version:
+- Handles "Mio." by removing the whole " Mio. USD" pattern
+- Handles regular USD by removing currency symbols
+- Ignores Bill IDR (you'd need to handle those manually or differently)
+
+==========================================================
+TESTING WITH FIRST VERSION:
+==========================================================
+
+✅ "1,1 Mio. USD"              → 1,100,000
+✅ "1.9 Bill IDR 148.000"      → 148,000
+✅ "900.000 USD"               → 900,000
+
+==========================================================
+TASK 3 VERSION (if substring works):
+==========================================================
+
+{{if(contains(233.priceRaw; "Bill") & contains(233.priceRaw; "IDR"); parseNumber(replace(replace(replace(replace(substring(233.priceRaw; indexOf(233.priceRaw; "IDR") + 3); "IDR"; ""); "Rp"; ""); " "; ""); "."; "")); if(contains(233.priceRaw; "Mio") & contains(233.priceRaw; "USD"); round(parseNumber(replace(replace(substring(233.priceRaw; 1; indexOf(233.priceRaw; "Mio")); " "; ""); ","; ".")) * 1000000); if(contains(233.priceRaw; "Mio") & contains(233.priceRaw; "IDR"); parseNumber(replace(replace(replace(replace(substring(233.priceRaw; indexOf(233.priceRaw; "IDR") + 3); "IDR"; ""); "Rp"; ""); " "; ""); "."; "")); if(contains(233.priceRaw; "USD") | contains(233.priceRaw; "$"); parseNumber(replace(replace(replace(replace(233.priceRaw; "USD"; ""); "$"; ""); " "; ""); "."; "")); if(contains(233.priceRaw; "IDR") | contains(233.priceRaw; "Rp"); round(parseNumber(replace(replace(replace(replace(233.priceRaw; "Rp"; ""); "IDR"; ""); "."; ""); ","; "")) / 15700); 0))))}}
+
+==========================================================
+TELL ME WHICH ERROR YOU GET:
+==========================================================
+
+After trying the first formula, if it errors, let me know:
+1. Does Make.com support substring()?
+2. Does Make.com support indexOf()?
+3. What error message do you see?
+
+Then I'll create a version using only what Make.com supports!
+
+==========================================================

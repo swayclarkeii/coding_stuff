@@ -1,0 +1,330 @@
+{
+  "name": "V4 Pre-Chunk 0: Intake & Client Identification",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "simple": true,
+        "filters": {
+          "labelIds": ["INBOX", "UNREAD"],
+          "q": "has:attachment"
+        }
+      },
+      "name": "Gmail Trigger - Unread with Attachments",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [100, 400],
+      "id": "gmail-trigger-001",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filter PDF and ZIP attachments only\nconst items = $input.all();\nconst filtered = [];\n\nfor (const item of items) {\n  if (!item.json.attachments) continue;\n  \n  for (const attachment of item.json.attachments) {\n    const filename = attachment.filename || attachment.name;\n    const ext = filename.toLowerCase().split('.').pop();\n    \n    if (['pdf', 'zip'].includes(ext)) {\n      filtered.push({\n        json: {\n          emailId: item.json.id,\n          emailSubject: item.json.subject,\n          emailFrom: item.json.from,\n          emailDate: item.json.date,\n          attachmentId: attachment.id,\n          filename: filename,\n          mimeType: attachment.mimeType,\n          size: attachment.size\n        }\n      });\n    }\n  }\n}\n\nreturn filtered;"
+      },
+      "name": "Filter PDF/ZIP Attachments",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [320, 400],
+      "id": "filter-attachments-001"
+    },
+    {
+      "parameters": {
+        "url": "=https://gmail.googleapis.com/gmail/v1/users/me/messages/{{ $json.emailId }}/attachments/{{ $json.attachmentId }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "gmailOAuth2",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "name": "Download Attachment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [540, 400],
+      "id": "download-attachment-001"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "data",
+        "options": {
+          "joinPages": true,
+          "keepSource": "json"
+        }
+      },
+      "name": "Extract Text from PDF",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [760, 400],
+      "id": "extract-text-001"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Evaluate PDF extraction quality and determine if OCR is needed\nconst item = $input.item(0);\nconst extractedText = item.json.text || '';\nconst filename = item.json.filename || $('Filter PDF/ZIP Attachments').item.json.filename;\n\n// Count words in extracted text\nconst wordCount = extractedText.trim().split(/\\s+/).filter(w => w.length > 0).length;\n\n// Threshold: If less than 10 words extracted, likely a scanned document\nconst needsOCR = wordCount < 10;\n\nreturn [{\n  json: {\n    ...$('Filter PDF/ZIP Attachments').item.json,\n    extractedText: extractedText,\n    wordCount: wordCount,\n    needsOCR: needsOCR,\n    extractionMethod: needsOCR ? 'ocr_required' : 'digital'\n  }\n}];"
+      },
+      "name": "Evaluate Extraction Quality",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, 400],
+      "id": "evaluate-extraction-001",
+      "notes": "Checks if text extraction succeeded. If <10 words, flags for OCR (AWS Textract)"
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "You are an AI that extracts client company names from German real estate documents. Extract ONLY the client/investor company name. Return the name without any explanation or additional text."
+            },
+            {
+              "role": "user",
+              "content": "=Extract the client company name from this text:\n\n{{ $json.extractedText }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.1,
+          "maxTokens": 50
+        }
+      },
+      "name": "AI Extract Client Name",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.1,
+      "position": [1100, 400],
+      "id": "ai-extract-client-001",
+      "credentials": {
+        "openAiApi": {
+          "id": "YOUR_OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalize German client name for folder creation\nfunction normalizeClientName(rawName) {\n  if (!rawName) return null;\n  \n  return rawName\n    .toLowerCase()\n    .trim()\n    // Replace German characters\n    .replace(/ä/g, 'ae')\n    .replace(/ö/g, 'oe')\n    .replace(/ü/g, 'ue')\n    .replace(/ß/g, 'ss')\n    // Remove legal entities\n    .replace(/\\s*(gmbh|ag|kg|e\\.v\\.|mbh|co\\.|&\\s*co\\.?)\\s*/gi, '')\n    // Replace non-alphanumeric with underscore\n    .replace(/[^a-z0-9]/g, '_')\n    // Remove duplicate underscores\n    .replace(/_+/g, '_')\n    // Remove leading/trailing underscores\n    .replace(/^_|_$/g, '');\n}\n\nconst aiResponse = $input.item(0).json.message?.content || $input.item(0).json.text;\nconst clientNameRaw = aiResponse.trim();\nconst clientNormalized = normalizeClientName(clientNameRaw);\n\nreturn [{\n  json: {\n    client_name_raw: clientNameRaw,\n    client_normalized: clientNormalized,\n    parent_folder_id: '1ikw3k-EgpVg_h2ySDdqdUFB7-FQyYDFm'\n  }\n}];"
+      },
+      "name": "Normalize Client Name",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1320, 400],
+      "id": "normalize-name-001"
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_REGISTRY_SHEET_ID",
+          "mode": "list"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "range": "A:F",
+        "options": {}
+      },
+      "name": "Lookup Client Registry",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [1540, 400],
+      "id": "lookup-registry-001",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GSHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Check if client exists in registry\nconst clientNormalized = $('Normalize Client Name').item.json.client_normalized;\nconst registryRows = $input.all();\n\n// Skip header row\nconst clientRow = registryRows.slice(1).find(row => \n  row.json.client_normalized === clientNormalized\n);\n\nif (clientRow) {\n  // Client exists\n  const subfolderIds = JSON.parse(clientRow.json.subfolder_ids_json || '{}');\n  \n  return [{\n    json: {\n      ...$('Normalize Client Name').item.json,\n      folders_exist: true,\n      root_folder_id: clientRow.json.root_folder_id,\n      subfolder_ids: subfolderIds,\n      registry_status: clientRow.json.status\n    }\n  }];\n} else {\n  // New client\n  return [{\n    json: {\n      ...$('Normalize Client Name').item.json,\n      folders_exist: false,\n      root_folder_id: null,\n      subfolder_ids: {},\n      registry_status: 'NEW'\n    }\n  }];\n}"
+      },
+      "name": "Check Client Exists",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1760, 400],
+      "id": "check-exists-001"
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.client_normalized }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "isEmpty"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "no_client_identified"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.folders_exist }}",
+                    "rightValue": "false",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "create_folders"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.folders_exist }}",
+                    "rightValue": "true",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "folders_exist"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Decision Gate",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [1980, 400],
+      "id": "decision-gate-001"
+    },
+    {
+      "parameters": {
+        "mode": "once",
+        "source": "database",
+        "workflowId": "YOUR_CHUNK0_WORKFLOW_ID",
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "client_name": "={{ $json.client_name_raw }}",
+            "client_normalized": "={{ $json.client_normalized }}",
+            "parent_folder_id": "={{ $json.parent_folder_id }}"
+          }
+        }
+      },
+      "name": "Execute Chunk 0 - Create Folders",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [2200, 280],
+      "id": "execute-chunk0-001"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Handle unidentified client - send to manual queue\nconst item = $input.item(0);\n\nreturn [{\n  json: {\n    status: 'FAILED',\n    reason: 'Client name could not be identified',\n    email_id: item.json.emailId,\n    email_subject: item.json.emailSubject,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "name": "Handle Unidentified Client",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2200, 520],
+      "id": "handle-unknown-001",
+      "notes": "TODO: Add Slack notification or fallback queue"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Client exists - prepare for Chunk 3 (classification)\nconst item = $input.item(0);\n\nreturn [{\n  json: {\n    status: 'SUCCESS',\n    client_name: item.json.client_name_raw,\n    client_normalized: item.json.client_normalized,\n    root_folder_id: item.json.root_folder_id,\n    subfolder_ids: item.json.subfolder_ids,\n    ready_for_classification: true\n  }\n}];"
+      },
+      "name": "Prepare for Chunk 3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2200, 400],
+      "id": "prepare-chunk3-001",
+      "notes": "TODO: Connect to Chunk 3 workflow"
+    }
+  ],
+  "connections": {
+    "Gmail Trigger - Unread with Attachments": {
+      "main": [[{"node": "Filter PDF/ZIP Attachments", "type": "main", "index": 0}]]
+    },
+    "Filter PDF/ZIP Attachments": {
+      "main": [[{"node": "Download Attachment", "type": "main", "index": 0}]]
+    },
+    "Download Attachment": {
+      "main": [[{"node": "Extract Text from PDF", "type": "main", "index": 0}]]
+    },
+    "Extract Text from PDF": {
+      "main": [[{"node": "Evaluate Extraction Quality", "type": "main", "index": 0}]]
+    },
+    "Evaluate Extraction Quality": {
+      "main": [[{"node": "AI Extract Client Name", "type": "main", "index": 0}]]
+    },
+    "AI Extract Client Name": {
+      "main": [[{"node": "Normalize Client Name", "type": "main", "index": 0}]]
+    },
+    "Normalize Client Name": {
+      "main": [[{"node": "Lookup Client Registry", "type": "main", "index": 0}]]
+    },
+    "Lookup Client Registry": {
+      "main": [[{"node": "Check Client Exists", "type": "main", "index": 0}]]
+    },
+    "Check Client Exists": {
+      "main": [[{"node": "Decision Gate", "type": "main", "index": 0}]]
+    },
+    "Decision Gate": {
+      "main": [
+        [{"node": "Handle Unidentified Client", "type": "main", "index": 0}],
+        [{"node": "Execute Chunk 0 - Create Folders", "type": "main", "index": 0}],
+        [{"node": "Prepare for Chunk 3", "type": "main", "index": 0}]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-12-29T00:00:00.000Z",
+  "versionId": "v4-prechunk0-v1"
+}

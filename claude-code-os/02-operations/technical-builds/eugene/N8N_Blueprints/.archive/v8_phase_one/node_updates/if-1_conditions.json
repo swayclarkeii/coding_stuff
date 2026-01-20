@@ -1,0 +1,25 @@
+{
+  "nodeName": "Check Status",
+  "nodeType": "n8n-nodes-base.if",
+  "conditions": [
+    {
+      "name": "Update Tracker (CORE types)",
+      "expression": "{{ $json.skipTrackerUpdate === false }}",
+      "output": "code-8 → sheets-2 (Update Client_Tracker Row)",
+      "description": "CORE document types that need tracker update"
+    },
+    {
+      "name": "Skip Tracker (SECONDARY + LOW_CONFIDENCE)",
+      "expression": "{{ $json.skipTrackerUpdate === true }}",
+      "output": "sheets-3 (Lookup Client in AMA_Folder_IDs)",
+      "description": "SECONDARY and LOW_CONFIDENCE types skip tracker update"
+    },
+    {
+      "name": "Client Not Found (Error Path - UNCHANGED)",
+      "expression": "{{ $json.clientFound === false }}",
+      "output": "sheets-4 → 38_Unknowns error flow",
+      "description": "Existing error handling for client not found"
+    }
+  ],
+  "notes": "Modified to route based on skipTrackerUpdate flag from code-8. CORE types go to tracker update, SECONDARY/LOW_CONFIDENCE skip directly to folder lookup."
+}

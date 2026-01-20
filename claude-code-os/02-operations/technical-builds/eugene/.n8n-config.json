@@ -1,0 +1,7 @@
+{
+  "n8n_base_url": "https://n8n.oloxa.ai",
+  "n8n_api_key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkMmQ1NjE2MS0yYTdiLTQ5NjAtODhiZC04OGFmMDcyMzkxNjkiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzY2NDM1MjMzLCJleHAiOjE3NzQxMzQwMDB9.0E1z71wctH2U_dfkK1NVwVsDKeC9IzNDWCX6vP7EVLw",
+  "notification_email": "sway@oloxa.ai",
+  "project": "Eugene Document Organizer V4",
+  "created": "2024-12-22"
+}

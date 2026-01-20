@@ -1,0 +1,75 @@
+==========================================================
+TASK 2 PRICE NORMALIZATION - v6 ULTRA SIMPLE
+==========================================================
+
+I'm going to try the SIMPLEST possible approach:
+Remove the EXACT patterns we see, in the right order.
+
+PASTE THIS INTO THE "Normalize Price USD for Task 2" MODULE:
+----------------------------------------------------------
+
+{{if(contains(232.priceRaw; "Mio"); round(parseNumber(replace(replace(replace(replace(replace(replace(232.priceRaw; " Mio. USD"; ""); " Mio. IDR"; ""); " Mio."; ""); " USD"; ""); " IDR"; ""); ","; ".")) * 1000000); if(contains(232.priceRaw; "Bill"); round(parseNumber(replace(replace(replace(replace(replace(replace(232.priceRaw; " Bill. IDR"; ""); " Bill. USD"; ""); " Bill."; ""); " IDR"; ""); " USD"; ""); ","; ".")) * 1000000000 / 15700); if(contains(232.priceRaw; "USD") | contains(232.priceRaw; "$"); parseNumber(replace(replace(replace(232.priceRaw; " USD"; ""); "$"; ""); ","; "")); if(contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp"); round(parseNumber(replace(replace(replace(replace(232.priceRaw; "Rp"; ""); " IDR"; ""); "."; ""); ","; "")) / 15700); 0)))}}
+
+==========================================================
+HOW THIS WORKS:
+==========================================================
+
+Priority order (most specific first):
+1. If contains "Mio" → Million handling
+2. Else if contains "Bill" → Billion handling
+3. Else if contains "USD" or "$" → Regular USD
+4. Else if contains "IDR" or "Rp" → Regular IDR
+5. Else → 0
+
+For "1,1 Mio. USD":
+- Contains "Mio" → YES, enter Mio path
+- Replace " Mio. USD" with "" → "1,1"
+- Replace "," with "." → "1.1"
+- parseNumber("1.1") → 1.1
+- 1.1 * 1000000 → 1,100,000 ✅
+
+For "1,9 Bill. IDR":
+- Contains "Mio" → NO
+- Contains "Bill" → YES, enter Bill path
+- Replace " Bill. IDR" with "" → "1,9"
+- Replace "," with "." → "1.9"
+- parseNumber("1.9") → 1.9
+- 1.9 * 1000000000 / 15700 → 121,019 ✅
+
+For "900,000 USD":
+- Contains "Mio" → NO
+- Contains "Bill" → NO
+- Contains "USD" → YES, enter USD path
+- Replace " USD" with "" → "900,000"
+- Replace "," with "" → "900000" (thousands separator)
+- parseNumber("900000") → 900,000 ✅
+
+==========================================================
+KEY INSIGHT:
+==========================================================
+
+Remove the COMPLETE pattern as one unit:
+- " Mio. USD" (all together)
+- " Bill. IDR" (all together)
+
+This way we can't possibly end up with trailing periods!
+
+==========================================================
+EVEN SIMPLER FALLBACK (if above still fails):
+==========================================================
+
+If that STILL doesn't work, try this absolute minimum version:
+
+{{if(contains(232.priceRaw; "Mio"); parseNumber(replace(replace(replace(replace(232.priceRaw; "Mio"; ""); "USD"; ""); " "; ""); "."; "")) * 1000000; parseNumber(replace(replace(replace(232.priceRaw; "USD"; ""); " "; ""); ","; ""))}}
+
+This just:
+- If "Mio" → remove Mio, USD, spaces, periods → multiply by 1M
+- Else → remove USD, spaces, keep comma (assuming US format)
+
+==========================================================
+TASK 3 VERSION:
+==========================================================
+
+{{if(contains(233.priceRaw; "Mio"); round(parseNumber(replace(replace(replace(replace(replace(replace(233.priceRaw; " Mio. USD"; ""); " Mio. IDR"; ""); " Mio."; ""); " USD"; ""); " IDR"; ""); ","; ".")) * 1000000); if(contains(233.priceRaw; "Bill"); round(parseNumber(replace(replace(replace(replace(replace(replace(233.priceRaw; " Bill. IDR"; ""); " Bill. USD"; ""); " Bill."; ""); " IDR"; ""); " USD"; ""); ","; ".")) * 1000000000 / 15700); if(contains(233.priceRaw; "USD") | contains(233.priceRaw; "$"); parseNumber(replace(replace(replace(233.priceRaw; " USD"; ""); "$"; ""); ","; "")); if(contains(233.priceRaw; "IDR") | contains(233.priceRaw; "Rp"); round(parseNumber(replace(replace(replace(replace(233.priceRaw; "Rp"; ""); " IDR"; ""); "."; ""); ","; "")) / 15700); 0)))}}
+
+==========================================================

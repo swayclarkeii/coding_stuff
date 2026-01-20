@@ -1,0 +1,52 @@
+{
+  "breakpointLocation": "NONE",
+  "browserLog": false,
+  "closeCookieModals": true,
+  "debugLog": true,
+  "downloadCss": true,
+  "downloadMedia": true,
+  "globs": [
+    "https://reefpropertylombok.com/**",
+    "https://islandpropertylombok.com/**",
+    "https://discoverlombokproperty.com/**",
+    "https://www.nourestates.com/**",
+    "https://baliexception.com/**",
+    "https://www.estate-lombok.com/**",
+    "https://www.majuproperties.com/**",
+    "https://www.bali-home-immo.com/**",
+    "https://www.invest-lombok.com/**"
+  ],
+  "headless": true,
+  "ignoreCorsAndCsp": false,
+  "ignoreSslErrors": false,
+  "injectJQuery": true,
+  "keepUrlFragments": false,
+  "linkSelector": "a",
+  "maxConcurrency": 2,
+  "maxCrawlingDepth": 2,
+  "maxPagesPerCrawl": 200,
+  "maxRequestRetries": 3,
+  "maxResultsPerCrawl": 0,
+  "pageFunction": "async function pageFunction(context) {\n    const { request, log } = context;\n    const url = request.url;\n\n    // ========================================\n    // REGION FILTERING - REJECT NON-LOMBOK\n    // ========================================\n    \n    // BALI EXCEPTION: Skip Bali regions\n    if (url.includes('baliexception.com')) {\n        const baliRegions = ['/uluwatu/', '/legian/', '/canggu/', '/ubud/', \n                             '/seminyak/', '/karangasem/', '/tabanan/', '/bingin/', \n                             '/pererenan/', '/sanur/', '/denpasar/', '/jimbaran/',\n                             '/nusa-dua/', '/kerobokan/', '/berawa/', '/echo-beach/'];\n        for (const region of baliRegions) {\n            if (url.toLowerCase().includes(region)) {\n                return null;\n            }\n        }\n        if (!url.toLowerCase().includes('/lombok/') && !url.toLowerCase().includes('lombok')) {\n            return null;\n        }\n    }\n\n    // INVEST LOMBOK: Skip Sumbawa\n    if (url.includes('invest-lombok.com')) {\n        if (url.toLowerCase().includes('sumbawa')) {\n            return null;\n        }\n    }\n\n    // BALI HOME IMMO: Require Lombok\n    if (url.includes('bali-home-immo.com')) {\n        if (!url.toLowerCase().includes('lombok')) {\n            return null;\n        }\n    }\n\n    // Skip common non-property pages\n    const skipPatterns = [\n        '/about', '/contact', '/blog', '/news', '/team', '/services',\n        '/privacy', '/terms', '/cookie', '/disclaimer', '#', 'javascript:',\n        '/wp-admin', '/wp-content', '/category/', '/tag/', '/author/',\n        '/page/', '/feed/', '.jpg', '.png', '.pdf', '.css', '.js'\n    ];\n    \n    for (const pattern of skipPatterns) {\n        if (url.includes(pattern)) {\n            return null;\n        }\n    }\n\n    // Extract content\n    const bodyText = document.body.innerText;\n    \n    // Get title\n    let title = '';\n    const h1 = document.querySelector('h1');\n    if (h1) {\n        title = h1.innerText.trim();\n    }\n\n    // Get price\n    let priceRaw = '';\n    const pricePatterns = [\n        /\\$[\\d,]+/gi,\n        /USD\\s*[\\d,.]+/gi,\n        /Rp\\.?\\s*[\\d.,]+\\s*(B|Billion|M|Million|Miliar|Juta)?/gi,\n        /IDR\\s*[\\d.,]+/gi,\n        /€[\\d,.]+/gi,\n        /EUR\\s*[\\d,.]+/gi\n    ];\n    for (const pattern of pricePatterns) {\n        const matches = bodyText.match(pattern);\n        if (matches && matches.length > 0) {\n            priceRaw = matches[0];\n            break;\n        }\n    }\n\n    // Property type\n    let propertyType = 'Unknown';\n    const bodyLower = bodyText.toLowerCase();\n    \n    if (bodyLower.includes('land') || bodyLower.includes('lot') || bodyLower.includes('plot')) {\n        propertyType = 'Land';\n    } else if (bodyLower.includes('villa')) {\n        propertyType = 'Villa';\n    } else if (bodyLower.includes('apartment')) {\n        propertyType = 'Apartment';\n    } else if (bodyLower.includes('house')) {\n        propertyType = 'House';\n    } else if (bodyLower.includes('resort')) {\n        propertyType = 'Resort';\n    } else if (bodyLower.includes('bungalow')) {\n        propertyType = 'Bungalow';\n    }\n\n    // Skip if no indicators this is a property page\n    if (!priceRaw && propertyType === 'Unknown') {\n        return null;\n    }\n\n    // Skip land\n    if (propertyType === 'Land') {\n        return null;\n    }\n\n    // If we got here, it's likely a property page - extract remaining data\n    \n    // Ownership\n    let ownership = '';\n    if (bodyLower.includes('hgb')) ownership = 'HGB';\n    else if (bodyLower.includes('freehold')) ownership = 'Freehold';\n    else if (bodyLower.includes('leasehold')) ownership = 'Leasehold';\n\n    // Status\n    let status = '';\n    if (bodyLower.includes('for sale')) status = 'For Sale';\n    else if (bodyLower.includes('sold')) status = 'Sold';\n    else if (bodyLower.includes('for rent')) status = 'For Rent';\n\n    // Location flags\n    const hasKuta = bodyLower.includes('kuta');\n    const hasSelong = bodyLower.includes('selong');\n    const hasMandalika = bodyLower.includes('mandalika');\n    const hasAreGuling = bodyLower.includes('are guling') || bodyLower.includes('areguling');\n    const hasSenggigi = bodyLower.includes('senggigi');\n    const hasGili = bodyLower.includes('gili');\n    const hasFreehold = bodyLower.includes('freehold');\n    const hasLeasehold = bodyLower.includes('leasehold');\n\n    // Source\n    let source = 'Unknown';\n    if (url.includes('reefpropertylombok.com')) source = 'Reef Property Lombok';\n    else if (url.includes('islandpropertylombok.com')) source = 'Island Properties Lombok';\n    else if (url.includes('discoverlombokproperty.com')) source = 'Discover Lombok Property';\n    else if (url.includes('nourestates.com')) source = 'Nour Estates';\n    else if (url.includes('baliexception.com')) source = 'Bali Exception';\n    else if (url.includes('estate-lombok.com')) source = 'Estate Lombok';\n    else if (url.includes('majuproperties.com')) source = 'Maju Properties';\n    else if (url.includes('bali-home-immo.com')) source = 'Bali Home Immo';\n    else if (url.includes('invest-lombok.com')) source = 'Invest Lombok';\n\n    log.info('✅ FOUND:', title.substring(0, 50), '| Price:', priceRaw, '| Type:', propertyType);\n\n    return {\n        url: url,\n        title: title,\n        priceRaw: priceRaw,\n        location: '',\n        ownership: ownership,\n        status: status,\n        propertyType: propertyType,\n        source: source,\n        hasKuta: hasKuta,\n        hasSelong: hasSelong,\n        hasMandalika: hasMandalika,\n        hasAreGuling: hasAreGuling,\n        hasSenggigi: hasSenggigi,\n        hasGili: hasGili,\n        hasFreehold: hasFreehold,\n        hasLeasehold: hasLeasehold,\n        scrapedAt: new Date().toISOString()\n    };\n}",
+  "pageLoadTimeoutSecs": 60,
+  "pageFunctionTimeoutSecs": 60,
+  "proxyConfiguration": {
+    "useApifyProxy": true
+  },
+  "proxyRotation": "RECOMMENDED",
+  "respectRobotsTxtFile": false,
+  "startUrls": [
+    {"url": "https://reefpropertylombok.com/projects/"},
+    {"url": "https://islandpropertylombok.com/city/kuta/"},
+    {"url": "https://discoverlombokproperty.com/search-results/?keyword=&location%5B%5D=kuta-mandalika"},
+    {"url": "https://www.nourestates.com/property-for-sale-kuta-lombok"},
+    {"url": "https://baliexception.com/area/lombok/jsf/jet-engine/tax/property_type:villa,apartment/meta/property-price!compare-less:300000/"},
+    {"url": "https://www.estate-lombok.com/en/villas-for-sale-lombok"},
+    {"url": "https://www.majuproperties.com/properties?type=villa&location=kuta"},
+    {"url": "https://www.bali-home-immo.com/realestate-property?keyword=Lombok"},
+    {"url": "https://www.invest-lombok.com/property/"}
+  ],
+  "useChrome": false,
+  "waitUntil": ["networkidle2"],
+  "runMode": "PRODUCTION"
+}

@@ -1,0 +1,555 @@
+{
+  "name": "Document Organizer v2.0 - German Bauträger Edition",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "includeSpamTrash": false,
+          "labelIds": ["Bautraeger_Docs"]
+        },
+        "options": {
+          "attachmentsPrefix": "attachment_"
+        }
+      },
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1,
+      "position": [250, 400],
+      "id": "node-gmail-trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-credential-id",
+          "name": "Gmail OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAttachments",
+        "messageId": "={{ $json.id }}"
+      },
+      "name": "Download Email Attachments",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [450, 400],
+      "id": "node-download-attachments",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-credential-id",
+          "name": "Gmail OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filter for PDF, DOCX, DOC files only\nconst items = $input.all();\nconst validFiles = [];\n\nfor (const item of items) {\n  const fileName = item.json?.filename || item.binary?.data?.fileName || 'unknown';\n  const fileExt = fileName.split('.').pop().toLowerCase();\n  \n  if (['pdf', 'docx', 'doc'].includes(fileExt)) {\n    validFiles.push(item);\n  } else {\n    console.log(`Skipping unsupported file type: ${fileName}`);\n  }\n}\n\nreturn validFiles;"
+      },
+      "name": "Filter File Types",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 400],
+      "id": "node-filter-files"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "name": "={{ $json.filename || 'document.pdf' }}",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "={{ $vars.uploadFolderId }}"
+        },
+        "options": {}
+      },
+      "name": "Upload to Google Drive Staging",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [850, 400],
+      "id": "node-upload-staging",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "google-drive-credential-id",
+          "name": "Google Drive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Detect if PDF is digital (has embedded fonts/text layer) or scanned (needs OCR)\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const binary = item.binary?.data;\n  const fileName = item.json?.filename || 'unknown';\n  const fileExt = fileName.split('.').pop().toLowerCase();\n  \n  let needsOCR = false;\n  \n  if (fileExt === 'pdf') {\n    // Simple heuristic: check if binary data contains embedded fonts\n    // More sophisticated: use pdf-parse library in production\n    const binaryString = binary?.data?.toString() || '';\n    const hasEmbeddedFonts = binaryString.includes('/Font') || binaryString.includes('/Type1');\n    const hasTextLayer = binaryString.includes('/Contents');\n    \n    // If no fonts or text layer detected, likely a scanned image PDF\n    needsOCR = !hasEmbeddedFonts && !hasTextLayer;\n  } else if (['jpg', 'jpeg', 'png', 'tiff'].includes(fileExt)) {\n    needsOCR = true;\n  }\n  \n  results.push({\n    json: {\n      ...item.json,\n      needsOCR: needsOCR,\n      detectionMethod: 'font-heuristic'\n    },\n    binary: item.binary\n  });\n}\n\nreturn results;"
+      },
+      "name": "File Type Detection",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1050, 400],
+      "id": "node-file-type-detection"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "operation": "equal",
+              "value1": "={{ $json.needsOCR }}",
+              "value2": false,
+              "output": 0
+            },
+            {
+              "operation": "equal",
+              "value1": "={{ $json.needsOCR }}",
+              "value2": true,
+              "output": 1
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "OCR Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1250, 400],
+      "id": "node-ocr-switch"
+    },
+    {
+      "parameters": {
+        "operation": "extractText",
+        "binaryPropertyName": "data",
+        "options": {
+          "maxPages": 10
+        }
+      },
+      "name": "Extract Text (Digital PDF)",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [1450, 300],
+      "id": "node-extract-text-digital"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://textract.{{ $vars.awsRegion }}.amazonaws.com/",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "aws",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "Textract.DetectDocumentText"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/x-amz-json-1.1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "Document",
+              "value": "={{ { Bytes: $binary.data } }}"
+            },
+            {
+              "name": "LanguageCode",
+              "value": "de"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "OCR Service (AWS Textract German)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1450, 500],
+      "id": "node-ocr-textract",
+      "credentials": {
+        "aws": {
+          "id": "aws-credential-id",
+          "name": "AWS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Merge text extraction results from both paths\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  let extractedText = '';\n  \n  // Check if from digital PDF extraction or OCR\n  if (item.json.text) {\n    // From n8n extractFromFile node\n    extractedText = item.json.text;\n  } else if (item.json.Blocks) {\n    // From AWS Textract\n    const blocks = item.json.Blocks || [];\n    extractedText = blocks\n      .filter(block => block.BlockType === 'LINE')\n      .map(block => block.Text)\n      .join('\\n');\n  }\n  \n  // Truncate to first 3000 characters for AI classification\n  const textForClassification = extractedText.substring(0, 3000);\n  \n  results.push({\n    json: {\n      ...item.json,\n      extractedText: extractedText,\n      textForClassification: textForClassification,\n      textLength: extractedText.length\n    },\n    binary: item.binary\n  });\n}\n\nreturn results;"
+      },
+      "name": "Merge Text Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1650, 400],
+      "id": "node-merge-text"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.1,
+          "maxTokens": 50
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a document classifier for German Bauträger (construction developer) projects.\n\nYour task is to classify documents into ONE of these 3 categories based on the official Bauträger checklist:\n\n1. **OBJEKTUNTERLAGEN** (Property Documents)\n   Documents related to the physical property, construction plans, permits, contracts, and calculations.\n   Examples: Purchase contracts, building permits, site plans, construction drawings, DIN calculations,\n   sales prices, insurance documents, appraisal orders\n\n2. **WIRTSCHAFTLICHE** (Economic/Financial Documents)\n   Financial statements, tax documents, income verification, asset overviews, equity proof.\n   Examples: Annual financial statements, BWA, tax numbers, SCHUFA declarations, income tax documents,\n   assets/liabilities overview, equity proof, project lists\n\n3. **RECHTLICHE** (Legal Documents)\n   Corporate legal documents, registrations, licenses, organizational structures.\n   Examples: Commercial register extracts, articles of association, ID documents,\n   construction developer licenses (§34c GewO), organizational charts\n\n4. **SONSTIGES** (Other/Custom Documents)\n   Exit strategies, unclassified documents, custom business documents not in standard checklist.\n\nAnalyze the document content and respond with ONLY the category name.\n\nExamples:\n- Building permit document → \"OBJEKTUNTERLAGEN\"\n- Annual financial statement → \"WIRTSCHAFTLICHE\"\n- Commercial register extract → \"RECHTLICHE\"\n- Exit strategy plan → \"SONSTIGES\"\n\nReturn ONLY: OBJEKTUNTERLAGEN, WIRTSCHAFTLICHE, RECHTLICHE, or SONSTIGES"
+            },
+            {
+              "role": "user",
+              "content": "Classify this German document text:\n\n={{ $json.textForClassification }}"
+            }
+          ]
+        }
+      },
+      "name": "AI Classification Level 1 (Category)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [1850, 400],
+      "id": "node-ai-level1",
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-credential-id",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "operation": "contains",
+              "value1": "={{ $json.choices[0].message.content }}",
+              "value2": "OBJEKTUNTERLAGEN",
+              "output": 0
+            },
+            {
+              "operation": "contains",
+              "value1": "={{ $json.choices[0].message.content }}",
+              "value2": "WIRTSCHAFTLICHE",
+              "output": 1
+            },
+            {
+              "operation": "contains",
+              "value1": "={{ $json.choices[0].message.content }}",
+              "value2": "RECHTLICHE",
+              "output": 2
+            },
+            {
+              "operation": "contains",
+              "value1": "={{ $json.choices[0].message.content }}",
+              "value2": "SONSTIGES",
+              "output": 3
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Category Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [2050, 400],
+      "id": "node-category-switch",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.1,
+          "maxTokens": 50
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are classifying an OBJEKTUNTERLAGEN (property document) for a German Bauträger project.\n\nClassify into ONE of these 22 specific types:\n\n1. **projektbeschreibung** - Project description, exposé\n2. **kaufvertrag** - Purchase contract\n3. **grundbuchauszug** - Land register extract (less than 3 months old)\n4. **eintragungsbewilligungen** - Registration permits for value-affecting rights (Abt. II)\n5. **bodenrichtwert** - Land value assessment\n6. **baulastenverzeichnis** - Building encumbrances extract\n7. **altlastenkataster** - Contaminated sites register extract\n8. **baugrundgutachten** - Soil survey, geotechnical report\n9. **lageplan** - Official site plan, cadastral map (Flurkarte)\n10. **bautraegerkalkulation** - Developer calculation according to DIN 276\n11. **verkaufspreise** - Planned sales prices per unit listing\n12. **bauzeitenplan** - Construction timeline, liquidity plan\n13. **vertriebsweg** - Sales channel information, distribution plan\n14. **bauausstattung** - Construction and equipment description\n15. **flaechenberechnung** - Area calculations according to DIN 277\n16. **werkvertraege** - General contractor agreements (GU-Werkverträge)\n17. **bauzeichnungen** - Construction drawings, floor plans, sections, elevations\n18. **baugenehmigung** - Building permit application or approval\n19. **teilungserklaerung** - Condominium declaration with division plan (Aufteilungsplan)\n20. **versicherungen** - Construction insurance, liability insurance, fire insurance\n21. **verkaufsvertrag** - Sample sales contract template\n22. **gutachterauftrag** - Signed appraisal order\n\nAnalyze the document content, terminology, and German legal references.\n\nExamples:\n- Purchase agreement with buyer/seller → \"kaufvertrag\"\n- DIN 276 cost breakdown → \"bautraegerkalkulation\"\n- Floor plans and elevations → \"bauzeichnungen\"\n- Building permit from Bauamt → \"baugenehmigung\"\n\nReturn ONLY the type name (lowercase, no spaces):\nprojektbeschreibung, kaufvertrag, grundbuchauszug, eintragungsbewilligungen, bodenrichtwert,\nbaulastenverzeichnis, altlastenkataster, baugrundgutachten, lageplan, bautraegerkalkulation,\nverkaufspreise, bauzeitenplan, vertriebsweg, bauausstattung, flaechenberechnung, werkvertraege,\nbauzeichnungen, baugenehmigung, teilungserklaerung, versicherungen, verkaufsvertrag, gutachterauftrag"
+            },
+            {
+              "role": "user",
+              "content": "Classify this German OBJEKTUNTERLAGEN document:\n\n={{ $json.textForClassification }}"
+            }
+          ]
+        }
+      },
+      "name": "AI Level 2 - Objektunterlagen",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [2250, 200],
+      "id": "node-ai-level2-obj",
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-credential-id",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.1,
+          "maxTokens": 50
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are classifying a WIRTSCHAFTLICHE UNTERLAGEN (economic/financial document) for a German Bauträger project.\n\nClassify into ONE of these 8 specific types:\n\n1. **jahresabschluesse** - Annual financial statements of last 3 years, opening balance sheet (Eröffnungsbilanz) of borrower\n2. **bwa** - Current signed BWA including balance sheet (Summe- und Saldenliste) of borrower\n3. **steuernummern** - Tax numbers of involved companies, tax IDs of involved persons\n4. **schufa** - Signed SCHUFA declaration of guarantors (Bürgen)\n5. **einkommensteuern** - Income tax documents of guarantors for last 2 years\n6. **vermoegensuebersicht** - Assets and liabilities overview including interest and repayment obligations of guarantors\n7. **eigenkapitalnachweis** - Equity proof, capital verification\n8. **projektliste** - Project list, portfolio overview\n\nAnalyze the document content, focusing on German financial terminology and legal requirements.\n\nExamples:\n- Balance sheet and P&L statement → \"jahresabschluesse\"\n- BWA with Summe- und Saldenliste → \"bwa\"\n- SCHUFA consent form → \"schufa\"\n- Tax return documents → \"einkommensteuern\"\n\nReturn ONLY the type name (lowercase, no spaces):\njahresabschluesse, bwa, steuernummern, schufa, einkommensteuern, vermoegensuebersicht,\neigenkapitalnachweis, projektliste"
+            },
+            {
+              "role": "user",
+              "content": "Classify this German WIRTSCHAFTLICHE document:\n\n={{ $json.textForClassification }}"
+            }
+          ]
+        }
+      },
+      "name": "AI Level 2 - Wirtschaftliche",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [2250, 400],
+      "id": "node-ai-level2-wir",
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-credential-id",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.1,
+          "maxTokens": 50
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are classifying a RECHTLICHE UNTERLAGEN (legal document) for a German Bauträger project.\n\nClassify into ONE of these 5 specific types:\n\n1. **hr_auszug** - Commercial register extract (Handelsregisterauszug)\n2. **gesellschaftsvertrag** - Articles of association, shareholder list (Gesellschafterliste)\n3. **personalausweise** - ID documents (Personalausweise) of acting persons\n4. **bautraegerzulassung** - Construction developer license according to § 34c GewO (Gewerbeordnung)\n5. **organigramm** - Organizational chart showing structure to beneficial owners (wirtschaftliche Berechtigte)\n\nAnalyze the document content, focusing on German corporate law and regulatory requirements.\n\nExamples:\n- Handelsregister extract → \"hr_auszug\"\n- GmbH shareholder agreement → \"gesellschaftsvertrag\"\n- Copy of passport or ID card → \"personalausweise\"\n- § 34c GewO permit from trade office → \"bautraegerzulassung\"\n- Company ownership structure chart → \"organigramm\"\n\nReturn ONLY the type name (lowercase, underscores allowed):\nhr_auszug, gesellschaftsvertrag, personalausweise, bautraegerzulassung, organigramm"
+            },
+            {
+              "role": "user",
+              "content": "Classify this German RECHTLICHE document:\n\n={{ $json.textForClassification }}"
+            }
+          ]
+        }
+      },
+      "name": "AI Level 2 - Rechtliche",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [2250, 600],
+      "id": "node-ai-level2-rec",
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-credential-id",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.1,
+          "maxTokens": 50
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are classifying a SONSTIGES (other/custom) document for a German Bauträger project.\n\nClassify into ONE of these custom types:\n\n1. **exitstrategie** - Exit strategy document, liquidation plan, ROI projections, timeline for property sale\n2. **sonstiges** - Unclassified or unknown document type\n\nAnalyze the document content.\n\nExamples:\n- Exit plan with timeline and ROI → \"exitstrategie\"\n- Liquidation strategy document → \"exitstrategie\"\n- Unknown document → \"sonstiges\"\n\nReturn ONLY the type name (lowercase, no spaces):\nexitstrategie, sonstiges"
+            },
+            {
+              "role": "user",
+              "content": "Classify this German SONSTIGES document:\n\n={{ $json.textForClassification }}"
+            }
+          ]
+        }
+      },
+      "name": "AI Level 2 - Sonstiges",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [2250, 800],
+      "id": "node-ai-level2-son",
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-credential-id",
+          "name": "OpenAI API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download Email Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Email Attachments": {
+      "main": [
+        [
+          {
+            "node": "Filter File Types",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter File Types": {
+      "main": [
+        [
+          {
+            "node": "Upload to Google Drive Staging",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Google Drive Staging": {
+      "main": [
+        [
+          {
+            "node": "File Type Detection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File Type Detection": {
+      "main": [
+        [
+          {
+            "node": "OCR Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OCR Switch": {
+      "main": [
+        [
+          {
+            "node": "Extract Text (Digital PDF)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OCR Service (AWS Textract German)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Text (Digital PDF)": {
+      "main": [
+        [
+          {
+            "node": "Merge Text Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OCR Service (AWS Textract German)": {
+      "main": [
+        [
+          {
+            "node": "Merge Text Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Text Results": {
+      "main": [
+        [
+          {
+            "node": "AI Classification Level 1 (Category)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Classification Level 1 (Category)": {
+      "main": [
+        [
+          {
+            "node": "Category Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Category Switch": {
+      "main": [
+        [
+          {
+            "node": "AI Level 2 - Objektunterlagen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Level 2 - Wirtschaftliche",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Level 2 - Rechtliche",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Level 2 - Sonstiges",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2024-12-20T00:00:00.000Z",
+  "versionId": "v2.0"
+}

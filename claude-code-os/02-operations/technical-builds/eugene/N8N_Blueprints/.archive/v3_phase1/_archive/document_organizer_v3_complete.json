@@ -1,0 +1,1418 @@
+{
+  "name": "Document Organizer V3 - Phase 1 Complete",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "includeSpamTrash": false,
+          "labelIds": ["Bautraeger_Docs"]
+        },
+        "options": {
+          "attachmentsPrefix": "attachment_"
+        }
+      },
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1,
+      "position": [100, 400],
+      "id": "node-gmail-trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "{{GMAIL_CREDENTIAL_ID}}",
+          "name": "Gmail OAuth2"
+        }
+      },
+      "notes": "Watches for new emails with attachments. Configure label filter to match your Gmail label."
+    },
+    {
+      "parameters": {
+        "operation": "getAttachments",
+        "messageId": "={{ $json.id }}"
+      },
+      "name": "Download Email Attachments",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [300, 400],
+      "id": "node-download-attachments",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "{{GMAIL_CREDENTIAL_ID}}",
+          "name": "Gmail OAuth2"
+        }
+      },
+      "notes": "Downloads all attachments from the email"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.filename || '' }}",
+              "rightValue": ".zip",
+              "operator": {
+                "type": "string",
+                "operation": "endsWith"
+              }
+            }
+          ]
+        }
+      },
+      "name": "IF: Is ZIP File?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [500, 400],
+      "id": "node-if-zip",
+      "notes": "Routes ZIP files to extraction, regular files continue directly"
+    },
+    {
+      "parameters": {
+        "operation": "decompress",
+        "binaryPropertyName": "data",
+        "outputFormat": "binary"
+      },
+      "name": "Extract ZIP Contents",
+      "type": "n8n-nodes-base.compression",
+      "typeVersion": 1,
+      "position": [700, 300],
+      "id": "node-decompress-zip",
+      "notes": "Extracts contents from ZIP files. Each file inside becomes a separate item."
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "options": {}
+      },
+      "name": "Merge All Files",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [900, 400],
+      "id": "node-merge-files",
+      "notes": "Combines extracted ZIP contents with regular files into single stream"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filter for PDF, DOCX, DOC files only\n// Also preserves original email metadata for logging\n\nconst items = $input.all();\nconst validFiles = [];\n\nfor (const item of items) {\n  const fileName = item.json?.filename || item.binary?.data?.fileName || 'unknown';\n  const fileExt = fileName.split('.').pop().toLowerCase();\n  \n  if (['pdf', 'docx', 'doc'].includes(fileExt)) {\n    // Preserve original sender email for logging\n    validFiles.push({\n      json: {\n        ...item.json,\n        originalFileName: fileName,\n        fileExtension: fileExt,\n        processedAt: new Date().toISOString()\n      },\n      binary: item.binary\n    });\n  } else {\n    console.log(`Skipping unsupported file type: ${fileName}`);\n  }\n}\n\nif (validFiles.length === 0) {\n  // Return empty with metadata so workflow knows no valid files found\n  return [{ json: { noValidFiles: true, message: 'No PDF/DOCX files found' } }];\n}\n\nreturn validFiles;"
+      },
+      "name": "Filter File Types (PDF/DOCX)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 400],
+      "id": "node-filter-files",
+      "notes": "Filters for PDF, DOCX, DOC only. Skips images, spreadsheets, etc."
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "name": "={{ $json.originalFileName || 'document.pdf' }}",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.STAGING_FOLDER_ID }}"
+        },
+        "options": {}
+      },
+      "name": "Upload to Staging Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1300, 400],
+      "id": "node-upload-staging",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      },
+      "notes": "Uploads file to staging folder. File ID returned for next steps."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Detect if PDF is digital (has embedded text) or scanned (needs OCR)\n// This is a simplified heuristic - production may need pdf-parse library\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const fileName = item.json?.originalFileName || 'unknown';\n  const fileExt = fileName.split('.').pop().toLowerCase();\n  \n  let needsOCR = false;\n  \n  if (fileExt === 'pdf') {\n    // Simple heuristic: check binary data for embedded fonts/text markers\n    const binaryData = item.binary?.data?.data || '';\n    const hasEmbeddedFonts = binaryData.includes('/Font') || binaryData.includes('/Type1');\n    const hasTextLayer = binaryData.includes('/Contents');\n    \n    // If no fonts or text layer detected, likely a scanned image PDF\n    needsOCR = !hasEmbeddedFonts && !hasTextLayer;\n  } else if (['jpg', 'jpeg', 'png', 'tiff'].includes(fileExt)) {\n    // Image files always need OCR\n    needsOCR = true;\n  }\n  // DOCX files don't need OCR - text extraction handles them\n  \n  results.push({\n    json: {\n      ...item.json,\n      needsOCR: needsOCR,\n      detectionMethod: 'font-heuristic',\n      driveFileId: item.json.id // Google Drive file ID from staging\n    },\n    binary: item.binary\n  });\n}\n\nreturn results;"
+      },
+      "name": "Detect Scan vs Digital",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 400],
+      "id": "node-detect-scan",
+      "notes": "Determines if document needs OCR or can use direct text extraction"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.needsOCR }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "name": "IF: Needs OCR?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1700, 400],
+      "id": "node-if-ocr",
+      "notes": "Routes scanned docs to OCR, digital docs to text extraction"
+    },
+    {
+      "parameters": {
+        "operation": "extractText",
+        "binaryPropertyName": "data",
+        "options": {
+          "maxPages": 10
+        }
+      },
+      "name": "Extract Text (Digital PDF)",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [1900, 500],
+      "id": "node-extract-text-digital",
+      "notes": "Extracts text from digital PDFs using n8n's built-in parser"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://textract.{{ $vars.AWS_REGION || 'eu-central-1' }}.amazonaws.com/",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "aws",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "Textract.DetectDocumentText"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/x-amz-json-1.1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ Document: { Bytes: $binary.data.data }, LanguageCode: 'de' }) }}",
+        "options": {}
+      },
+      "name": "AWS Textract OCR (German)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1900, 300],
+      "id": "node-ocr-textract",
+      "credentials": {
+        "aws": {
+          "id": "{{AWS_CREDENTIAL_ID}}",
+          "name": "AWS"
+        }
+      },
+      "notes": "Runs OCR on scanned documents using AWS Textract with German language support"
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "options": {}
+      },
+      "name": "Merge Text Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [2100, 400],
+      "id": "node-merge-text-results",
+      "notes": "Combines results from both extraction paths into single stream"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalize and prepare text for AI classification\n// Handles both n8n extractFromFile output and AWS Textract output\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  let extractedText = '';\n  \n  // Check source of text\n  if (item.json.text) {\n    // From n8n extractFromFile node (digital PDF)\n    extractedText = item.json.text;\n  } else if (item.json.Blocks) {\n    // From AWS Textract (scanned PDF)\n    const blocks = item.json.Blocks || [];\n    extractedText = blocks\n      .filter(block => block.BlockType === 'LINE')\n      .map(block => block.Text)\n      .join('\\n');\n  } else if (item.json.extractedText) {\n    // Already processed\n    extractedText = item.json.extractedText;\n  }\n  \n  // Normalize German characters (ensure UTF-8)\n  extractedText = extractedText\n    .replace(/\\r\\n/g, '\\n')\n    .replace(/\\r/g, '\\n')\n    .trim();\n  \n  // Truncate to first 3000 characters for AI classification\n  // This covers most document headers and key content\n  const textForClassification = extractedText.substring(0, 3000);\n  \n  // Calculate confidence based on text quality\n  const textQuality = extractedText.length > 100 ? 'good' : \n                      extractedText.length > 20 ? 'partial' : 'poor';\n  \n  results.push({\n    json: {\n      ...item.json,\n      extractedText: extractedText,\n      textForClassification: textForClassification,\n      textLength: extractedText.length,\n      textQuality: textQuality\n    },\n    binary: item.binary\n  });\n}\n\nreturn results;"
+      },
+      "name": "Prepare Text for AI",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2300, 400],
+      "id": "node-prepare-text",
+      "notes": "Normalizes text from both sources, truncates for AI, calculates quality score"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.1,
+          "maxTokens": 50
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a document classifier for German Bauträger (construction developer) projects.\n\nYour task is to classify documents into ONE of these 4 categories:\n\n1. **OBJEKTUNTERLAGEN** (Property Documents)\n   Documents related to the physical property: purchase contracts, land registers, building permits, construction plans, DIN calculations, site plans, insurance, appraisals.\n   Key terms: Kaufvertrag, Grundbuch, Baugenehmigung, DIN 276, DIN 277, Bauzeichnung, Lageplan\n\n2. **WIRTSCHAFTLICHE** (Economic/Financial Documents)\n   Financial statements, tax documents, income verification, asset overviews.\n   Key terms: Jahresabschluss, BWA, Steuernummer, SCHUFA, Einkommensteuerbescheid, Vermögensübersicht\n\n3. **RECHTLICHE** (Legal Documents)\n   Corporate legal documents, registrations, licenses.\n   Key terms: Handelsregister, Gesellschaftsvertrag, §34c GewO, Personalausweis\n\n4. **SONSTIGES** (Other/Custom Documents)\n   Exit strategies, liquidation plans, documents not matching above categories.\n   Key terms: Exit, Ausstiegsstrategie, ROI, Liquidation\n\nAnalyze the document and respond with ONLY the category name.\n\nReturn ONLY: OBJEKTUNTERLAGEN, WIRTSCHAFTLICHE, RECHTLICHE, or SONSTIGES"
+            },
+            {
+              "role": "user",
+              "content": "Classify this German document:\n\n={{ $json.textForClassification }}"
+            }
+          ]
+        }
+      },
+      "name": "AI Level 1: Category Detection",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [2500, 400],
+      "id": "node-ai-level1",
+      "credentials": {
+        "openAiApi": {
+          "id": "{{OPENAI_CREDENTIAL_ID}}",
+          "name": "OpenAI API"
+        }
+      },
+      "notes": "First classification level: determines main category (4 options)"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "operation": "contains",
+              "value1": "={{ $json.choices[0].message.content.toUpperCase() }}",
+              "value2": "OBJEKTUNTERLAGEN",
+              "output": 0
+            },
+            {
+              "operation": "contains",
+              "value1": "={{ $json.choices[0].message.content.toUpperCase() }}",
+              "value2": "WIRTSCHAFTLICHE",
+              "output": 1
+            },
+            {
+              "operation": "contains",
+              "value1": "={{ $json.choices[0].message.content.toUpperCase() }}",
+              "value2": "RECHTLICHE",
+              "output": 2
+            },
+            {
+              "operation": "contains",
+              "value1": "={{ $json.choices[0].message.content.toUpperCase() }}",
+              "value2": "SONSTIGES",
+              "output": 3
+            }
+          ],
+          "fallbackOutput": 4
+        },
+        "options": {}
+      },
+      "name": "Switch: Route by Category",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [2700, 400],
+      "id": "node-category-switch",
+      "notes": "Routes to Level 2 classification based on category. Fallback goes to UNKNOWN."
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.1,
+          "maxTokens": 50
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are classifying a German OBJEKTUNTERLAGEN (property document).\n\nFor Phase 1, identify if this is ONE of these 3 priority types:\n\n1. **expose** - Project description, Exposé, Projektbeschreibung, teaser, property overview\n   Key indicators: \"Exposé\", \"Projektbeschreibung\", overview of property, marketing description\n\n2. **grundbuch** - Land register extract, Grundbuchauszug\n   Key indicators: \"Grundbuch\", \"Abteilung I/II/III\", property ownership records, \"Amtsgericht\"\n\n3. **calculation** - Developer calculation according to DIN 276, Bauträgerkalkulation\n   Key indicators: \"DIN 276\", \"Kostenberechnung\", \"Baukosten\", cost breakdown, development calculation\n\nIf the document matches ANY of these 3 types, return that type name.\nIf it is a different OBJEKTUNTERLAGEN type (Baugenehmigung, Kaufvertrag, Bauzeichnung, etc.), return: others\n\nReturn ONLY ONE of: expose, grundbuch, calculation, others"
+            },
+            {
+              "role": "user",
+              "content": "Classify this OBJEKTUNTERLAGEN document:\n\n={{ $json.textForClassification }}"
+            }
+          ]
+        }
+      },
+      "name": "AI Level 2: Objektunterlagen Priority",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [2900, 200],
+      "id": "node-ai-level2-obj",
+      "credentials": {
+        "openAiApi": {
+          "id": "{{OPENAI_CREDENTIAL_ID}}",
+          "name": "OpenAI API"
+        }
+      },
+      "notes": "Checks if OBJEKTUNTERLAGEN doc is one of 3 priorities (expose, grundbuch, calculation) or others"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.1,
+          "maxTokens": 50
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are classifying a German SONSTIGES (other) document.\n\nCheck if this is an EXIT STRATEGY document:\n\n**exitstrategie** - Exit strategy, liquidation plan, ROI projections, property sale timeline\n   Key indicators: \"Exit\", \"Ausstiegsstrategie\", \"Liquidation\", \"Verkaufsstrategie\", \"ROI\", \"Rendite\", timeline for selling\n\nIf it is an exit strategy, return: exitstrategie\nIf it is any other document type, return: others\n\nReturn ONLY: exitstrategie or others"
+            },
+            {
+              "role": "user",
+              "content": "Check if this is an exit strategy document:\n\n={{ $json.textForClassification }}"
+            }
+          ]
+        }
+      },
+      "name": "AI Level 2: Check Exit Strategy",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [2900, 600],
+      "id": "node-ai-level2-sonstiges",
+      "credentials": {
+        "openAiApi": {
+          "id": "{{OPENAI_CREDENTIAL_ID}}",
+          "name": "OpenAI API"
+        }
+      },
+      "notes": "Checks if SONSTIGES doc is exit strategy or generic other"
+    },
+    {
+      "parameters": {
+        "jsCode": "// WIRTSCHAFTLICHE and RECHTLICHE documents go to 'others' in Phase 1\n// They are valid documents but not priority - Eugene will manually sort\n\nconst items = $input.all();\nreturn items.map(item => ({\n  json: {\n    ...item.json,\n    documentType: 'others',\n    typeReason: 'Non-priority category (WIRTSCHAFTLICHE or RECHTLICHE)',\n    manualSortRequired: true\n  },\n  binary: item.binary\n}));"
+      },
+      "name": "Set Type: Others (Non-Priority Category)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2900, 400],
+      "id": "node-set-others-nonpriority",
+      "notes": "WIRTSCHAFTLICHE and RECHTLICHE docs go to Others folder in Phase 1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "operation": "contains",
+              "value1": "={{ $json.choices[0].message.content.toLowerCase() }}",
+              "value2": "expose",
+              "output": 0
+            },
+            {
+              "operation": "contains",
+              "value1": "={{ $json.choices[0].message.content.toLowerCase() }}",
+              "value2": "grundbuch",
+              "output": 1
+            },
+            {
+              "operation": "contains",
+              "value1": "={{ $json.choices[0].message.content.toLowerCase() }}",
+              "value2": "calculation",
+              "output": 2
+            },
+            {
+              "operation": "contains",
+              "value1": "={{ $json.choices[0].message.content.toLowerCase() }}",
+              "value2": "others",
+              "output": 3
+            }
+          ],
+          "fallbackOutput": 3
+        },
+        "options": {}
+      },
+      "name": "Switch: Objektunterlagen Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [3100, 200],
+      "id": "node-obj-type-switch",
+      "notes": "Routes to specific type or Others based on Level 2 classification"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "operation": "contains",
+              "value1": "={{ $json.choices[0].message.content.toLowerCase() }}",
+              "value2": "exitstrategie",
+              "output": 0
+            },
+            {
+              "operation": "contains",
+              "value1": "={{ $json.choices[0].message.content.toLowerCase() }}",
+              "value2": "others",
+              "output": 1
+            }
+          ],
+          "fallbackOutput": 1
+        },
+        "options": {}
+      },
+      "name": "Switch: Exit or Others",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [3100, 600],
+      "id": "node-exit-type-switch",
+      "notes": "Routes exit strategy to its folder, others to Others folder"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst clientName = $vars.CLIENT_NAME || 'Eugene';\nconst today = new Date().toISOString().split('T')[0].replace(/-/g, '');\nconst originalExt = (items[0].json.originalFileName || 'document.pdf').split('.').pop();\n\nreturn items.map(item => ({\n  json: {\n    ...item.json,\n    documentType: 'expose',\n    newFileName: `EXPOSE_${clientName}_${today}.${originalExt}`,\n    targetFolderPath: 'OBJEKTUNTERLAGEN/01_Projektbeschreibung/',\n    targetFolderVar: 'FOLDER_01_PROJEKTBESCHREIBUNG',\n    filePrefix: 'EXPOSE',\n    clientName: clientName,\n    processedDate: today\n  },\n  binary: item.binary\n}));"
+      },
+      "name": "Set Filename: Expose",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3300, 100],
+      "id": "node-set-filename-expose",
+      "notes": "Sets EXPOSE prefix and routing to 01_Projektbeschreibung folder"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst clientName = $vars.CLIENT_NAME || 'Eugene';\nconst today = new Date().toISOString().split('T')[0].replace(/-/g, '');\nconst originalExt = (items[0].json.originalFileName || 'document.pdf').split('.').pop();\n\nreturn items.map(item => ({\n  json: {\n    ...item.json,\n    documentType: 'grundbuch',\n    newFileName: `GRUNDBUCH_${clientName}_${today}.${originalExt}`,\n    targetFolderPath: 'OBJEKTUNTERLAGEN/03_Grundbuchauszug/',\n    targetFolderVar: 'FOLDER_03_GRUNDBUCHAUSZUG',\n    filePrefix: 'GRUNDBUCH',\n    clientName: clientName,\n    processedDate: today\n  },\n  binary: item.binary\n}));"
+      },
+      "name": "Set Filename: Grundbuch",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3300, 200],
+      "id": "node-set-filename-grundbuch",
+      "notes": "Sets GRUNDBUCH prefix and routing to 03_Grundbuchauszug folder"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst clientName = $vars.CLIENT_NAME || 'Eugene';\nconst today = new Date().toISOString().split('T')[0].replace(/-/g, '');\nconst originalExt = (items[0].json.originalFileName || 'document.pdf').split('.').pop();\n\nreturn items.map(item => ({\n  json: {\n    ...item.json,\n    documentType: 'calculation',\n    newFileName: `KALK276_${clientName}_${today}.${originalExt}`,\n    targetFolderPath: 'OBJEKTUNTERLAGEN/10_Bautraegerkalkulation_DIN276/',\n    targetFolderVar: 'FOLDER_10_BAUTRAEGERKALKULATION',\n    filePrefix: 'KALK276',\n    clientName: clientName,\n    processedDate: today\n  },\n  binary: item.binary\n}));"
+      },
+      "name": "Set Filename: Calculation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3300, 300],
+      "id": "node-set-filename-calculation",
+      "notes": "Sets KALK276 prefix and routing to 10_Bautraegerkalkulation folder"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst clientName = $vars.CLIENT_NAME || 'Eugene';\nconst today = new Date().toISOString().split('T')[0].replace(/-/g, '');\nconst originalExt = (items[0].json.originalFileName || 'document.pdf').split('.').pop();\n\nreturn items.map(item => ({\n  json: {\n    ...item.json,\n    documentType: 'exitstrategie',\n    newFileName: `EXIT_${clientName}_${today}.${originalExt}`,\n    targetFolderPath: 'SONSTIGES/36_Exit_Strategie/',\n    targetFolderVar: 'FOLDER_36_EXIT_STRATEGIE',\n    filePrefix: 'EXIT',\n    clientName: clientName,\n    processedDate: today\n  },\n  binary: item.binary\n}));"
+      },
+      "name": "Set Filename: Exit Strategy",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3300, 550],
+      "id": "node-set-filename-exit",
+      "notes": "Sets EXIT prefix and routing to 36_Exit_Strategie folder"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst clientName = $vars.CLIENT_NAME || 'Eugene';\nconst today = new Date().toISOString().split('T')[0].replace(/-/g, '');\nconst originalExt = (items[0].json.originalFileName || 'document.pdf').split('.').pop();\n\nreturn items.map(item => ({\n  json: {\n    ...item.json,\n    documentType: 'others',\n    newFileName: `OTHERS_${clientName}_${today}.${originalExt}`,\n    targetFolderPath: 'SONSTIGES/37_Others/',\n    targetFolderVar: 'FOLDER_37_OTHERS',\n    filePrefix: 'OTHERS',\n    clientName: clientName,\n    processedDate: today,\n    manualSortRequired: true\n  },\n  binary: item.binary\n}));"
+      },
+      "name": "Set Filename: Others",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3300, 450],
+      "id": "node-set-filename-others",
+      "notes": "Sets OTHERS prefix - Eugene will manually sort these later"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst clientName = $vars.CLIENT_NAME || 'Eugene';\nconst today = new Date().toISOString().split('T')[0].replace(/-/g, '');\nconst originalExt = (items[0].json.originalFileName || 'document.pdf').split('.').pop();\n\nreturn items.map(item => ({\n  json: {\n    ...item.json,\n    documentType: 'unknown',\n    newFileName: `UNKNOWN_${clientName}_${today}.${originalExt}`,\n    targetFolderPath: 'SONSTIGES/38_Unknowns/',\n    targetFolderVar: 'FOLDER_38_UNKNOWNS',\n    filePrefix: 'UNKNOWN',\n    clientName: clientName,\n    processedDate: today,\n    manualReviewRequired: true,\n    classificationFailed: true\n  },\n  binary: item.binary\n}));"
+      },
+      "name": "Set Filename: Unknown",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3300, 700],
+      "id": "node-set-filename-unknown",
+      "notes": "Sets UNKNOWN prefix - classification failed, needs manual review"
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "options": {}
+      },
+      "name": "Merge All Classified",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [3500, 400],
+      "id": "node-merge-classified",
+      "notes": "Combines all classification branches into single stream for file operations"
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.driveFileId }}"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars[$json.targetFolderVar] || $vars.FOLDER_37_OTHERS }}"
+        },
+        "options": {}
+      },
+      "name": "Move to Target Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [3700, 400],
+      "id": "node-move-file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      },
+      "notes": "Moves file from staging to target folder based on classification."
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.driveFileId }}"
+        },
+        "updateFields": {
+          "name": "={{ $json.newFileName }}"
+        },
+        "options": {}
+      },
+      "name": "Rename File",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [3900, 400],
+      "id": "node-rename-file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      },
+      "notes": "Renames file with standardized prefix."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare log entry data for Google Sheets\n\nconst items = $input.all();\nconst logEntries = [];\n\nfor (const item of items) {\n  const now = new Date();\n  const timestamp = now.toISOString();\n  const dateStr = now.toLocaleDateString('de-DE');\n  const timeStr = now.toLocaleTimeString('de-DE');\n  \n  logEntries.push({\n    json: {\n      ...item.json,\n      logTimestamp: timestamp,\n      logDate: dateStr,\n      logTime: timeStr,\n      logOriginalFileName: item.json.originalFileName || 'unknown',\n      logNewFileName: item.json.newFileName || 'unknown',\n      logDocumentType: item.json.documentType || 'unknown',\n      logCategory: item.json.category || 'unknown',\n      logTargetFolder: item.json.targetFolderPath || 'unknown',\n      logConfidence: item.json.confidence || 'N/A',\n      logClientName: item.json.clientName || $vars.CLIENT_NAME || 'Eugene',\n      logFileId: item.json.driveFileId || 'N/A',\n      logProcessingStatus: 'SUCCESS',\n      logErrorMessage: '',\n      processingSuccess: true\n    },\n    binary: item.binary\n  });\n}\n\nreturn logEntries;"
+      },
+      "name": "Prepare Log Entry",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [4100, 400],
+      "id": "node-prepare-log",
+      "notes": "Prepares structured log entry for Google Sheets."
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.MAIN_LOG_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Processing Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.logTimestamp }}",
+            "Date": "={{ $json.logDate }}",
+            "Time": "={{ $json.logTime }}",
+            "Original Filename": "={{ $json.logOriginalFileName }}",
+            "New Filename": "={{ $json.logNewFileName }}",
+            "Document Type": "={{ $json.logDocumentType }}",
+            "Category": "={{ $json.logCategory }}",
+            "Target Folder": "={{ $json.logTargetFolder }}",
+            "Confidence": "={{ $json.logConfidence }}",
+            "Client": "={{ $json.logClientName }}",
+            "File ID": "={{ $json.logFileId }}",
+            "Status": "={{ $json.logProcessingStatus }}",
+            "Error": "={{ $json.logErrorMessage }}"
+          }
+        },
+        "options": {}
+      },
+      "name": "Log to Main Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [4300, 400],
+      "id": "node-log-main",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
+          "name": "Google Sheets"
+        }
+      },
+      "notes": "Appends processing record to main log spreadsheet."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregate results for Eugene notification email\n\nconst items = $input.all();\n\nconst summary = {\n  totalProcessed: items.length,\n  successCount: 0,\n  byType: {\n    expose: [],\n    grundbuch: [],\n    calculation: [],\n    exitstrategie: [],\n    others: [],\n    unknown: []\n  },\n  processingTime: new Date().toISOString()\n};\n\nfor (const item of items) {\n  if (item.json.processingSuccess) {\n    summary.successCount++;\n  }\n  \n  const docType = item.json.documentType || 'unknown';\n  if (summary.byType[docType]) {\n    summary.byType[docType].push({\n      originalName: item.json.logOriginalFileName,\n      newName: item.json.logNewFileName,\n      folder: item.json.logTargetFolder\n    });\n  }\n}\n\nlet emailBody = `Document Organizer - Processing Summary\\n`;\nemailBody += `========================================\\n\\n`;\nemailBody += `Processed: ${summary.totalProcessed} documents\\n`;\nemailBody += `Successful: ${summary.successCount}\\n`;\nemailBody += `Time: ${summary.processingTime}\\n\\n`;\n\nemailBody += `--- PRIORITY DOCUMENTS ---\\n\\n`;\n\nif (summary.byType.expose.length > 0) {\n  emailBody += `EXPOSE (${summary.byType.expose.length}):\\n`;\n  summary.byType.expose.forEach(doc => {\n    emailBody += `  - ${doc.newName}\\n`;\n  });\n  emailBody += `\\n`;\n}\n\nif (summary.byType.grundbuch.length > 0) {\n  emailBody += `GRUNDBUCH (${summary.byType.grundbuch.length}):\\n`;\n  summary.byType.grundbuch.forEach(doc => {\n    emailBody += `  - ${doc.newName}\\n`;\n  });\n  emailBody += `\\n`;\n}\n\nif (summary.byType.calculation.length > 0) {\n  emailBody += `KALKULATION DIN 276 (${summary.byType.calculation.length}):\\n`;\n  summary.byType.calculation.forEach(doc => {\n    emailBody += `  - ${doc.newName}\\n`;\n  });\n  emailBody += `\\n`;\n}\n\nif (summary.byType.exitstrategie.length > 0) {\n  emailBody += `EXIT STRATEGIE (${summary.byType.exitstrategie.length}):\\n`;\n  summary.byType.exitstrategie.forEach(doc => {\n    emailBody += `  - ${doc.newName}\\n`;\n  });\n  emailBody += `\\n`;\n}\n\nemailBody += `--- NEEDS MANUAL SORTING ---\\n\\n`;\n\nif (summary.byType.others.length > 0) {\n  emailBody += `OTHERS - Identifiable docs for manual sorting (${summary.byType.others.length}):\\n`;\n  summary.byType.others.forEach(doc => {\n    emailBody += `  - ${doc.originalName} -> ${doc.folder}\\n`;\n  });\n  emailBody += `\\n`;\n}\n\nif (summary.byType.unknown.length > 0) {\n  emailBody += `UNKNOWN - Needs review (${summary.byType.unknown.length}):\\n`;\n  summary.byType.unknown.forEach(doc => {\n    emailBody += `  - ${doc.originalName}\\n`;\n  });\n  emailBody += `\\n`;\n}\n\nemailBody += `\\n---\\n`;\nemailBody += `View full log: https://docs.google.com/spreadsheets/d/${$vars.MAIN_LOG_SHEET_ID}\\n`;\n\nconst priorityCount = summary.byType.expose.length + summary.byType.grundbuch.length + summary.byType.calculation.length + summary.byType.exitstrategie.length;\nconst emailSubject = `[Doc Organizer] ${summary.successCount} documents processed - ${priorityCount} priority docs`;\n\nreturn [{\n  json: {\n    emailSubject: emailSubject,\n    emailBody: emailBody,\n    summary: summary,\n    ...items[items.length - 1].json\n  }\n}];"
+      },
+      "name": "Build Email Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [4500, 400],
+      "id": "node-build-email",
+      "notes": "Aggregates all processed documents into summary email for Eugene."
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $vars.EUGENE_EMAIL }}",
+        "subject": "={{ $json.emailSubject }}",
+        "message": "={{ $json.emailBody }}",
+        "options": {}
+      },
+      "name": "Email Eugene Summary",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [4700, 400],
+      "id": "node-email-eugene",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "{{GMAIL_CREDENTIAL_ID}}",
+          "name": "Gmail OAuth2"
+        }
+      },
+      "notes": "Sends processing summary to Eugene. NO emails to clients."
+    },
+    {
+      "parameters": {},
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [100, 800],
+      "id": "node-error-trigger",
+      "notes": "Catches any unhandled errors in the workflow."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse error details and prepare for logging\n\nconst errorData = $input.all()[0];\nconst execution = errorData.json?.execution || {};\nconst workflow = errorData.json?.workflow || {};\nconst error = execution?.error || {};\n\nconst now = new Date();\n\nconst errorEntry = {\n  errorId: `ERR-${now.getTime()}`,\n  errorTimestamp: now.toISOString(),\n  errorDate: now.toLocaleDateString('de-DE'),\n  errorTime: now.toLocaleTimeString('de-DE'),\n  errorMessage: error.message || 'Unknown error',\n  errorNode: error.node?.name || 'Unknown node',\n  errorNodeType: error.node?.type || 'Unknown type',\n  errorStack: (error.stack || '').substring(0, 500),\n  executionId: execution.id || 'N/A',\n  workflowId: workflow.id || 'N/A',\n  workflowName: workflow.name || 'Document Organizer V3',\n  retryCount: execution.retryCount || 0,\n  maxRetries: 3,\n  canRetry: (execution.retryCount || 0) < 3,\n  documentFileName: execution.data?.originalFileName || 'Unknown',\n  documentType: execution.data?.documentType || 'Unknown',\n  severity: classifyErrorSeverity(error.message || ''),\n  status: 'NEW',\n  resolvedAt: '',\n  resolution: ''\n};\n\nfunction classifyErrorSeverity(message) {\n  const msg = message.toLowerCase();\n  if (msg.includes('rate limit') || msg.includes('quota')) return 'MEDIUM';\n  if (msg.includes('authentication') || msg.includes('credential')) return 'CRITICAL';\n  if (msg.includes('timeout') || msg.includes('network')) return 'LOW';\n  if (msg.includes('not found') || msg.includes('404')) return 'MEDIUM';\n  return 'HIGH';\n}\n\nreturn [{ json: errorEntry }];"
+      },
+      "name": "Parse Error Details",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [300, 800],
+      "id": "node-parse-error",
+      "notes": "Extracts error details and classifies severity."
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.ERROR_LOG_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Error Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Error ID": "={{ $json.errorId }}",
+            "Timestamp": "={{ $json.errorTimestamp }}",
+            "Date": "={{ $json.errorDate }}",
+            "Time": "={{ $json.errorTime }}",
+            "Severity": "={{ $json.severity }}",
+            "Error Message": "={{ $json.errorMessage }}",
+            "Failed Node": "={{ $json.errorNode }}",
+            "Node Type": "={{ $json.errorNodeType }}",
+            "Execution ID": "={{ $json.executionId }}",
+            "Document": "={{ $json.documentFileName }}",
+            "Doc Type": "={{ $json.documentType }}",
+            "Retry Count": "={{ $json.retryCount }}",
+            "Can Retry": "={{ $json.canRetry }}",
+            "Status": "={{ $json.status }}",
+            "Stack Trace": "={{ $json.errorStack }}"
+          }
+        },
+        "options": {}
+      },
+      "name": "Log Error to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [500, 800],
+      "id": "node-log-error",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
+          "name": "Google Sheets"
+        }
+      },
+      "notes": "Logs error to dedicated Error Log sheet."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.severity }}",
+              "rightValue": "CRITICAL",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "name": "IF: Critical Error?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [700, 800],
+      "id": "node-if-critical",
+      "notes": "Routes critical errors to immediate alerting."
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $vars.EUGENE_EMAIL }}",
+        "subject": "[CRITICAL] Document Organizer Error - Immediate Attention Required",
+        "message": "CRITICAL ERROR IN DOCUMENT ORGANIZER\n=====================================\n\nError ID: {{ $json.errorId }}\nTime: {{ $json.errorTimestamp }}\nSeverity: {{ $json.severity }}\n\nFAILED NODE: {{ $json.errorNode }}\nNode Type: {{ $json.errorNodeType }}\n\nERROR MESSAGE:\n{{ $json.errorMessage }}\n\nDOCUMENT AFFECTED:\nFilename: {{ $json.documentFileName }}\nType: {{ $json.documentType }}\n\nACTION REQUIRED:\n1. Check API credentials (Gmail, Google Drive, OpenAI)\n2. Verify n8n workflow is still active\n3. Review error log for full stack trace\n\nError Log: https://docs.google.com/spreadsheets/d/{{ $vars.ERROR_LOG_SHEET_ID }}\n\nExecution ID: {{ $json.executionId }}\n\n---\nDocument Organizer V3 - Automated Alert",
+        "options": {}
+      },
+      "name": "Alert Eugene - Critical",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [900, 700],
+      "id": "node-alert-critical",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "{{GMAIL_CREDENTIAL_ID}}",
+          "name": "Gmail OAuth2"
+        }
+      },
+      "notes": "Sends immediate alert for CRITICAL errors."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.canRetry }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "name": "IF: Can Retry?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 900],
+      "id": "node-if-retry",
+      "notes": "Checks if retry count is below max (3 retries)."
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.all()[0].json;\nconst retryCount = item.retryCount || 0;\nconst nextRetry = retryCount + 1;\nconst backoffSeconds = Math.pow(3, retryCount) * 5;\n\nreturn [{\n  json: {\n    ...item,\n    retryCount: nextRetry,\n    backoffSeconds: backoffSeconds,\n    retryScheduled: true,\n    retryMessage: `Retry ${nextRetry}/3 scheduled after ${backoffSeconds} seconds`\n  }\n}];"
+      },
+      "name": "Calculate Retry Backoff",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 850],
+      "id": "node-calc-backoff",
+      "notes": "Calculates exponential backoff for retry: 5s, 15s, 45s."
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.backoffSeconds }}",
+        "unit": "seconds"
+      },
+      "name": "Wait Before Retry",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1300, 850],
+      "id": "node-wait-retry",
+      "notes": "Waits for backoff period before attempting retry."
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.all()[0].json;\n\nreturn [{\n  json: {\n    ...item,\n    finalStatus: 'FAILED',\n    failureReason: `Max retries (3) exceeded. Last error: ${item.errorMessage}`,\n    requiresManualIntervention: true\n  }\n}];"
+      },
+      "name": "Mark Final Failure",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 1000],
+      "id": "node-final-failure",
+      "notes": "Marks error as permanently failed after max retries."
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $vars.EUGENE_EMAIL }}",
+        "subject": "[ERROR] Document Organizer - Processing Failed After Retries",
+        "message": "DOCUMENT PROCESSING FAILED\n===========================\n\nError ID: {{ $json.errorId }}\nTime: {{ $json.errorTimestamp }}\nSeverity: {{ $json.severity }}\n\nFAILED NODE: {{ $json.errorNode }}\n\nERROR MESSAGE:\n{{ $json.errorMessage }}\n\nDOCUMENT AFFECTED:\nFilename: {{ $json.documentFileName }}\nType: {{ $json.documentType }}\n\nRETRY HISTORY:\nAttempts: {{ $json.retryCount }}/3\nStatus: {{ $json.finalStatus }}\nReason: {{ $json.failureReason }}\n\nNEXT STEPS:\n1. Check the document manually\n2. Review error log for details\n3. If recurring, check API quotas/limits\n\nError Log: https://docs.google.com/spreadsheets/d/{{ $vars.ERROR_LOG_SHEET_ID }}\n\n---\nDocument Organizer V3 - Automated Alert",
+        "options": {}
+      },
+      "name": "Alert Eugene - Failed",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [1300, 1000],
+      "id": "node-alert-failed",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "{{GMAIL_CREDENTIAL_ID}}",
+          "name": "Gmail OAuth2"
+        }
+      },
+      "notes": "Sends alert after all retries exhausted."
+    }
+  ],
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download Email Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Email Attachments": {
+      "main": [
+        [
+          {
+            "node": "IF: Is ZIP File?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Is ZIP File?": {
+      "main": [
+        [
+          {
+            "node": "Extract ZIP Contents",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge All Files",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Extract ZIP Contents": {
+      "main": [
+        [
+          {
+            "node": "Merge All Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge All Files": {
+      "main": [
+        [
+          {
+            "node": "Filter File Types (PDF/DOCX)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter File Types (PDF/DOCX)": {
+      "main": [
+        [
+          {
+            "node": "Upload to Staging Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Staging Folder": {
+      "main": [
+        [
+          {
+            "node": "Detect Scan vs Digital",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect Scan vs Digital": {
+      "main": [
+        [
+          {
+            "node": "IF: Needs OCR?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Needs OCR?": {
+      "main": [
+        [
+          {
+            "node": "AWS Textract OCR (German)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract Text (Digital PDF)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AWS Textract OCR (German)": {
+      "main": [
+        [
+          {
+            "node": "Merge Text Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Text (Digital PDF)": {
+      "main": [
+        [
+          {
+            "node": "Merge Text Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Text Results": {
+      "main": [
+        [
+          {
+            "node": "Prepare Text for AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Text for AI": {
+      "main": [
+        [
+          {
+            "node": "AI Level 1: Category Detection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Level 1: Category Detection": {
+      "main": [
+        [
+          {
+            "node": "Switch: Route by Category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch: Route by Category": {
+      "main": [
+        [
+          {
+            "node": "AI Level 2: Objektunterlagen Priority",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Type: Others (Non-Priority Category)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Type: Others (Non-Priority Category)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Level 2: Check Exit Strategy",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Filename: Unknown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Level 2: Objektunterlagen Priority": {
+      "main": [
+        [
+          {
+            "node": "Switch: Objektunterlagen Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Level 2: Check Exit Strategy": {
+      "main": [
+        [
+          {
+            "node": "Switch: Exit or Others",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Type: Others (Non-Priority Category)": {
+      "main": [
+        [
+          {
+            "node": "Set Filename: Others",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch: Objektunterlagen Type": {
+      "main": [
+        [
+          {
+            "node": "Set Filename: Expose",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Filename: Grundbuch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Filename: Calculation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Filename: Others",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch: Exit or Others": {
+      "main": [
+        [
+          {
+            "node": "Set Filename: Exit Strategy",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Filename: Others",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Filename: Expose": {
+      "main": [
+        [
+          {
+            "node": "Merge All Classified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Filename: Grundbuch": {
+      "main": [
+        [
+          {
+            "node": "Merge All Classified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Filename: Calculation": {
+      "main": [
+        [
+          {
+            "node": "Merge All Classified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Filename: Exit Strategy": {
+      "main": [
+        [
+          {
+            "node": "Merge All Classified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Filename: Others": {
+      "main": [
+        [
+          {
+            "node": "Merge All Classified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Filename: Unknown": {
+      "main": [
+        [
+          {
+            "node": "Merge All Classified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge All Classified": {
+      "main": [
+        [
+          {
+            "node": "Move to Target Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move to Target Folder": {
+      "main": [
+        [
+          {
+            "node": "Rename File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename File": {
+      "main": [
+        [
+          {
+            "node": "Prepare Log Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Log Entry": {
+      "main": [
+        [
+          {
+            "node": "Log to Main Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Main Sheet": {
+      "main": [
+        [
+          {
+            "node": "Build Email Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Email Summary": {
+      "main": [
+        [
+          {
+            "node": "Email Eugene Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Error Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Error Details": {
+      "main": [
+        [
+          {
+            "node": "Log Error to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Error to Sheet": {
+      "main": [
+        [
+          {
+            "node": "IF: Critical Error?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Critical Error?": {
+      "main": [
+        [
+          {
+            "node": "Alert Eugene - Critical",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF: Can Retry?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Can Retry?": {
+      "main": [
+        [
+          {
+            "node": "Calculate Retry Backoff",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark Final Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Retry Backoff": {
+      "main": [
+        [
+          {
+            "node": "Wait Before Retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Final Failure": {
+      "main": [
+        [
+          {
+            "node": "Alert Eugene - Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "Document Organizer V3 - Phase 1 Complete"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "document-organizer-v3-complete"
+  },
+  "pinData": {},
+  "versionId": "v3-complete-2025-12-21",
+  "triggerCount": 2
+}

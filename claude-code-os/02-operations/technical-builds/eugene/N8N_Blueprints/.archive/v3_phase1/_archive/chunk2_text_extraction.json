@@ -1,0 +1,192 @@
+{
+  "name": "Chunk 2: Text Extraction + OCR (Document Organizer V3.5)",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Input: File from Staging",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [240, 400],
+      "id": "node-input-staged-file",
+      "notes": "Receives file data from Chunk 1 (Upload to Staging node). Contains Drive file ID and binary data."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Detect if PDF is scanned (image-based) or digital (text-selectable)\n// Scanned PDFs need OCR, digital PDFs can extract text directly\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  let needsOCR = false;\n  let detectionMethod = 'unknown';\n  \n  const fileName = item.json.name || item.binary?.attachment_0?.fileName || 'unknown';\n  const mimeType = item.json.mimeType || item.binary?.attachment_0?.mimeType || '';\n  \n  // DOCX files never need OCR\n  if (mimeType.includes('word') || mimeType.includes('document') || fileName.toLowerCase().endsWith('.docx')) {\n    needsOCR = false;\n    detectionMethod = 'file_type_docx';\n  }\n  // For PDFs, we'll assume digital by default\n  // In production, you could analyze the PDF structure to detect if it's image-based\n  // For now, we'll route to digital extraction and only use OCR if extraction fails\n  else if (mimeType.includes('pdf') || fileName.toLowerCase().endsWith('.pdf')) {\n    needsOCR = false; // Try digital first\n    detectionMethod = 'pdf_assumed_digital';\n  }\n  else {\n    // Unknown file type, try digital extraction\n    needsOCR = false;\n    detectionMethod = 'unknown_try_digital';\n  }\n  \n  results.push({\n    json: {\n      ...item.json,\n      needsOCR: needsOCR,\n      detectionMethod: detectionMethod,\n      originalFileName: fileName,\n      originalMimeType: mimeType\n    },\n    binary: item.binary\n  });\n}\n\nreturn results;"
+      },
+      "name": "Detect: Scan vs Digital",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 400],
+      "id": "node-detect-scan",
+      "notes": "Determines if document needs OCR (scanned/image-based) or can extract text directly (digital). DOCX always skips OCR. PDFs assume digital first."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.needsOCR }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "IF: Needs OCR?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 400],
+      "id": "node-if-needs-ocr",
+      "notes": "Routes to OCR path (TRUE) for scanned documents, or direct text extraction (FALSE) for digital documents."
+    },
+    {
+      "parameters": {
+        "operation": "extractText",
+        "binaryPropertyName": "attachment_0",
+        "options": {}
+      },
+      "name": "Extract Text (Digital PDF/DOCX)",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [900, 500],
+      "id": "node-extract-text-digital",
+      "notes": "Extracts selectable text from digital PDFs and DOCX files. (FALSE branch - no OCR needed)"
+    },
+    {
+      "parameters": {
+        "operation": "detectText",
+        "binaryPropertyName": "attachment_0",
+        "options": {
+          "languagesList": ["deu"]
+        }
+      },
+      "name": "AWS Textract: OCR (German)",
+      "type": "n8n-nodes-base.awsTextract",
+      "typeVersion": 1,
+      "position": [900, 300],
+      "id": "node-aws-textract",
+      "credentials": {
+        "aws": {
+          "id": "{{AWS_CREDENTIAL_ID}}",
+          "name": "AWS"
+        }
+      },
+      "notes": "Performs OCR on scanned/image-based PDFs using AWS Textract with German language support. (TRUE branch)"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "name": "Merge: Text Outputs",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [1120, 400],
+      "id": "node-merge-text",
+      "notes": "Combines text from both extraction paths (OCR or digital). Only one path will have data per document."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare extracted text for AI classification\n// Truncate to 3000 characters to stay within AI context limits\n// Preserve German characters (ä, ö, ü, ß)\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  let extractedText = '';\n  let textSource = 'unknown';\n  let textQuality = 'good';\n  \n  // Get text from either OCR or digital extraction\n  if (item.json.text) {\n    extractedText = item.json.text;\n    textSource = item.json.needsOCR ? 'ocr' : 'digital';\n  } else if (item.json.extractedText) {\n    extractedText = item.json.extractedText;\n    textSource = 'digital';\n  } else {\n    // No text extracted - might be empty document or extraction failed\n    extractedText = '';\n    textQuality = 'failed';\n  }\n  \n  // Clean and normalize text\n  extractedText = String(extractedText).trim();\n  \n  // Assess text quality (basic heuristic)\n  if (extractedText.length < 50) {\n    textQuality = 'poor';\n  } else if (extractedText.length < 200) {\n    textQuality = 'partial';\n  }\n  \n  // Truncate to 3000 characters for AI input\n  const truncatedText = extractedText.substring(0, 3000);\n  const wasTruncated = extractedText.length > 3000;\n  \n  results.push({\n    json: {\n      ...item.json,\n      extractedText: truncatedText,\n      originalTextLength: extractedText.length,\n      textTruncated: wasTruncated,\n      textSource: textSource,\n      textQuality: textQuality\n    },\n    binary: item.binary\n  });\n}\n\nreturn results;"
+      },
+      "name": "Prepare Text for AI",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 400],
+      "id": "node-prepare-ai-input",
+      "notes": "Cleans and truncates extracted text to 3000 characters for AI classification. Assesses text quality. Preserves German special characters."
+    }
+  ],
+  "connections": {
+    "Input: File from Staging": {
+      "main": [
+        [
+          {
+            "node": "Detect: Scan vs Digital",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect: Scan vs Digital": {
+      "main": [
+        [
+          {
+            "node": "IF: Needs OCR?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Needs OCR?": {
+      "main": [
+        [
+          {
+            "node": "AWS Textract: OCR (German)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract Text (Digital PDF/DOCX)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Text (Digital PDF/DOCX)": {
+      "main": [
+        [
+          {
+            "node": "Merge: Text Outputs",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "AWS Textract: OCR (German)": {
+      "main": [
+        [
+          {
+            "node": "Merge: Text Outputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge: Text Outputs": {
+      "main": [
+        [
+          {
+            "node": "Prepare Text for AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Text for AI": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "chunk2-text-extraction"
+  },
+  "pinData": {},
+  "versionId": "v3.5-chunk2-2025-12-21",
+  "triggerCount": 0
+}

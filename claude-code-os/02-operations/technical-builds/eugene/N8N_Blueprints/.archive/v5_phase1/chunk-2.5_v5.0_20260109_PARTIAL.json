@@ -1,0 +1,103 @@
+{
+  "name": "Chunk 2.5 - Client Document Tracking (Eugene Document Organizer)",
+  "id": "okg8wTqLtPUwjQ18",
+  "active": true,
+  "nodes": [
+    {
+      "id": "trigger-1",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [240, 380],
+      "parameters": {
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "schema": [
+            {
+              "id": "fileId",
+              "displayName": "fileId",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "id": "fileName",
+              "displayName": "fileName",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "id": "mimeType",
+              "displayName": "mimeType",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "id": "clientNormalized",
+              "displayName": "clientNormalized",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "id": "stagingFolderId",
+              "displayName": "stagingFolderId",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "id": "extractedText",
+              "displayName": "extractedText",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "id": "textLength",
+              "displayName": "textLength",
+              "required": false,
+              "type": "number"
+            },
+            {
+              "id": "isScanned",
+              "displayName": "isScanned",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "id": "ocrUsed",
+              "displayName": "ocrUsed",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "id": "extractionMethod",
+              "displayName": "extractionMethod",
+              "required": false,
+              "type": "string"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "_note": "This is a PARTIAL backup showing only the critical fix to Execute Workflow Trigger. The complete workflow has 18 nodes total. Use the n8n UI to export the full workflow once the database is available, or run the backup_workflows.sh script.",
+  "_fix_applied": "Added Execute Workflow Trigger schema with 10 input fields (fileId, fileName, mimeType, clientNormalized, stagingFolderId, extractedText, textLength, isScanned, ocrUsed, extractionMethod)",
+  "_complete_node_list": [
+    "Execute Workflow Trigger",
+    "Build AI Classification Prompt",
+    "Classify Document with GPT-4",
+    "Parse Classification Result",
+    "Lookup Client in Client_Tracker",
+    "Find Client Row and Validate",
+    "Check Status",
+    "Update Client_Tracker Row",
+    "Lookup Client in AMA_Folder_IDs",
+    "Get Destination Folder ID",
+    "Move File to Final Location",
+    "Prepare Success Output",
+    "Lookup 38_Unknowns Folder",
+    "Get 38_Unknowns Folder ID",
+    "Move File to 38_Unknowns",
+    "Prepare Error Email Body",
+    "Send Error Notification Email",
+    "Prepare Tracker Update Data"
+  ]
+}

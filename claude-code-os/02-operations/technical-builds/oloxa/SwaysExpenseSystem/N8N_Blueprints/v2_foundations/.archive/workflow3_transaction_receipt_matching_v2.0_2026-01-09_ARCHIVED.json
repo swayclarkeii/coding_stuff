@@ -1,0 +1,383 @@
+{
+  "name": "Expense System - Workflow 3 v2: Transaction-Receipt Matching",
+  "description": "Matches unmatched receipts to transactions using fuzzy matching algorithm, then updates both sheets",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "node-1",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 336]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Receipts"
+        },
+        "options": {}
+      },
+      "id": "node-2",
+      "name": "Read Unmatched Receipts",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [464, 336],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const receipts = $input.all();\n\n// Filter for unmatched receipts (Matched = FALSE or empty transaction_id)\nconst unmatchedReceipts = receipts.filter(item => {\n  const matched = item.json.Matched;\n  const transactionId = item.json.transaction_id;\n  \n  // Include if Matched is FALSE or empty, OR transaction_id is empty\n  return (!matched || matched === 'FALSE' || matched === false || !transactionId || transactionId === '');\n});\n\n// Return unmatched receipts, or empty array if none\nif (unmatchedReceipts.length === 0) {\n  return [{ json: { message: 'No unmatched receipts found', count: 0 } }];\n}\n\nreturn unmatchedReceipts;"
+      },
+      "id": "node-3",
+      "name": "Filter Unmatched Only",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [688, 240]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Transactions"
+        },
+        "options": {}
+      },
+      "id": "node-4",
+      "name": "Read All Transactions",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [688, 432],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get receipts from Filter Unmatched Only node (still accessible via node reference)\n// Get transactions from Read All Transactions node (still accessible via node reference)\nconst receipts = $('Filter Unmatched Only').all();\nconst transactions = $('Read All Transactions').all();\n\n// Check if we have data to work with\nif (receipts.length === 1 && receipts[0].json.message === 'No unmatched receipts found') {\n  return receipts; // Pass through the \"no receipts\" message\n}\n\nif (transactions.length === 0) {\n  return [{ json: { error: 'No transactions found to match against' } }];\n}\n\n// Helper function: Calculate Levenshtein distance for fuzzy matching\nfunction levenshteinDistance(str1, str2) {\n  const len1 = str1.length;\n  const len2 = str2.length;\n  const matrix = [];\n\n  for (let i = 0; i <= len1; i++) {\n    matrix[i] = [i];\n  }\n\n  for (let j = 0; j <= len2; j++) {\n    matrix[0][j] = j;\n  }\n\n  for (let i = 1; i <= len1; i++) {\n    for (let j = 1; j <= len2; j++) {\n      const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;\n      matrix[i][j] = Math.min(\n        matrix[i - 1][j] + 1,\n        matrix[i][j - 1] + 1,\n        matrix[i - 1][j - 1] + cost\n      );\n    }\n  }\n\n  return matrix[len1][len2];\n}\n\n// Helper function: Calculate string similarity (0-1 scale)\nfunction stringSimilarity(str1, str2) {\n  const maxLen = Math.max(str1.length, str2.length);\n  if (maxLen === 0) return 1.0;\n  const distance = levenshteinDistance(str1, str2);\n  return 1.0 - (distance / maxLen);\n}\n\n// Helper function: Normalize vendor name for comparison\nfunction normalizeVendor(vendor) {\n  if (!vendor) return '';\n  return vendor.toLowerCase().trim();\n}\n\n// Helper function: Check if dates are within X days\nfunction datesWithinDays(date1, date2, days) {\n  const d1 = new Date(date1);\n  const d2 = new Date(date2);\n  const diffMs = Math.abs(d1 - d2);\n  const diffDays = diffMs / (1000 * 60 * 60 * 24);\n  return diffDays <= days;\n}\n\n// Main matching algorithm\nconst matches = [];\n\nfor (const receipt of receipts) {\n  const receiptData = receipt.json;\n  const receiptVendor = normalizeVendor(receiptData.Vendor);\n  const receiptAmount = parseFloat(receiptData.Amount) || 0;\n  const receiptDate = receiptData.Date;\n  \n  let bestMatch = null;\n  let bestConfidence = 0.0;\n  \n  for (const transaction of transactions) {\n    const txData = transaction.json;\n    const txVendor = normalizeVendor(txData.Vendor);\n    const txAmount = parseFloat(txData.Amount) || 0;\n    const txDate = txData.Date;\n    \n    // Skip if transaction already has a receipt\n    if (txData.ReceiptID && txData.ReceiptID !== '') {\n      continue;\n    }\n    \n    // TIER 1: Exact Match (High Confidence)\n    const vendorExactMatch = receiptVendor === txVendor;\n    const amountExactMatch = Math.abs(receiptAmount - txAmount) <= 0.02;\n    const dateWithin3Days = datesWithinDays(receiptDate, txDate, 3);\n    \n    if (vendorExactMatch && amountExactMatch && dateWithin3Days) {\n      bestMatch = txData;\n      bestConfidence = 0.95;\n      break; // Exact match found, stop searching\n    }\n    \n    // TIER 2: Fuzzy Match (Medium Confidence)\n    const vendorSimilarity = stringSimilarity(receiptVendor, txVendor);\n    const amountFuzzyMatch = Math.abs(receiptAmount - txAmount) <= 0.50;\n    \n    if (vendorSimilarity > 0.8 && amountFuzzyMatch && dateWithin3Days) {\n      const confidence = 0.7 + (vendorSimilarity * 0.2); // Range: 0.7 to 0.9\n      if (confidence > bestConfidence) {\n        bestMatch = txData;\n        bestConfidence = confidence;\n      }\n    }\n  }\n  \n  // Add match result\n  matches.push({\n    json: {\n      // Receipt data\n      ReceiptID: receiptData.ReceiptID,\n      ReceiptVendor: receiptData.Vendor,\n      ReceiptAmount: receiptData.Amount,\n      ReceiptDate: receiptData.Date,\n      ReceiptRowNumber: receiptData._rowNumber || null,\n      \n      // Match data\n      matched: bestMatch !== null,\n      confidence: bestConfidence,\n      \n      // Transaction data (if matched)\n      TransactionID: bestMatch ? bestMatch.TransactionID : null,\n      TransactionVendor: bestMatch ? bestMatch.Vendor : null,\n      TransactionAmount: bestMatch ? bestMatch.Amount : null,\n      TransactionDate: bestMatch ? bestMatch.Date : null,\n      TransactionRowNumber: bestMatch ? bestMatch._rowNumber : null,\n      \n      // Match tier\n      matchTier: bestConfidence >= 0.95 ? 'EXACT' : (bestConfidence >= 0.7 ? 'FUZZY' : 'NONE')\n    }\n  });\n}\n\nreturn matches;"
+      },
+      "id": "node-5",
+      "name": "Match Receipts to Transactions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1136, 336]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "condition-1",
+              "leftValue": "={{ $json.matched }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "condition-2",
+              "leftValue": "={{ $json.confidence }}",
+              "rightValue": 0.7,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-6",
+      "name": "Filter Successful Matches",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1360, 336]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Prepare data for updating Receipts sheet\nconst item = $input.item;\n\nreturn {\n  json: {\n    ReceiptID: item.json.ReceiptID,\n    transaction_id: item.json.TransactionID,\n    Matched: 'TRUE',\n    rowNumber: item.json.ReceiptRowNumber\n  }\n};"
+      },
+      "id": "node-7",
+      "name": "Prepare Receipt Updates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1584, 240]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Receipts"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ReceiptID": "={{ $json.ReceiptID }}",
+            "transaction_id": "={{ $json.transaction_id }}",
+            "Matched": "={{ $json.Matched }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "node-8",
+      "name": "Update Receipts Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [1808, 240],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Prepare data for updating Transactions sheet\nconst item = $input.item;\n\nreturn {\n  json: {\n    TransactionID: item.json.TransactionID,\n    ReceiptID: item.json.ReceiptID,\n    MatchStatus: 'matched',\n    MatchConfidence: item.json.confidence.toFixed(2),\n    rowNumber: item.json.TransactionRowNumber\n  }\n};"
+      },
+      "id": "node-9",
+      "name": "Prepare Transaction Updates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1584, 432]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Transactions"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "TransactionID": "={{ $json.TransactionID }}",
+            "ReceiptID": "={{ $json.ReceiptID }}",
+            "MatchStatus": "={{ $json.MatchStatus }}",
+            "MatchConfidence": "={{ $json.MatchConfidence }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "node-10",
+      "name": "Update Transactions Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [1808, 432],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all match results (before filtering)\nconst allMatches = $('Match Receipts to Transactions').all();\n\n// Check if no receipts scenario\nif (allMatches.length === 1 && allMatches[0].json.message === 'No unmatched receipts found') {\n  return [{\n    json: {\n      summary: 'No unmatched receipts to process',\n      totalReceipts: 0,\n      successfulMatches: 0,\n      unmatchedReceipts: 0,\n      exactMatches: 0,\n      fuzzyMatches: 0,\n      averageConfidence: 0\n    }\n  }];\n}\n\n// Calculate statistics\nconst totalReceipts = allMatches.length;\nconst matched = allMatches.filter(m => m.json.matched && m.json.confidence > 0.7);\nconst unmatched = allMatches.filter(m => !m.json.matched || m.json.confidence <= 0.7);\nconst exactMatches = matched.filter(m => m.json.matchTier === 'EXACT');\nconst fuzzyMatches = matched.filter(m => m.json.matchTier === 'FUZZY');\n\n// Calculate average confidence (only for successful matches)\nconst avgConfidence = matched.length > 0 \n  ? matched.reduce((sum, m) => sum + m.json.confidence, 0) / matched.length \n  : 0;\n\nreturn [{\n  json: {\n    summary: `Processed ${totalReceipts} receipts: ${matched.length} matched, ${unmatched.length} unmatched`,\n    totalReceipts: totalReceipts,\n    successfulMatches: matched.length,\n    unmatchedReceipts: unmatched.length,\n    exactMatches: exactMatches.length,\n    fuzzyMatches: fuzzyMatches.length,\n    averageConfidence: avgConfidence.toFixed(2),\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-11",
+      "name": "Generate Summary Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2032, 336]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-receipts-transactions",
+      "name": "Merge Receipts and Transactions",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [912, 336]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read Unmatched Receipts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Unmatched Receipts": {
+      "main": [
+        [
+          {
+            "node": "Filter Unmatched Only",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read All Transactions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match Receipts to Transactions": {
+      "main": [
+        [
+          {
+            "node": "Filter Successful Matches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Successful Matches": {
+      "main": [
+        [
+          {
+            "node": "Prepare Receipt Updates",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prepare Transaction Updates",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Prepare Receipt Updates": {
+      "main": [
+        [
+          {
+            "node": "Update Receipts Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Transaction Updates": {
+      "main": [
+        [
+          {
+            "node": "Update Transactions Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Receipts Sheet": {
+      "main": [
+        [
+          {
+            "node": "Generate Summary Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Transactions Sheet": {
+      "main": [
+        [
+          {
+            "node": "Generate Summary Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Unmatched Only": {
+      "main": [
+        [
+          {
+            "node": "Merge Receipts and Transactions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Receipts and Transactions": {
+      "main": [
+        [
+          {
+            "node": "Match Receipts to Transactions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read All Transactions": {
+      "main": [
+        [
+          {
+            "node": "Merge Receipts and Transactions",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "exportedAt": "2026-01-09T08:52:25.000Z",
+    "version": "v2.0",
+    "changesSinceV1": [
+      "Fixed Merge node connections (both inputs were on same slot)",
+      "Changed connection type from '1' to 'main'",
+      "Cleared misaligned test data from Google Sheets"
+    ]
+  }
+}

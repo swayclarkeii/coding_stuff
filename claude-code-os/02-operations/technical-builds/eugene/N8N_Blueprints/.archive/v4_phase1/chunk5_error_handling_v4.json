@@ -1,0 +1,100 @@
+{
+  "name": "Chunk 5: Error Handling (Document Organizer V4)",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// V4: Error Catch Handler\n// This node catches all unhandled errors from the main workflow\n\nconst error = $input.first().json;\nconst errorContext = $execution?.customData || {};\n\n// Extract useful error information\nconst errorInfo = {\n  timestamp: new Date().toISOString(),\n  errorType: error.name || 'Unknown Error',\n  errorMessage: error.message || JSON.stringify(error),\n  nodeName: error.node?.name || errorContext.nodeName || 'Unknown Node',\n  workflowId: $workflow?.id || 'Unknown',\n  executionId: $execution?.id || 'Unknown',\n  \n  // Document context (if available)\n  fileId: errorContext.fileId || null,\n  fileName: errorContext.fileName || null,\n  projectName: errorContext.projectName || null,\n  documentType: errorContext.documentType || null,\n  \n  // Severity classification\n  severity: classifySeverity(error),\n  \n  // Resolution status\n  resolutionStatus: 'Pending',\n  autoResolved: false\n};\n\nfunction classifySeverity(err) {\n  const msg = (err.message || '').toLowerCase();\n  \n  // Critical - affects all processing\n  if (msg.includes('authentication') || msg.includes('quota')) {\n    return 'Critical';\n  }\n  \n  // High - affects current document\n  if (msg.includes('api') || msg.includes('timeout')) {\n    return 'High';\n  }\n  \n  // Medium - might affect classification\n  if (msg.includes('parse') || msg.includes('extract')) {\n    return 'Medium';\n  }\n  \n  // Low - informational\n  return 'Low';\n}\n\nreturn [{ json: errorInfo }];"
+      },
+      "name": "Error Catch",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [100, 400],
+      "id": "node-error-catch",
+      "notes": "V4: Catches all unhandled errors with severity classification."
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.PROJECT_TRACKER_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Error Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Error Type": "={{ $json.errorType }}",
+            "Node Name": "={{ $json.nodeName }}",
+            "Error Message": "={{ $json.errorMessage }}",
+            "Severity": "={{ $json.severity }}",
+            "File Name": "={{ $json.fileName || 'N/A' }}",
+            "Project Name": "={{ $json.projectName || 'N/A' }}",
+            "Document Type": "={{ $json.documentType || 'N/A' }}",
+            "Execution ID": "={{ $json.executionId }}",
+            "Resolution Status": "Pending"
+          }
+        },
+        "options": {}
+      },
+      "name": "Log Error",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [300, 400],
+      "id": "node-log-error",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
+          "name": "Google Sheets"
+        }
+      },
+      "notes": "V4: Logs error to Error Log sheet for tracking.",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $vars.NOTIFICATION_EMAIL }}",
+        "subject": "={{ '[Document Organizer] ' + $json.severity + ' Error: ' + $json.errorType }}",
+        "message": "={{ '⚠️ Document Organizer Error\\n\\n' + 'Severity: ' + $json.severity + '\\n' + 'Error Type: ' + $json.errorType + '\\n' + 'Node: ' + $json.nodeName + '\\n\\n' + 'Details:\\n' + $json.errorMessage + '\\n\\n' + ($json.fileName ? 'File: ' + $json.fileName + '\\n' : '') + ($json.projectName ? 'Project: ' + $json.projectName + '\\n' : '') + '\\n' + 'Action Required:\\n' + ($json.severity === 'Critical' ? '🔴 IMMEDIATE: Check API credentials and quotas' : $json.severity === 'High' ? '🟠 SOON: Review the failed document in Unknown folder' : '🟡 REVIEW: Check error log when convenient') + '\\n\\n' + 'Execution ID: ' + $json.executionId + '\\n' + 'Timestamp: ' + $json.timestamp }}",
+        "options": {}
+      },
+      "name": "Alert Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [500, 400],
+      "id": "node-alert-email",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "{{GMAIL_CREDENTIAL_ID}}",
+          "name": "Gmail"
+        }
+      },
+      "notes": "V4: Sends alert email for errors with severity-based guidance."
+    }
+  ],
+  "connections": {
+    "Error Catch": {
+      "main": [[{ "node": "Log Error", "type": "main", "index": 0 }]]
+    },
+    "Log Error": {
+      "main": [[{ "node": "Alert Email", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateId": "document_organizer_v4_chunk5",
+    "version": "4.0",
+    "notes": "V4: Simplified from 14 nodes to 3 using built-in retry. Error handling nodes connect to workflow error output."
+  },
+  "errorWorkflow": true
+}

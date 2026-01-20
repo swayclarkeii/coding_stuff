@@ -1,0 +1,210 @@
+{
+  "name": "CRM Natural Language Updater",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "crm-update",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "CRM Update Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 400],
+      "webhookId": "crm-update-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse and validate incoming CRM update request\nconst input = $input.first().json.body || $input.first().json;\n\n// Validate required fields\nif (!input.prospect_name) {\n  return {\n    json: {\n      success: false,\n      error: 'Missing required field: prospect_name',\n      input: input\n    }\n  };\n}\n\n// Normalize prospect name for search\nconst normalizedName = input.prospect_name.trim();\n\n// Build update object\nconst updates = input.updates || {};\n\nreturn {\n  json: {\n    prospect_name: normalizedName,\n    is_new: input.is_new || false,\n    platform: input.platform || null,\n    updates: {\n      stage: updates.stage || null,\n      reply_sentiment: updates.reply_sentiment || null,\n      notes: updates.notes || null\n    },\n    timestamp: new Date().toISOString()\n  }\n};"
+      },
+      "id": "parse-input",
+      "name": "Parse Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "is-new-prospect",
+              "leftValue": "={{ $json.is_new }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "route-new-or-update",
+      "name": "New or Update?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 400]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {"__rl": true, "mode": "id", "value": "1PwIqO1nfEeABoRRvTml3dN9q1rUjHIMVXsqOLtouemk"},
+        "sheetName": {"__rl": true, "mode": "name", "value": "Prospects"},
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Full Name": "={{ $('Parse Input').first().json.prospect_name }}",
+            "Platform": "={{ $('Parse Input').first().json.platform || 'Unknown' }}",
+            "Stage": "={{ $('Parse Input').first().json.updates.stage || '' }}",
+            "Reply Sentiment": "={{ $('Parse Input').first().json.updates.reply_sentiment || 'No Reply Yet' }}",
+            "Notes": "={{ $('Parse Input').first().json.updates.notes || '' }}",
+            "Added to CRM": "TRUE"
+          }
+        },
+        "options": {}
+      },
+      "id": "add-new-prospect",
+      "name": "Add New Prospect",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [900, 280],
+      "credentials": {"googleSheetsOAuth2Api": {"id": "CREDENTIAL_ID", "name": "Google Sheets account"}}
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {"__rl": true, "mode": "id", "value": "1PwIqO1nfEeABoRRvTml3dN9q1rUjHIMVXsqOLtouemk"},
+        "sheetName": {"__rl": true, "mode": "name", "value": "Prospects"},
+        "filtersUI": {
+          "values": [
+            {"lookupColumn": "Full Name", "lookupValue": "={{ $('Parse Input').first().json.prospect_name }}"}
+          ]
+        },
+        "options": {}
+      },
+      "id": "find-prospect",
+      "name": "Find Prospect",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [900, 520],
+      "credentials": {"googleSheetsOAuth2Api": {"id": "CREDENTIAL_ID", "name": "Google Sheets account"}}
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "prospect-found",
+              "leftValue": "={{ $json['Full Name'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-found",
+      "name": "Prospect Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1120, 520]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prospect not found - return error\nconst input = $('Parse Input').first().json;\n\nreturn {\n  json: {\n    success: false,\n    error: `Prospect \"${input.prospect_name}\" not found in CRM`,\n    suggestion: 'Use \"add prospect\" to create a new entry',\n    searched_name: input.prospect_name\n  }\n};"
+      },
+      "id": "not-found-error",
+      "name": "Not Found Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 640]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare update values\nconst currentRow = $input.first().json;\nconst updates = $('Parse Input').first().json.updates;\n\n// Track what's being changed\nconst changes = [];\nconst previousValues = {};\n\n// Build update payload - only update fields that are provided\nconst updatePayload = {\n  row_number: currentRow.row_number\n};\n\nif (updates.stage) {\n  previousValues.stage = currentRow.Stage;\n  updatePayload.Stage = updates.stage;\n  changes.push(`Stage: ${currentRow.Stage || 'N/A'} → ${updates.stage}`);\n}\n\nif (updates.reply_sentiment) {\n  previousValues.reply_sentiment = currentRow['Reply Sentiment'];\n  updatePayload['Reply Sentiment'] = updates.reply_sentiment;\n  changes.push(`Sentiment: ${currentRow['Reply Sentiment'] || 'N/A'} → ${updates.reply_sentiment}`);\n}\n\nif (updates.notes) {\n  previousValues.notes = currentRow.Notes;\n  // Append to existing notes\n  const existingNotes = currentRow.Notes || '';\n  const separator = existingNotes ? ' | ' : '';\n  const timestamp = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });\n  updatePayload.Notes = `${existingNotes}${separator}[${timestamp}] ${updates.notes}`;\n  changes.push(`Notes: appended \"${updates.notes}\"`);\n}\n\nreturn {\n  json: {\n    prospect_name: currentRow['Full Name'],\n    row_number: currentRow.row_number,\n    updatePayload,\n    changes,\n    previousValues,\n    stageChanged: !!updates.stage && updates.stage !== currentRow.Stage\n  }\n};"
+      },
+      "id": "prepare-update",
+      "name": "Prepare Update",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 400]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {"__rl": true, "mode": "id", "value": "1PwIqO1nfEeABoRRvTml3dN9q1rUjHIMVXsqOLtouemk"},
+        "sheetName": {"__rl": true, "mode": "name", "value": "Prospects"},
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {}
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED"
+        }
+      },
+      "id": "update-row",
+      "name": "Update Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [1560, 400],
+      "credentials": {"googleSheetsOAuth2Api": {"id": "CREDENTIAL_ID", "name": "Google Sheets account"}}
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate final response\nconst updateData = $('Prepare Update').first().json;\nconst isNew = $('Parse Input').first().json.is_new;\n\nlet response;\n\nif (isNew) {\n  const newProspect = $('Add New Prospect').first().json;\n  response = {\n    success: true,\n    action: 'created',\n    prospect_name: $('Parse Input').first().json.prospect_name,\n    platform: $('Parse Input').first().json.platform,\n    message: `New prospect added to CRM`,\n    notionTaskTriggered: false\n  };\n} else {\n  response = {\n    success: true,\n    action: 'updated',\n    prospect_name: updateData.prospect_name,\n    changes: updateData.changes,\n    previousValues: updateData.previousValues,\n    message: `CRM updated: ${updateData.changes.join(', ')}`,\n    notionTaskTriggered: updateData.stageChanged,\n    stageChange: updateData.stageChanged ? {\n      from: updateData.previousValues.stage,\n      to: updateData.updatePayload?.Stage\n    } : null\n  };\n}\n\nreturn { json: response };"
+      },
+      "id": "build-response",
+      "name": "Build Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1780, 400]
+    }
+  ],
+  "connections": {
+    "CRM Update Webhook": {"main": [[{"node": "Parse Input", "type": "main", "index": 0}]]},
+    "Parse Input": {"main": [[{"node": "New or Update?", "type": "main", "index": 0}]]},
+    "New or Update?": {
+      "main": [
+        [{"node": "Add New Prospect", "type": "main", "index": 0}],
+        [{"node": "Find Prospect", "type": "main", "index": 0}]
+      ]
+    },
+    "Add New Prospect": {"main": [[{"node": "Build Response", "type": "main", "index": 0}]]},
+    "Find Prospect": {"main": [[{"node": "Prospect Found?", "type": "main", "index": 0}]]},
+    "Prospect Found?": {
+      "main": [
+        [{"node": "Prepare Update", "type": "main", "index": 0}],
+        [{"node": "Not Found Error", "type": "main", "index": 0}]
+      ]
+    },
+    "Prepare Update": {"main": [[{"node": "Update Row", "type": "main", "index": 0}]]},
+    "Update Row": {"main": [[{"node": "Build Response", "type": "main", "index": 0}]]}
+  },
+  "settings": {"executionOrder": "v1"},
+  "meta": {
+    "version": "1.0",
+    "exported": "2026-01-02T10:00:00.000Z",
+    "description": "CRM Natural Language Updater - accepts prospect updates via webhook and updates Google Sheets CRM",
+    "author": "Claude Code",
+    "sheetsId": "1PwIqO1nfEeABoRRvTml3dN9q1rUjHIMVXsqOLtouemk",
+    "webhookPath": "/webhook/crm-update"
+  }
+}

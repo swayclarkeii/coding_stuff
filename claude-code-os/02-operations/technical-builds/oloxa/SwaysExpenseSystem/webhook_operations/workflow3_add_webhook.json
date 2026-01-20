@@ -1,0 +1,35 @@
+{
+  "id": "waPA94G2GXawDlCa",
+  "operations": [
+    {
+      "type": "addNode",
+      "node": {
+        "name": "Manual Test Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [250, 100],
+        "parameters": {
+          "path": "test-expense-w3",
+          "httpMethod": "POST",
+          "responseMode": "lastNode",
+          "options": {}
+        },
+        "id": "webhook-test-3"
+      }
+    },
+    {
+      "type": "addConnection",
+      "source": "Manual Test Trigger",
+      "sourceOutput": "main",
+      "target": "Get Unmatched Transactions",
+      "targetInput": "main"
+    },
+    {
+      "type": "addConnection",
+      "source": "Manual Test Trigger",
+      "sourceOutput": "main",
+      "target": "Get Unmatched Receipts",
+      "targetInput": "main"
+    }
+  ]
+}

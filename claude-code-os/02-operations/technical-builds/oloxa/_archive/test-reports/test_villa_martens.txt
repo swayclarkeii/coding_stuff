@@ -1,0 +1,2 @@
+Test file for Villa Martens email attachment.
+This is a placeholder file for testing the n8n workflow.

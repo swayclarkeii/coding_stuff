@@ -1,0 +1,771 @@
+{
+  "name": "Document Organizer V4 - Complete Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [{ "mode": "everyMinute" }]
+        },
+        "filters": {
+          "readStatus": "unread",
+          "labelIds": ["={{ $vars.GMAIL_LABEL_ID }}"]
+        },
+        "options": {
+          "includeAttachments": true
+        }
+      },
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [100, 400],
+      "id": "node-gmail-trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "{{GMAIL_CREDENTIAL_ID}}",
+          "name": "Gmail"
+        }
+      },
+      "notes": "V4: Triggers on new unread emails in the configured label."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Normalize email data\nconst email = $input.first().json;\n\nreturn [{\n  json: {\n    emailId: email.id,\n    threadId: email.threadId,\n    from: email.from?.text || email.from || 'Unknown Sender',\n    subject: email.subject || 'No Subject',\n    date: email.date || new Date().toISOString(),\n    hasAttachments: email.attachments?.length > 0,\n    attachmentCount: email.attachments?.length || 0,\n    attachments: email.attachments || [],\n    processedAt: new Date().toISOString()\n  }\n}];"
+      },
+      "name": "Normalize Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [300, 400],
+      "id": "node-normalize-email"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-attachments",
+              "leftValue": "={{ $json.hasAttachments }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ]
+        }
+      },
+      "name": "IF Has Attachments",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [500, 400],
+      "id": "node-if-attachments"
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Extract attachments with normalized fields\nconst emailData = $input.first().json;\nconst attachments = emailData.attachments || [];\n\nconst items = attachments.map((att, i) => {\n  const fileName = att.filename || att.name || `attachment_${i}`;\n  const ext = fileName.split('.').pop()?.toLowerCase() || '';\n  \n  return {\n    json: {\n      fileId: null,\n      fileName,\n      originalFileName: fileName,\n      mimeType: att.contentType || 'application/octet-stream',\n      extension: ext,\n      size: att.size || 0,\n      attachmentIndex: i,\n      emailId: emailData.emailId,\n      emailFrom: emailData.from,\n      emailSubject: emailData.subject,\n      emailDate: emailData.date,\n      processedAt: emailData.processedAt,\n      isZip: ext === 'zip',\n      isPdf: ext === 'pdf',\n      isSupported: ['pdf', 'zip'].includes(ext)\n    },\n    binary: { data: att.binary || att }\n  };\n});\n\nreturn items;"
+      },
+      "name": "Extract Attachments",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 400],
+      "id": "node-extract-attachments"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "is-supported",
+              "leftValue": "={{ $json.isSupported }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ]
+        }
+      },
+      "name": "Filter Supported",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 400],
+      "id": "node-filter-supported"
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "name": "Sequential Processing",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1100, 400],
+      "id": "node-sequential",
+      "notes": "V4 FIX: Processes ONE document at a time."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "is-zip",
+              "leftValue": "={{ $json.isZip }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ]
+        }
+      },
+      "name": "IF ZIP",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1300, 400],
+      "id": "node-if-zip"
+    },
+    {
+      "parameters": {
+        "operation": "decompress",
+        "binaryPropertyName": "data"
+      },
+      "name": "Extract ZIP",
+      "type": "n8n-nodes-base.compression",
+      "typeVersion": 1,
+      "position": [1500, 300],
+      "id": "node-extract-zip"
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Normalize ZIP contents (PDFs only)\nconst items = $input.all();\nconst original = $('IF ZIP').first().json;\n\nreturn items.filter(item => {\n  const ext = (item.json.fileName || '').split('.').pop()?.toLowerCase();\n  return ext === 'pdf';\n}).map(item => ({\n  json: {\n    ...item.json,\n    fileId: null,\n    extension: 'pdf',\n    mimeType: 'application/pdf',\n    emailId: original.emailId,\n    emailFrom: original.emailFrom,\n    emailSubject: original.emailSubject,\n    emailDate: original.emailDate,\n    extractedFromZip: true,\n    zipFileName: original.fileName\n  },\n  binary: item.binary\n}));"
+      },
+      "name": "Normalize ZIP Contents",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1700, 300],
+      "id": "node-normalize-zip"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "mergeByFields": { "values": [] }
+      },
+      "name": "Merge Streams",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1900, 400],
+      "id": "node-merge-streams"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "upload",
+        "name": "={{ $json.fileName }}",
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.FOLDER_STAGING }}"
+        }
+      },
+      "name": "Upload to Staging",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [2100, 400],
+      "id": "node-upload-staging",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Capture fileId from upload\nconst upload = $input.first().json;\nconst original = $('Merge Streams').first().json;\n\nreturn [{\n  json: {\n    ...original,\n    fileId: upload.id,\n    stagingPath: upload.name\n  }\n}];"
+      },
+      "name": "Capture FileId",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2300, 400],
+      "id": "node-capture-fileid"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.fileId }}"
+        }
+      },
+      "name": "Download PDF",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [2500, 400],
+      "id": "node-download-pdf",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "extractPdf",
+        "binaryPropertyName": "data"
+      },
+      "name": "Extract PDF Text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [2700, 400],
+      "id": "node-extract-pdf",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Detect scan vs digital\nconst result = $input.first().json;\nconst original = $('Capture FileId').first().json;\nconst text = result.text || result.content || '';\nconst isScanned = text.trim().length < 100;\n\nreturn [{\n  json: {\n    ...original,\n    extractedText: isScanned ? null : text,\n    isScanned,\n    needsOcr: isScanned,\n    extractionMethod: isScanned ? 'pending_ocr' : 'digital'\n  },\n  binary: $input.first().binary\n}];"
+      },
+      "name": "Detect Scan",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2900, 400],
+      "id": "node-detect-scan"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "needs-ocr",
+              "leftValue": "={{ $json.needsOcr }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ]
+        }
+      },
+      "name": "IF Needs OCR",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [3100, 400],
+      "id": "node-if-ocr"
+    },
+    {
+      "parameters": {
+        "operation": "analyzeExpense",
+        "inputDataSource": "n8n",
+        "binaryPropertyName": "data"
+      },
+      "name": "AWS Textract OCR",
+      "type": "n8n-nodes-base.awsTextract",
+      "typeVersion": 1,
+      "position": [3300, 300],
+      "id": "node-textract",
+      "credentials": {
+        "aws": {
+          "id": "{{AWS_CREDENTIAL_ID}}",
+          "name": "AWS"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Process OCR result\nconst ocr = $input.first().json;\nconst original = $('IF Needs OCR').first().json;\n\nlet text = '';\nif (ocr.Blocks) {\n  text = ocr.Blocks.filter(b => b.BlockType === 'LINE').map(b => b.Text).join('\\n');\n}\n\nreturn [{\n  json: {\n    ...original,\n    extractedText: text,\n    isScanned: true,\n    ocrUsed: true,\n    extractionMethod: 'ocr_textract'\n  }\n}];"
+      },
+      "name": "Process OCR",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3500, 300],
+      "id": "node-process-ocr"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "mergeByFields": { "values": [] }
+      },
+      "name": "Merge OCR Paths",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [3700, 400],
+      "id": "node-merge-ocr"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": { "temperature": 0.1, "maxTokens": 500 },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Extract the project/property name from this German real estate document. Respond JSON only: {\"projectName\": \"name\", \"confidence\": 0.95}"
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.extractedText.substring(0, 2000) }}"
+            }
+          ]
+        }
+      },
+      "name": "Extract Project",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [3900, 400],
+      "id": "node-extract-project",
+      "credentials": {
+        "openAiApi": {
+          "id": "{{OPENAI_CREDENTIAL_ID}}",
+          "name": "OpenAI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Normalize project name with German char handling\nconst ai = $input.first().json;\nconst original = $('Merge OCR Paths').first().json;\n\nlet projectName = 'Unknown';\ntry {\n  const parsed = JSON.parse(ai.message?.content || '{}');\n  projectName = parsed.projectName || 'Unknown';\n} catch (e) {}\n\nfunction normalize(name) {\n  return (name || '')\n    .toLowerCase()\n    .replace(/ü/g, 'u').replace(/ö/g, 'o')\n    .replace(/ä/g, 'a').replace(/ß/g, 'ss')\n    .replace(/[^a-z0-9]/g, '');\n}\n\nreturn [{\n  json: {\n    ...original,\n    rawProjectName: projectName,\n    normalizedProjectName: normalize(projectName),\n    projectName\n  }\n}];"
+      },
+      "name": "Normalize Project",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [4100, 400],
+      "id": "node-normalize-project"
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": { "__rl": true, "mode": "id", "value": "={{ $vars.PROJECT_TRACKER_SHEET_ID }}" },
+        "sheetName": { "__rl": true, "mode": "name", "value": "Projects" }
+      },
+      "name": "Get All Projects",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [4300, 400],
+      "id": "node-get-projects",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
+          "name": "Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4 FIX: Fuzzy match with Levenshtein\nconst doc = $('Normalize Project').first().json;\nconst projects = $input.all().map(i => i.json);\n\nfunction levenshtein(a, b) {\n  if (!a || !b) return Math.max(a?.length || 0, b?.length || 0);\n  const m = [];\n  for (let i = 0; i <= b.length; i++) m[i] = [i];\n  for (let j = 0; j <= a.length; j++) m[0][j] = j;\n  for (let i = 1; i <= b.length; i++) {\n    for (let j = 1; j <= a.length; j++) {\n      m[i][j] = b[i-1] === a[j-1]\n        ? m[i-1][j-1]\n        : Math.min(m[i-1][j-1]+1, m[i][j-1]+1, m[i-1][j]+1);\n    }\n  }\n  return m[b.length][a.length];\n}\n\nfunction sim(a, b) {\n  const max = Math.max(a?.length || 0, b?.length || 0);\n  return max === 0 ? 1 : 1 - levenshtein(a, b) / max;\n}\n\nfunction normalize(n) {\n  return (n || '').toLowerCase().replace(/[üöäß]/g, c => ({ü:'u',ö:'o',ä:'a',ß:'ss'}[c])).replace(/[^a-z0-9]/g, '');\n}\n\nlet bestMatch = null, bestSim = 0;\nfor (const p of projects) {\n  if (!p['Project Name']) continue;\n  const s = sim(doc.normalizedProjectName, normalize(p['Project Name']));\n  if (s > bestSim && s >= 0.8) { bestSim = s; bestMatch = p; }\n}\n\nreturn [{\n  json: {\n    ...doc,\n    matchedProjectName: bestMatch ? bestMatch['Project Name'] : doc.rawProjectName,\n    isNewProject: !bestMatch,\n    matchSimilarity: bestSim,\n    projectName: bestMatch ? bestMatch['Project Name'] : doc.rawProjectName\n  }\n}];"
+      },
+      "name": "Fuzzy Match",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [4500, 400],
+      "id": "node-fuzzy-match",
+      "notes": "V4 FIX: 80% similarity threshold for German names."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "is-new",
+              "leftValue": "={{ $json.isNewProject }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ]
+        }
+      },
+      "name": "IF New Project",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [4700, 400],
+      "id": "node-if-new"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": { "__rl": true, "mode": "id", "value": "={{ $vars.PROJECT_TRACKER_SHEET_ID }}" },
+        "sheetName": { "__rl": true, "mode": "name", "value": "Projects" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Project Name": "={{ $json.projectName }}",
+            "Normalized Name": "={{ $json.normalizedProjectName }}",
+            "Status": "New",
+            "Last Updated": "={{ new Date().toISOString() }}"
+          }
+        }
+      },
+      "name": "Create Project",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [4900, 300],
+      "id": "node-create-project",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
+          "name": "Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "mergeByFields": { "values": [] }
+      },
+      "name": "Merge Project Paths",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [5100, 400],
+      "id": "node-merge-project"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": { "temperature": 0.1, "maxTokens": 500 },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Classify this German real estate document into: expose, grundbuch, calculation, exit, others, unknown. Respond JSON only: {\"classification\": \"type\", \"confidence\": 0.95}"
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.extractedText.substring(0, 3000) }}"
+            }
+          ]
+        }
+      },
+      "name": "AI Classify",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [5300, 400],
+      "id": "node-ai-classify",
+      "credentials": {
+        "openAiApi": {
+          "id": "{{OPENAI_CREDENTIAL_ID}}",
+          "name": "OpenAI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Parse classification + unified filename with confidence%\nconst ai = $input.first().json;\nconst original = $('Merge Project Paths').first().json;\n\nlet classification = 'unknown', confidence = 0.5;\ntry {\n  const p = JSON.parse(ai.message?.content || '{}');\n  classification = p.classification || 'unknown';\n  confidence = p.confidence || 0.5;\n} catch (e) {}\n\nconst valid = ['expose','grundbuch','calculation','exit','others','unknown'];\nif (!valid.includes(classification.toLowerCase())) classification = 'unknown';\n\n// V4: Unified filename with confidence%\nconst client = $vars?.CLIENT_NAME || 'Eugene';\nconst now = new Date();\nconst date = now.toISOString().slice(0,10).replace(/-/g,'');\nconst time = now.toISOString().slice(11,23).replace(/[:.]g,'');\nconst conf = Math.round(confidence * 100);\nconst prefix = {expose:'EXPOSE',grundbuch:'GRUNDBUCH',calculation:'KALK276',exit:'EXIT',others:'OTHERS',unknown:'UNKNOWN'}[classification] || 'UNKNOWN';\nconst cleanProject = (original.projectName || client).replace(/[^a-zA-Z0-9]/g,'').substring(0,30);\nconst newFileName = `${prefix}_${cleanProject}_${date}_${time}_${conf}%.${original.extension || 'pdf'}`;\n\nconst folderMap = {\n  expose: 'FOLDER_01_PROJEKTBESCHREIBUNG',\n  grundbuch: 'FOLDER_03_GRUNDBUCHAUSZUG',\n  calculation: 'FOLDER_10_BAUTRAEGERKALKULATION_DIN276',\n  exit: 'FOLDER_36_EXIT_STRATEGIE',\n  others: 'FOLDER_37_OTHERS',\n  unknown: 'FOLDER_38_UNKNOWNS'\n};\n\nreturn [{\n  json: {\n    ...original,\n    documentType: classification,\n    confidence,\n    confidencePercent: conf,\n    newFileName,\n    targetFolderVar: folderMap[classification],\n    targetFolderId: $vars[folderMap[classification]]\n  }\n}];"
+      },
+      "name": "Set Filename",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [5500, 400],
+      "id": "node-set-filename",
+      "notes": "V4: Unified filename with confidence%."
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "documentId": { "__rl": true, "mode": "id", "value": "={{ $vars.PROJECT_TRACKER_SHEET_ID }}" },
+        "sheetName": { "__rl": true, "mode": "name", "value": "Processing Log" },
+        "filtersUI": {
+          "values": [
+            { "lookupColumn": "Project Name", "lookupValue": "={{ $json.projectName }}" },
+            { "lookupColumn": "Document Type", "lookupValue": "={{ $json.documentType }}" }
+          ]
+        }
+      },
+      "name": "Check Version",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [5700, 400],
+      "id": "node-check-version",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
+          "name": "Google Sheets"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Determine version number\nconst existingDocs = $input.all().map(i => i.json);\nconst originalData = $('Set Filename').first().json;\n\nlet version = 1;\nlet previousVersionFileId = null;\n\nif (existingDocs && existingDocs.length > 0) {\n  // Find highest version number\n  const versions = existingDocs\n    .map(doc => parseInt(doc.Version) || 1)\n    .filter(v => !isNaN(v));\n  \n  if (versions.length > 0) {\n    version = Math.max(...versions) + 1;\n    // Get the file ID of the previous version for archiving\n    const latestDoc = existingDocs.find(doc => parseInt(doc.Version) === version - 1);\n    previousVersionFileId = latestDoc?.['File ID'] || null;\n  }\n}\n\n// V4: Update filename to include version if > 1\nlet newFileName = originalData.newFileName;\nif (version > 1) {\n  // Insert version before confidence: EXPOSE_Eugene_20251222_143052_v2_97%.pdf\n  const parts = newFileName.split('_');\n  const confPart = parts.pop(); // Remove \"97%.pdf\"\n  parts.push(`v${version}`);\n  parts.push(confPart);\n  newFileName = parts.join('_');\n}\n\nreturn [{\n  json: {\n    ...originalData,\n    version: version,\n    previousVersionFileId: previousVersionFileId,\n    newFileName: newFileName,\n    isVersionUpdate: version > 1\n  }\n}];"
+      },
+      "name": "Determine Version",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [5900, 400],
+      "id": "node-determine-version",
+      "notes": "V4 NEW: Document versioning with archive support."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "leftValue": "", "caseSensitive": true, "typeValidation": "strict" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-previous-version",
+              "leftValue": "={{ $json.previousVersionFileId }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty" }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "IF Previous Version Exists",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [6000, 400],
+      "id": "node-if-previous-version",
+      "notes": "V4 ARCHIVE: Checks if a previous version exists to be archived."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4 ARCHIVE: Get archive folder ID for this document type\nconst data = $input.first().json;\n\nconst archiveMapping = {\n  'expose': 'FOLDER_01_ARCHIVE',\n  'grundbuch': 'FOLDER_03_ARCHIVE',\n  'calculation': 'FOLDER_10_ARCHIVE',\n  'exit': 'FOLDER_36_ARCHIVE'\n};\n\nconst archiveFolderVar = archiveMapping[data.documentType];\n\n// If no archive folder for this type (Others/Unknown), skip archiving\nif (!archiveFolderVar) {\n  return [{ json: { ...data, skipArchive: true } }];\n}\n\nconst archiveFolderId = $vars[archiveFolderVar];\n\nif (!archiveFolderId) {\n  // Archive folder variable not set, skip archiving\n  return [{ json: { ...data, skipArchive: true } }];\n}\n\nreturn [{\n  json: {\n    ...data,\n    archiveFolderId: archiveFolderId,\n    skipArchive: false\n  }\n}];"
+      },
+      "name": "Get Archive Folder ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [6200, 300],
+      "id": "node-get-archive-folder",
+      "notes": "V4 ARCHIVE: Maps document type to archive folder variable."
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.previousVersionFileId }}"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.archiveFolderId }}"
+        },
+        "options": {}
+      },
+      "name": "Move Old Version to Archive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [6400, 300],
+      "id": "node-move-to-archive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      },
+      "notes": "V4 ARCHIVE: Moves previous version to _Archive subfolder.",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "move",
+        "fileId": { "__rl": true, "mode": "id", "value": "={{ $json.fileId }}" },
+        "driveId": { "__rl": true, "mode": "id", "value": "={{ $json.targetFolderId }}" }
+      },
+      "name": "Move File",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [6100, 400],
+      "id": "node-move-file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "rename",
+        "fileId": { "__rl": true, "mode": "id", "value": "={{ $json.fileId }}" },
+        "name": "={{ $json.newFileName }}"
+      },
+      "name": "Rename File",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [6300, 400],
+      "id": "node-rename-file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": { "__rl": true, "mode": "id", "value": "={{ $vars.PROJECT_TRACKER_SHEET_ID }}" },
+        "sheetName": { "__rl": true, "mode": "name", "value": "Processing Log" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ new Date().toISOString() }}",
+            "Project Name": "={{ $json.projectName }}",
+            "Document Type": "={{ $json.documentType }}",
+            "Filename": "={{ $json.newFileName }}",
+            "Confidence": "={{ $json.confidencePercent }}%",
+            "Version": "={{ $json.version }}",
+            "File ID": "={{ $json.fileId }}",
+            "Status": "Processed"
+          }
+        }
+      },
+      "name": "Log Processing",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [6500, 400],
+      "id": "node-log-processing",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
+          "name": "Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4 FIX: Build tracker update (skip Others/Unknown)\nconst data = $input.first().json;\nconst mapping = {\n  expose: { cb: 'Exposé', v: 'Exposé Version' },\n  grundbuch: { cb: 'Grundbuch', v: 'Grundbuch Version' },\n  calculation: { cb: 'Calculation', v: 'Calculation Version' },\n  exit: { cb: 'Exit Strategy', v: 'Exit Version' }\n};\n\nconst m = mapping[data.documentType];\nreturn [{\n  json: {\n    ...data,\n    trackerUpdateSkipped: !m,\n    updateCheckboxField: m?.cb,\n    updateVersionField: m?.v\n  }\n}];"
+      },
+      "name": "Build Tracker Update",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [6700, 400],
+      "id": "node-build-update",
+      "notes": "V4 FIX: Prevents crash on Others/Unknown."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "should-update",
+              "leftValue": "={{ $json.trackerUpdateSkipped }}",
+              "rightValue": false,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ]
+        }
+      },
+      "name": "IF Update Tracker",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [6900, 400],
+      "id": "node-if-update"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": { "__rl": true, "mode": "id", "value": "={{ $vars.PROJECT_TRACKER_SHEET_ID }}" },
+        "sheetName": { "__rl": true, "mode": "name", "value": "Projects" },
+        "filtersUI": {
+          "values": [{ "lookupColumn": "Project Name", "lookupValue": "={{ $json.projectName }}" }]
+        },
+        "fieldsUi": {
+          "values": [
+            { "column": "={{ $json.updateCheckboxField }}", "fieldValue": "TRUE" },
+            { "column": "={{ $json.updateVersionField }}", "fieldValue": "={{ 'v' + $json.version }}" },
+            { "column": "Last Updated", "fieldValue": "={{ new Date().toISOString() }}" }
+          ]
+        }
+      },
+      "name": "Update Tracker",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [7100, 300],
+      "id": "node-update-tracker",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
+          "name": "Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "mergeByFields": { "values": [] }
+      },
+      "name": "Merge Update Paths",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [7300, 400],
+      "id": "node-merge-update"
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Final output\nconst data = $input.first()?.json || $input.all()[0]?.json;\n\nreturn [{\n  json: {\n    fileId: data.fileId,\n    fileName: data.fileName,\n    newFileName: data.newFileName,\n    documentType: data.documentType,\n    confidence: data.confidence,\n    confidencePercent: data.confidencePercent,\n    projectName: data.projectName,\n    version: data.version,\n    targetFolderVar: data.targetFolderVar,\n    status: 'Processed',\n    processedAt: new Date().toISOString()\n  }\n}];"
+      },
+      "name": "Final Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [7500, 400],
+      "id": "node-final-output"
+    }
+  ],
+  "connections": {
+    "Gmail Trigger": { "main": [[{ "node": "Normalize Email", "type": "main", "index": 0 }]] },
+    "Normalize Email": { "main": [[{ "node": "IF Has Attachments", "type": "main", "index": 0 }]] },
+    "IF Has Attachments": { "main": [[{ "node": "Extract Attachments", "type": "main", "index": 0 }], []] },
+    "Extract Attachments": { "main": [[{ "node": "Filter Supported", "type": "main", "index": 0 }]] },
+    "Filter Supported": { "main": [[{ "node": "Sequential Processing", "type": "main", "index": 0 }], []] },
+    "Sequential Processing": { "main": [[{ "node": "IF ZIP", "type": "main", "index": 0 }], []] },
+    "IF ZIP": { "main": [[{ "node": "Extract ZIP", "type": "main", "index": 0 }], [{ "node": "Merge Streams", "type": "main", "index": 1 }]] },
+    "Extract ZIP": { "main": [[{ "node": "Normalize ZIP Contents", "type": "main", "index": 0 }]] },
+    "Normalize ZIP Contents": { "main": [[{ "node": "Merge Streams", "type": "main", "index": 0 }]] },
+    "Merge Streams": { "main": [[{ "node": "Upload to Staging", "type": "main", "index": 0 }]] },
+    "Upload to Staging": { "main": [[{ "node": "Capture FileId", "type": "main", "index": 0 }]] },
+    "Capture FileId": { "main": [[{ "node": "Download PDF", "type": "main", "index": 0 }]] },
+    "Download PDF": { "main": [[{ "node": "Extract PDF Text", "type": "main", "index": 0 }]] },
+    "Extract PDF Text": { "main": [[{ "node": "Detect Scan", "type": "main", "index": 0 }]] },
+    "Detect Scan": { "main": [[{ "node": "IF Needs OCR", "type": "main", "index": 0 }]] },
+    "IF Needs OCR": { "main": [[{ "node": "AWS Textract OCR", "type": "main", "index": 0 }], [{ "node": "Merge OCR Paths", "type": "main", "index": 1 }]] },
+    "AWS Textract OCR": { "main": [[{ "node": "Process OCR", "type": "main", "index": 0 }]] },
+    "Process OCR": { "main": [[{ "node": "Merge OCR Paths", "type": "main", "index": 0 }]] },
+    "Merge OCR Paths": { "main": [[{ "node": "Extract Project", "type": "main", "index": 0 }]] },
+    "Extract Project": { "main": [[{ "node": "Normalize Project", "type": "main", "index": 0 }]] },
+    "Normalize Project": { "main": [[{ "node": "Get All Projects", "type": "main", "index": 0 }]] },
+    "Get All Projects": { "main": [[{ "node": "Fuzzy Match", "type": "main", "index": 0 }]] },
+    "Fuzzy Match": { "main": [[{ "node": "IF New Project", "type": "main", "index": 0 }]] },
+    "IF New Project": { "main": [[{ "node": "Create Project", "type": "main", "index": 0 }], [{ "node": "Merge Project Paths", "type": "main", "index": 1 }]] },
+    "Create Project": { "main": [[{ "node": "Merge Project Paths", "type": "main", "index": 0 }]] },
+    "Merge Project Paths": { "main": [[{ "node": "AI Classify", "type": "main", "index": 0 }]] },
+    "AI Classify": { "main": [[{ "node": "Set Filename", "type": "main", "index": 0 }]] },
+    "Set Filename": { "main": [[{ "node": "Check Version", "type": "main", "index": 0 }]] },
+    "Check Version": { "main": [[{ "node": "Determine Version", "type": "main", "index": 0 }]] },
+    "Determine Version": { "main": [[{ "node": "IF Previous Version Exists", "type": "main", "index": 0 }]] },
+    "IF Previous Version Exists": {
+      "main": [
+        [{ "node": "Get Archive Folder ID", "type": "main", "index": 0 }],
+        [{ "node": "Move File", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get Archive Folder ID": { "main": [[{ "node": "Move Old Version to Archive", "type": "main", "index": 0 }]] },
+    "Move Old Version to Archive": { "main": [[{ "node": "Move File", "type": "main", "index": 0 }]] },
+    "Move File": { "main": [[{ "node": "Rename File", "type": "main", "index": 0 }]] },
+    "Rename File": { "main": [[{ "node": "Log Processing", "type": "main", "index": 0 }]] },
+    "Log Processing": { "main": [[{ "node": "Build Tracker Update", "type": "main", "index": 0 }]] },
+    "Build Tracker Update": { "main": [[{ "node": "IF Update Tracker", "type": "main", "index": 0 }]] },
+    "IF Update Tracker": { "main": [[{ "node": "Update Tracker", "type": "main", "index": 0 }], [{ "node": "Merge Update Paths", "type": "main", "index": 1 }]] },
+    "Update Tracker": { "main": [[{ "node": "Merge Update Paths", "type": "main", "index": 0 }]] },
+    "Merge Update Paths": { "main": [[{ "node": "Final Output", "type": "main", "index": 0 }]] }
+  },
+  "settings": {
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateId": "document_organizer_v4_complete",
+    "version": "4.0",
+    "notes": "V4 Complete Workflow - 46 nodes (main). Use with Chunk 0 for initial setup."
+  }
+}

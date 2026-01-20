@@ -1,0 +1,64 @@
+==========================================================
+TASK 2 PRICE NORMALIZATION - v7 STRIP ALL PERIODS FIRST
+==========================================================
+
+New strategy: Remove ALL periods BEFORE converting comma to period!
+
+PASTE THIS INTO THE "Normalize Price USD for Task 2" MODULE:
+----------------------------------------------------------
+
+{{if(contains(232.priceRaw; "Mio"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; " Mio. USD"; ""); " Mio. IDR"; ""); " Mio."; ""); " Mio"; ""); " USD"; ""); "."; ""); ","; ".")) * 1000000); if(contains(232.priceRaw; "Bill"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; " Bill. IDR"; ""); " Bill. USD"; ""); " Bill."; ""); " Bill"; ""); " IDR"; ""); "."; ""); ","; ".")) * 1000000000 / 15700); if(contains(232.priceRaw; "USD") | contains(232.priceRaw; "$"); parseNumber(replace(replace(replace(232.priceRaw; " USD"; ""); "$"; ""); ","; "")); if(contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp"); round(parseNumber(replace(replace(replace(replace(232.priceRaw; "Rp"; ""); " IDR"; ""); "."; ""); ","; "")) / 15700); 0)))}}
+
+==========================================================
+KEY CHANGE:
+==========================================================
+
+For "1,1 Mio. USD":
+
+1. Replace " Mio. USD" → "1,1"
+2. Replace " Mio. IDR" → "1,1" (no match)
+3. Replace " Mio." → "1,1" (no match)
+4. Replace " Mio" → "1,1" (no match)
+5. Replace " USD" → "1,1" (no match)
+6. Replace "." with "" → "1,1" ✅ (removes ANY periods!)
+7. Replace "," with "." → "1.1" ✅
+8. parseNumber("1.1") → 1.1 ✅
+9. * 1000000 → 1,100,000 ✅
+
+The critical change: replace(".", "") happens BEFORE replace(",", ".")
+
+This ensures NO periods exist before we add the decimal point!
+
+==========================================================
+IF THIS STILL FAILS, TRY THIS DEBUG VERSION:
+==========================================================
+
+Let's test with an even simpler formula that shows us what's happening:
+
+{{trim(replace(replace(replace(replace(replace(replace(232.priceRaw; " Mio. USD"; ""); " Mio."; ""); " Mio"; ""); " USD"; ""); "."; ""); ","; "."))}}
+
+Paste this temporarily and run it - it will show you the exact string
+before parseNumber is called. If it shows "1.1" then we know the issue
+is with parseNumber. If it shows "1.1." then we know there's a period
+we're still missing.
+
+==========================================================
+NUCLEAR OPTION - EXTRACT ONLY DIGITS AND COMMA:
+==========================================================
+
+If none of the above work, we might need to use a different approach
+that ONLY keeps digits and the comma:
+
+Unfortunately Make.com doesn't have a good "keep only" function, so
+we have to use multiple replace() calls to remove everything else.
+
+But first, try the v7 formula above and let me know if you still get
+the error!
+
+==========================================================
+TASK 3 VERSION:
+==========================================================
+
+{{if(contains(233.priceRaw; "Mio"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(233.priceRaw; " Mio. USD"; ""); " Mio. IDR"; ""); " Mio."; ""); " Mio"; ""); " USD"; ""); "."; ""); ","; ".")) * 1000000); if(contains(233.priceRaw; "Bill"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(233.priceRaw; " Bill. IDR"; ""); " Bill. USD"; ""); " Bill."; ""); " Bill"; ""); " IDR"; ""); "."; ""); ","; ".")) * 1000000000 / 15700); if(contains(233.priceRaw; "USD") | contains(233.priceRaw; "$"); parseNumber(replace(replace(replace(233.priceRaw; " USD"; ""); "$"; ""); ","; "")); if(contains(233.priceRaw; "IDR") | contains(233.priceRaw; "Rp"); round(parseNumber(replace(replace(replace(replace(233.priceRaw; "Rp"; ""); " IDR"; ""); "."; ""); ","; "")) / 15700); 0)))}}
+
+==========================================================

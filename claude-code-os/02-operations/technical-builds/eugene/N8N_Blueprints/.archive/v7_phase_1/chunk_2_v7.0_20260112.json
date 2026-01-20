@@ -1,0 +1,76 @@
+{
+  "updatedAt": "2026-01-12T10:04:46.548Z",
+  "createdAt": "2026-01-09T09:46:16.375Z",
+  "id": "qKyqsL64ReMiKpJ4",
+  "name": "AMA Chunk 2: Text Extraction (Document Organizer V4)",
+  "active": true,
+  "nodes": [
+    {
+      "id": "execute-trigger-1",
+      "name": "Execute Workflow Trigger (Refreshed)",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [-1056, 992]
+    },
+    {
+      "id": "0dbe4756-a5fb-4522-8e78-a76d2a3821bd",
+      "name": "Normalize Input1",
+      "type": "n8n-nodes-base.code",
+      "position": [-832, 992]
+    },
+    {
+      "id": "832be0ae-7893-4bde-b564-e0a4cf815b25",
+      "name": "If Check Skip Download",
+      "type": "n8n-nodes-base.if",
+      "position": [-608, 992]
+    },
+    {
+      "id": "608c7bb6-4da6-4551-973b-a2d1f53c1537",
+      "name": "Download PDF1",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [-384, 912]
+    },
+    {
+      "id": "e5913035-229c-4f2d-9087-eab28bf39471",
+      "name": "Extract PDF Text1",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [-160, 912]
+    },
+    {
+      "id": "750ec98b-667e-4881-b8a3-2ab7062f0592",
+      "name": "Detect Scan vs Digital1",
+      "type": "n8n-nodes-base.code",
+      "position": [64, 992]
+    },
+    {
+      "id": "70089d48-0515-438a-9035-b0de376d2115",
+      "name": "IF Needs OCR1",
+      "type": "n8n-nodes-base.if",
+      "position": [288, 992]
+    },
+    {
+      "id": "ac8ed78d-7389-4deb-be11-9a11a01b4556",
+      "name": "AWS Textract OCR1",
+      "type": "n8n-nodes-base.awsTextract",
+      "position": [512, 832]
+    },
+    {
+      "id": "36cb5156-53a8-4fa2-9139-8b33f4b44530",
+      "name": "Process OCR Result1",
+      "type": "n8n-nodes-base.code",
+      "position": [736, 912]
+    },
+    {
+      "id": "0caa1501-bc17-461d-9b83-bb84190d9993",
+      "name": "Normalize Output1",
+      "type": "n8n-nodes-base.code",
+      "position": [960, 992]
+    },
+    {
+      "id": "5e812709-06aa-45b1-ad01-f2ea18642d93",
+      "name": "Execute Chunk 2.5",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "position": [1184, 992]
+    }
+  ],
+  "versionCounter": 79
+}

@@ -1,0 +1,40 @@
+{
+  "nodeName": "Tier 2 GPT-4 API Call",
+  "nodeType": "n8n-nodes-base.httpRequest",
+  "parameters": {
+    "url": "https://api.openai.com/v1/chat/completions",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "openAiApi",
+    "method": "POST",
+    "sendBody": true,
+    "bodyParameters": {
+      "parameters": [
+        {
+          "name": "model",
+          "value": "gpt-4"
+        },
+        {
+          "name": "messages",
+          "value": "={{ [{\"role\": \"user\", \"content\": $json.tier2Prompt}] }}"
+        },
+        {
+          "name": "temperature",
+          "value": 0.3
+        },
+        {
+          "name": "max_tokens",
+          "value": 300
+        }
+      ]
+    },
+    "options": {
+      "responseFormat": "json"
+    }
+  },
+  "connections": {
+    "input": "code-2",
+    "output": "code-tier2-parse"
+  },
+  "position": [1264, 320],
+  "notes": "Calls GPT-4 with dynamic Tier 2 prompt built by code-2 based on Tier 1 category"
+}

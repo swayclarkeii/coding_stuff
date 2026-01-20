@@ -1,0 +1,393 @@
+{
+  "name": "Expense System - Workflow 8: G Drive Invoice Collector",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "mode": "id",
+          "value": "1_zVNS3JHS15pUjvfEJMh9nzYWn6TltbS"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "id": "trigger-gdrive",
+      "name": "Google Drive Trigger",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "google-drive-oauth",
+          "name": "Google Drive OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "condition-1",
+              "leftValue": "={{ $json.name }}",
+              "rightValue": ".pdf",
+              "operator": {
+                "type": "string",
+                "operation": "endsWith"
+              }
+            },
+            {
+              "id": "condition-2",
+              "leftValue": "={{ $json.name }}",
+              "rightValue": "SC - ",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            },
+            {
+              "id": "condition-3",
+              "leftValue": "={{ $json.size }}",
+              "rightValue": 10485760,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ]
+        }
+      },
+      "id": "filter-valid-files",
+      "name": "Filter Valid Files",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "operation": "search",
+        "driveId": {
+          "mode": "id",
+          "value": "My Drive"
+        },
+        "queryString": "='1V7UmNvDP3a2t6IIbJJI7y8YXz6_X7F6l' in parents"
+      },
+      "id": "list-pool-files",
+      "name": "List Invoice Pool Files",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [680, 300],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "google-drive-oauth",
+          "name": "Google Drive OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the new invoice filename from trigger\nconst newFile = $('Google Drive Trigger').first().json;\nconst newFileName = newFile.name;\n\n// Get list of existing files in Invoice Pool\nconst poolFiles = $('List Invoice Pool Files').all();\n\n// Check if file already exists in pool\nconst isDuplicate = poolFiles.some(item => item.json.name === newFileName);\n\nif (isDuplicate) {\n  // Skip processing - file already in pool\n  return [];\n}\n\n// Not a duplicate - continue processing\nreturn [{\n  json: {\n    ...newFile,\n    isDuplicate: false,\n    processedAt: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "check-duplicates",
+      "name": "Check for Duplicates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "download",
+        "fileId": {
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        }
+      },
+      "id": "download-invoice",
+      "name": "Download Invoice",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1120, 300],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "google-drive-oauth",
+          "name": "Google Drive OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get binary data from downloaded invoice\nconst binaryData = $input.first().binary.data;\nconst base64Data = binaryData.toBase64();\n\n// Build Anthropic API request for invoice extraction\nconst requestBody = {\n  model: \"claude-sonnet-4-5\",\n  max_tokens: 4096,\n  messages: [\n    {\n      role: \"user\",\n      content: [\n        {\n          type: \"text\",\n          text: `Extract invoice details from this German invoice (RECHNUNG).\n\nReturn JSON with these fields:\n- invoiceNumber: The number after \"RECHNUNG #:\" (string)\n- clientName: The company name after \"RECHNUNG AN:\" (string)\n- amount: The total amount after \"INSGESAMT\" (number only, no € symbol)\n- currency: \"EUR\" (string)\n- date: The date after \"DATUM:\" in DD.MM.YYYY format (string)\n- project: The text after \"Projekt:\" if present, otherwise empty string (string)\n\nExample output:\n{\n  \"invoiceNumber\": \"539\",\n  \"clientName\": \"SUPREME MUSIC GmbH\",\n  \"amount\": 416.5,\n  \"currency\": \"EUR\",\n  \"date\": \"16.12.2025\",\n  \"project\": \"Project #25-0120\"\n}\n\nReturn ONLY the JSON object, no markdown formatting.`\n        },\n        {\n          type: \"image\",\n          source: {\n            type: \"base64\",\n            media_type: \"application/pdf\",\n            data: base64Data\n          }\n        }\n      ]\n    }\n  ]\n};\n\nreturn {\n  json: {\n    requestBody: requestBody,\n    fileName: $input.first().json.name,\n    fileId: $input.first().json.id\n  },\n  binary: $input.first().binary\n};"
+      },
+      "id": "build-anthropic-request",
+      "name": "Build Anthropic Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.requestBody }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "call-anthropic-api",
+      "name": "Call Anthropic API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [1560, 300],
+      "credentials": {
+        "anthropicApi": {
+          "id": "MRSNO4UW3OEIA3tQ",
+          "name": "Anthropic account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get Anthropic response\nconst response = $input.first().json;\n\n// Check if API call failed\nif (response.error) {\n  throw new Error(`Anthropic API error: ${response.error.message}`);\n}\n\n// Extract text content from Anthropic response format\nconst textContent = response.content[0].text;\n\n// Remove markdown code fences if present\nconst cleanedText = textContent\n  .replace(/```json\\n/g, '')\n  .replace(/```/g, '')\n  .trim();\n\n// Parse JSON\nlet invoiceData;\ntry {\n  invoiceData = JSON.parse(cleanedText);\n} catch (e) {\n  throw new Error(`Failed to parse invoice JSON: ${e.message}. Raw text: ${cleanedText}`);\n}\n\n// Validate required fields\nconst requiredFields = ['invoiceNumber', 'clientName', 'amount', 'currency', 'date'];\nfor (const field of requiredFields) {\n  if (!invoiceData[field]) {\n    throw new Error(`Missing required field: ${field}`);\n  }\n}\n\n// Get file metadata from previous nodes\nconst buildNode = $('Build Anthropic Request').first().json;\n\n// Add metadata\nconst finalData = {\n  InvoiceID: invoiceData.invoiceNumber,\n  ClientName: invoiceData.clientName,\n  Amount: invoiceData.amount,\n  Currency: invoiceData.currency,\n  Date: invoiceData.date,\n  Project: invoiceData.project || '',\n  FileID: buildNode.fileId,\n  FileName: buildNode.fileName,\n  ProcessedDate: new Date().toISOString(),\n  Source: 'G Drive Production'\n};\n\nreturn {\n  json: finalData,\n  binary: $input.first().binary\n};"
+      },
+      "id": "parse-response",
+      "name": "Parse Anthropic Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1780, 300]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "copy",
+        "fileId": {
+          "mode": "id",
+          "value": "={{ $json.FileID }}"
+        },
+        "driveId": {
+          "mode": "id",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "mode": "id",
+          "value": "1V7UmNvDP3a2t6IIbJJI7y8YXz6_X7F6l"
+        }
+      },
+      "id": "copy-to-pool",
+      "name": "Copy Invoice to Pool",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [2000, 300],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "google-drive-oauth",
+          "name": "Google Drive OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "mode": "id",
+          "value": "Invoices"
+        },
+        "dataMode": "autoMapInputData",
+        "range": "Invoices!A:I",
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      },
+      "id": "log-to-sheet",
+      "name": "Log to Invoices Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [2220, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "google-sheets-oauth",
+          "name": "Google Sheets OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "height": 120,
+        "width": 480,
+        "content": "## W8: G Drive Invoice Collector\n\n**Purpose:** Monitor Sway's invoice production folder, extract invoice details with Claude Vision, copy to Invoice Pool\n\n**Trigger:** New PDF files created in production folder (poll every 5min)"
+      },
+      "id": "sticky-notes-header",
+      "name": "Workflow Info",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [240, 140]
+    },
+    {
+      "parameters": {
+        "height": 100,
+        "width": 340,
+        "content": "## Duplicate Prevention\n\nList existing files in Invoice Pool and skip processing if invoice already exists (by filename match)"
+      },
+      "id": "sticky-notes-duplicate-check",
+      "name": "Duplicate Prevention",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [680, 140]
+    },
+    {
+      "parameters": {
+        "height": 100,
+        "width": 460,
+        "content": "## Claude Vision Invoice Extraction\n\nUse Anthropic API to extract:\n- Invoice #, Client Name, Amount, Currency, Date, Project\n\nError handling: Continue on fail (some PDFs may not parse)"
+      },
+      "id": "sticky-notes-anthropic",
+      "name": "Claude Vision Extraction",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1340, 140]
+    },
+    {
+      "parameters": {
+        "height": 100,
+        "width": 340,
+        "content": "## Copy & Log\n\nCopy invoice to Invoice Pool (keep original)\nLog extracted data to Invoices sheet"
+      },
+      "id": "sticky-notes-output",
+      "name": "Copy & Log",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2000, 140]
+    }
+  ],
+  "connections": {
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Filter Valid Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Valid Files": {
+      "main": [
+        [
+          {
+            "node": "List Invoice Pool Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Invoice Pool Files": {
+      "main": [
+        [
+          {
+            "node": "Check for Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Download Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Invoice": {
+      "main": [
+        [
+          {
+            "node": "Build Anthropic Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Anthropic Request": {
+      "main": [
+        [
+          {
+            "node": "Call Anthropic API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Anthropic API": {
+      "main": [
+        [
+          {
+            "node": "Parse Anthropic Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Anthropic Response": {
+      "main": [
+        [
+          {
+            "node": "Copy Invoice to Pool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy Invoice to Pool": {
+      "main": [
+        [
+          {
+            "node": "Log to Invoices Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

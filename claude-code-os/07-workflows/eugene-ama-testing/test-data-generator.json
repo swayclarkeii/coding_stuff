@@ -1,0 +1,329 @@
+{
+  "testScenarios": {
+    "happyPath": [
+      {
+        "id": "HP-01",
+        "name": "New Client Valid PDF",
+        "description": "First-time client with clean, readable AMA PDF",
+        "mockData": {
+          "clientName": "Test Corp Alpha",
+          "documentType": "AMA",
+          "pdfReadable": true,
+          "clientExists": false,
+          "emailSubject": "AMA Documents - Test Corp Alpha",
+          "attachmentCount": 1
+        },
+        "expectedOutcome": {
+          "foldersCreated": ["Test Corp Alpha", "Emails", "Reports", "Correspondence"],
+          "registryUpdated": true,
+          "folderIdSheetUpdated": true,
+          "notificationSent": false
+        }
+      },
+      {
+        "id": "HP-02",
+        "name": "Existing Client New Document",
+        "description": "Known client submitting additional AMA documents",
+        "mockData": {
+          "clientName": "Eugene Wei",
+          "documentType": "AMA",
+          "pdfReadable": true,
+          "clientExists": true,
+          "emailSubject": "Additional AMA - Eugene Wei",
+          "attachmentCount": 2
+        },
+        "expectedOutcome": {
+          "foldersCreated": [],
+          "registryUpdated": false,
+          "routedToChunk3": true,
+          "documentsFiled": true
+        }
+      },
+      {
+        "id": "HP-03",
+        "name": "Multiple Attachments Single Client",
+        "description": "Email with 5 PDF attachments for same client",
+        "mockData": {
+          "clientName": "Multi Doc Inc",
+          "documentType": "AMA",
+          "pdfReadable": true,
+          "clientExists": false,
+          "emailSubject": "Complete AMA Package - Multi Doc Inc",
+          "attachmentCount": 5
+        },
+        "expectedOutcome": {
+          "foldersCreated": ["Multi Doc Inc", "Emails", "Reports", "Correspondence"],
+          "allDocumentsProcessed": true,
+          "registryUpdated": true
+        }
+      }
+    ],
+    "edgeCases": [
+      {
+        "id": "EC-01",
+        "name": "Corrupted PDF",
+        "description": "PDF file that cannot be parsed/read",
+        "mockData": {
+          "clientName": null,
+          "documentType": "AMA",
+          "pdfReadable": false,
+          "pdfError": "CORRUPTED_FILE",
+          "emailSubject": "AMA Documents",
+          "attachmentCount": 1
+        },
+        "expectedOutcome": {
+          "errorHandled": true,
+          "notificationSent": true,
+          "notificationType": "unreadable_document",
+          "documentQuarantined": true,
+          "processingContinued": false
+        }
+      },
+      {
+        "id": "EC-02",
+        "name": "No Client Name in PDF",
+        "description": "Valid PDF but AI cannot extract client name",
+        "mockData": {
+          "clientName": null,
+          "documentType": "AMA",
+          "pdfReadable": true,
+          "clientNameMissing": true,
+          "emailSubject": "Document Submission",
+          "attachmentCount": 1
+        },
+        "expectedOutcome": {
+          "routedToUnidentified": true,
+          "manualReviewFlagged": true,
+          "notificationSent": true,
+          "processingPaused": true
+        }
+      },
+      {
+        "id": "EC-03",
+        "name": "Ambiguous Client Match",
+        "description": "Client name matches multiple existing clients",
+        "mockData": {
+          "clientName": "Smith Enterprises",
+          "documentType": "AMA",
+          "pdfReadable": true,
+          "ambiguousMatch": true,
+          "possibleMatches": ["Smith Enterprises LLC", "Smith Enterprises Inc", "J. Smith Enterprises"],
+          "emailSubject": "AMA - Smith Enterprises",
+          "attachmentCount": 1
+        },
+        "expectedOutcome": {
+          "aiSelectedBestMatch": true,
+          "confidenceScoreLogged": true,
+          "matchRationaleRecorded": true,
+          "processingContinued": true
+        }
+      },
+      {
+        "id": "EC-04",
+        "name": "Empty Email Body",
+        "description": "Email with attachments but no body text",
+        "mockData": {
+          "clientName": "Silent Sender Corp",
+          "documentType": "AMA",
+          "pdfReadable": true,
+          "emailBody": "",
+          "emailSubject": "",
+          "attachmentCount": 1
+        },
+        "expectedOutcome": {
+          "attachmentProcessed": true,
+          "clientExtractedFromPdf": true,
+          "noErrorThrown": true
+        }
+      },
+      {
+        "id": "EC-05",
+        "name": "Wrong File Type",
+        "description": "Email contains non-PDF attachments (Excel, Word)",
+        "mockData": {
+          "clientName": "Wrong Format Ltd",
+          "documentType": "AMA",
+          "attachmentTypes": [".xlsx", ".docx", ".png"],
+          "emailSubject": "AMA Documents - Wrong Format Ltd",
+          "attachmentCount": 3
+        },
+        "expectedOutcome": {
+          "nonPdfFiltered": true,
+          "warningLogged": true,
+          "noPdfError": true,
+          "processingSkipped": true
+        }
+      },
+      {
+        "id": "EC-06",
+        "name": "Duplicate Email",
+        "description": "Same email processed twice (already has processed label)",
+        "mockData": {
+          "clientName": "Already Done Inc",
+          "documentType": "AMA",
+          "pdfReadable": true,
+          "alreadyProcessed": true,
+          "gmailLabel": "Processed",
+          "emailSubject": "AMA - Already Done Inc",
+          "attachmentCount": 1
+        },
+        "expectedOutcome": {
+          "duplicateDetected": true,
+          "processingSkipped": true,
+          "noErrorThrown": true,
+          "logEntryCreated": true
+        }
+      },
+      {
+        "id": "EC-07",
+        "name": "Very Large PDF",
+        "description": "PDF exceeds normal size limits (100+ pages)",
+        "mockData": {
+          "clientName": "Big Document Corp",
+          "documentType": "AMA",
+          "pdfReadable": true,
+          "pdfPageCount": 150,
+          "pdfSizeMB": 45,
+          "emailSubject": "Complete AMA - Big Document Corp",
+          "attachmentCount": 1
+        },
+        "expectedOutcome": {
+          "processingCompleted": true,
+          "timeoutHandled": true,
+          "chunkProcessingUsed": true
+        }
+      },
+      {
+        "id": "EC-08",
+        "name": "Special Characters in Client Name",
+        "description": "Client name with unicode, apostrophes, ampersands",
+        "mockData": {
+          "clientName": "O'Brien & Müller GmbH",
+          "documentType": "AMA",
+          "pdfReadable": true,
+          "clientExists": false,
+          "emailSubject": "AMA - O'Brien & Müller GmbH",
+          "attachmentCount": 1
+        },
+        "expectedOutcome": {
+          "folderNameSanitized": true,
+          "foldersCreated": ["OBrien Muller GmbH", "Emails", "Reports", "Correspondence"],
+          "originalNamePreserved": true,
+          "registryUpdated": true
+        }
+      },
+      {
+        "id": "EC-09",
+        "name": "Password Protected PDF",
+        "description": "PDF requires password to open",
+        "mockData": {
+          "clientName": null,
+          "documentType": "AMA",
+          "pdfReadable": false,
+          "pdfError": "PASSWORD_PROTECTED",
+          "emailSubject": "Confidential AMA Documents",
+          "attachmentCount": 1
+        },
+        "expectedOutcome": {
+          "errorHandled": true,
+          "notificationSent": true,
+          "notificationType": "password_protected",
+          "manualInterventionRequired": true
+        }
+      },
+      {
+        "id": "EC-10",
+        "name": "Mixed Valid and Invalid Attachments",
+        "description": "Email with 3 valid PDFs and 2 corrupted ones",
+        "mockData": {
+          "clientName": "Partial Success LLC",
+          "documentType": "AMA",
+          "attachments": [
+            {"name": "valid1.pdf", "readable": true},
+            {"name": "corrupted.pdf", "readable": false},
+            {"name": "valid2.pdf", "readable": true},
+            {"name": "empty.pdf", "readable": false},
+            {"name": "valid3.pdf", "readable": true}
+          ],
+          "emailSubject": "AMA Package - Partial Success LLC",
+          "attachmentCount": 5
+        },
+        "expectedOutcome": {
+          "validDocumentsProcessed": 3,
+          "invalidDocumentsQuarantined": 2,
+          "partialSuccessReported": true,
+          "processingContinued": true
+        }
+      }
+    ],
+    "stressTests": [
+      {
+        "id": "ST-01",
+        "name": "Burst of 10 Emails",
+        "description": "10 emails arrive simultaneously",
+        "mockData": {
+          "emailCount": 10,
+          "simultaneousArrival": true,
+          "uniqueClients": 10
+        },
+        "expectedOutcome": {
+          "allProcessed": true,
+          "noRaceConditions": true,
+          "registryConsistent": true
+        }
+      },
+      {
+        "id": "ST-02",
+        "name": "API Rate Limit Hit",
+        "description": "Google Drive API rate limit exceeded",
+        "mockData": {
+          "simulateRateLimit": true,
+          "clientName": "Rate Test Inc",
+          "attachmentCount": 1
+        },
+        "expectedOutcome": {
+          "retryLogicTriggered": true,
+          "exponentialBackoff": true,
+          "eventualSuccess": true
+        }
+      }
+    ]
+  },
+  "verificationChecks": {
+    "googleDrive": {
+      "tool": "mcp__google-drive__search",
+      "checks": [
+        "folder_exists",
+        "subfolder_structure",
+        "file_uploaded",
+        "permissions_correct"
+      ]
+    },
+    "googleSheets": {
+      "tool": "mcp__google-sheets__read_rows",
+      "checks": [
+        "registry_row_added",
+        "folder_id_recorded",
+        "timestamp_correct",
+        "no_duplicates"
+      ]
+    },
+    "n8n": {
+      "tool": "mcp__n8n-mcp__n8n_executions",
+      "checks": [
+        "execution_success",
+        "no_errors",
+        "correct_workflow_path",
+        "timing_acceptable"
+      ]
+    }
+  },
+  "resourceIds": {
+    "clientRegistrySheet": "1T-jL-cLgplVeZ3EMroQxvGEqI5G7t81jRZ2qINDvXNI",
+    "folderIdSheet": "1-CPnCr3locAORVX5tUEoh6r0i-x3tQ_ROTN0VXatOAU",
+    "amaParentFolder": "1ikw3k-EgpVg_h2ySDdqdUFB7-FQyYDFm",
+    "preChunk0Workflow": "Kj4AI5N1hWptreH6",
+    "chunk0Workflow": "Ui2rQFpMu9G1RTE1",
+    "testOrchestratorWorkflow": "EzPj1xtEZOy2UY3V"
+  }
+}

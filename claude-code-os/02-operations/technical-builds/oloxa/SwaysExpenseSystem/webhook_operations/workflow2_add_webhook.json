@@ -1,0 +1,28 @@
+{
+  "id": "dHbwemg7hEB4vDmC",
+  "operations": [
+    {
+      "type": "addNode",
+      "node": {
+        "name": "Manual Test Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [250, 100],
+        "parameters": {
+          "path": "test-expense-w2",
+          "httpMethod": "POST",
+          "responseMode": "lastNode",
+          "options": {}
+        },
+        "id": "webhook-test-2"
+      }
+    },
+    {
+      "type": "addConnection",
+      "source": "Manual Test Trigger",
+      "sourceOutput": "main",
+      "target": "Load Vendor Patterns",
+      "targetInput": "main"
+    }
+  ]
+}

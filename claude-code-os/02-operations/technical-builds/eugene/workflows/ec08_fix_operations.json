@@ -1,0 +1,45 @@
+[
+  {
+    "type": "updateNode",
+    "nodeName": "Check Client Registry",
+    "updates": {
+      "parameters": {
+        "operation": "readRows",
+        "options": {}
+      }
+    }
+  },
+  {
+    "type": "addNode",
+    "node": {
+      "name": "Find Matching Client",
+      "type": "n8n-nodes-base.code",
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Filter the registry rows to find matching client\nconst allRows = $input.all();\nconst targetClientName = $('Prepare Test Data').first().json.clientName;\n\n// Find matching row (case-sensitive exact match)\nconst matchingRow = allRows.find(item => {\n  const row = item.json;\n  return row.Client_Name === targetClientName;\n});\n\n// Return the matching row or empty object if not found\nreturn matchingRow ? { json: matchingRow.json } : { json: {} };"
+      },
+      "position": [1400, 400],
+      "typeVersion": 2
+    }
+  },
+  {
+    "type": "removeConnection",
+    "source": "Check Client Registry",
+    "sourceOutput": "main",
+    "target": "Merge All Results"
+  },
+  {
+    "type": "addConnection",
+    "source": "Check Client Registry",
+    "sourceOutput": "main",
+    "target": "Find Matching Client",
+    "targetInput": "main"
+  },
+  {
+    "type": "addConnection",
+    "source": "Find Matching Client",
+    "sourceOutput": "main",
+    "target": "Merge All Results",
+    "targetInput": "main"
+  }
+]

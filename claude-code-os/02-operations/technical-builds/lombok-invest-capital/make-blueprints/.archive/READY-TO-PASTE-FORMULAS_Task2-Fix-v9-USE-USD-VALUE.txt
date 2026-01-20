@@ -1,0 +1,87 @@
+==========================================================
+TASK 2 PRICE NORMALIZATION - v9 USE PROVIDED USD VALUE
+==========================================================
+
+CORRECTION: When Estate Lombok shows "1.9 Bill IDR 148.000",
+we should use 148,000 (their USD conversion), NOT calculate from IDR!
+
+LOGIC:
+- "1.9 Bill IDR 148.000" → Use 148,000 USD (their conversion) ✅
+- "1,1 Mio. USD" → Calculate 1.1 * 1,000,000 = 1,100,000 USD ✅
+- "900.000 USD" → Parse as 900,000 USD ✅
+
+PASTE THIS INTO THE "Normalize Price USD for Task 2" MODULE:
+----------------------------------------------------------
+
+{{if(contains(232.priceRaw; "Bill") & (contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp")); parseNumber(replace(replace(replace(trim(split(232.priceRaw; "Bill")[2]); "IDR"; ""); "Rp"; ""); "."; "")); if(contains(232.priceRaw; "Mio") & contains(232.priceRaw; "USD"); round(parseNumber(replace(replace(trim(split(232.priceRaw; "Mio")[1]); "USD"; ""); ","; ".")) * 1000000); if(contains(232.priceRaw; "Mio") & (contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp")); parseNumber(replace(replace(replace(trim(split(232.priceRaw; "Mio")[2]); "IDR"; ""); "Rp"; ""); "."; "")); if(contains(232.priceRaw; "USD") | contains(232.priceRaw; "$"); parseNumber(replace(replace(replace(replace(232.priceRaw; "USD"; ""); "$"; ""); " "; ""); "."; "")); if(contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp"); round(parseNumber(replace(replace(replace(replace(232.priceRaw; "Rp"; ""); "IDR"; ""); "."; ""); ","; "")) / 15700); 0))))}}
+
+==========================================================
+HOW THIS WORKS:
+==========================================================
+
+Priority 1: "Bill" + "IDR" (Estate Lombok mixed format)
+Example: "1.9 Bill IDR 148.000"
+- split() at "Bill" → ["1.9 ", " IDR 148.000"]
+- Take [2] (second element) → " IDR 148.000"
+- Remove "IDR" → " 148.000"
+- Remove "." → " 148000"
+- trim() → "148000"
+- parseNumber("148000") → 148,000 USD ✅
+
+Priority 2: "Mio" + "USD" (Estate Lombok millions USD)
+Example: "1,1 Mio. USD"
+- split() at "Mio" → ["1,1 ", ". USD"]
+- Take [1] (first element) → "1,1 "
+- Remove "USD" → "1,1 "
+- Replace "," with "." → "1.1 "
+- trim() → "1.1"
+- parseNumber("1.1") → 1.1
+- 1.1 * 1,000,000 → 1,100,000 USD ✅
+
+Priority 3: "Mio" + "IDR" (Mixed IDR millions with USD)
+Example: "5.5 Mio IDR 350.000"
+- split() at "Mio" → ["5.5 ", " IDR 350.000"]
+- Take [2] → " IDR 350.000"
+- Remove "IDR" → " 350.000"
+- Remove "." → " 350000"
+- parseNumber("350000") → 350,000 USD ✅
+
+Priority 4: Regular "USD" or "$"
+Example: "900.000 USD"
+- Remove "USD" and "$" → "900.000"
+- Remove spaces → "900.000"
+- Remove "." (thousands separator) → "900000"
+- parseNumber("900000") → 900,000 USD ✅
+
+Priority 5: Pure IDR (no USD shown)
+Example: "Rp 3.500.000.000"
+- Remove "Rp" and "IDR" → "3.500.000.000"
+- Remove "." → "3500000000"
+- Replace "," → "3500000000"
+- parseNumber / 15700 → 223,057 USD
+
+==========================================================
+KEY CHANGES FROM v8:
+==========================================================
+
+1. ✅ For "Bill IDR [number]": Use split()[2] (SECOND part = USD value)
+2. ✅ For "Mio USD": Use split()[1] (FIRST part, multiply by 1M)
+3. ✅ For "Mio IDR [number]": Use split()[2] (SECOND part = USD value)
+
+==========================================================
+TESTING CHECKLIST:
+==========================================================
+
+✅ "1,1 Mio. USD"              → 1,100,000 (calculate from Mio)
+✅ "1.9 Bill IDR 148.000"      → 148,000 (use provided USD)
+✅ "4.5 Bill IDR 286.000"      → 286,000 (use provided USD)
+✅ "900.000 USD"               → 900,000 (parse directly)
+✅ "615.000 USD"               → 615,000 (parse directly)
+
+==========================================================
+TASK 3 VERSION:
+==========================================================
+
+{{if(contains(233.priceRaw; "Bill") & (contains(233.priceRaw; "IDR") | contains(233.priceRaw; "Rp")); parseNumber(replace(replace(replace(trim(split(233.priceRaw; "Bill")[2]); "IDR"; ""); "Rp"; ""); "."; "")); if(contains(233.priceRaw; "Mio") & contains(233.priceRaw; "USD"); round(parseNumber(replace(replace(trim(split(233.priceRaw; "Mio")[1]); "USD"; ""); ","; ".")) * 1000000); if(contains(233.priceRaw; "Mio") & (contains(233.priceRaw; "IDR") | contains(233.priceRaw; "Rp")); parseNumber(replace(replace(replace(trim(split(233.priceRaw; "Mio")[2]); "IDR"; ""); "Rp"; ""); "."; "")); if(contains(233.priceRaw; "USD") | contains(233.priceRaw; "$"); parseNumber(replace(replace(replace(replace(233.priceRaw; "USD"; ""); "$"; ""); " "; ""); "."; "")); if(contains(233.priceRaw; "IDR") | contains(233.priceRaw; "Rp"); round(parseNumber(replace(replace(replace(replace(233.priceRaw; "Rp"; ""); "IDR"; ""); "."; ""); ","; "")) / 15700); 0))))}}
+
+==========================================================

@@ -1,0 +1,13 @@
+# Keep credentials private
+.credentials/
+.claude/
+
+# Exclude credentials and sensitive JSON files (add specific patterns as needed)
+# Note: All other JSON files (blueprints, configs, etc.) SHOULD be backed up
+**/credentials.json
+**/secrets.json
+**/.env.json
+
+# Keep personal journey private
+00-progress-advisor/MY-JOURNEY.md
+02-operations/projects/eugene/dummy_files/

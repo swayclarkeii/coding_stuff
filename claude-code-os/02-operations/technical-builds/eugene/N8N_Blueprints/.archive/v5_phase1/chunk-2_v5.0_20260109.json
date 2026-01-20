@@ -1,0 +1,472 @@
+{
+  "name": "Chunk 2: Text Extraction (Document Organizer V4)",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.skipDownload }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "id": "condition-1767881576944-se5342byp"
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [896, 520],
+      "id": "c4fc92a8-18b9-4514-9dd8-0048295b3a5f",
+      "name": "If Check Skip Download"
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Normalize input from Chunk 1 (pass-through from Pre-Chunk 0)\nconst item = $input.first().json;\n\n// Check if we have extracted text from Pre-Chunk 0 (pass-through)\nconst extractedText = item.extractedText || '';\nconst hasExtractedText = extractedText.trim().length > 100;\n\n// CRITICAL FIX: Respect skipDownload from Pre-Chunk 0 instead of recalculating\nconst skipDownload = item.skipDownload !== undefined \n  ? item.skipDownload  // Use Pre-Chunk 0's value\n  : (hasExtractedText && item.fileId);  // Fallback: calculate if not provided\n\nreturn [{\n  json: {\n    fileId: item.fileId,\n    // FIX: Pre-Chunk 0 sends 'fileName', not 'name'\n    fileName: item.fileName || item.name,\n    mimeType: item.mimeType || 'application/pdf',\n    size: item.size || 0,\n\n    // Client context (pass-through from Pre-Chunk 0 via Chunk 1)\n    clientNormalized: item.client_normalized || 'unknown',\n    stagingFolderId: item.staging_folder_id,\n\n    // Text extraction (pass-through from Pre-Chunk 0)\n    extractedText: hasExtractedText ? extractedText : null,\n    textLength: hasExtractedText ? extractedText.length : 0,\n    extractionMethod: hasExtractedText ? item.extractionMethod : null,\n\n    // Skip download flag (FIXED)\n    skipDownload: skipDownload,\n\n    // Processing metadata\n    processedAt: new Date().toISOString(),\n    needsReExtraction: !hasExtractedText,\n    isScanned: null,\n    ocrUsed: false\n  }\n}];"
+      },
+      "name": "Normalize Input1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [672, 520],
+      "id": "58bcfef0-e204-4d25-8f28-6a7817767f82"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.fileId }}"
+        },
+        "options": {}
+      },
+      "name": "Download PDF1",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1120, 448],
+      "id": "b2b7b610-422c-480e-b28b-0aec34f7ed7d",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "name": "Extract PDF Text1",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [1344, 448],
+      "id": "fa5ae8af-21a3-4cdf-b1e3-a44ebfc96239",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Determine if PDF is scanned (needs OCR) or digital\n// MODIFIED: Handle both paths - direct from Pre-Chunk 0 OR from PDF extraction\nconst items = $input.all();\nlet extractResult = null;\nlet originalData = null;\n\n// Check if we came from \"Download PDF\" path or direct skip path\nconst fromNormalizeInput = items.find(i => i.json.skipDownload !== undefined);\nconst fromExtractPDF = items.find(i => i.json.text || i.json.content);\n\nif (fromNormalizeInput && fromNormalizeInput.json.skipDownload) {\n  // Direct path: already have extractedText from Pre-Chunk 0\n  originalData = fromNormalizeInput.json;\n  const textLength = (originalData.extractedText || '').trim().length;\n  \n  return [{\n    json: {\n      ...originalData,\n      extractedText: originalData.extractedText,\n      isScanned: false,\n      needsOcr: false,\n      digitalTextLength: textLength,\n      extractionMethod: originalData.extractionMethod || 'pre_chunk_0_digital',\n      chunk2_path: 'direct_from_pre_chunk'\n    },\n    binary: fromNormalizeInput.binary\n  }];\n} else {\n  // Download path: extract from PDF\n  extractResult = fromExtractPDF || $input.first();\n  originalData = $('Normalize Input1').first().json;\n  \n  const extractedText = extractResult.json.text || extractResult.json.content || '';\n  const textLength = extractedText.trim().length;\n  \n  const isScanned = textLength < 100;\n  const needsOcr = isScanned;\n  \n  return [{\n    json: {\n      ...originalData,\n      extractedText: needsOcr ? null : extractedText,\n      isScanned: isScanned,\n      needsOcr: needsOcr,\n      digitalTextLength: textLength,\n      extractionMethod: needsOcr ? 'pending_ocr' : 'digital',\n      chunk2_path: 'download_extraction'\n    },\n    binary: extractResult.binary\n  }];\n}"
+      },
+      "name": "Detect Scan vs Digital1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1568, 520],
+      "id": "399c3550-80d5-441e-ae4b-97ff4be33b1f"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "needs-ocr",
+              "leftValue": "={{ $json.needsOcr }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "name": "IF Needs OCR1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1792, 520],
+      "id": "9a7fcc3b-5aa8-43f7-81a4-fb0c9748b81e"
+    },
+    {
+      "parameters": {},
+      "name": "AWS Textract OCR1",
+      "type": "n8n-nodes-base.awsTextract",
+      "typeVersion": 1,
+      "position": [2016, 448],
+      "id": "b8c03a2b-e8fd-4f2d-89ee-359dd3ed3f80",
+      "credentials": {
+        "aws": {
+          "id": "G6y6PdRQ94Y85Jar",
+          "name": "AWS (IAM) account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Process OCR result and normalize\nconst ocrResult = $input.first().json;\nconst originalData = $('IF Needs OCR1').first().json;\n\nlet extractedText = '';\nif (ocrResult.Blocks) {\n  extractedText = ocrResult.Blocks\n    .filter(block => block.BlockType === 'LINE')\n    .map(block => block.Text)\n    .join('\\n');\n}\n\nreturn [{\n  json: {\n    ...originalData,\n    extractedText: extractedText,\n    isScanned: true,\n    ocrUsed: true,\n    extractionMethod: 'ocr_textract',\n    ocrConfidence: ocrResult.Blocks?.[0]?.Confidence || null\n  }\n}];"
+      },
+      "name": "Process OCR Result1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2240, 448],
+      "id": "9ec629ae-df3c-4023-bc99-1440c0cb503a"
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Merge all paths (direct from Pre-Chunk 0, OCR, or digital extraction)\nconst items = $input.all();\n\n// Determine which path we came from\nlet resultItem = null;\n\n// Path 1: Direct from Pre-Chunk 0 (via \"Detect Scan vs Digital\")\nconst directItem = items.find(i => i.json.chunk2_path === 'direct_from_pre_chunk');\n\n// Path 2: OCR path\nconst ocrItem = items.find(i => i.json.ocrUsed);\n\n// Path 3: Digital extraction path (from \"IF Needs OCR\" false branch)\nconst digitalItem = items.find(i => i.json.extractedText && !i.json.ocrUsed && i.json.extractionMethod === 'digital');\n\n// Priority: Direct > OCR > Digital\nresultItem = directItem || ocrItem || digitalItem || $input.first();\n\n// Safety check\nif (!resultItem || !resultItem.json) {\n  throw new Error('No valid result item found from any path');\n}\n\nconst json = resultItem.json;\n\nreturn [{\n  json: {\n    // File identifiers\n    fileId: json.fileId || null,\n    fileName: json.fileName || null,\n    originalFileName: json.originalFileName || null,\n    mimeType: json.mimeType || null,\n    extension: json.extension || null,\n    size: json.size || 0,\n    \n    // Email context (if available)\n    emailId: json.emailId || null,\n    emailFrom: json.emailFrom || null,\n    emailSubject: json.emailSubject || null,\n    emailDate: json.emailDate || null,\n    \n    // Client context\n    clientNormalized: json.clientNormalized || json.client_normalized || 'unknown',\n    stagingFolderId: json.stagingFolderId || json.staging_folder_id || null,\n    \n    // Text extraction results\n    extractedText: json.extractedText || '',\n    textLength: json.textLength || (json.extractedText ? json.extractedText.length : 0),\n    isScanned: json.isScanned || false,\n    ocrUsed: json.ocrUsed || false,\n    extractionMethod: json.extractionMethod || null,\n    \n    // Processing metadata\n    processedAt: new Date().toISOString(),\n    extractedFromZip: json.extractedFromZip || false,\n    zipFileName: json.zipFileName || null,\n    stagingPath: json.stagingPath || null,\n    \n    // Downstream fields (to be populated by later chunks)\n    documentType: null,\n    confidence: null,\n    projectName: null,\n    normalizedProjectName: null,\n    \n    // Path indicator for debugging\n    chunk2_path: json.chunk2_path || 'unknown'\n  }\n}];}"
+      },
+      "name": "Normalize Output1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2464, 520],
+      "id": "e3654c42-65fa-4d3c-99f0-c81d3abcbd6b"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "id": "mimeType",
+              "displayName": "mimeType",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "id": "client_normalized",
+              "displayName": "client_normalized",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "id": "staging_folder_id",
+              "displayName": "staging_folder_id",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "id": "extractedText",
+              "displayName": "extractedText",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "id": "extractionMethod",
+              "displayName": "extractionMethod",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "id": "textLength",
+              "displayName": "textLength",
+              "required": false,
+              "type": "number"
+            },
+            {
+              "id": "skipDownload",
+              "displayName": "skipDownload",
+              "required": false,
+              "type": "boolean"
+            }
+          ]
+        }
+      },
+      "id": "32aeacdf-ddbd-4fe0-9519-630aa7b9fc84",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [448, 520]
+    },
+    {
+      "id": "temp-webhook-test",
+      "name": "Test Webhook (Temporary)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [448, 360],
+      "parameters": {
+        "path": "test-chunk2",
+        "httpMethod": "POST",
+        "responseMode": "lastNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "execute-chunk-2-5",
+      "name": "Execute Chunk 2.5",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [2416, 176],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "okg8wTqLtPUwjQ18"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "fileId": "={{ $json.fileId }}",
+            "fileName": "={{ $json.fileName }}",
+            "mimeType": "={{ $json.mimeType }}",
+            "clientNormalized": "={{ $json.clientNormalized }}",
+            "stagingFolderId": "={{ $json.stagingFolderId }}",
+            "extractedText": "={{ $json.extractedText }}",
+            "textLength": "={{ $json.textLength }}",
+            "isScanned": "={{ $json.isScanned }}",
+            "ocrUsed": "={{ $json.ocrUsed }}",
+            "extractionMethod": "={{ $json.extractionMethod }}"
+          },
+          "schema": [
+            {
+              "id": "fileId",
+              "displayName": "fileId",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "id": "fileName",
+              "displayName": "fileName",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "id": "mimeType",
+              "displayName": "mimeType",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "id": "clientNormalized",
+              "displayName": "clientNormalized",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "id": "stagingFolderId",
+              "displayName": "stagingFolderId",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "id": "extractedText",
+              "displayName": "extractedText",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "id": "textLength",
+              "displayName": "textLength",
+              "required": false,
+              "type": "number"
+            },
+            {
+              "id": "isScanned",
+              "displayName": "isScanned",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "id": "ocrUsed",
+              "displayName": "ocrUsed",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "id": "extractionMethod",
+              "displayName": "extractionMethod",
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "convertFieldsToString": false,
+          "attemptToConvertTypes": true
+        }
+      },
+      "disabled": false
+    }
+  ],
+  "connections": {
+    "If Check Skip Download": {
+      "main": [
+        [
+          {
+            "node": "Detect Scan vs Digital1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download PDF1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Input1": {
+      "main": [
+        [
+          {
+            "node": "If Check Skip Download",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download PDF1": {
+      "main": [
+        [
+          {
+            "node": "Extract PDF Text1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract PDF Text1": {
+      "main": [
+        [
+          {
+            "node": "Detect Scan vs Digital1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect Scan vs Digital1": {
+      "main": [
+        [
+          {
+            "node": "IF Needs OCR1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Needs OCR1": {
+      "main": [
+        [
+          {
+            "node": "AWS Textract OCR1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Normalize Output1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AWS Textract OCR1": {
+      "main": [
+        [
+          {
+            "node": "Process OCR Result1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process OCR Result1": {
+      "main": [
+        [
+          {
+            "node": "Normalize Output1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize Input1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test Webhook (Temporary)": {
+      "main": [
+        [
+          {
+            "node": "Normalize Input1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Output1": {
+      "main": [
+        [
+          {
+            "node": "Execute Chunk 2.5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "id": "g9J5kjVtqaF9GLyc",
+  "active": false,
+  "tags": [],
+  "triggerCount": 1
+}

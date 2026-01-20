@@ -1,0 +1,97 @@
+==========================================================
+TASK 2 PRICE NORMALIZATION - v8 EXTRACT FIRST NUMBER ONLY
+==========================================================
+
+REAL PROBLEM DISCOVERED:
+Input: "1.9 Bill IDR 148.000"
+After replacements: "1.9148.000" ❌ (TWO decimal points!)
+
+Estate Lombok includes BOTH prices:
+- "1.9 Bill IDR" (Indonesian Rupiah)
+- "148.000" (USD equivalent)
+
+SOLUTION: Extract ONLY the number before "Bill" or "Mio", ignore rest!
+
+PASTE THIS INTO THE "Normalize Price USD for Task 2" MODULE:
+----------------------------------------------------------
+
+{{if(contains(232.priceRaw; "Mio"); round(parseNumber(replace(replace(replace(trim(split(232.priceRaw; "Mio")[1]); " USD"; ""); " IDR"; ""); ","; ".")) * 1000000); if(contains(232.priceRaw; "Bill"); round(parseNumber(replace(replace(replace(trim(split(232.priceRaw; "Bill")[1]); " USD"; ""); " IDR"; ""); ","; ".")) * 1000000000 / 15700); if(contains(232.priceRaw; "USD") | contains(232.priceRaw; "$"); parseNumber(replace(replace(replace(replace(232.priceRaw; " USD"; ""); "$"; ""); "."; ""); ","; "")); if(contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp"); round(parseNumber(replace(replace(replace(replace(232.priceRaw; "Rp"; ""); " IDR"; ""); "."; ""); ","; "")) / 15700); 0)))}}
+
+==========================================================
+HOW THIS WORKS WITH split():
+==========================================================
+
+For "1.9 Bill IDR 148.000":
+
+1. Contains "Bill" → YES, enter Bill path
+2. split(232.priceRaw; "Bill") → ["1.9 ", " IDR 148.000"]
+3. Take [1] (first element) → "1.9 "
+4. trim() → "1.9"
+5. Replace " USD" → "1.9" (no match)
+6. Replace " IDR" → "1.9" (no match)
+7. Replace "," with "." → "1.9" ✅ (already has period)
+8. parseNumber("1.9") → 1.9 ✅
+9. 1.9 * 1000000000 / 15700 → 121,019 ✅
+
+For "1,1 Mio. USD":
+
+1. Contains "Mio" → YES, enter Mio path
+2. split(232.priceRaw; "Mio") → ["1,1 ", ". USD"]
+3. Take [1] (first element) → "1,1 "
+4. trim() → "1,1"
+5. Replace " USD" → "1,1" (no match)
+6. Replace " IDR" → "1,1" (no match)
+7. Replace "," with "." → "1.1" ✅
+8. parseNumber("1.1") → 1.1 ✅
+9. 1.1 * 1000000 → 1,100,000 ✅
+
+For "900.000 USD" (regular format):
+
+1. Contains "Mio" → NO
+2. Contains "Bill" → NO
+3. Contains "USD" → YES
+4. Replace " USD" → "900.000"
+5. Replace "$" → "900.000"
+6. Replace "." with "" → "900000" (thousands separator)
+7. Replace "," with "" → "900000"
+8. parseNumber("900000") → 900,000 ✅
+
+==========================================================
+KEY INSIGHT:
+==========================================================
+
+split() is the key! It splits the string at "Bill" or "Mio" and takes
+ONLY the first part (the number), completely ignoring everything after!
+
+This way, "1.9 Bill IDR 148.000" becomes just "1.9" ✅
+
+==========================================================
+TESTING CHECKLIST:
+==========================================================
+
+✅ "1,1 Mio. USD"              → 1,100,000
+✅ "1.9 Bill IDR 148.000"      → 121,019 (ignores 148.000)
+✅ "900.000 USD"               → 900,000
+✅ "615.000 USD"               → 615,000
+✅ "4.5 Bill IDR 286.000"      → 286,624 (ignores 286.000)
+
+==========================================================
+TASK 3 VERSION:
+==========================================================
+
+{{if(contains(233.priceRaw; "Mio"); round(parseNumber(replace(replace(replace(trim(split(233.priceRaw; "Mio")[1]); " USD"; ""); " IDR"; ""); ","; ".")) * 1000000); if(contains(233.priceRaw; "Bill"); round(parseNumber(replace(replace(replace(trim(split(233.priceRaw; "Bill")[1]); " USD"; ""); " IDR"; ""); ","; ".")) * 1000000000 / 15700); if(contains(233.priceRaw; "USD") | contains(233.priceRaw; "$"); parseNumber(replace(replace(replace(replace(233.priceRaw; " USD"; ""); "$"; ""); "."; ""); ","; "")); if(contains(233.priceRaw; "IDR") | contains(233.priceRaw; "Rp"); round(parseNumber(replace(replace(replace(replace(233.priceRaw; "Rp"; ""); " IDR"; ""); "."; ""); ","; "")) / 15700); 0)))}}
+
+==========================================================
+WHAT IF split() DOESN'T WORK IN MAKE.COM?
+==========================================================
+
+If Make.com doesn't support split() or uses different syntax, try this
+alternative that uses substring-like logic:
+
+Unfortunately, this is more complex. Let me know if split() doesn't work
+and I'll create an alternative using replace() only.
+
+The key is: We MUST extract only the first number and ignore the USD
+equivalent that comes after.
+
+==========================================================

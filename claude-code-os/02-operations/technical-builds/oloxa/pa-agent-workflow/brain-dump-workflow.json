@@ -1,0 +1,1787 @@
+{
+  "name": "Brain Dump Database Updater v1.1",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "brain-dump",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse and validate incoming brain dump data\nconst body = $input.first().json.body || $input.first().json;\n\n// Initialize results tracking\nconst results = {\n  crm_updates: [],\n  tasks: [],\n  projects: [],\n  calendar: [],\n  errors: []\n};\n\n// Validate structure\nif (!body.crm_updates && !body.tasks && !body.projects && !body.calendar) {\n  throw new Error('Invalid brain dump structure - missing required fields');\n}\n\n// Return parsed data\nreturn {\n  json: {\n    crm_updates: body.crm_updates || [],\n    tasks: body.tasks || [],\n    projects: body.projects || [],\n    calendar: body.calendar || [],\n    results: results\n  }\n};"
+      },
+      "id": "parse-validate-input",
+      "name": "Parse & Validate Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Split input into separate items for parallel processing\nconst input = $input.first().json;\nconst items = [];\n\n// Create item for CRM updates\nif (input.crm_updates && input.crm_updates.length > 0) {\n  items.push({\n    json: {\n      type: 'crm',\n      data: input.crm_updates\n    }\n  });\n}\n\n// Create item for Tasks\nif (input.tasks && input.tasks.length > 0) {\n  items.push({\n    json: {\n      type: 'tasks',\n      data: input.tasks\n    }\n  });\n}\n\n// Create item for Projects\nif (input.projects && input.projects.length > 0) {\n  items.push({\n    json: {\n      type: 'projects',\n      data: input.projects\n    }\n  });\n}\n\n// Create item for Calendar\nif (input.calendar && input.calendar.length > 0) {\n  items.push({\n    json: {\n      type: 'calendar',\n      data: input.calendar\n    }\n  });\n}\n\n// Return empty item if nothing to process\nif (items.length === 0) {\n  return [{\n    json: {\n      type: 'empty',\n      data: []\n    }\n  }];\n}\n\nreturn items;"
+      },
+      "id": "split-by-type",
+      "name": "Split By Update Type",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.type }}",
+              "rightValue": "crm",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "route-crm",
+      "name": "Route CRM Updates",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 180]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.type }}",
+              "rightValue": "tasks",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "route-tasks",
+      "name": "Route Tasks",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 350]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.type }}",
+              "rightValue": "projects",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "route-projects",
+      "name": "Route Projects",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 520]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.type }}",
+              "rightValue": "calendar",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "route-calendar",
+      "name": "Route Calendar",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 690]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process CRM updates - iterate through each contact update\nconst updates = $input.first().json.data;\nconst results = [];\n\nfor (const update of updates) {\n  results.push({\n    json: {\n      operation: update.operation || 'update',\n      name: update.name,\n      stage: update.stage,\n      sentiment: update.sentiment,\n      notes: update.notes,\n      priority: update.priority,\n      company: update.company,\n      platform: update.platform,\n      role: update.role,\n      business_type: update.business_type,\n      contact_details: update.contact_details,\n      objective: update.objective,\n      niche_alignment: update.niche_alignment,\n      connection_strength: update.connection_strength,\n      decision_making_power: update.decision_making_power,\n      network_access: update.network_access\n    }\n  });\n}\n\nreturn results;"
+      },
+      "id": "process-crm-updates",
+      "name": "Process CRM Updates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 180]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.operation }}",
+              "rightValue": "delete",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "crm-is-delete",
+      "name": "CRM Is Delete?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1340, 180]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "value": "1PwIqO1nfEeABoRRvTml3dN9q1rUjHIMVXsqOLtouemk",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Prospects",
+          "mode": "name"
+        },
+        "options": {
+          "rangeDefinition": "specifyRange",
+          "range": "A:R"
+        }
+      },
+      "id": "read-crm-for-delete",
+      "name": "Read CRM For Delete",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [1560, 100],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "combined-google-oauth",
+          "name": "Combined Google OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Search for contact to delete\nconst contactName = $('Process CRM Updates').first().json.name;\nconst sheetRows = $input.all();\n\n// Normalize search name\nconst normalizedSearch = contactName.toLowerCase().trim();\n\n// Find matching row\nlet rowIndex = -1;\n\nfor (let i = 0; i < sheetRows.length; i++) {\n  const row = sheetRows[i].json;\n  const sheetName = (row['Full Name'] || '').toLowerCase().trim();\n  \n  if (sheetName === normalizedSearch) {\n    rowIndex = i + 1; // Google Sheets node already excludes header\n    break;\n  }\n}\n\nreturn [{\n  json: {\n    found: rowIndex !== -1,\n    rowIndex: rowIndex,\n    contactName: contactName\n  }\n}];"
+      },
+      "id": "find-crm-to-delete",
+      "name": "Find CRM To Delete",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1780, 100]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.found }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "crm-delete-found",
+      "name": "CRM Delete Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2000, 100]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "value": "1PwIqO1nfEeABoRRvTml3dN9q1rUjHIMVXsqOLtouemk",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Prospects",
+          "mode": "name"
+        },
+        "operation": "deleteRows",
+        "startRow": "={{ $json.rowIndex }}",
+        "endRow": "={{ $json.rowIndex }}",
+        "options": {}
+      },
+      "id": "delete-crm-row",
+      "name": "Delete CRM Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [2220, 60],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "combined-google-oauth",
+          "name": "Combined Google OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log CRM delete result\nconst contactName = $('Find CRM To Delete').first().json.contactName;\nconst found = $('Find CRM To Delete').first().json.found;\n\nreturn [{\n  json: {\n    type: 'crm',\n    status: 'success',\n    operation: 'delete',\n    message: found ? `Deleted ${contactName}` : `Contact not found: ${contactName}`,\n    contactName: contactName,\n    deleted: found\n  }\n}];"
+      },
+      "id": "log-crm-delete",
+      "name": "Log CRM Delete",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2440, 100]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "value": "1PwIqO1nfEeABoRRvTml3dN9q1rUjHIMVXsqOLtouemk",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Prospects",
+          "mode": "name"
+        },
+        "options": {
+          "rangeDefinition": "specifyRange",
+          "range": "A:R"
+        }
+      },
+      "id": "read-crm-sheet",
+      "name": "Read CRM Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [1560, 260],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "combined-google-oauth",
+          "name": "Combined Google OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Search for matching contact in CRM sheet\nconst contactName = $('Process CRM Updates').first().json.name;\nconst operation = $('Process CRM Updates').first().json.operation;\nconst sheetRows = $input.all();\n\n// Normalize search name\nconst normalizedSearch = contactName.toLowerCase().trim();\n\n// Find matching row (skip header)\nlet matchingRow = null;\nlet rowIndex = -1;\n\nfor (let i = 0; i < sheetRows.length; i++) {\n  const row = sheetRows[i].json;\n  const sheetName = (row['Full Name'] || '').toLowerCase().trim();\n  \n  if (sheetName === normalizedSearch) {\n    matchingRow = row;\n    rowIndex = i + 1; // +1 for 1-based index, no need to add 1 for header as Google Sheets node excludes it\n    break;\n  }\n}\n\n// Prepare update data\nconst updateData = $('Process CRM Updates').first().json;\n\nreturn [{\n  json: {\n    found: matchingRow !== null,\n    rowIndex: rowIndex,\n    operation: operation,\n    contactName: contactName,\n    updateData: updateData,\n    matchingRow: matchingRow\n  }\n}];"
+      },
+      "id": "find-crm-contact",
+      "name": "Find CRM Contact",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1780, 260]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.found }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "crm-contact-exists",
+      "name": "CRM Contact Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2000, 260]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "value": "1PwIqO1nfEeABoRRvTml3dN9q1rUjHIMVXsqOLtouemk",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Prospects",
+          "mode": "name"
+        },
+        "operation": "update",
+        "dataMode": "autoMapInputData",
+        "row": "={{ $json.rowIndex }}",
+        "options": {}
+      },
+      "id": "update-crm-row",
+      "name": "Update CRM Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [2220, 220],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "combined-google-oauth",
+          "name": "Combined Google OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare row data for update\nconst data = $input.first().json;\nconst updateData = data.updateData;\nconst existingRow = data.matchingRow;\n\n// Build update object with existing data + new updates\nconst rowData = {\n  'Full Name': updateData.name || existingRow['Full Name'],\n  'Priority Level': updateData.priority || existingRow['Priority Level'],\n  'Company': updateData.company || existingRow['Company'],\n  'Platform': updateData.platform || existingRow['Platform'],\n  'Role': updateData.role || existingRow['Role'],\n  'Business Type': updateData.business_type || existingRow['Business Type'],\n  'Contact Details': updateData.contact_details || existingRow['Contact Details'],\n  'Stage': updateData.stage || existingRow['Stage'],\n  'Reply Sentiment': updateData.sentiment || existingRow['Reply Sentiment'],\n  'Notes': updateData.notes ? (existingRow['Notes'] ? existingRow['Notes'] + '\\n' + updateData.notes : updateData.notes) : existingRow['Notes'],\n  'Added to CRM': existingRow['Added to CRM'] || new Date().toISOString().split('T')[0],\n  'Objective': updateData.objective || existingRow['Objective'],\n  'Niche Alignment': updateData.niche_alignment || existingRow['Niche Alignment'],\n  'Connection Strength': updateData.connection_strength || existingRow['Connection Strength'],\n  'Decision Making Power': updateData.decision_making_power || existingRow['Decision Making Power'],\n  'Network Access': updateData.network_access || existingRow['Network Access']\n};\n\nreturn [{\n  json: {\n    ...rowData,\n    rowIndex: data.rowIndex\n  }\n}];"
+      },
+      "id": "prepare-crm-update",
+      "name": "Prepare CRM Update",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2220, 180]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "value": "1PwIqO1nfEeABoRRvTml3dN9q1rUjHIMVXsqOLtouemk",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Prospects",
+          "mode": "name"
+        },
+        "operation": "appendRow",
+        "dataMode": "autoMapInputData",
+        "options": {}
+      },
+      "id": "create-crm-row",
+      "name": "Create CRM Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [2220, 340],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "combined-google-oauth",
+          "name": "Combined Google OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare new row data\nconst data = $input.first().json;\nconst updateData = data.updateData;\n\nconst rowData = {\n  'Full Name': updateData.name,\n  'Priority Level': updateData.priority || '',\n  'Company': updateData.company || '',\n  'Platform': updateData.platform || '',\n  'Role': updateData.role || '',\n  'Business Type': updateData.business_type || '',\n  'Contact Details': updateData.contact_details || '',\n  'Stage': updateData.stage || '',\n  'Reply Sentiment': updateData.sentiment || '',\n  'Notes': updateData.notes || '',\n  'Added to CRM': new Date().toISOString().split('T')[0],\n  'Objective': updateData.objective || '',\n  'Niche Alignment': updateData.niche_alignment || '',\n  'Connection Strength': updateData.connection_strength || '',\n  'Decision Making Power': updateData.decision_making_power || '',\n  'Network Access': updateData.network_access || ''\n};\n\nreturn [{\n  json: rowData\n}];"
+      },
+      "id": "prepare-crm-create",
+      "name": "Prepare CRM Create",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2220, 380]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log CRM update result\nconst operation = $('Find CRM Contact').first().json.operation;\nconst contactName = $('Find CRM Contact').first().json.contactName;\nconst found = $('Find CRM Contact').first().json.found;\n\nreturn [{\n  json: {\n    type: 'crm',\n    status: 'success',\n    operation: 'update',\n    message: found ? `Updated ${contactName}` : `Created ${contactName}`,\n    contactName: contactName\n  }\n}];"
+      },
+      "id": "log-crm-result",
+      "name": "Log CRM Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2440, 260]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process Tasks - iterate through each task\nconst tasks = $input.first().json.data;\nconst results = [];\n\nfor (const task of tasks) {\n  results.push({\n    json: {\n      operation: task.operation || 'create',\n      name: task.name,\n      status: task.status || 'To-do',\n      priority: task.priority || 'Medium',\n      type: task.type || 'Work',\n      when: task.when,\n      description: task.description,\n      project: task.project,\n      blocked_by: task.blocked_by,\n      blocking: task.blocking\n    }\n  });\n}\n\nreturn results;"
+      },
+      "id": "process-tasks",
+      "name": "Process Tasks",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 350]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.operation }}",
+              "rightValue": "delete",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "task-is-delete",
+      "name": "Task Is Delete?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1340, 350]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "39b8b725-0dbd-4ec2-b405-b3bba0c1d97e",
+          "mode": "id"
+        },
+        "returnAll": true,
+        "options": {
+          "filter": {
+            "filters": [
+              {
+                "key": "Name",
+                "condition": "equals",
+                "value": "={{ $json.name }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "find-task-to-delete",
+      "name": "Find Task To Delete",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [1560, 290],
+      "credentials": {
+        "notionApi": {
+          "id": "notion-api-cred",
+          "name": "Notion API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $input.all().length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "task-delete-found",
+      "name": "Task Delete Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1780, 290]
+    },
+    {
+      "parameters": {
+        "resource": "page",
+        "operation": "archive",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        }
+      },
+      "id": "archive-task",
+      "name": "Archive Task",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [2000, 250],
+      "credentials": {
+        "notionApi": {
+          "id": "notion-api-cred",
+          "name": "Notion API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log task delete result\nconst taskName = $('Process Tasks').first().json.name;\nconst found = $input.all().length > 0;\n\nreturn [{\n  json: {\n    type: 'tasks',\n    status: 'success',\n    operation: 'delete',\n    message: found ? `Archived task: ${taskName}` : `Task not found: ${taskName}`,\n    taskName: taskName,\n    deleted: found\n  }\n}];"
+      },
+      "id": "log-task-delete",
+      "name": "Log Task Delete",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2220, 290]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "value": "39b8b725-0dbd-4ec2-b405-b3bba0c1d97e",
+          "mode": "id"
+        },
+        "title": "={{ $json.name }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status",
+              "statusValue": "={{ $json.status }}"
+            },
+            {
+              "key": "Priority",
+              "selectValue": "={{ $json.priority }}"
+            },
+            {
+              "key": "Type",
+              "selectValue": "={{ $json.type }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "create-notion-task",
+      "name": "Create Notion Task",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [1560, 410],
+      "credentials": {
+        "notionApi": {
+          "id": "notion-api-cred",
+          "name": "Notion API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log task result\nconst taskName = $('Process Tasks').first().json.name;\n\nreturn [{\n  json: {\n    type: 'tasks',\n    status: 'success',\n    operation: 'create',\n    message: `Created task: ${taskName}`,\n    taskName: taskName\n  }\n}];"
+      },
+      "id": "log-task-result",
+      "name": "Log Task Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1780, 410]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process Projects - iterate through each project update\nconst projects = $input.first().json.data;\nconst results = [];\n\nfor (const project of projects) {\n  results.push({\n    json: {\n      operation: project.operation || 'update',\n      name: project.name,\n      phase: project.phase,\n      status: project.status,\n      client: project.client,\n      timeline: project.timeline\n    }\n  });\n}\n\nreturn results;"
+      },
+      "id": "process-projects",
+      "name": "Process Projects",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 520]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.operation }}",
+              "rightValue": "delete",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "project-is-delete",
+      "name": "Project Is Delete?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1340, 520]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "2d01c288-bb28-81ef-a640-000ba0da69d4",
+          "mode": "id"
+        },
+        "returnAll": true,
+        "options": {
+          "filter": {
+            "filters": [
+              {
+                "key": "Project",
+                "condition": "equals",
+                "value": "={{ $json.name }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "find-project-to-delete",
+      "name": "Find Project To Delete",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [1560, 460],
+      "credentials": {
+        "notionApi": {
+          "id": "notion-api-cred",
+          "name": "Notion API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $input.all().length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "project-delete-found",
+      "name": "Project Delete Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1780, 460]
+    },
+    {
+      "parameters": {
+        "resource": "page",
+        "operation": "archive",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        }
+      },
+      "id": "archive-project",
+      "name": "Archive Project",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [2000, 420],
+      "credentials": {
+        "notionApi": {
+          "id": "notion-api-cred",
+          "name": "Notion API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log project delete result\nconst projectName = $('Process Projects').first().json.name;\nconst found = $input.all().length > 0;\n\nreturn [{\n  json: {\n    type: 'projects',\n    status: 'success',\n    operation: 'delete',\n    message: found ? `Archived project: ${projectName}` : `Project not found: ${projectName}`,\n    projectName: projectName,\n    deleted: found\n  }\n}];"
+      },
+      "id": "log-project-delete",
+      "name": "Log Project Delete",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2220, 460]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "2d01c288-bb28-81ef-a640-000ba0da69d4",
+          "mode": "id"
+        },
+        "returnAll": true,
+        "options": {
+          "filter": {
+            "filters": [
+              {
+                "key": "Project",
+                "condition": "equals",
+                "value": "={{ $json.name }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "find-notion-project",
+      "name": "Find Notion Project",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [1560, 580],
+      "credentials": {
+        "notionApi": {
+          "id": "notion-api-cred",
+          "name": "Notion API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $input.all().length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "project-exists",
+      "name": "Project Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1780, 580]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Phase",
+              "selectValue": "={{ $('Process Projects').first().json.phase }}"
+            },
+            {
+              "key": "Status",
+              "selectValue": "={{ $('Process Projects').first().json.status }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "update-notion-project",
+      "name": "Update Notion Project",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [2000, 540],
+      "credentials": {
+        "notionApi": {
+          "id": "notion-api-cred",
+          "name": "Notion API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "value": "2d01c288-bb28-81ef-a640-000ba0da69d4",
+          "mode": "id"
+        },
+        "title": "={{ $('Process Projects').first().json.name }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Phase",
+              "selectValue": "={{ $('Process Projects').first().json.phase }}"
+            },
+            {
+              "key": "Status",
+              "selectValue": "={{ $('Process Projects').first().json.status || 'Active' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "create-notion-project",
+      "name": "Create Notion Project",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [2000, 620],
+      "credentials": {
+        "notionApi": {
+          "id": "notion-api-cred",
+          "name": "Notion API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log project result\nconst projectName = $('Process Projects').first().json.name;\nconst exists = $input.all().length > 0;\n\nreturn [{\n  json: {\n    type: 'projects',\n    status: 'success',\n    operation: 'update',\n    message: exists ? `Updated project: ${projectName}` : `Created project: ${projectName}`,\n    projectName: projectName\n  }\n}];"
+      },
+      "id": "log-project-result",
+      "name": "Log Project Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2220, 580]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process Calendar events - iterate through each event\nconst events = $input.first().json.data;\nconst results = [];\n\nfor (const event of events) {\n  results.push({\n    json: {\n      operation: event.operation || 'create',\n      title: event.title,\n      start: event.start,\n      end: event.end,\n      description: event.description,\n      attendees: event.attendees,\n      date: event.date,\n      eventId: event.eventId\n    }\n  });\n}\n\nreturn results;"
+      },
+      "id": "process-calendar",
+      "name": "Process Calendar Events",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 690]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.operation }}",
+              "rightValue": "delete",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "calendar-is-delete",
+      "name": "Calendar Is Delete?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1340, 690]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare search date range for calendar event\nconst eventData = $input.first().json;\nconst eventDate = eventData.date;\nconst eventTitle = eventData.title;\n\n// If no date provided, search next 30 days\nlet searchStart, searchEnd;\n\nif (eventDate) {\n  // Parse date and create range (same day)\n  const date = new Date(eventDate);\n  searchStart = new Date(date);\n  searchStart.setHours(0, 0, 0, 0);\n  searchEnd = new Date(date);\n  searchEnd.setHours(23, 59, 59, 999);\n} else {\n  // Search next 30 days\n  searchStart = new Date();\n  searchEnd = new Date();\n  searchEnd.setDate(searchEnd.getDate() + 30);\n}\n\nreturn [{\n  json: {\n    eventTitle: eventTitle,\n    searchStart: searchStart.toISOString(),\n    searchEnd: searchEnd.toISOString()\n  }\n}];"
+      },
+      "id": "prepare-calendar-search",
+      "name": "Prepare Calendar Search",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 630]
+    },
+    {
+      "parameters": {
+        "resource": "event",
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "primary",
+          "mode": "list"
+        },
+        "returnAll": false,
+        "limit": 100,
+        "options": {
+          "timeMin": "={{ $json.searchStart }}",
+          "timeMax": "={{ $json.searchEnd }}",
+          "query": "={{ $json.eventTitle }}"
+        }
+      },
+      "id": "find-calendar-event",
+      "name": "Find Calendar Event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [1780, 630],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "combined-google-oauth",
+          "name": "Combined Google OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $input.all().length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "calendar-delete-found",
+      "name": "Calendar Delete Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2000, 630]
+    },
+    {
+      "parameters": {
+        "resource": "event",
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "primary",
+          "mode": "list"
+        },
+        "eventId": "={{ $json.id }}"
+      },
+      "id": "delete-calendar-event",
+      "name": "Delete Calendar Event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [2220, 590],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "combined-google-oauth",
+          "name": "Combined Google OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log calendar delete result\nconst eventTitle = $('Process Calendar Events').first().json.title;\nconst found = $input.all().length > 0;\n\nreturn [{\n  json: {\n    type: 'calendar',\n    status: 'success',\n    operation: 'delete',\n    message: found ? `Deleted event: ${eventTitle}` : `Event not found: ${eventTitle}`,\n    eventTitle: eventTitle,\n    deleted: found\n  }\n}];"
+      },
+      "id": "log-calendar-delete",
+      "name": "Log Calendar Delete",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2440, 630]
+    },
+    {
+      "parameters": {
+        "resource": "event",
+        "operation": "create",
+        "calendar": {
+          "__rl": true,
+          "value": "primary",
+          "mode": "list"
+        },
+        "start": "={{ $json.start }}",
+        "end": "={{ $json.end }}",
+        "title": "={{ $json.title }}",
+        "options": {
+          "description": "={{ $json.description }}"
+        }
+      },
+      "id": "create-calendar-event",
+      "name": "Create Calendar Event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [1560, 750],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "combined-google-oauth",
+          "name": "Combined Google OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log calendar result\nconst eventTitle = $('Process Calendar Events').first().json.title;\n\nreturn [{\n  json: {\n    type: 'calendar',\n    status: 'success',\n    operation: 'create',\n    message: `Created event: ${eventTitle}`,\n    eventTitle: eventTitle\n  }\n}];"
+      },
+      "id": "log-calendar-result",
+      "name": "Log Calendar Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1780, 750]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "merge-results",
+      "name": "Merge All Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [2660, 420]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregate all results into summary\nconst allResults = $input.all();\n\nconst summary = {\n  crm: '',\n  tasks: '',\n  projects: '',\n  calendar: ''\n};\n\nconst errors = [];\n\nconst crmResults = [];\nconst crmDeleted = [];\nconst taskResults = [];\nconst taskDeleted = [];\nconst projectResults = [];\nconst projectDeleted = [];\nconst calendarResults = [];\nconst calendarDeleted = [];\n\nfor (const item of allResults) {\n  const result = item.json;\n  \n  if (result.type === 'crm') {\n    if (result.operation === 'delete') {\n      if (result.deleted) {\n        crmDeleted.push(result.contactName);\n      }\n    } else {\n      crmResults.push(result.contactName || result.message);\n    }\n  } else if (result.type === 'tasks') {\n    if (result.operation === 'delete') {\n      if (result.deleted) {\n        taskDeleted.push(result.taskName);\n      }\n    } else {\n      taskResults.push(result.taskName || result.message);\n    }\n  } else if (result.type === 'projects') {\n    if (result.operation === 'delete') {\n      if (result.deleted) {\n        projectDeleted.push(result.projectName);\n      }\n    } else {\n      projectResults.push(result.projectName || result.message);\n    }\n  } else if (result.type === 'calendar') {\n    if (result.operation === 'delete') {\n      if (result.deleted) {\n        calendarDeleted.push(result.eventTitle);\n      }\n    } else {\n      calendarResults.push(result.eventTitle || result.message);\n    }\n  }\n  \n  if (result.status === 'error') {\n    errors.push(result.message);\n  }\n}\n\n// Build summary messages\nlet crmMsg = [];\nif (crmResults.length > 0) crmMsg.push(`Updated/Created ${crmResults.length} contacts`);\nif (crmDeleted.length > 0) crmMsg.push(`Deleted ${crmDeleted.length} contacts`);\nsummary.crm = crmMsg.length > 0 ? crmMsg.join(', ') : 'No CRM updates';\n\nlet taskMsg = [];\nif (taskResults.length > 0) taskMsg.push(`Created ${taskResults.length} tasks`);\nif (taskDeleted.length > 0) taskMsg.push(`Deleted ${taskDeleted.length} tasks`);\nsummary.tasks = taskMsg.length > 0 ? taskMsg.join(', ') : 'No tasks created';\n\nlet projectMsg = [];\nif (projectResults.length > 0) projectMsg.push(`Updated ${projectResults.length} projects`);\nif (projectDeleted.length > 0) projectMsg.push(`Deleted ${projectDeleted.length} projects`);\nsummary.projects = projectMsg.length > 0 ? projectMsg.join(', ') : 'No project updates';\n\nlet calendarMsg = [];\nif (calendarResults.length > 0) calendarMsg.push(`Created ${calendarResults.length} events`);\nif (calendarDeleted.length > 0) calendarMsg.push(`Deleted ${calendarDeleted.length} events`);\nsummary.calendar = calendarMsg.length > 0 ? calendarMsg.join(', ') : 'No calendar events';\n\nreturn [{\n  json: {\n    status: errors.length > 0 ? 'partial_success' : 'success',\n    summary: summary,\n    errors: errors\n  }\n}];"
+      },
+      "id": "build-response",
+      "name": "Build Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2880, 420]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "respond-to-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [3100, 420]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse & Validate Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse & Validate Input": {
+      "main": [
+        [
+          {
+            "node": "Split By Update Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split By Update Type": {
+      "main": [
+        [
+          {
+            "node": "Route CRM Updates",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Route Tasks",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Route Projects",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Route Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route CRM Updates": {
+      "main": [
+        [
+          {
+            "node": "Process CRM Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Tasks": {
+      "main": [
+        [
+          {
+            "node": "Process Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Projects": {
+      "main": [
+        [
+          {
+            "node": "Process Projects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Calendar": {
+      "main": [
+        [
+          {
+            "node": "Process Calendar Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process CRM Updates": {
+      "main": [
+        [
+          {
+            "node": "CRM Is Delete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM Is Delete?": {
+      "main": [
+        [
+          {
+            "node": "Read CRM For Delete",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Read CRM Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read CRM For Delete": {
+      "main": [
+        [
+          {
+            "node": "Find CRM To Delete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find CRM To Delete": {
+      "main": [
+        [
+          {
+            "node": "CRM Delete Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM Delete Found?": {
+      "main": [
+        [
+          {
+            "node": "Delete CRM Row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log CRM Delete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete CRM Row": {
+      "main": [
+        [
+          {
+            "node": "Log CRM Delete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log CRM Delete": {
+      "main": [
+        [
+          {
+            "node": "Merge All Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read CRM Sheet": {
+      "main": [
+        [
+          {
+            "node": "Find CRM Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find CRM Contact": {
+      "main": [
+        [
+          {
+            "node": "CRM Contact Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM Contact Exists?": {
+      "main": [
+        [
+          {
+            "node": "Prepare CRM Update",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare CRM Create",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare CRM Update": {
+      "main": [
+        [
+          {
+            "node": "Update CRM Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare CRM Create": {
+      "main": [
+        [
+          {
+            "node": "Create CRM Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update CRM Row": {
+      "main": [
+        [
+          {
+            "node": "Log CRM Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create CRM Row": {
+      "main": [
+        [
+          {
+            "node": "Log CRM Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log CRM Result": {
+      "main": [
+        [
+          {
+            "node": "Merge All Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Tasks": {
+      "main": [
+        [
+          {
+            "node": "Task Is Delete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Task Is Delete?": {
+      "main": [
+        [
+          {
+            "node": "Find Task To Delete",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Notion Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Task To Delete": {
+      "main": [
+        [
+          {
+            "node": "Task Delete Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Task Delete Found?": {
+      "main": [
+        [
+          {
+            "node": "Archive Task",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Task Delete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive Task": {
+      "main": [
+        [
+          {
+            "node": "Log Task Delete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Task Delete": {
+      "main": [
+        [
+          {
+            "node": "Merge All Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Create Notion Task": {
+      "main": [
+        [
+          {
+            "node": "Log Task Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Task Result": {
+      "main": [
+        [
+          {
+            "node": "Merge All Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Process Projects": {
+      "main": [
+        [
+          {
+            "node": "Project Is Delete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Project Is Delete?": {
+      "main": [
+        [
+          {
+            "node": "Find Project To Delete",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Find Notion Project",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Project To Delete": {
+      "main": [
+        [
+          {
+            "node": "Project Delete Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Project Delete Found?": {
+      "main": [
+        [
+          {
+            "node": "Archive Project",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Project Delete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive Project": {
+      "main": [
+        [
+          {
+            "node": "Log Project Delete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Project Delete": {
+      "main": [
+        [
+          {
+            "node": "Merge All Results",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Find Notion Project": {
+      "main": [
+        [
+          {
+            "node": "Project Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Project Exists?": {
+      "main": [
+        [
+          {
+            "node": "Update Notion Project",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Notion Project",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Notion Project": {
+      "main": [
+        [
+          {
+            "node": "Log Project Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Notion Project": {
+      "main": [
+        [
+          {
+            "node": "Log Project Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Project Result": {
+      "main": [
+        [
+          {
+            "node": "Merge All Results",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Process Calendar Events": {
+      "main": [
+        [
+          {
+            "node": "Calendar Is Delete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Is Delete?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Calendar Search",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Calendar Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Calendar Search": {
+      "main": [
+        [
+          {
+            "node": "Find Calendar Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Calendar Event": {
+      "main": [
+        [
+          {
+            "node": "Calendar Delete Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Delete Found?": {
+      "main": [
+        [
+          {
+            "node": "Delete Calendar Event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Calendar Delete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Calendar Event": {
+      "main": [
+        [
+          {
+            "node": "Log Calendar Delete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Calendar Delete": {
+      "main": [
+        [
+          {
+            "node": "Merge All Results",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Create Calendar Event": {
+      "main": [
+        [
+          {
+            "node": "Log Calendar Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Calendar Result": {
+      "main": [
+        [
+          {
+            "node": "Merge All Results",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Merge All Results": {
+      "main": [
+        [
+          {
+            "node": "Build Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-01-14T00:00:00.000Z",
+  "versionId": "1.1"
+}

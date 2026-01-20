@@ -1,0 +1,96 @@
+==========================================================
+TASK 2 PRICE NORMALIZATION - v12 AGGRESSIVE PATTERN REMOVAL
+==========================================================
+
+NEW STRATEGY: Remove complete patterns as single units
+
+For "1,1 Mio. USD" - remove " Mio. USD" all at once!
+
+PASTE THIS INTO MODULE 142:
+----------------------------------------------------------
+
+{{if(length(232.priceRaw) = 0; 0; if(contains(232.priceRaw; "Mio") & contains(232.priceRaw; "USD"); round(parseNumber(replace(replace(replace(replace(replace(232.priceRaw; " Mio. USD"; ""); " Mio USD"; ""); "Mio."; ""); "Mio"; ""); ","; ".")) * 1000000); if(contains(232.priceRaw; "Bill") & contains(232.priceRaw; "USD") & contains(232.priceRaw; "IDR"); parseNumber(replace(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "Bill."; ""); "Bill"; ""); "Bill "; ""); "IDR"; ""); "Rp"; ""); " "; ""); "."; ""); ","; "")); if(contains(232.priceRaw; "Bill") & (contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp")); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "Bill."; ""); "Bill"; ""); "IDR"; ""); "Rp"; ""); " "; ""); "."; ""); ","; ".")) * 1000000000 / 15700); if(contains(232.priceRaw; "B") & (contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp")); round(parseNumber(replace(replace(replace(replace(replace(replace(232.priceRaw; "B"; ""); "IDR"; ""); "Rp"; ""); " "; ""); "."; ""); ","; ".")) * 1000000000 / 15700); if(contains(232.priceRaw; "USD ") & contains(232.priceRaw; ".") & length(232.priceRaw) < 15; parseNumber(replace(replace(replace(232.priceRaw; "USD"; ""); " "; ""); "."; "")); if(contains(232.priceRaw; "USD") | contains(232.priceRaw; "$"); parseNumber(replace(replace(replace(replace(232.priceRaw; "USD"; ""); "$"; ""); " "; ""); ","; "")); if(contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp"); round(parseNumber(replace(replace(replace(replace(232.priceRaw; "Rp"; ""); "IDR"; ""); "."; ""); " "; "")) / 15700); 0))))))))}}
+
+==========================================================
+KEY CHANGE - MIO PATH:
+==========================================================
+
+OLD APPROACH (piece by piece):
+replace("Mio."; "") → replace("Mio"; "") → replace("USD"; "") → ...
+
+NEW APPROACH (whole patterns):
+1. replace(" Mio. USD"; "")  ← Remove entire " Mio. USD" pattern
+2. replace(" Mio USD"; "")   ← Catch variation without period
+3. replace("Mio."; "")       ← Clean up any remaining "Mio."
+4. replace("Mio"; "")        ← Clean up any remaining "Mio"
+5. replace(","; ".")         ← ONLY comma to period, NO period removal!
+
+==========================================================
+TRACE FOR "1,1 Mio. USD":
+==========================================================
+
+Starting: "1,1 Mio. USD"
+
+1. replace(" Mio. USD"; "") → "1,1" ✅ (removes whole thing!)
+2. replace(" Mio USD"; "") → "1,1" (no match)
+3. replace("Mio."; "") → "1,1" (no match)
+4. replace("Mio"; "") → "1,1" (no match)
+5. replace(","; ".") → "1.1" ✅
+6. parseNumber("1.1") → 1.1 ✅
+7. 1.1 * 1,000,000 → 1,100,000 ✅
+
+==========================================================
+TRACE FOR "3,3 Mio USD":
+==========================================================
+
+Starting: "3,3 Mio USD"
+
+1. replace(" Mio. USD"; "") → "3,3 Mio USD" (no match)
+2. replace(" Mio USD"; "") → "3,3" ✅ (removes whole thing!)
+3. replace("Mio."; "") → "3,3" (no match)
+4. replace("Mio"; "") → "3,3" (no match)
+5. replace(","; ".") → "3.3" ✅
+6. parseNumber("3.3") → 3.3 ✅
+7. 3.3 * 1,000,000 → 3,300,000 ✅
+
+==========================================================
+WHY THIS SHOULD WORK:
+==========================================================
+
+By removing " Mio. USD" as ONE complete string, we eliminate:
+- The "Mio."
+- The period
+- The "USD"
+- All in one operation!
+
+Result: Just "1,1" left → convert to "1.1" → parse → multiply
+
+No stray periods, no complex order dependencies!
+
+==========================================================
+SIMPLIFIED MIO PATH CODE:
+==========================================================
+
+if(contains(232.priceRaw; "Mio") & contains(232.priceRaw; "USD");
+  round(
+    parseNumber(
+      replace(
+        replace(
+          replace(
+            replace(
+              replace(
+                232.priceRaw;
+                " Mio. USD"; ""    ← Pattern 1: " Mio. USD"
+              );
+              " Mio USD"; ""       ← Pattern 2: " Mio USD"
+            );
+            "Mio."; ""             ← Cleanup: "Mio."
+          );
+          "Mio"; ""                ← Cleanup: "Mio"
+        );
+        ","; "."                   ← Convert comma to period
+      )
+    ) * 1000000
+  );
+
+==========================================================

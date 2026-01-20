@@ -1,0 +1,123 @@
+{
+  "template_id": "17BkLuHdj-iNlmnZ2jkP_cLLYMOzvTriCmejpDqe-UhQ",
+  "template_url": "https://docs.google.com/presentation/d/17BkLuHdj-iNlmnZ2jkP_cLLYMOzvTriCmejpDqe-UhQ/edit",
+  "template_name": "Google Slides Proposal Template",
+  "template_version": "1.0",
+  "last_updated": "2025-12-14",
+  "logo_url": "YOUR_LOGO_URL_IN_GOOGLE_DRIVE",
+  "logo_shape_id": "SHAPE_ID_FOR_LOGO_REPLACEMENT",
+  "brand": {
+    "company_name": "Oloxa.ai",
+    "primary_color": "#000000",
+    "secondary_color": "#FFFFFF",
+    "font": "Inter"
+  },
+  "blueprint": {
+    "enabled": true,
+    "blueprint_path": "/Users/swayclarke/coding_stuff/claude-code-os/09-templates/google-slides-proposal-blueprint.md",
+    "mapping_schema_path": "/Users/swayclarke/coding_stuff/claude-code-os/09-templates/discovery-to-template-mapping.json",
+    "variable_extractor_agent": "/Users/swayclarke/coding_stuff/claude-code-os/05-hr-department/agents/proposal-variable-extractor-agent.md",
+    "reference_project": "eugene"
+  },
+  "variables": {
+    "automated": {
+      "total_count": 47,
+      "slides": {
+        "slide_1": ["company_name", "date"],
+        "slide_2": ["client_company_description", "client_name"],
+        "slide_3": ["pain_point_1", "pain_point_1_description", "pain_point_2", "pain_point_2_description", "pain_point_3", "pain_point_3_description"],
+        "slide_4": ["product_benefit_1", "product_benefit_1_description", "product_benefit_2", "product_benefit_2_description", "product_benefit_3", "product_benefit_3_description"],
+        "slide_5": ["building_phase_time", "building_phase_description", "deployment_phase_time", "deployment_phase_description", "testing_phase_time", "testing_phase_description"],
+        "slide_6": ["Client_expectations_list", "Client_Name", "oloxa_delivery_list"],
+        "slide_7": ["metric_1_title", "metric_1_description", "metric_2_title", "metric_2_description", "metric_additional_title", "metric_additional_description", "question_1", "answer_1", "question_2", "answer_2", "question_3", "answer_3", "question_4", "answer_4"],
+        "slide_8": ["time_based_cost", "value_based_cost", "value_based_description", "client_investment_1", "client_investment_2"],
+        "slide_9": ["step_1_description", "step_2_description", "step_3_description"],
+        "slide_10": ["unique_client_thank_you_message"]
+      }
+    },
+    "legacy_manual": [
+      "project_title",
+      "client_name",
+      "problem_statement",
+      "solution_overview",
+      "timeline",
+      "investment",
+      "next_steps"
+    ]
+  },
+  "extraction": {
+    "required_discovery_files": [
+      "discovery/analysis/key_insights.md",
+      "discovery/requirements/project_requirements.md",
+      "discovery/transcripts/**/*.md"
+    ],
+    "optional_discovery_files": [
+      "discovery/analysis/quick_wins.md",
+      "discovery/analysis/comparative_analysis.md",
+      "discovery/journey/client_journey_map.md"
+    ],
+    "confidence_thresholds": {
+      "high": 95,
+      "medium": 90,
+      "low": 80,
+      "minimum_acceptable": 80
+    },
+    "word_count_validation": true,
+    "format_validation": true,
+    "source_references": true
+  },
+  "output_settings": {
+    "base_path": "/Users/swayclarke/coding_stuff/claude-code-os/02-operations/projects",
+    "folder_name": "proposals",
+    "naming_convention": "proposal_v{version}_{date}",
+    "variable_map_filename": "variables.yaml",
+    "save_variable_map": true
+  },
+  "workflow": {
+    "preferred_mode": "automated",
+    "fallback_mode": "manual",
+    "require_approval": true,
+    "show_extraction_preview": true,
+    "allow_variable_editing": true
+  },
+  "instructions": {
+    "setup": [
+      "1. Template is already configured with ID: 17BkLuHdj-iNlmnZ2jkP_cLLYMOzvTriCmejpDqe-UhQ",
+      "2. Blueprint system is ready at /09-templates/google-slides-proposal-blueprint.md",
+      "3. Upload your logo to Google Drive and get a shareable link",
+      "4. Replace YOUR_LOGO_URL_IN_GOOGLE_DRIVE with that link",
+      "5. In the template, create a shape where you want the logo - note its object ID for logo_shape_id",
+      "6. For automated extraction, ensure discovery documents exist in project folder structure"
+    ],
+    "usage": {
+      "automated": "Invoke proposal-architect-agent with discovery documents present in /02-operations/projects/{client}/discovery/",
+      "manual": "Invoke proposal-architect-agent without discovery documents - will prompt for manual input",
+      "commands": "Run /proposal or tell Claude to 'create a proposal for [client]'"
+    },
+    "discovery_structure": "See blueprint.md for expected discovery folder structure and file organization"
+  },
+  "metadata": {
+    "created": "2025-12-14",
+    "version": "2.0",
+    "changelog": [
+      {
+        "version": "2.0",
+        "date": "2025-12-14",
+        "changes": [
+          "Added blueprint system with 47 automated variables",
+          "Integrated variable extraction agent",
+          "Added discovery file structure requirements",
+          "Configured extraction validation and confidence scoring",
+          "Maintained backward compatibility with manual mode"
+        ]
+      },
+      {
+        "version": "1.0",
+        "date": "Initial",
+        "changes": [
+          "Basic proposal generation with 7 manual variables"
+        ]
+      }
+    ]
+  }
+}

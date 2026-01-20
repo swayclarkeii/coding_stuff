@@ -1,0 +1,1060 @@
+{
+  "name": "AMA Pre-Chunk 0: Intake & Client Identification",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "INBOX",
+            "UNREAD",
+            "Label_8011160688574026773"
+          ],
+          "q": "has:attachment"
+        },
+        "options": {
+          "dataPropertyAttachmentsPrefixName": "attachment_",
+          "downloadAttachments": true
+        }
+      },
+      "name": "Gmail Trigger - Unread with Attachments",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        112,
+        480
+      ],
+      "id": "gmail-trigger-001",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aYzk7sZF8ZVyfOan",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filter PDF and ZIP attachments only\nconst items = $input.all();\nconst filtered = [];\n\nfor (const item of items) {\n  // Gmail trigger stores attachments in item.binary, not item.json.attachments\n  if (!item.binary) continue;\n  \n  // Iterate over binary keys (attachment_0, attachment_1, etc.)\n  for (const [key, attachment] of Object.entries(item.binary)) {\n    const filename = attachment.fileName;\n    if (!filename) continue;\n    \n    const ext = filename.toLowerCase().split('.').pop();\n    \n    if (['pdf', 'zip'].includes(ext)) {\n      filtered.push({\n        json: {\n          emailId: item.json.id,\n          emailSubject: item.json.Subject || item.json.subject,\n          emailFrom: item.json.From || item.json.from,\n          emailDate: item.json.date,\n          attachmentKey: key,\n          filename: filename,\n          mimeType: attachment.mimeType,\n          size: attachment.fileSize\n        },\n        binary: {\n          data: attachment\n        }\n      });\n    }\n  }\n}\n\nreturn filtered;"
+      },
+      "name": "Filter PDF/ZIP Attachments",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        480
+      ],
+      "id": "filter-attachments-001"
+    },
+    {
+      "parameters": {
+        "url": "=https://gmail.googleapis.com/gmail/v1/users/me/messages/{{ $json.emailId }}/attachments/{{ $json.attachmentId }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "gmailOAuth2",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "name": "Download Attachment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        560,
+        480
+      ],
+      "id": "download-attachment-001",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aYzk7sZF8ZVyfOan",
+          "name": "Gmail account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {
+          "joinPages": true,
+          "keepSource": "json"
+        }
+      },
+      "name": "Extract Text from PDF",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        1008,
+        480
+      ],
+      "id": "extract-text-001"
+    },
+    {
+      "parameters": {
+        "jsCode": " // V4: Evaluate extraction quality for each PDF\n  const items = $input.all();\n  const results = [];\n\n  for (const item of items) {\n    const extractedText = item.json.text || '';\n    const wordCount = extractedText.trim().split(/\\s+/).length;\n\n    results.push({\n      json: {\n        ...item.json,\n        wordCount: wordCount,\n        needsOCR: wordCount < 10,\n        extractionQuality: wordCount < 10 ? 'poor' : 'good',\n        \n        // NEW: Keep extracted text for downstream use\n        extractedText: extractedText,\n        textLength: extractedText.trim().length,\n        extractionMethod: 'digital_pre_chunk'\n      },\n      binary: item.binary  // ✅ Pass through binary data\n    });\n  }\n\n  return results;"
+      },
+      "name": "Evaluate Extraction Quality",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        480
+      ],
+      "id": "evaluate-extraction-001",
+      "notes": "Checks if text extraction succeeded. If <10 words, flags for OCR (AWS Textract)"
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "You are an AI that extracts client company names from German real estate documents. Extract ONLY the client/investor company name. Return the name without any explanation or additional text."
+            },
+            {
+              "content": "=Extract the client company name from this text:\n\n={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 50,
+          "temperature": 0.1
+        },
+        "requestOptions": {}
+      },
+      "name": "AI Extract Client Name",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.1,
+      "position": [
+        1232,
+        480
+      ],
+      "id": "ai-extract-client-001",
+      "credentials": {
+        "openAiApi": {
+          "id": "xmJ7t6kaKgMwA1ce",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all input items\nconst items = $input.all();\nconst results = [];\n\n// Process each item\nfor (const item of items) {\n  let clientNameRaw = '';\n  \n  // Extract AI response from OpenAI Chat node output\n  if (item.json && item.json.message && item.json.message.content) {\n    clientNameRaw = String(item.json.message.content);\n  } else if (item.json && item.json.text) {\n    clientNameRaw = String(item.json.text);\n  }\n  \n  clientNameRaw = clientNameRaw.trim();\n  \n  // Normalize German client name for folder creation\n  let clientNormalized = '';\n  if (clientNameRaw) {\n    clientNormalized = clientNameRaw\n      .toLowerCase()\n      .trim()\n      .replace(/ä/g, 'ae')\n      .replace(/ö/g, 'oe')\n      .replace(/ü/g, 'ue')\n      .replace(/ß/g, 'ss')\n      .replace(/\\s*(gmbh|ag|kg|e\\.v\\.|mbh|co\\.|&\\s*co\\.?)\\s*/gi, '')\n      .replace(/[^a-z0-9]/g, '_')\n      .replace(/_+/g, '_')\n      .replace(/^_|_$/g, '');\n  }\n  \n  results.push({\n    json: {\n      client_name_raw: clientNameRaw,\n      client_normalized: clientNormalized,\n      parent_folder_id: '1ikw3k-EgpVg_h2ySDdqdUFB7-FQyYDFm'\n    }\n  });\n}\n\nreturn results;"
+      },
+      "name": "Normalize Client Name",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1456,
+        480
+      ],
+      "id": "normalize-name-001"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1T-jL-cLgplVeZ3EMroQxvGEqI5G7t81jRZ2qINDvXNI"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 762792134,
+          "cachedResultName": "Client_Registry",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1T-jL-cLgplVeZ3EMroQxvGEqI5G7t81jRZ2qINDvXNI/edit#gid=762792134"
+        },
+        "options": {}
+      },
+      "name": "Lookup Client Registry",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1680,
+        480
+      ],
+      "id": "lookup-registry-001",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// V5: Check if client exists in Client_Registry\n// CRITICAL FIX V2: Detect polite AI refusals (\"I'm sorry...\", \"doesn't seem to be...\")\n\n// Get normalized client name from Normalize Client Name node (not from $input!)\nconst normalizeOutput = $('Normalize Client Name').first().json;\nconst clientNormalized = normalizeOutput.client_normalized || '';\nconst clientNameRaw = normalizeOutput.client_name_raw || '';\nconst parentFolderId = normalizeOutput.parent_folder_id || '';\n\n// Get registry rows from $input (Lookup Client Registry output)\nconst registryRows = $input.all();\n\n// ✅ Detect AI extraction failures (technical + polite refusals)\nconst extractionFailurePatterns = [\n  // Technical error messages\n  'unable_to_extract',\n  'error_extracting',\n  'could_not_identify',\n  'could_not_extract',\n  'no_client_name',\n  'extraction_failed',\n  'cannot_identify',\n  // Polite AI refusals\n  'i_m_sorry',\n  'sorry_but',\n  'doesn_t_seem',\n  'does_not_appear',\n  'no_company_name',\n  'cannot_find',\n  'not_able_to'\n];\n\nconst isExtractionFailure = extractionFailurePatterns.some(pattern => \n  clientNormalized.toLowerCase().includes(pattern)\n);\n\nif (isExtractionFailure) {\n  // AI failed to extract client name → Route to UNKNOWN path\n  return [{\n    json: {\n      client_name_raw: clientNameRaw,\n      client_normalized: clientNormalized,\n      parent_folder_id: parentFolderId,\n      client_status: 'UNKNOWN',\n      root_folder_id: null,\n      staging_folder_id: null,\n      extraction_failure: true,\n      extraction_error_message: clientNameRaw\n    }\n  }];\n}\n\n// If registry is empty, client is NEW\nif (registryRows.length === 0) {\n  return [{\n    json: {\n      client_name_raw: clientNameRaw,\n      client_normalized: clientNormalized,\n      parent_folder_id: parentFolderId,\n      client_status: 'NEW',\n      root_folder_id: null,\n      staging_folder_id: null\n    }\n  }];\n}\n\n// Search registry for matching client (with same normalization)\nconst clientRow = registryRows.find(row => {\n  const registryClientName = row.json.Client_Name || '';\n  const normalizedRegistryName = registryClientName\n    .toLowerCase()\n    .trim()\n    .replace(/ä/g, 'ae')\n    .replace(/ö/g, 'oe')\n    .replace(/ü/g, 'ue')\n    .replace(/ß/g, 'ss')\n    .replace(/\\s*(gmbh|ag|kg|e\\.v\\.|mbh|co\\.|&\\s*co\\.?)\\s*/gi, '')\n    .replace(/[^a-z0-9]/g, '_')\n    .replace(/_+/g, '_')\n    .replace(/^_|_$/g, '');\n  \n  return normalizedRegistryName === clientNormalized;\n});\n\nif (clientRow) {\n  // Client exists → EXISTING path\n  return [{\n    json: {\n      client_name_raw: clientNameRaw,\n      client_normalized: clientNormalized,\n      parent_folder_id: parentFolderId,\n      client_status: 'EXISTING',\n      root_folder_id: clientRow.json.Root_Folder_ID,\n      staging_folder_id: clientRow.json.Staging_Folder_ID\n    }\n  }];\n} else {\n  // Client not in registry → NEW path\n  return [{\n    json: {\n      client_name_raw: clientNameRaw,\n      client_normalized: clientNormalized,\n      parent_folder_id: parentFolderId,\n      client_status: 'NEW',\n      root_folder_id: null,\n      staging_folder_id: null\n    }\n  }];\n}"
+      },
+      "name": "Check Client Exists",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1904,
+        480
+      ],
+      "id": "check-exists-001"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.client_normalized }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "isEmpty"
+                    }
+                  },
+                  {
+                    "leftValue": "={{ $json.client_status }}",
+                    "rightValue": "UNKNOWN",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "no_client_identified"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.client_status }}",
+                    "rightValue": "NEW",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "create_folders"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.client_status }}",
+                    "rightValue": "EXISTING",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "folders_exist"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Decision Gate",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        2128,
+        464
+      ],
+      "id": "decision-gate-001"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "zbxHkXOoD1qaz6OS"
+        },
+        "options": {}
+      },
+      "name": "Execute Chunk 0 - Create Folders",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        2352,
+        288
+      ],
+      "id": "execute-chunk0-001"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Handle unidentified client - send to manual queue\n  const items = $input.all();\n  const results = [];\n\n  for (const item of items) {\n    results.push({\n      json: {\n        status: 'FAILED',\n        reason: 'Client name could not be identified',\n        email_id: item.json.emailId,\n        email_subject: item.json.emailSubject,\n        timestamp: new Date().toISOString()\n      }\n    });\n  }\n\n  return results;"
+      },
+      "name": "Handle Unidentified Client",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2352,
+        672
+      ],
+      "id": "handle-unknown-001",
+      "notes": "TODO: Add Slack notification or fallback queue"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Client exists - prepare for Chunk 3 (classification)\n  const items = $input.all();\n  const results = [];\n\n  for (const item of items) {\n    results.push({\n      json: {\n        status: 'SUCCESS',\n        client_name: item.json.client_name_raw,\n        client_normalized: item.json.client_normalized,\n        root_folder_id: item.json.root_folder_id,\n        subfolder_ids: item.json.subfolder_ids,\n        ready_for_classification: true\n      }\n    });\n  }\n\n  return results;\n"
+      },
+      "name": "Prepare for Chunk 3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2352,
+        480
+      ],
+      "id": "prepare-chunk3-001",
+      "notes": "TODO: Connect to Chunk 3 workflow"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1T-jL-cLgplVeZ3EMroQxvGEqI5G7t81jRZ2qINDvXNI"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 762792134,
+          "mode": "list",
+          "cachedResultName": "Client_Registry",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1T-jL-cLgplVeZ3EMroQxvGEqI5G7t81jRZ2qINDvXNI/edit#gid=762792134"
+        },
+        "options": {}
+      },
+      "id": "lookup-staging-folder-001",
+      "name": "Lookup Staging Folder",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2576,
+        384
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// V5: GRACEFUL ERROR HANDLING - No errors thrown, route to 38_Unknowns if missing\n// Extract staging_folder_id from Client Registry lookup AND file_id from upload\nconst clientNormalized = $('Check Client Exists').first().json.client_normalized;\nconst sheetRows = $input.all();\nconst fileData = $('Extract File ID & Metadata').first().json;\n\n// Find matching row by normalizing Client_Name the same way as \"Normalize Client Name\" node\nconst matchingRow = sheetRows.find(row => {\n  const clientName = row.json.Client_Name || '';\n  \n  // Normalize Client_Name to match client_normalized format\n  const normalizedName = clientName\n    .toLowerCase()\n    .trim()\n    .replace(/ä/g, 'ae')\n    .replace(/ö/g, 'oe')\n    .replace(/ü/g, 'ue')\n    .replace(/ß/g, 'ss')\n    .replace(/\\s*(gmbh|ag|kg|e\\.v\\.|mbh|co\\.|&\\s*co\\.?)\\s*/gi, '')\n    .replace(/[^a-z0-9]/g, '_')\n    .replace(/_+/g, '_')\n    .replace(/^_|_$/g, '');\n  \n  return normalizedName === clientNormalized;\n});\n\n// GRACEFUL HANDLING: Route to 38_Unknowns if no matching row\nif (!matchingRow) {\n  return [{\n    json: {\n      ...fileData,\n      client_normalized: clientNormalized,\n      error: `No staging folder found for client: ${clientNormalized}`,\n      routeTo38Unknowns: true,\n      errorType: 'missing_client_in_registry',\n      skipChunk1: true\n    }\n  }];\n}\n\nconst stagingFolderId = matchingRow.json.Staging_Folder_ID || matchingRow.json['01_Staging'];\n\n// GRACEFUL HANDLING: Route to 38_Unknowns if staging folder ID is empty\nif (!stagingFolderId) {\n  return [{\n    json: {\n      ...fileData,\n      client_normalized: clientNormalized,\n      error: `Staging_Folder_ID is empty for client: ${clientNormalized}`,\n      routeTo38Unknowns: true,\n      errorType: 'missing_staging_folder',\n      skipChunk1: true\n    }\n  }];\n}\n\n// SUCCESS PATH: Continue with staging folder ID\nreturn [{\n  json: {\n    client_normalized: clientNormalized,\n    staging_folder_id: stagingFolderId,\n    email_id: fileData.emailId,\n    file_id: fileData.file_id,\n    filename: fileData.filename,\n    routeTo38Unknowns: false\n  }\n}];"
+      },
+      "id": "filter-staging-folder-001",
+      "name": "Filter Staging Folder ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2800,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "djsBWsrAEKbj2omB",
+          "mode": "id"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "client_normalized": "={{ $json.client_normalized }}",
+            "staging_folder_id": "={{ $json.staging_folder_id }}",
+            "email_id": "={{ $json.email_id }}",
+            "file_id": "={{ $json.file_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "client_normalized",
+              "displayName": "client_normalized",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "staging_folder_id",
+              "displayName": "staging_folder_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "email_id",
+              "displayName": "email_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "file_id",
+              "displayName": "file_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "id": "execute-chunk1-001",
+      "name": "Execute Chunk 1",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        3024,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "name": "={{ $json.filename }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1ikw3k-EgpVg_h2ySDdqdUFB7-FQyYDFm"
+        },
+        "options": {},
+        "operation": "upload"
+      },
+      "id": "upload-pdf-gdrive-001",
+      "name": "Upload PDF to Temp Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        560,
+        480
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      },
+      "notes": "Uploads PDF to temp folder and returns Google Drive file ID. This replaces binary data passing."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract Google Drive file ID from upload response and preserve email metadata\nconst uploadResult = $input.first().json;\nconst emailData = $('Filter PDF/ZIP Attachments').first().json;\n\nreturn [{\n  json: {\n    file_id: uploadResult.id,\n    filename: uploadResult.name,\n    emailId: emailData.emailId,\n    emailSubject: emailData.emailSubject,\n    emailFrom: emailData.emailFrom,\n    emailDate: emailData.emailDate\n  }\n}];"
+      },
+      "id": "extract-file-id-001",
+      "name": "Extract File ID & Metadata",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        480
+      ],
+      "notes": "Extracts Google Drive file ID and preserves email metadata for downstream processing"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.file_id }}"
+        },
+        "options": {}
+      },
+      "id": "download-pdf-from-gdrive-001",
+      "name": "Download PDF from Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        784,
+        640
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      },
+      "notes": "Downloads PDF binary using file_id for text extraction"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare UNKNOWN client data with simple static naming\n// V3: Use simple UNKNOWN_CLIENT naming instead of timestamp\nconst inputData = $input.first().json;\n\nconst clientName = \"UNKNOWN_CLIENT\";\nconst clientNormalized = \"unknown_client\";\n\nreturn [{\n  json: {\n    client_name: clientName,\n    client_normalized: clientNormalized,\n    parent_folder_id: inputData.parent_folder_id,\n    client_name_raw: inputData.client_name_raw,\n    client_status: inputData.client_status,\n    root_folder_id: inputData.root_folder_id,\n    staging_folder_id: inputData.staging_folder_id,\n    extraction_failure: inputData.extraction_failure,\n    extraction_error_message: inputData.extraction_error_message,\n    is_unknown_client: true,\n    unknown_timestamp: new Date().toISOString()\n  },\n  binary: $input.first().binary\n}];"
+      },
+      "id": "prepare-unknown-data-001",
+      "name": "Prepare UNKNOWN Client Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2352,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "unknown-status-check",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "PENDING_IDENTIFICATION",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "check-unknown-path-001",
+      "name": "Check If UNKNOWN Path",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2576,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract 38_Unknowns folder ID from Chunk 0 response\n// ALSO get file_id from earlier in workflow\n\nconst chunk0Response = $input.first().json;\nconst folderData = chunk0Response.folderIDs || [];\n\nconst unknownsFolder = folderData.find(item =>\n  item.Variable_Name === 'FOLDER_38_UNKNOWNS'\n);\n\nif (!unknownsFolder || !unknownsFolder.Folder_ID) {\n  throw new Error('FOLDER_38_UNKNOWNS not found in Chunk 0 response');\n}\n\n// Get file_id from Extract File ID & Metadata node\nconst fileMetadata = $('Extract File ID & Metadata').first().json;\nconst fileId = fileMetadata.file_id;\n\nif (!fileId) {\n  throw new Error('file_id not found from Extract File ID & Metadata node');\n}\n\nreturn {\n  json: {\n    unknowns_folder_id: unknownsFolder.Folder_ID,\n    temp_pdf_file_id: fileId,  // Add file ID for move operation\n    root_folder_id: chunk0Response.Root_Folder_ID,\n    client_name: chunk0Response.Client_Name,\n    // Preserve all Chunk 0 data\n    ...chunk0Response\n  },\n  binary: $input.first().binary\n};\n"
+      },
+      "id": "extract-unknowns-folder-001",
+      "name": "Extract 38_Unknowns Folder ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2800,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const folderId = $json.unknowns_folder_id;\nconst fileId = $json.temp_pdf_file_id;\n\nif (!folderId || folderId === '') {\n  throw new Error('Missing unknowns_folder_id - cannot move file');\n}\n\nif (!fileId || fileId === '') {\n  throw new Error('Missing temp_pdf_file_id - no file to move');\n}\n\nreturn {\n  json: {\n    unknowns_folder_id: folderId,\n    temp_pdf_file_id: fileId,\n    ...$json\n  },\n  binary: $input.first().binary\n};"
+      },
+      "id": "validate-folder-ids-001",
+      "name": "Validate Folder IDs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3024,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": "={{ $json.temp_pdf_file_id }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": "={{ $json.unknowns_folder_id }}"
+      },
+      "id": "move-pdf-unknowns-001",
+      "name": "Move PDF to 38_Unknowns",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3248,
+        112
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from correct sources\n// CRITICAL FIX: Get root_folder_id from Validate Folder IDs (before Move PDF wiped data)\nconst folderData = $('Validate Folder IDs').first().json;\nconst emailData = $('Gmail Trigger - Unread with Attachments').first().json;\nconst moveResult = $input.first().json;\n\nconst rootFolderId = folderData.Root_Folder_ID || folderData.root_folder_id;\nconst rootFolderName = folderData.Client_Name || folderData.client_name || 'UNKNOWN';\nconst unknownsFolderId = folderData.unknowns_folder_id;\nconst pdfFileId = moveResult.id || folderData.temp_pdf_file_id;\n\nconst pdfLink = `https://drive.google.com/file/d/${pdfFileId}/view`;\nconst rootFolderLink = `https://drive.google.com/drive/folders/${rootFolderId}`;\n\nconst emailFrom = emailData.from || 'Unknown Sender';\nconst emailSubject = emailData.subject || 'No Subject';\nconst pdfFilename = folderData.pdf_filename || 'unknown.pdf';\n\nconst timestamp = new Date().toLocaleString('en-US', {\n  timeZone: 'Europe/Berlin',\n  year: 'numeric',\n  month: '2-digit',\n  day: '2-digit',\n  hour: '2-digit',\n  minute: '2-digit',\n  hour12: false\n});\n\nreturn [{\n  json: {\n    to: 'swayclarkeii@gmail.com',\n    pdf_filename: pdfFilename,\n    email_from: emailFrom,\n    email_subject: emailSubject,\n    root_folder_name: rootFolderName,\n    pdf_link: pdfLink,\n    root_folder_link: rootFolderLink,\n    timestamp: timestamp\n  },\n  binary: $input.first().binary\n}];"
+      },
+      "id": "prepare-email-data-001",
+      "name": "Prepare Email Notification Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3472,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build HTML email body for UNKNOWN client notification\nconst data = $input.first().json;\n\n// Extract just the email address (not the display name)\nconst emailAddress = data.email_from?.value?.[0]?.address || 'Unknown Sender';\n\nconst htmlBody = `<!DOCTYPE html>\n<html>\n<body style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333;\">\n  <div style=\"max-width: 600px; margin: 0 auto; padding: 20px;\">\n    <h2 style=\"color: #d32f2f;\">⚠️ Unknown Client Document Received</h2>\n    \n    <p>A document was received but the client could not be identified. Manual review is required.</p>\n    \n    <div style=\"background: #f5f5f5; padding: 15px; border-left: 4px solid #1976d2; margin: 20px 0;\">\n      <h3 style=\"margin-top: 0;\">Document Details</h3>\n      <ul style=\"list-style: none; padding: 0;\">\n        <li><strong>Filename:</strong> ${data.pdf_filename}</li>\n        <li><strong>From:</strong> ${emailAddress}</li>\n        <li><strong>Subject:</strong> ${data.email_subject}</li>\n      </ul>\n    </div>\n    \n    <div style=\"background: #fff3e0; padding: 15px; border-left: 4px solid #f57c00; margin: 20px 0;\">\n      <h3 style=\"margin-top: 0;\">📂 Created Folder Structure</h3>\n      <p>A temporary folder structure has been created:</p>\n      <ul style=\"list-style: none; padding: 0;\">\n        <li><strong>Root Folder:</strong> ${data.root_folder_name}</li>\n        <li><strong>Document Location:</strong> SONSTIGES/38_Unknowns/</li>\n      </ul>\n    </div>\n    \n    <div style=\"margin: 30px 0;\">\n      <h3>🔗 Quick Actions</h3>\n      <div style=\"margin: 10px 0;\">\n        <a href=\"${data.pdf_link}\" \n           style=\"display: inline-block; padding: 12px 24px; background: #1976d2; color: white; text-decoration: none; border-radius: 4px; margin-right: 10px;\">\n          📄 View PDF\n        </a>\n        <a href=\"${data.root_folder_link}\" \n           style=\"display: inline-block; padding: 12px 24px; background: #43a047; color: white; text-decoration: none; border-radius: 4px;\">\n          📁 Open Folder Structure\n        </a>\n      </div>\n    </div>\n    \n    <div style=\"background: #e3f2fd; padding: 15px; border-left: 4px solid #1976d2; margin: 20px 0;\">\n      <h3 style=\"margin-top: 0;\">✅ Next Steps</h3>\n      <ol>\n        <li>Review the PDF to identify the client</li>\n        <li>Rename the root folder to the correct client name</li>\n        <li>Update the Client_Registry sheet with the correct client name</li>\n        <li>Move the PDF from 38_Unknowns to the appropriate subfolder</li>\n      </ol>\n    </div>\n    \n    <hr style=\"border: none; border-top: 1px solid #ddd; margin: 30px 0;\">\n    \n    <p style=\"font-size: 12px; color: #666;\">\n      <strong>System:</strong> Eugene AMA Document Organizer V4<br>\n      <strong>Timestamp:</strong> ${data.timestamp}\n    </p>\n  </div>\n</body>\n</html>`;\n\nreturn [{\n  json: {\n    ...data,\n    html_body: htmlBody\n  },\n  binary: $input.first().binary\n}];"
+      },
+      "id": "build-email-html-001",
+      "name": "Build Email HTML Body",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3696,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.to }}",
+        "subject": "[ACTION REQUIRED] Unknown Client Document - Manual Review Needed",
+        "message": "={{ $json.html_body }}",
+        "options": {},
+        "operation": "send"
+      },
+      "id": "send-email-notification-001",
+      "name": "Send Email Notification",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        3920,
+        112
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aYzk7sZF8ZVyfOan",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "id": "check-routing-decision-001",
+      "name": "Check Routing Decision",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        2900,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "route-unknowns-check",
+              "leftValue": "={{ $json.routeTo38Unknowns }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "prepare-missing-folder-error-001",
+      "name": "Prepare Missing Folder Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3100,
+        200
+      ],
+      "parameters": {
+        "jsCode": "// Prepare data for routing to 38_Unknowns when staging folder is missing\nconst item = $input.first().json;\n\n// Create UNKNOWN_CLIENT structure to match existing unknowns path\nreturn [{\n  json: {\n    client_name: 'UNKNOWN_CLIENT',\n    client_normalized: 'unknown_client',\n    parent_folder_id: '1ikw3k-EgpVg_h2ySDdqdUFB7-FQyYDFm',\n    client_status: 'UNKNOWN',\n    is_unknown_client: true,\n    error_reason: item.error || 'Missing staging folder',\n    error_type: item.errorType || 'missing_staging_folder',\n    file_id: item.file_id,\n    filename: item.filename,\n    email_id: item.email_id,\n    unknown_timestamp: new Date().toISOString()\n  }\n}];"
+      }
+    }
+  ],
+  "connections": {
+    "Gmail Trigger - Unread with Attachments": {
+      "main": [
+        [
+          {
+            "node": "Filter PDF/ZIP Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter PDF/ZIP Attachments": {
+      "main": [
+        [
+          {
+            "node": "Upload PDF to Temp Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Attachment": {
+      "main": [
+        [
+          {
+            "node": "Extract Text from PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Text from PDF": {
+      "main": [
+        [
+          {
+            "node": "Evaluate Extraction Quality",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Extraction Quality": {
+      "main": [
+        [
+          {
+            "node": "AI Extract Client Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Extract Client Name": {
+      "main": [
+        [
+          {
+            "node": "Normalize Client Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Client Name": {
+      "main": [
+        [
+          {
+            "node": "Lookup Client Registry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Client Registry": {
+      "main": [
+        [
+          {
+            "node": "Check Client Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Client Exists": {
+      "main": [
+        [
+          {
+            "node": "Decision Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decision Gate": {
+      "2": [
+        [
+          {
+            "node": "Lookup Staging Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ],
+      "main": [
+        [
+          {
+            "node": "Handle Unidentified Client",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prepare UNKNOWN Client Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Execute Chunk 0 - Create Folders",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare for Chunk 3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Lookup Staging Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Staging Folder": {
+      "main": [
+        [
+          {
+            "node": "Filter Staging Folder ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Chunk 0 - Create Folders": {
+      "main": [
+        [
+          {
+            "node": "Check If UNKNOWN Path",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Staging Folder ID": {
+      "main": [
+        [
+          {
+            "node": "Execute Chunk 1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Routing Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload PDF to Temp Folder": {
+      "main": [
+        [
+          {
+            "node": "Extract File ID & Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract File ID & Metadata": {
+      "main": [
+        [
+          {
+            "node": "Download PDF from Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download PDF from Drive": {
+      "main": [
+        [
+          {
+            "node": "Extract Text from PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare UNKNOWN Client Data": {
+      "main": [
+        [
+          {
+            "node": "Execute Chunk 0 - Create Folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract 38_Unknowns Folder ID": {
+      "main": [
+        [
+          {
+            "node": "Validate Folder IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Folder IDs": {
+      "main": [
+        [
+          {
+            "node": "Move PDF to 38_Unknowns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move PDF to 38_Unknowns": {
+      "main": [
+        [
+          {
+            "node": "Prepare Email Notification Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Email Notification Data": {
+      "main": [
+        [
+          {
+            "node": "Build Email HTML Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Email HTML Body": {
+      "main": [
+        [
+          {
+            "node": "Send Email Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If UNKNOWN Path": {
+      "main": [
+        [
+          {
+            "node": "Extract 38_Unknowns Folder ID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Lookup Staging Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Routing Decision": {
+      "true": [
+        [
+          {
+            "node": "Prepare Missing Folder Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ],
+      "false": [
+        [
+          {
+            "node": "Execute Chunk 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Missing Folder Error": {
+      "main": [
+        [
+          {
+            "node": "Execute Chunk 0 - Create Folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

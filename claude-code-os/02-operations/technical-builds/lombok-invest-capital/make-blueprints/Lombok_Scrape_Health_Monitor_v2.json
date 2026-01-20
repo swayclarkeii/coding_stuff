@@ -1,0 +1,352 @@
+{
+  "name": "Lombok Scrape Health Monitor (All Tasks)",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": null,
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 0,
+          "y": 0,
+          "name": "Receive Apify Webhook"
+        },
+        "restore": {
+          "parameters": {
+            "hook": {
+              "label": "Create a new webhook"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hook",
+            "type": "hook:gateway-webhook",
+            "label": "Webhook",
+            "required": true
+          }
+        ],
+        "interface": [
+          {"name": "runId", "type": "text", "label": "Run ID"},
+          {"name": "status", "type": "text", "label": "Status"},
+          {"name": "datasetId", "type": "text", "label": "Dataset ID"},
+          {"name": "taskName", "type": "text", "label": "Task Name"},
+          {"name": "startedAt", "type": "text", "label": "Started At"},
+          {"name": "finishedAt", "type": "text", "label": "Finished At"}
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": null,
+      "metadata": {
+        "designer": {
+          "x": 300,
+          "y": 0,
+          "name": "Check Run Status"
+        }
+      },
+      "routes": [
+        {
+          "flow": [
+            {
+              "id": 3,
+              "module": "email:ActionSendEmail",
+              "version": 2,
+              "parameters": {"__IMTCONN__": null},
+              "mapper": {
+                "to": "swayclarkeii@gmail.com",
+                "subject": "ALERT: Lombok Scrape FAILED - {{1.status}}",
+                "html": "<h2>Lombok Scrape Run Failed</h2>\n<p><strong>Run ID:</strong> {{1.runId}}</p>\n<p><strong>Status:</strong> {{1.status}}</p>\n<p><strong>Task:</strong> {{1.taskName}}</p>\n<p><strong>Started:</strong> {{1.startedAt}}</p>\n<p><strong>Finished:</strong> {{1.finishedAt}}</p>\n<hr>\n<p><strong>Action Required:</strong></p>\n<ul>\n<li>Check Apify console: https://console.apify.com/actors/runs/{{1.runId}}</li>\n<li>Verify target websites are accessible</li>\n</ul>"
+              },
+              "metadata": {
+                "designer": {"x": 600, "y": -200, "name": "Send Failure Alert"}
+              }
+            }
+          ],
+          "filter": {
+            "name": "Run Failed/Timed Out",
+            "conditions": [[{"a": "{{1.status}}", "b": "SUCCEEDED", "o": "text:notequal"}]]
+          }
+        },
+        {
+          "flow": [
+            {
+              "id": 4,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": {"handleErrors": true},
+              "mapper": {
+                "url": "https://api.apify.com/v2/datasets/{{1.datasetId}}/items?format=json",
+                "method": "get",
+                "headers": [{"name": "Authorization", "value": "Bearer YOUR_APIFY_TOKEN_HERE"}],
+                "parseResponse": true
+              },
+              "metadata": {
+                "designer": {"x": 600, "y": 150, "name": "Fetch Dataset"}
+              }
+            },
+            {
+              "id": 5,
+              "module": "util:SetVariable2",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "name": "taskNumber",
+                "scope": "roundtrip",
+                "value": "{{if(contains(1.taskName; \"task-1\"); 1; if(contains(1.taskName; \"task-2\"); 2; if(contains(1.taskName; \"task-3\"); 3; 0)))}}"
+              },
+              "metadata": {
+                "designer": {"x": 900, "y": 150, "name": "Identify Task Number"}
+              }
+            },
+            {
+              "id": 6,
+              "module": "util:SetVariable2",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "name": "totalCount",
+                "scope": "roundtrip",
+                "value": "{{length(4.data)}}"
+              },
+              "metadata": {
+                "designer": {"x": 1200, "y": 150, "name": "Count Total"}
+              }
+            },
+            {
+              "id": 7,
+              "module": "builtin:BasicRouter",
+              "version": 1,
+              "parameters": {},
+              "mapper": null,
+              "metadata": {
+                "designer": {"x": 1500, "y": 150, "name": "Route by Task"}
+              },
+              "routes": [
+                {
+                  "flow": [
+                    {
+                      "id": 10,
+                      "module": "util:SetVariable2",
+                      "version": 1,
+                      "parameters": {},
+                      "mapper": {
+                        "name": "sourceCounts",
+                        "scope": "roundtrip",
+                        "value": "Reef: {{length(filter(4.data; \"i\"; i.source = \"Reef Property Lombok\"))}} | Island: {{length(filter(4.data; \"i\"; i.source = \"Island Properties Lombok\"))}} | Discover: {{length(filter(4.data; \"i\"; i.source = \"Discover Lombok Property\"))}} | Nour: {{length(filter(4.data; \"i\"; i.source = \"Nour Estates\"))}}"
+                      },
+                      "metadata": {
+                        "designer": {"x": 1800, "y": -50, "name": "Task 1 Counts"}
+                      }
+                    },
+                    {
+                      "id": 11,
+                      "module": "util:SetVariable2",
+                      "version": 1,
+                      "parameters": {},
+                      "mapper": {
+                        "name": "hasIssues",
+                        "scope": "roundtrip",
+                        "value": "{{if(length(filter(4.data; \"i\"; i.source = \"Reef Property Lombok\")) < 20; true; if(length(filter(4.data; \"i\"; i.source = \"Island Properties Lombok\")) < 5; true; if(length(filter(4.data; \"i\"; i.source = \"Discover Lombok Property\")) < 3; true; if(length(filter(4.data; \"i\"; i.source = \"Nour Estates\")) < 40; true; false))))}}"
+                      },
+                      "metadata": {
+                        "designer": {"x": 2100, "y": -50, "name": "Task 1 Check Thresholds"}
+                      }
+                    },
+                    {
+                      "id": 12,
+                      "module": "builtin:BasicRouter",
+                      "version": 1,
+                      "parameters": {},
+                      "mapper": null,
+                      "metadata": {"designer": {"x": 2400, "y": -50, "name": "Alert If Issues"}},
+                      "routes": [
+                        {
+                          "flow": [
+                            {
+                              "id": 13,
+                              "module": "email:ActionSendEmail",
+                              "version": 2,
+                              "parameters": {"__IMTCONN__": null},
+                              "mapper": {
+                                "to": "swayclarkeii@gmail.com",
+                                "subject": "Lombok Scrape Alert - Task 1 Low Counts",
+                                "html": "<h2>Task 1 Health Alert</h2>\n<p><strong>Run ID:</strong> {{1.runId}}</p>\n<p><strong>Total Properties:</strong> {{6.totalCount}}</p>\n<h3>Source Counts</h3>\n<p>{{10.sourceCounts}}</p>\n<h3>Thresholds</h3>\n<ul>\n<li>Reef Property Lombok: 20+ expected</li>\n<li>Island Properties: 5+ expected</li>\n<li>Discover Lombok: 3+ expected</li>\n<li>Nour Estates: 40+ expected</li>\n</ul>\n<p><a href=\"https://console.apify.com/actors/runs/{{1.runId}}\">View Run Details</a></p>"
+                              },
+                              "metadata": {"designer": {"x": 2700, "y": -100, "name": "Task 1 Alert Email"}}
+                            }
+                          ],
+                          "filter": {"name": "Issues Found", "conditions": [[{"a": "{{11.hasIssues}}", "b": "true", "o": "boolean:equal"}]]}
+                        }
+                      ]
+                    }
+                  ],
+                  "filter": {"name": "Task 1", "conditions": [[{"a": "{{5.taskNumber}}", "b": "1", "o": "number:equal"}]]}
+                },
+                {
+                  "flow": [
+                    {
+                      "id": 20,
+                      "module": "util:SetVariable2",
+                      "version": 1,
+                      "parameters": {},
+                      "mapper": {
+                        "name": "sourceCounts",
+                        "scope": "roundtrip",
+                        "value": "Bali Exception: {{length(filter(4.data; \"i\"; i.source = \"Bali Exception\"))}} | Estate Lombok: {{length(filter(4.data; \"i\"; i.source = \"Estate Lombok\"))}} | South Lombok: {{length(filter(4.data; \"i\"; i.source = \"South Lombok Land Sales\"))}} | Maju: {{length(filter(4.data; \"i\"; i.source = \"Maju Properties\"))}}"
+                      },
+                      "metadata": {"designer": {"x": 1800, "y": 150, "name": "Task 2 Counts"}}
+                    },
+                    {
+                      "id": 21,
+                      "module": "util:SetVariable2",
+                      "version": 1,
+                      "parameters": {},
+                      "mapper": {
+                        "name": "hasIssues",
+                        "scope": "roundtrip",
+                        "value": "{{if(length(filter(4.data; \"i\"; i.source = \"Bali Exception\")) < 5; true; if(length(filter(4.data; \"i\"; i.source = \"Estate Lombok\")) < 8; true; if(length(filter(4.data; \"i\"; i.source = \"South Lombok Land Sales\")) < 5; true; if(length(filter(4.data; \"i\"; i.source = \"Maju Properties\")) < 5; true; false))))}}"
+                      },
+                      "metadata": {"designer": {"x": 2100, "y": 150, "name": "Task 2 Check Thresholds"}}
+                    },
+                    {
+                      "id": 22,
+                      "module": "builtin:BasicRouter",
+                      "version": 1,
+                      "parameters": {},
+                      "mapper": null,
+                      "metadata": {"designer": {"x": 2400, "y": 150, "name": "Alert If Issues"}},
+                      "routes": [
+                        {
+                          "flow": [
+                            {
+                              "id": 23,
+                              "module": "email:ActionSendEmail",
+                              "version": 2,
+                              "parameters": {"__IMTCONN__": null},
+                              "mapper": {
+                                "to": "swayclarkeii@gmail.com",
+                                "subject": "Lombok Scrape Alert - Task 2 Low Counts",
+                                "html": "<h2>Task 2 Health Alert</h2>\n<p><strong>Run ID:</strong> {{1.runId}}</p>\n<p><strong>Total Properties:</strong> {{6.totalCount}}</p>\n<h3>Source Counts</h3>\n<p>{{20.sourceCounts}}</p>\n<h3>Thresholds</h3>\n<ul>\n<li>Bali Exception: 5+ expected</li>\n<li>Estate Lombok: 8+ expected</li>\n<li>South Lombok Land Sales: 5+ expected</li>\n<li>Maju Properties: 5+ expected</li>\n</ul>\n<p><a href=\"https://console.apify.com/actors/runs/{{1.runId}}\">View Run Details</a></p>"
+                              },
+                              "metadata": {"designer": {"x": 2700, "y": 100, "name": "Task 2 Alert Email"}}
+                            }
+                          ],
+                          "filter": {"name": "Issues Found", "conditions": [[{"a": "{{21.hasIssues}}", "b": "true", "o": "boolean:equal"}]]}
+                        }
+                      ]
+                    }
+                  ],
+                  "filter": {"name": "Task 2", "conditions": [[{"a": "{{5.taskNumber}}", "b": "2", "o": "number:equal"}]]}
+                },
+                {
+                  "flow": [
+                    {
+                      "id": 30,
+                      "module": "util:SetVariable2",
+                      "version": 1,
+                      "parameters": {},
+                      "mapper": {
+                        "name": "sourceCounts",
+                        "scope": "roundtrip",
+                        "value": "Bali Home Immo: {{length(filter(4.data; \"i\"; i.source = \"Bali Home Immo\"))}} | Invest Lombok: {{length(filter(4.data; \"i\"; i.source = \"Invest Lombok\"))}}"
+                      },
+                      "metadata": {"designer": {"x": 1800, "y": 350, "name": "Task 3 Counts"}}
+                    },
+                    {
+                      "id": 31,
+                      "module": "util:SetVariable2",
+                      "version": 1,
+                      "parameters": {},
+                      "mapper": {
+                        "name": "hasIssues",
+                        "scope": "roundtrip",
+                        "value": "{{if(length(filter(4.data; \"i\"; i.source = \"Bali Home Immo\")) < 10; true; if(length(filter(4.data; \"i\"; i.source = \"Invest Lombok\")) < 8; true; false))}}"
+                      },
+                      "metadata": {"designer": {"x": 2100, "y": 350, "name": "Task 3 Check Thresholds"}}
+                    },
+                    {
+                      "id": 32,
+                      "module": "builtin:BasicRouter",
+                      "version": 1,
+                      "parameters": {},
+                      "mapper": null,
+                      "metadata": {"designer": {"x": 2400, "y": 350, "name": "Alert If Issues"}},
+                      "routes": [
+                        {
+                          "flow": [
+                            {
+                              "id": 33,
+                              "module": "email:ActionSendEmail",
+                              "version": 2,
+                              "parameters": {"__IMTCONN__": null},
+                              "mapper": {
+                                "to": "swayclarkeii@gmail.com",
+                                "subject": "Lombok Scrape Alert - Task 3 Low Counts",
+                                "html": "<h2>Task 3 Health Alert</h2>\n<p><strong>Run ID:</strong> {{1.runId}}</p>\n<p><strong>Total Properties:</strong> {{6.totalCount}}</p>\n<h3>Source Counts</h3>\n<p>{{30.sourceCounts}}</p>\n<h3>Thresholds</h3>\n<ul>\n<li>Bali Home Immo: 10+ expected</li>\n<li>Invest Lombok: 8+ expected</li>\n</ul>\n<p><a href=\"https://console.apify.com/actors/runs/{{1.runId}}\">View Run Details</a></p>"
+                              },
+                              "metadata": {"designer": {"x": 2700, "y": 300, "name": "Task 3 Alert Email"}}
+                            }
+                          ],
+                          "filter": {"name": "Issues Found", "conditions": [[{"a": "{{31.hasIssues}}", "b": "true", "o": "boolean:equal"}]]}
+                        }
+                      ]
+                    }
+                  ],
+                  "filter": {"name": "Task 3", "conditions": [[{"a": "{{5.taskNumber}}", "b": "3", "o": "number:equal"}]]}
+                }
+              ]
+            }
+          ],
+          "filter": {"name": "Run Succeeded", "conditions": [[{"a": "{{1.status}}", "b": "SUCCEEDED", "o": "text:equal"}]]}
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "sequential": false
+    },
+    "designer": {"orphans": []},
+    "zone": "us1.make.com"
+  },
+  "_setup": {
+    "description": "Unified Scrape Health Monitor for ALL 3 Apify Tasks",
+    "version": "2.0",
+    "instructions": [
+      "1. Import blueprint into Make.com",
+      "2. Create webhook (one URL for all 3 tasks)",
+      "3. Configure email connection on all email modules",
+      "4. Replace YOUR_APIFY_TOKEN_HERE with your Apify API token",
+      "5. Add same webhook URL to ALL 3 Apify tasks",
+      "6. Task detection uses taskName field - ensure your Apify task IDs contain 'task-1', 'task-2', or 'task-3'"
+    ],
+    "apify_webhook_payload": {
+      "runId": "{{resource.id}}",
+      "status": "{{resource.status}}",
+      "datasetId": "{{resource.defaultDatasetId}}",
+      "taskName": "{{resource.actorTaskId}}",
+      "startedAt": "{{resource.startedAt}}",
+      "finishedAt": "{{resource.finishedAt}}"
+    },
+    "thresholds": {
+      "task1": {"Reef Property Lombok": 20, "Island Properties Lombok": 5, "Discover Lombok Property": 3, "Nour Estates": 40},
+      "task2": {"Bali Exception": 5, "Estate Lombok": 8, "South Lombok Land Sales": 5, "Maju Properties": 5},
+      "task3": {"Bali Home Immo": 10, "Invest Lombok": 8}
+    }
+  }
+}

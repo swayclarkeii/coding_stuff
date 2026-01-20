@@ -1,0 +1,250 @@
+{
+  "name": "Chunk 1: Email → Staging (Document Organizer V3.5)",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "labelIds": ["{{ $vars.GMAIL_LABEL_ID || 'Bautraeger_Docs' }}"]
+        },
+        "options": {
+          "attachments": true,
+          "downloadAttachments": false
+        }
+      },
+      "name": "Gmail Trigger: Watch for Labeled Emails",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1,
+      "position": [240, 400],
+      "id": "node-gmail-trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "{{GMAIL_CREDENTIAL_ID}}",
+          "name": "Gmail OAuth2"
+        }
+      },
+      "notes": "Triggers when email with Bautraeger_Docs label is detected. Checks every minute for new emails with attachments."
+    },
+    {
+      "parameters": {
+        "options": {
+          "dataPropertyAttachmentsPrefixName": "attachment_"
+        }
+      },
+      "name": "Download All Attachments",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [460, 400],
+      "id": "node-download-attachments",
+      "notes": "Downloads all attachments from the email. Stores each attachment as binary data with prefix 'attachment_'."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $binary.attachment_0.fileName }}",
+              "operation": "endsWith",
+              "value2": ".zip"
+            }
+          ]
+        }
+      },
+      "name": "IF: Is ZIP Archive?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 400],
+      "id": "node-if-zip",
+      "notes": "Checks if attachment is a ZIP archive by examining file extension. Routes to extraction if true, continues normally if false."
+    },
+    {
+      "parameters": {
+        "binaryPropertyName": "attachment_0",
+        "options": {}
+      },
+      "name": "Extract ZIP Contents",
+      "type": "n8n-nodes-base.decompress",
+      "typeVersion": 1,
+      "position": [900, 300],
+      "id": "node-extract-zip",
+      "notes": "Extracts all files from ZIP archive. Each extracted file becomes a separate item with binary data. (TRUE branch)"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "name": "Merge: Combine All Files",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [1120, 400],
+      "id": "node-merge-files",
+      "notes": "Combines files from both paths: extracted ZIP contents (if any) + regular attachments. All files proceed together."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $binary.attachment_0.mimeType }}",
+              "operation": "contains",
+              "value2": "pdf"
+            },
+            {
+              "value1": "={{ $binary.attachment_0.mimeType }}",
+              "operation": "contains",
+              "value2": "word"
+            },
+            {
+              "value1": "={{ $binary.attachment_0.mimeType }}",
+              "operation": "contains",
+              "value2": "document"
+            }
+          ],
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "combineOperation": "any"
+        }
+      },
+      "name": "Filter: PDF and DOCX Only",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 1,
+      "position": [1340, 400],
+      "id": "node-filter-files",
+      "notes": "Keeps only PDF and DOCX files. Filters out images (JPG, PNG), spreadsheets (XLSX), and other file types. Prevents processing of irrelevant attachments."
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "fileContent": "={{ $binary.attachment_0 }}",
+        "name": "={{ $binary.attachment_0.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.FOLDER_STAGING }}"
+        },
+        "options": {
+          "googleFileConvert": false
+        }
+      },
+      "name": "Upload to Staging Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1560, 400],
+      "id": "node-upload-staging",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive OAuth2"
+        }
+      },
+      "notes": "Uploads file to Google Drive staging folder (_Staging). Preserves original filename. Returns Drive file ID for next chunk. Does NOT convert to Google Docs format."
+    }
+  ],
+  "connections": {
+    "Gmail Trigger: Watch for Labeled Emails": {
+      "main": [
+        [
+          {
+            "node": "Download All Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download All Attachments": {
+      "main": [
+        [
+          {
+            "node": "IF: Is ZIP Archive?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Is ZIP Archive?": {
+      "main": [
+        [
+          {
+            "node": "Extract ZIP Contents",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge: Combine All Files",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Extract ZIP Contents": {
+      "main": [
+        [
+          {
+            "node": "Merge: Combine All Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge: Combine All Files": {
+      "main": [
+        [
+          {
+            "node": "Filter: PDF and DOCX Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter: PDF and DOCX Only": {
+      "main": [
+        [
+          {
+            "node": "Upload to Staging Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Staging Folder": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "chunk1-email-staging"
+  },
+  "pinData": {},
+  "versionId": "v3.5-chunk1-2025-12-21",
+  "triggerCount": 0
+}

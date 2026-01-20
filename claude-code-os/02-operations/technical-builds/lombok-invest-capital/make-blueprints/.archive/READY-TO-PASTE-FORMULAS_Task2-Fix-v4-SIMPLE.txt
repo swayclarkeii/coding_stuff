@@ -1,0 +1,66 @@
+==========================================================
+TASK 2 PRICE NORMALIZATION - v4 SIMPLIFIED APPROACH
+==========================================================
+
+ERROR: '1.1.' keeps appearing
+ROOT CAUSE: Complex replacement order causing issues
+
+NEW STRATEGY: Strip everything except numbers and comma, THEN convert
+
+PASTE THIS INTO THE "Normalize Price USD for Task 2" MODULE:
+----------------------------------------------------------
+
+{{if(contains(232.priceRaw; "Rp") | contains(232.priceRaw; "IDR"); if(contains(232.priceRaw; "Billion") | contains(232.priceRaw; "Bill") | contains(232.priceRaw; "Miliar"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "Rp"; ""); "IDR"; ""); "Billion"; ""); "Bill"; ""); "Miliar"; ""); " "; ""); "B"; ""); "."; ""); ","; ".")) * 1000000000 / 15700); if(contains(232.priceRaw; "Million") | contains(232.priceRaw; "Mio") | contains(232.priceRaw; "Juta"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "Rp"; ""); "IDR"; ""); "Million"; ""); "Mio"; ""); "Juta"; ""); "M"; ""); " "; ""); "."; ""); ","; ".")) * 1000000 / 15700); round(parseNumber(replace(replace(replace(replace(232.priceRaw; "Rp"; ""); "IDR"; ""); "."; ""); ","; "")) / 15700))); if(contains(232.priceRaw; "$") | contains(232.priceRaw; "USD"); if(contains(232.priceRaw; "Mio"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "$"; ""); "USD"; ""); "Mio"; ""); "M"; ""); " "; ""); "."; ""); ","; ".")) * 1000000); if(contains(232.priceRaw; "K"); round(parseNumber(replace(replace(replace(replace(replace(232.priceRaw; "$"; ""); "USD"; ""); " "; ""); "."; ""); "K"; "")) * 1000); parseNumber(replace(replace(replace(replace(232.priceRaw; "$"; ""); "USD"; ""); " "; ""); ","; "")))); if(contains(232.priceRaw; "€") | contains(232.priceRaw; "EUR"); round(parseNumber(replace(replace(replace(replace(replace(232.priceRaw; "€"; ""); "EUR"; ""); " "; ""); "."; ""); ","; ".")) * 1.1); 0)))}}
+
+==========================================================
+KEY CHANGES - SIMPLIFIED LOGIC:
+==========================================================
+
+1. ✅ Remove "Mio" WITHOUT the period (catches both "Mio" and "Mio.")
+2. ✅ Remove all SPACES before removing periods
+3. ✅ Remove periods AFTER text removal
+4. ✅ Convert comma to period LAST
+
+Example: "1,1 Mio. USD"
+1. Remove "USD" → "1,1 Mio. "
+2. Remove "Mio" → "1,1 . " (note: "Mio." becomes ". ")
+3. Remove "M" → "1,1 . "
+4. Remove " " (spaces) → "1,1."
+5. Remove "." → "1,1"
+6. Replace "," with "." → "1.1"
+7. parseNumber("1.1") → 1.1 ✅
+8. * 1000000 → 1,100,000 ✅
+
+==========================================================
+EVEN SIMPLER DEBUGGING VERSION (if above still fails):
+==========================================================
+
+If the above STILL gives errors, try this ultra-simple version that just handles the most common cases:
+
+{{if(contains(232.priceRaw; "Mio"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "$"; ""); "USD"; ""); "Rp"; ""); "IDR"; ""); "Mio"; ""); " "; ""); "."; ""); ","; ".")) * 1000000); if(contains(232.priceRaw; "Bill"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "$"; ""); "USD"; ""); "Rp"; ""); "IDR"; ""); "Bill"; ""); " "; ""); "."; ""); ","; ".")) * 1000000000 / 15700); if(contains(232.priceRaw; "K"); round(parseNumber(replace(replace(replace(replace(replace(replace(232.priceRaw; "$"; ""); "USD"; ""); " "; ""); "."; ""); ","; ""); "K"; "")) * 1000); parseNumber(replace(replace(replace(replace(232.priceRaw; "$"; ""); "USD"; ""); " "; ""); ","; "")))))}}
+
+This version:
+- Checks for "Mio" FIRST (most specific)
+- Then "Bill"
+- Then "K"
+- Then plain number
+- Strips everything aggressively: currency, text, spaces, periods
+- Keeps only numbers and comma
+- Comma stays as-is for thousands in normal format
+
+==========================================================
+
+But actually, let me ask you a question to help debug:
+
+Can you copy the EXACT value of 232.priceRaw that's causing the error?
+
+If you click on the data in the failed run, you should be able to see what the actual raw price string is. That will help me understand why we keep getting "1.1." instead of "1.1".
+
+The value might be something unexpected like:
+- "1.1. Mio. USD" (with extra period)
+- "1,1. Mio. USD" (with period after comma)
+- Something else entirely
+
+Once I see the actual input, I can create a formula that definitely works.
+
+==========================================================

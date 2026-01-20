@@ -1,0 +1,27 @@
+{
+  "name": "Expense System - Workflow 2: Gmail Receipt Monitor v2.1 (with Apple Email Support)",
+  "description": "v2.1 - Added email-to-PDF conversion for Apple emails without attachments. Monitors 2 Gmail accounts for receipts, downloads attachments, converts Apple email bodies to PDF, extracts amounts via OCR, and logs to Google Sheets.",
+  "version": "2.1",
+  "date": "2026-01-09",
+  "workflowId": "dHbwemg7hEB4vDmC",
+  "changes": [
+    "Added Apple email detection (IF node)",
+    "Added email HTML extraction for Apple emails",
+    "Added HTML-to-PDF conversion via Google Drive conversion",
+    "Updated Extract Attachment Info to skip Apple emails",
+    "Updated Prepare Receipt Record to handle both regular attachments and Apple emails",
+    "Added metadata passthrough for Apple email PDFs"
+  ],
+  "newNodes": [
+    "Detect Apple Emails (IF)",
+    "Extract Apple Email HTML",
+    "Prepare PDF Conversion Request",
+    "Upload Apple Receipt PDF",
+    "Add PDF Metadata",
+    "Merge Apple & Regular Receipts"
+  ],
+  "updatedNodes": [
+    "Extract Attachment Info - Now skips Apple emails",
+    "Prepare Receipt Record - Now handles both attachment and Apple email paths"
+  ]
+}

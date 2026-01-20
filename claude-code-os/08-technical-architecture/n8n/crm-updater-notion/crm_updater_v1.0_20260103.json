@@ -1,0 +1,96 @@
+{
+  "name": "CRM Updater - Notion Integration",
+  "nodes": [
+    {
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [240, 300],
+      "parameters": {
+        "path": "crm-updater",
+        "httpMethod": "POST",
+        "responseMode": "lastNode",
+        "options": {
+          "onError": "continueRegularOutput"
+        }
+      }
+    },
+    {
+      "id": "create-task",
+      "name": "Create Notion Task",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [460, 300],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "mode": "id",
+          "value": "39b8b725-0dbd-4ec2-b405-b3bba0c1d97e"
+        },
+        "title": "={{ $json.body.taskName }}",
+        "propertiesUi": {
+          "propertyValues": []
+        }
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "Sutx4Kyf49uSMEgO",
+          "name": "Notion API 2"
+        }
+      }
+    },
+    {
+      "id": "create-project",
+      "name": "Create Notion Project",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [680, 300],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "mode": "id",
+          "value": "2d01c288bb2881f6a1bee57188992200"
+        },
+        "title": "={{ $json.body.projectName }}",
+        "propertiesUi": {
+          "propertyValues": []
+        }
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "Sutx4Kyf49uSMEgO",
+          "name": "Notion API 2"
+        }
+      }
+    },
+    {
+      "id": "respond",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [900, 300],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ {\"success\": true, \"message\": \"CRM updated successfully\", \"task\": $('Create Notion Task').item.json, \"project\": $('Create Notion Project').item.json} }}"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{"node": "Create Notion Task", "type": "main", "index": 0}]]
+    },
+    "Create Notion Task": {
+      "main": [[{"node": "Create Notion Project", "type": "main", "index": 0}]]
+    },
+    "Create Notion Project": {
+      "main": [[{"node": "Respond to Webhook", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

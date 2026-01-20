@@ -1,0 +1,63 @@
+==========================================================
+TASK 2 PRICE NORMALIZATION - SKIP MIO FOR NOW
+==========================================================
+
+Let's get 90% working first, then fix Mio separately
+
+This formula handles everything EXCEPT European Mio format
+Those 2 properties will show 0, but the other 33 will work
+
+PASTE THIS INTO MODULE 142:
+----------------------------------------------------------
+
+{{if(length(232.priceRaw) = 0; 0; if(contains(232.priceRaw; "Bill") & contains(232.priceRaw; "USD") & contains(232.priceRaw; "IDR"); parseNumber(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "Bill."; ""); "Bill"; ""); "IDR"; ""); "Rp"; ""); " "; ""); "."; ""); ","; "")); if(contains(232.priceRaw; "Bill") & (contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp")); round(parseNumber(replace(replace(replace(replace(replace(replace(232.priceRaw; "Bill."; ""); "Bill"; ""); "IDR"; ""); "Rp"; ""); " "; ""); ","; ".")) * 1000000000 / 15700); if(contains(232.priceRaw; "B") & (contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp")); round(parseNumber(replace(replace(replace(replace(replace(232.priceRaw; "B"; ""); "IDR"; ""); "Rp"; ""); " "; ""); "."; "")) * 1000000000 / 15700); if(contains(232.priceRaw; "USD ") & contains(232.priceRaw; ".") & length(232.priceRaw) < 15; parseNumber(replace(replace(replace(232.priceRaw; "USD"; ""); " "; ""); "."; "")); if(contains(232.priceRaw; "USD") | contains(232.priceRaw; "$"); parseNumber(replace(replace(replace(replace(232.priceRaw; "USD"; ""); "$"; ""); " "; ""); ","; "")); if(contains(232.priceRaw; "IDR") | contains(232.priceRaw; "Rp"); round(parseNumber(replace(replace(replace(replace(232.priceRaw; "Rp"; ""); "IDR"; ""); "."; ""); " "; "")) / 15700); 0)))))))}}
+
+==========================================================
+WHAT THIS SKIPS:
+==========================================================
+
+❌ "1,1 Mio. USD" → Will return 0 (2 properties)
+❌ "3,3 Mio USD" → Will return 0 (1 property)
+
+✅ Everything else should work (32 properties)
+
+==========================================================
+WHAT THIS HANDLES:
+==========================================================
+
+✅ "1,9 Bill. IDR 148,000 USD" → 148,000
+✅ "3,9 Bill. IDR" → 248,408
+✅ "35 B IDR" → 2,229,299
+✅ "Rp 5.83B" → 371,338
+✅ "USD 195.000" → 195,000 (Maju Properties)
+✅ "900,000 USD" → 900,000
+✅ All other formats
+
+==========================================================
+TEST THIS FIRST:
+==========================================================
+
+1. Paste formula
+2. Run scenario
+3. Check if it completes WITHOUT errors
+4. Verify these specific test cases work:
+   - "USD 195.000" → 195,000
+   - "Rp 5.83B" → 371,338
+   - "900,000 USD" → 900,000
+
+If those 3 work, then we know the formula structure is good
+and we can tackle Mio separately with a different strategy
+
+==========================================================
+NEXT STEP AFTER THIS WORKS:
+==========================================================
+
+We'll handle Mio in a separate "Set Variable" module:
+
+Module 142a (new): Handle ONLY Mio format
+if(contains(priceRaw; "Mio"))
+  → Manual calculation or lookup table
+
+Then merge results
+
+==========================================================

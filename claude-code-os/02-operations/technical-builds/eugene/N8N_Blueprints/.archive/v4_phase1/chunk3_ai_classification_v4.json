@@ -1,0 +1,120 @@
+{
+  "name": "Chunk 3: AI Classification (Document Organizer V4)",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// V4: Normalize input from Chunk 2.5\nconst item = $input.first().json;\n\nreturn [{\n  json: {\n    fileId: item.fileId,\n    fileName: item.fileName,\n    originalFileName: item.originalFileName,\n    mimeType: item.mimeType,\n    extension: item.extension,\n    size: item.size,\n    emailId: item.emailId,\n    emailFrom: item.emailFrom,\n    emailSubject: item.emailSubject,\n    emailDate: item.emailDate,\n    extractedText: item.extractedText || '',\n    isScanned: item.isScanned || false,\n    ocrUsed: item.ocrUsed || false,\n    extractionMethod: item.extractionMethod,\n    projectName: item.projectName,\n    normalizedProjectName: item.normalizedProjectName,\n    isNewProject: item.isNewProject,\n    processedAt: new Date().toISOString(),\n    extractedFromZip: item.extractedFromZip || false,\n    zipFileName: item.zipFileName || null,\n    stagingPath: item.stagingPath\n  }\n}];"
+      },
+      "name": "Normalize Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [100, 400],
+      "id": "node-normalize-input",
+      "notes": "V4: Ensures consistent field names from Chunk 2.5."
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.1,
+          "maxTokens": 500
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a German real estate document classifier. Classify the document into ONE of these 6 categories:\n\n1. expose - Exposé/Projektbeschreibung (project description, property teaser)\n2. grundbuch - Grundbuchauszug (land register extract)\n3. calculation - Bauträgerkalkulation DIN 276 (developer cost calculation)\n4. exit - Exit-Strategie (exit/liquidation strategy)\n5. others - Other identifiable document type\n6. unknown - Cannot determine document type\n\nConsider these German keywords:\n- Exposé: Projektbeschreibung, Objektbeschreibung, Verkaufsexposé, Teaser\n- Grundbuch: Grundbuchauszug, Abteilung I/II/III, Eigentümer, Belastungen\n- Calculation: DIN 276, Kostengruppe, Baukosten, Kalkulation, Bauträger\n- Exit: Exit-Strategie, Liquidation, Verkaufsstrategie, Ausstieg\n\nRespond with JSON only: {\"classification\": \"category\", \"confidence\": 0.95, \"reason\": \"brief reason\"}"
+            },
+            {
+              "role": "user",
+              "content": "={{ 'Classify this German real estate document (first 3000 chars):\\n\\n' + $json.extractedText.substring(0, 3000) }}"
+            }
+          ]
+        }
+      },
+      "name": "AI Classification",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [300, 400],
+      "id": "node-ai-classify",
+      "credentials": {
+        "openAiApi": {
+          "id": "{{OPENAI_CREDENTIAL_ID}}",
+          "name": "OpenAI"
+        }
+      },
+      "notes": "V4: Classifies document into 6 categories with confidence score."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Parse AI classification and extract confidence\nconst aiResponse = $input.first().json;\nconst originalData = $('Normalize Input').first().json;\n\nlet classification = 'unknown';\nlet confidence = 0.5;\nlet reason = 'Unable to determine';\n\ntry {\n  const parsed = JSON.parse(aiResponse.message?.content || aiResponse.text || '{}');\n  classification = parsed.classification || 'unknown';\n  confidence = parsed.confidence || 0.5;\n  reason = parsed.reason || '';\n} catch (e) {\n  // Fallback parsing\n  const text = aiResponse.message?.content || aiResponse.text || '';\n  const classMatch = text.match(/classification[\"']?\\s*:\\s*[\"']([^\"']+)[\"']/i);\n  const confMatch = text.match(/confidence[\"']?\\s*:\\s*([0-9.]+)/i);\n  if (classMatch) classification = classMatch[1];\n  if (confMatch) confidence = parseFloat(confMatch[1]);\n}\n\n// Validate classification is one of our 6 types\nconst validTypes = ['expose', 'grundbuch', 'calculation', 'exit', 'others', 'unknown'];\nif (!validTypes.includes(classification.toLowerCase())) {\n  classification = 'unknown';\n  confidence = 0.3;\n}\n\nreturn [{\n  json: {\n    ...originalData,\n    documentType: classification.toLowerCase(),\n    confidence: confidence,\n    classificationReason: reason\n  }\n}];"
+      },
+      "name": "Parse Classification",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 400],
+      "id": "node-parse-class",
+      "notes": "V4: Extracts classification and confidence from AI response."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: UNIFIED SET FILENAME FUNCTION (consolidates 6 nodes into 1)\n// Includes confidence score in filename as requested\n\nconst data = $input.first().json;\n\nfunction generateFilename(documentType, confidence, projectName, extension) {\n  const client = $vars?.CLIENT_NAME || 'Eugene';\n  const now = new Date();\n  \n  // V4: Date format YYYYMMDD\n  const year = now.getFullYear();\n  const month = String(now.getMonth() + 1).padStart(2, '0');\n  const day = String(now.getDate()).padStart(2, '0');\n  const date = `${year}${month}${day}`;\n  \n  // V4 FIX: Time format with milliseconds HHMMSSsss\n  const hours = String(now.getHours()).padStart(2, '0');\n  const minutes = String(now.getMinutes()).padStart(2, '0');\n  const seconds = String(now.getSeconds()).padStart(2, '0');\n  const ms = String(now.getMilliseconds()).padStart(3, '0');\n  const time = `${hours}${minutes}${seconds}${ms}`;\n  \n  // V4: Confidence as percentage (rounded)\n  const confPercent = Math.round(confidence * 100);\n  \n  // V4: Prefix map\n  const prefixMap = {\n    'expose': 'EXPOSE',\n    'grundbuch': 'GRUNDBUCH',\n    'calculation': 'KALK276',\n    'exit': 'EXIT',\n    'others': 'OTHERS',\n    'unknown': 'UNKNOWN'\n  };\n  \n  const prefix = prefixMap[documentType] || 'UNKNOWN';\n  \n  // Clean project name for filename (remove special chars)\n  const cleanProject = (projectName || client)\n    .replace(/[^a-zA-Z0-9]/g, '')\n    .substring(0, 30);\n  \n  // V4 NEW: Include confidence with % in filename\n  // Format: EXPOSE_Eugene_20251222_143052123_97%.pdf\n  const newFileName = `${prefix}_${cleanProject}_${date}_${time}_${confPercent}%.${extension}`;\n  \n  return newFileName;\n}\n\nconst newFileName = generateFilename(\n  data.documentType,\n  data.confidence,\n  data.projectName,\n  data.extension || 'pdf'\n);\n\nreturn [{\n  json: {\n    ...data,\n    newFileName: newFileName,\n    confidencePercent: Math.round(data.confidence * 100)\n  }\n}];"
+      },
+      "name": "Set Filename Unified",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 400],
+      "id": "node-set-filename",
+      "notes": "V4: Unified filename function (replaces 6 separate nodes). Includes confidence%."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Determine target folder based on document type\nconst data = $input.first().json;\n\nconst folderMapping = {\n  'expose': 'FOLDER_01_PROJEKTBESCHREIBUNG',\n  'grundbuch': 'FOLDER_03_GRUNDBUCHAUSZUG',\n  'calculation': 'FOLDER_10_BAUTRAEGERKALKULATION_DIN276',\n  'exit': 'FOLDER_36_EXIT_STRATEGIE',\n  'others': 'FOLDER_37_OTHERS',\n  'unknown': 'FOLDER_38_UNKNOWNS'\n};\n\nconst folderVarName = folderMapping[data.documentType] || 'FOLDER_38_UNKNOWNS';\nconst targetFolderId = $vars[folderVarName] || $vars.FOLDER_38_UNKNOWNS;\n\nreturn [{\n  json: {\n    ...data,\n    targetFolderVar: folderVarName,\n    targetFolderId: targetFolderId\n  }\n}];"
+      },
+      "name": "Determine Target Folder",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 400],
+      "id": "node-target-folder",
+      "notes": "V4: Maps document type to target folder variable."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Normalize output for Chunk 4\nconst data = $input.first().json;\n\nreturn [{\n  json: {\n    // V4 Standard field names\n    fileId: data.fileId,\n    fileName: data.fileName,\n    originalFileName: data.originalFileName,\n    newFileName: data.newFileName,\n    mimeType: data.mimeType,\n    extension: data.extension,\n    size: data.size,\n    // Email context\n    emailId: data.emailId,\n    emailFrom: data.emailFrom,\n    emailSubject: data.emailSubject,\n    emailDate: data.emailDate,\n    // Classification results\n    documentType: data.documentType,\n    confidence: data.confidence,\n    confidencePercent: data.confidencePercent,\n    classificationReason: data.classificationReason,\n    // Project info\n    projectName: data.projectName,\n    normalizedProjectName: data.normalizedProjectName,\n    isNewProject: data.isNewProject,\n    // Target folder\n    targetFolderVar: data.targetFolderVar,\n    targetFolderId: data.targetFolderId,\n    // Metadata\n    processedAt: new Date().toISOString(),\n    extractedFromZip: data.extractedFromZip,\n    zipFileName: data.zipFileName,\n    stagingPath: data.stagingPath,\n    isScanned: data.isScanned,\n    ocrUsed: data.ocrUsed,\n    // Placeholder for downstream\n    version: 1\n  }\n}];"
+      },
+      "name": "Normalize Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 400],
+      "id": "node-normalize-output",
+      "notes": "V4: Ensures consistent field names for Chunk 4."
+    }
+  ],
+  "connections": {
+    "Normalize Input": {
+      "main": [[{ "node": "AI Classification", "type": "main", "index": 0 }]]
+    },
+    "AI Classification": {
+      "main": [[{ "node": "Parse Classification", "type": "main", "index": 0 }]]
+    },
+    "Parse Classification": {
+      "main": [[{ "node": "Set Filename Unified", "type": "main", "index": 0 }]]
+    },
+    "Set Filename Unified": {
+      "main": [[{ "node": "Determine Target Folder", "type": "main", "index": 0 }]]
+    },
+    "Determine Target Folder": {
+      "main": [[{ "node": "Normalize Output", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateId": "document_organizer_v4_chunk3",
+    "version": "4.0"
+  }
+}

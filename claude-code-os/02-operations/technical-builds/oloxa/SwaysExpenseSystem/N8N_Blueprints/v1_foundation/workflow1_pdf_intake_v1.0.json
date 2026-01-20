@@ -1,0 +1,171 @@
+{
+  "name": "Expense System - Workflow 1: PDF Intake & Parsing",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{$env.BANK_STATEMENTS_FOLDER_ID}}"
+        },
+        "event": "fileCreated",
+        "options": {
+          "fileType": "pdf"
+        }
+      },
+      "id": "trigger-1",
+      "name": "Watch Bank Statements Folder",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{$json.id}}"
+        }
+      },
+      "id": "download-1",
+      "name": "Download PDF",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract metadata from the PDF file\nconst fileName = $input.first().json.name;\nconst fileId = $input.first().json.id;\n\n// Parse bank from filename (e.g., \"ING_2025-01_Statement.pdf\")\nconst bankMatch = fileName.match(/^([A-Za-z-]+)_/);\nconst bank = bankMatch ? bankMatch[1] : 'Unknown';\n\n// Parse month/year from filename\nconst dateMatch = fileName.match(/_([0-9]{4})-([0-9]{2})_/);\nconst year = dateMatch ? dateMatch[1] : new Date().getFullYear().toString();\nconst month = dateMatch ? dateMatch[2] : (new Date().getMonth() + 1).toString().padStart(2, '0');\n\n// Generate statement ID\nconst statementId = `STMT-${bank}-${year}${month}-${Date.now()}`;\n\nreturn {\n  json: {\n    fileName,\n    fileId,\n    bank,\n    year,\n    month,\n    statementId,\n    binaryData: $input.first().binary\n  }\n};"
+      },
+      "id": "parse-metadata-1",
+      "name": "Extract File Metadata",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {"name": "model", "value": "gpt-4-vision-preview"},
+            {"name": "messages", "value": "=[{\"role\": \"system\", \"content\": \"You are a German bank statement parser. Extract all transactions from the PDF and return them as JSON array with fields: date (DD.MM.YYYY), description, amount (negative for expenses, positive for income), currency.\"}, {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"Extract all transactions from this bank statement\"}, {\"type\": \"image_url\", \"image_url\": {\"url\": \"data:application/pdf;base64,\" + $binary.data.toBase64()}}]}]"},
+            {"name": "max_tokens", "value": "4096"}
+          ]
+        },
+        "options": {}
+      },
+      "id": "openai-parse-1",
+      "name": "Parse PDF with OpenAI Vision",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse OpenAI response and prepare transaction data\nconst response = $input.first().json;\nconst transactions = JSON.parse(response.choices[0].message.content);\n\nconst metadata = $('Extract File Metadata').first().json;\n\nreturn transactions.map((txn, index) => ({\n  json: {\n    TransactionID: `${metadata.statementId}-${(index + 1).toString().padStart(3, '0')}`,\n    Date: txn.date,\n    Bank: metadata.bank,\n    Amount: txn.amount.toString(),\n    Currency: txn.currency || 'EUR',\n    Description: txn.description,\n    Vendor: '',\n    Category: '',\n    ReceiptID: '',\n    StatementID: metadata.statementId,\n    MatchStatus: 'unmatched',\n    MatchConfidence: '0',\n    Notes: '',\n    Tags: '',\n    Type: 'expense',\n    AnnualInvoiceID: ''\n  }\n}));"
+      },
+      "id": "parse-response-1",
+      "name": "Parse OpenAI Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {"__rl": true, "mode": "id", "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"},
+        "sheetName": {"__rl": true, "mode": "name", "value": "Transactions"},
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "TransactionID": "={{$json.TransactionID}}",
+            "Date": "={{$json.Date}}",
+            "Bank": "={{$json.Bank}}",
+            "Amount": "={{$json.Amount}}",
+            "Currency": "={{$json.Currency}}",
+            "Description": "={{$json.Description}}",
+            "Vendor": "={{$json.Vendor}}",
+            "Category": "={{$json.Category}}",
+            "ReceiptID": "={{$json.ReceiptID}}",
+            "StatementID": "={{$json.StatementID}}",
+            "MatchStatus": "={{$json.MatchStatus}}",
+            "MatchConfidence": "={{$json.MatchConfidence}}",
+            "Notes": "={{$json.Notes}}",
+            "Tags": "={{$json.Tags}}",
+            "Type": "={{$json.Type}}",
+            "AnnualInvoiceID": "={{$json.AnnualInvoiceID}}"
+          }
+        },
+        "options": {}
+      },
+      "id": "write-transactions-1",
+      "name": "Write Transactions to Database",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {"__rl": true, "mode": "id", "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"},
+        "sheetName": {"__rl": true, "mode": "name", "value": "Statements"},
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "StatementID": "={{$('Extract File Metadata').first().json.statementId}}",
+            "Bank": "={{$('Extract File Metadata').first().json.bank}}",
+            "Month": "={{$('Extract File Metadata').first().json.month}}",
+            "Year": "={{$('Extract File Metadata').first().json.year}}",
+            "FileID": "={{$('Extract File Metadata').first().json.fileId}}",
+            "FilePath": "={{$('Extract File Metadata').first().json.fileName}}",
+            "ProcessedDate": "={{new Date().toISOString()}}",
+            "TransactionCount": "={{$('Parse OpenAI Response').all().length}}"
+          }
+        },
+        "options": {}
+      },
+      "id": "log-statement-1",
+      "name": "Log Statement Record",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [1250, 500]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "move",
+        "fileId": {"__rl": true, "mode": "id", "value": "={{$('Extract File Metadata').first().json.fileId}}"},
+        "driveId": {"__rl": true, "mode": "list", "value": "My Drive"},
+        "folderId": {"__rl": true, "mode": "id", "value": "={{$env.ARCHIVE_STATEMENTS_FOLDER_ID}}/={{$('Extract File Metadata').first().json.bank}}"}
+      },
+      "id": "move-to-archive-1",
+      "name": "Move PDF to Archive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1450, 300]
+    }
+  ],
+  "connections": {
+    "Watch Bank Statements Folder": {"main": [[{"node": "Download PDF", "type": "main", "index": 0}]]},
+    "Download PDF": {"main": [[{"node": "Extract File Metadata", "type": "main", "index": 0}]]},
+    "Extract File Metadata": {"main": [[{"node": "Parse PDF with OpenAI Vision", "type": "main", "index": 0}]]},
+    "Parse PDF with OpenAI Vision": {"main": [[{"node": "Parse OpenAI Response", "type": "main", "index": 0}]]},
+    "Parse OpenAI Response": {"main": [[{"node": "Write Transactions to Database", "type": "main", "index": 0}, {"node": "Log Statement Record", "type": "main", "index": 0}]]},
+    "Write Transactions to Database": {"main": [[{"node": "Move PDF to Archive", "type": "main", "index": 0}]]},
+    "Log Statement Record": {"main": []},
+    "Move PDF to Archive": {"main": []}
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

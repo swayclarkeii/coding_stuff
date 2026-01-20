@@ -1,0 +1,5082 @@
+[
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Hello?",
+    "timestamp": "00:00:01"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Oh, hello, are there?",
+    "timestamp": "00:00:01"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Oh, hi, can you hear me?",
+    "timestamp": "00:00:03"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Hang on, oh, what happened?",
+    "timestamp": "00:00:05"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Can you hear?",
+    "timestamp": "00:00:08"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "One second, can you hear me?",
+    "timestamp": "00:00:09"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I can hear you.",
+    "timestamp": "00:00:10"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Hang on, I can't hear you.",
+    "timestamp": "00:00:11"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Oh, .",
+    "timestamp": "00:00:12"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "That's strange.",
+    "timestamp": "00:00:13"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Ah, I know why, I know why.",
+    "timestamp": "00:00:14"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Now?",
+    "timestamp": "00:00:18"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Hi, yeah.",
+    "timestamp": "00:00:19"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "How are you How are you doing?",
+    "timestamp": "00:00:21"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I'm good, man, I'm good.",
+    "timestamp": "00:00:23"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "It's good to see you, man.",
+    "timestamp": "00:00:24"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "to see you, too.",
+    "timestamp": "00:00:25"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "How was your New Year's party?",
+    "timestamp": "00:00:26"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Did you have a nice time?",
+    "timestamp": "00:00:29"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "You know, without going into the crazy story, we did.",
+    "timestamp": "00:00:31"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "We did.",
+    "timestamp": "00:00:35"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "We had a good time.",
+    "timestamp": "00:00:36"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "We usually go to a friend's place.",
+    "timestamp": "00:00:37"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Everybody has kids.",
+    "timestamp": "00:00:40"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "We just put the kids to bed and we have a party every year.",
+    "timestamp": "00:00:42"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "But the part, the couple that we usually go to hang out with, I don't think they're doing too well.",
+    "timestamp": "00:00:46"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Oh, .",
+    "timestamp": "00:00:54"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Whenever we got there, it was, like, super tense.",
+    "timestamp": "00:00:55"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Oh, no.",
+    "timestamp": "00:00:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And you had no idea that that was going on?",
+    "timestamp": "00:01:02"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "mean, are you quite close friends with either one of them or both of them?",
+    "timestamp": "00:01:05"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah, mean, you know, we're close.",
+    "timestamp": "00:01:10"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "We're close.",
+    "timestamp": "00:01:12"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Like, you know, I guess I'm close.",
+    "timestamp": "00:01:13"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "We're closer with the with the with the girlfriend.",
+    "timestamp": "00:01:16"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "OK, the dude is a bit of a he's not so cool all the time.",
+    "timestamp": "00:01:18"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Right.",
+    "timestamp": "00:01:23"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Really?",
+    "timestamp": "00:01:23"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "OK.",
+    "timestamp": "00:01:24"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And so and speaking of that, like two days ago, my wife was at her house, slept over at the place because she's helping her move out.",
+    "timestamp": "00:01:25"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So it's bad.",
+    "timestamp": "00:01:35"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "It was bad.",
+    "timestamp": "00:01:36"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "bad.",
+    "timestamp": "00:01:37"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, I'm so sorry.",
+    "timestamp": "00:01:38"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah, that's it.",
+    "timestamp": "00:01:39"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "must have been a weird.",
+    "timestamp": "00:01:40"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:01:41"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Well, you know, that's I don't know.",
+    "timestamp": "00:01:42"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:01:44"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "You've been how long with your wife?",
+    "timestamp": "00:01:44"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Quite a long time, right?",
+    "timestamp": "00:01:46"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "It's 21 years.",
+    "timestamp": "00:01:47"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Wow.",
+    "timestamp": "00:01:49"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Amazing.",
+    "timestamp": "00:01:49"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "21 years.",
+    "timestamp": "00:01:50"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "so it's it's it's actually crazy.",
+    "timestamp": "00:01:52"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "on New Year's we met another couple that also met each other in 2004.",
+    "timestamp": "00:01:54"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So it's the only people we've really met that have been around that long.",
+    "timestamp": "00:02:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Actually, we know one other couple, and they're all doing well, and they have problems every now and then, you know?",
+    "timestamp": "00:02:05"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Well, I've been with Laura 15 years, but we had our ups and downs.",
+    "timestamp": "00:02:12"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So yeah, it's still going, but it's through that.",
+    "timestamp": "00:02:18"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I don't know.",
+    "timestamp": "00:02:21"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, life is not so easy.",
+    "timestamp": "00:02:22"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And anyway, yeah, so hopefully, I don't know if that's what she wants.",
+    "timestamp": "00:02:23"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I hope they, I mean, moving out is a big, big step.",
+    "timestamp": "00:02:28"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I mean, is it like proper move out or just like just taking one suitcase?",
+    "timestamp": "00:02:32"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "No, it's like, it's bad.",
+    "timestamp": "00:02:36"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Okay.",
+    "timestamp": "00:02:38"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Sorry to hear that for you.",
+    "timestamp": "00:02:39"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, I don't like to judge.",
+    "timestamp": "00:02:41"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I really don't because I know that everybody has their problems, but I don't know.",
+    "timestamp": "00:02:43"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "When you have kids, you've got to act differently.",
+    "timestamp": "00:02:47"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, yeah, yeah.",
+    "timestamp": "00:02:50"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "just, it's just, there's certain things you just don't do because, and especially when they're young, like three and four years old.",
+    "timestamp": "00:02:51"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:02:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "You don't say, you don't do, and, you know, there's a big thing with me, which is, like, you are teaching, like, if I now have a daughter and a son, and I'm teaching my son how to be a man, and I'm teaching my daughter who she's going to date.",
+    "timestamp": "00:03:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Okay.",
+    "timestamp": "00:03:15"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Very important.",
+    "timestamp": "00:03:16"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Like, very important how you act with these people, right?",
+    "timestamp": "00:03:17"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Of course.",
+    "timestamp": "00:03:22"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, yeah, yeah, that makes sense.",
+    "timestamp": "00:03:22"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "She's not doing that, so.",
+    "timestamp": "00:03:24"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:03:26"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "How was it?",
+    "timestamp": "00:03:26"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "It was good.",
+    "timestamp": "00:03:27"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "It was good.",
+    "timestamp": "00:03:29"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Went to, like, two different parties, and then ended, you know, for a nightcap just at a friend's house.",
+    "timestamp": "00:03:30"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "He was stuck with his, because his girlfriend had his, you know, problem with her spine.",
+    "timestamp": "00:03:36"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "mean, nothing big, but, you know, like, one of those, whatever, like, hernia, I can't remember what you call it, but anyway, she was, and so he had to look after the small baby, so he was kind of stuck at home, so, but, you know, was nice.",
+    "timestamp": "00:03:41"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Like, and then, yeah, so lots of different people, lots of, lots of different, yeah.",
+    "timestamp": "00:03:53"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "know what?",
+    "timestamp": "00:03:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:03:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I've got it.",
+    "timestamp": "00:03:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "You know, atmosphere, was good.",
+    "timestamp": "00:04:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "My brother had a big party in his apartment, and that was good fun, yeah.",
+    "timestamp": "00:04:01"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Everyone, I was in Paris, I was in Paris, yeah, yeah, yeah.",
+    "timestamp": "00:04:05"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "But yeah, this year we, you know, I'm gonna meet Laura soon, we're so excited.",
+    "timestamp": "00:04:11"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "This year we did it apart for various reasons, but yeah, but now, anyway, it's good.",
+    "timestamp": "00:04:15"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "It was, yeah, sometimes, you know, we live together, we're always together, and we have, I mean, the thing is with us, I guess it's the same a little bit with you, but we, you know, her dad's in Mexico, her mom's in England, my family's in France, but I also have family, my dad is in Italy, so it's like, it's kind of messy, yeah, yeah, which I think at some point is going to be a problem, you know, when you, when the parents really get older, and like, you know, how are you, how are you going to look after all these people in so many different places, you know?",
+    "timestamp": "00:04:22"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah, it's time to make a lot of money, buy a huge farm, and invent, have everyone live, you know, like, basically.",
+    "timestamp": "00:04:52"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah, need to come up with something.",
+    "timestamp": "00:05:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "All these grandparents, these parents just come and live in the same place.",
+    "timestamp": "00:05:02"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "That would actually be quite cool if you could pull it off.",
+    "timestamp": "00:05:06"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, yeah, yeah.",
+    "timestamp": "00:05:09"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "think it would be, yeah.",
+    "timestamp": "00:05:10"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "they know each other?",
+    "timestamp": "00:05:12"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "they like each Yeah, yeah.",
+    "timestamp": "00:05:13"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "They like each other enough, but they have their character.",
+    "timestamp": "00:05:15"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And they have very different political views, sorts of things.",
+    "timestamp": "00:05:19"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So I think it could be explosive.",
+    "timestamp": "00:05:23"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I was going to say, one's in Mexico, so it's Mexican?",
+    "timestamp": "00:05:24"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, yeah.",
+    "timestamp": "00:05:28"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Okay, and then you have British, and then you have French.",
+    "timestamp": "00:05:29"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "French, and my dad's Turkish, but he lives in Italy, but he's a Turk.",
+    "timestamp": "00:05:33"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Okay, so this is a totally different world, bro.",
+    "timestamp": "00:05:37"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, yeah.",
+    "timestamp": "00:05:40"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "You're trying to create a bomb here.",
+    "timestamp": "00:05:40"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Exactly.",
+    "timestamp": "00:05:42"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So you're half Turkish.",
+    "timestamp": "00:05:45"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, yeah.",
+    "timestamp": "00:05:46"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I'm half Turkish, but sadly, my dad never taught me.",
+    "timestamp": "00:05:48"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So I'm, you know, I mean, it is a weird one because 50% of my blood is Turkish, but I don't speak.",
+    "timestamp": "00:05:50"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So it is one of those weird things where, because...",
+    "timestamp": "00:05:56"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "She's fluent in, you know, bilingual.",
+    "timestamp": "00:06:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "She speaks perfect Spanish.",
+    "timestamp": "00:06:02"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And so I think when you, even if I know the culture, even if I feel Turkish, when I go there, you know, I'm like a tourist, right?",
+    "timestamp": "00:06:04"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I mean, yeah.",
+    "timestamp": "00:06:12"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So that is, exactly.",
+    "timestamp": "00:06:13"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So, you know, they treat me like, you know, understandably, like I'm a foreigner, which I kind of am.",
+    "timestamp": "00:06:15"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "But yeah, anyway, so it is something that I think, I do think my dad maybe should have made an, you know, I mean, I can still learn it now.",
+    "timestamp": "00:06:21"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "mean, this has been, many, for many years, know, now I can, I work remotely, but, you know, Laura has a career, like, and, you know, as you know, works in museums.",
+    "timestamp": "00:06:28"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So she's not going to get a job in Turkey, but I thought, you know, moving there would be, would be nice.",
+    "timestamp": "00:06:37"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:06:42"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:06:44"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:06:45"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "It's really nice.",
+    "timestamp": "00:06:45"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "But, but yeah, anyway, so it's all, it's all, um, anyway.",
+    "timestamp": "00:06:45"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Oh, it's nice.",
+    "timestamp": "00:06:50"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "It's enriching to have all these influences.",
+    "timestamp": "00:06:51"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So I'm not complaining.",
+    "timestamp": "00:06:53"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Have you been in contact with your family in Jamaica or?",
+    "timestamp": "00:06:54"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:06:58"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:06:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:06:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "There's just a lot going on at the moment, man.",
+    "timestamp": "00:07:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Like, I mean, I talk with my dad quite regularly.",
+    "timestamp": "00:07:02"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "He was in Toronto and he went back.",
+    "timestamp": "00:07:05"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So he's there and he's trying to, like, take care of things, you know.",
+    "timestamp": "00:07:07"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Is he back just temporarily or is he kind of thinking of moving there or...?",
+    "timestamp": "00:07:11"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "He lives there.",
+    "timestamp": "00:07:15"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Oh, he lives there, okay.",
+    "timestamp": "00:07:16"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Like, my dad bought, I mean, very, I'm sure we could talk ever about stories, but my dad left when I was, like, 12 to, like, bought some land, moved to Jamaica and literally, like, live on land.",
+    "timestamp": "00:07:17"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Like, no electricity, no water.",
+    "timestamp": "00:07:32"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Wow.",
+    "timestamp": "00:07:34"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "He wanted the whole family.",
+    "timestamp": "00:07:35"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "But hang on, sorry, but you were in Toronto and your mom, was she, did she stay with you or what happened?",
+    "timestamp": "00:07:36"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Like, were they still together or they separated?",
+    "timestamp": "00:07:43"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah, my dad was a bit abusive and, well, not a bit, a lot.",
+    "timestamp": "00:07:47"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "It was a bit, it was complicated.",
+    "timestamp": "00:07:51"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "My mom, my dad was like, all right, we're going to all move back to Jamaica.",
+    "timestamp": "00:07:54"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "My mom was like, no way.",
+    "timestamp": "00:07:57"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "No.",
+    "timestamp": "00:07:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "But she was like, sure.",
+    "timestamp": "00:08:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So he left.",
+    "timestamp": "00:08:02"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "then that's when lives just went separate ways and stuff like this.",
+    "timestamp": "00:08:03"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "But my dad, he built a house, dug a toilet, started building a house.",
+    "timestamp": "00:08:08"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And then since then, he now has like eight acres of land with like a house on it and trees and mango trees and all this kind of stuff.",
+    "timestamp": "00:08:14"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So he's very like spiritual, lives off the land.",
+    "timestamp": "00:08:22"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "My dad's my dad.",
+    "timestamp": "00:08:26"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "My mother is very opposite, lives in Toronto.",
+    "timestamp": "00:08:27"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And also very interesting, yeah, like contrast.",
+    "timestamp": "00:08:34"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Did your dad like remarry or never?",
+    "timestamp": "00:08:38"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "No, no, no.",
+    "timestamp": "00:08:41"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "My dad has women, but never remarried.",
+    "timestamp": "00:08:42"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "My dad is very much into his spirituality.",
+    "timestamp": "00:08:45"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So there's nothing above that, which is very difficult to deal with sometimes.",
+    "timestamp": "00:08:48"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Like, every time I talk to him, it's like, okay.",
+    "timestamp": "00:08:52"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And then at some point, you get to this point where you're like, where's this?",
+    "timestamp": "00:08:56"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Where's my dad, right?",
+    "timestamp": "00:09:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So, yeah, he's there.",
+    "timestamp": "00:09:01"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And, um, but my, my, my mother, my grandmother, actually, my grandmother is 98.",
+    "timestamp": "00:09:04"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Okay.",
+    "timestamp": "00:09:11"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And she's dying right now.",
+    "timestamp": "00:09:12"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Like, uh, sorry to hear that.",
+    "timestamp": "00:09:14"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:09:15"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "My sister called me yesterday.",
+    "timestamp": "00:09:16"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "That's my mom's mom.",
+    "timestamp": "00:09:17"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Okay.",
+    "timestamp": "00:09:18"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "My sister called me yesterday and said, you may have to fly to Florida like soon.",
+    "timestamp": "00:09:19"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Oh, so she's in Florida.",
+    "timestamp": "00:09:23"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "She's not in Jamaica.",
+    "timestamp": "00:09:25"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Florida.",
+    "timestamp": "00:09:26"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:09:26"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "My grandmother lives in Florida.",
+    "timestamp": "00:09:27"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And so like, this is all very new and my mom is like losing it.",
+    "timestamp": "00:09:28"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "She's, you know, her mom's dying.",
+    "timestamp": "00:09:32"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And so it's a bit, this is a weird year.",
+    "timestamp": "00:09:34"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Like, it's just, it's just a weird time.",
+    "timestamp": "00:09:37"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "don't know.",
+    "timestamp": "00:09:40"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I know.",
+    "timestamp": "00:09:41"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I know.",
+    "timestamp": "00:09:41"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "It is what it is, but, um, and the politics of the world are so  up as well.",
+    "timestamp": "00:09:42"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "You know, what's going to happen?",
+    "timestamp": "00:09:49"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "You know, it's like such a, such a bad start.",
+    "timestamp": "00:09:52"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "But anyway, man, it's, it's a crazy weird time.",
+    "timestamp": "00:09:55"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "But out of that, I don't I don't",
+    "timestamp": "00:09:58"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "You know, I've come to understand as, like, getting older is that, and I never really knew this when I was younger, but during these crazy times, this is where a lot of things change, and things change a lot for good, but only those who know how to take advantage of it in a strange way, right?",
+    "timestamp": "00:10:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "It's  up, right?",
+    "timestamp": "00:10:18"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "It's like, it's super  up.",
+    "timestamp": "00:10:19"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Like, when things like this happen, there are a lot of people that become very rich in certain reasons, and you wonder how and why, but most people don't get access to that.",
+    "timestamp": "00:10:20"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Right?",
+    "timestamp": "00:10:29"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And it's really, really unfortunate, but it made me really think, though, about my life and having kids, being like, okay, you can look at the doom and the gloom of it, but I also have to look at what's changing, how do I stay, like, into the pulse of what's happening, and where is it going, because...",
+    "timestamp": "00:10:30"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah, no, and I was talking to a friend, actually, I was in Madrid for a bit, and talking to a friend, and, you know, she was saying, how do you protect your kids from, you know, like,",
+    "timestamp": "00:10:50"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "All of the stuff that's on the internet, like, you know, if you've got kids nowadays, I mean, it's like, it's a bit scary, right?",
+    "timestamp": "00:11:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, we are very lucky, like my wife and I, like my daughter's now, she just turned five, and she's never seen a screen before.",
+    "timestamp": "00:11:08"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Oh, well done.",
+    "timestamp": "00:11:17"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And so we have been very, very, like, it's a lot of work, no TVs, no screens, no phones, no cartoons, nothing, she has not seen anything.",
+    "timestamp": "00:11:18"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Son is now two and a half, and it's the same thing with him, and we want to keep it this way for as long as possible, but she's going to be, she's five now, she's going to start getting into something in the next two or three years.",
+    "timestamp": "00:11:30"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah, I think there's going to be a moment, obviously, when they're in school, where they're going to start, you know, seeing that others have things they don't have, and they're going to probably want that, and it's going to be, what do you do then, you know what saying?",
+    "timestamp": "00:11:41"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "It's a tough one for me, because I'm, that's also why we're moving to Portugal.",
+    "timestamp": "00:11:54"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "you.",
+    "timestamp": "00:11:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "you.",
+    "timestamp": "00:11:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "you.",
+    "timestamp": "00:11:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Thank",
+    "timestamp": "00:11:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Like, leaving.",
+    "timestamp": "00:12:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "When?",
+    "timestamp": "00:12:01"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Well, we have one year now.",
+    "timestamp": "00:12:02"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "gotta leave by next summer.",
+    "timestamp": "00:12:04"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Okay.",
+    "timestamp": "00:12:06"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And my real ideal plan is that I want to move my kids into a small community.",
+    "timestamp": "00:12:06"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I want to move them into a small school.",
+    "timestamp": "00:12:13"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I want to move them into a place where we all think the same.",
+    "timestamp": "00:12:14"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "My parents are like, we're not interested in all of these phones and all of these smartphones and all of this .",
+    "timestamp": "00:12:17"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "My kids are not going to be in some school with like 150 kids in the city.",
+    "timestamp": "00:12:24"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And I think that's the only way, really, I think that's the only way you can protect yourself from kids.",
+    "timestamp": "00:12:29"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "It's not about, for me, it's not about protecting myself, protecting them.",
+    "timestamp": "00:12:35"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "It's about introducing them in a responsible way to technology.",
+    "timestamp": "00:12:38"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, exactly.",
+    "timestamp": "00:12:42"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, you're right.",
+    "timestamp": "00:12:43"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And I think parents, what I'm trying to do, they don't have the balls to do it.",
+    "timestamp": "00:12:44"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "They wouldn't do it.",
+    "timestamp": "00:12:51"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "They always tell me like, yeah, but how?",
+    "timestamp": "00:12:52"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And I'm like, it's very simple in a way.",
+    "timestamp": "00:12:54"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "You take yourself out of where everybody is.",
+    "timestamp": "00:12:56"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I mean, it's simple if you're a digital nomad, like, for example, I have so many ideas like this, but, like, Laura needs to, she works in a museum, like, you know, she cannot live away from the collections, you know, like, I mean, maybe she could for, you know, a few weeks or months at a time, but it is, I think we are privileged in the sense that, because you're the same as me, right?",
+    "timestamp": "00:13:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Like, you work completely remotely, right?",
+    "timestamp": "00:13:18"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, exactly.",
+    "timestamp": "00:13:21"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "That's the point.",
+    "timestamp": "00:13:23"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Which has also, I think, it's a set of problems, which is, I don't know, I don't know about you, like, your wife, does she also work from home, or do you?",
+    "timestamp": "00:13:24"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "No, no, no, she's got a more traditional job, but she's also, I think she's just more like, well, I think the thing with my wife is she doesn't have a big career job, like, she's never wanted it, she's like, I'm going to be this, you know, CEO of this company and do this thing.",
+    "timestamp": "00:13:35"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "She was always like, jobs are just to make money.",
+    "timestamp": "00:13:52"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I don't want to bring the stress home.",
+    "timestamp": "00:13:55"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "To be honest, when we moved.",
+    "timestamp": "00:13:57"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And then we need to, because I've got a few things I wanted to discuss with you, but we could talk forever.",
+    "timestamp": "00:14:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Oh, I just wanted you to know, at quarter to one, I need to go because I have another meeting, but we still have half an hour, which is, but yeah, no, just to go on this subject, I think, yeah, like we, I think I told you, you know, I know how you feel about Germany, but Stuttgart, with all its faults, what I quite liked, actually, is you meet people who may have like a slightly boring job, or sometimes completely boring job, but like they have passions outside, and like their life is, I don't know, they're not so ambitious, but it's a good thing, it's like they're doing things for the pleasure of doing things, you know, like some are musicians, some are painters, honestly, some of the painters that I know, like, I really don't like what they do, like, but it doesn't matter, like they are, they are, you know, that's, yeah, I don't know, like, they're,",
+    "timestamp": "00:14:06"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I just chilled, you know, whereas if you go to Amsterdam, for example, I think everyone is like, you know, and the same with Paris, London, it's like, it's, you know, this thing, you know, you, if you can't, yeah, if you can't meet the rent, then it's like, it's this thing where you have to make a lot of money, otherwise you're pushed out, right?",
+    "timestamp": "00:15:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And it does stuff, I don't know, yeah, and so I do think if there's a way, but that's good if your wife can take a job that, you know, if she's not so bothered to have a job that's not like super, you know, interesting, or, I don't know, or maybe it is interesting, but in a different way, then, then, then you can make your plan work.",
+    "timestamp": "00:15:18"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "With Laura, she's really, and it's not, in her case, it's not just ambition, it's like, it's interesting, it's intellectual, you know what I mean, like, it's, yeah.",
+    "timestamp": "00:15:35"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I get it too, right?",
+    "timestamp": "00:15:43"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I mean, she's probably all, and she loves it, it's just something that's, I've worked my life here, and now I've got this, I don't want just leave that thing.",
+    "timestamp": "00:15:44"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, exactly.",
+    "timestamp": "00:15:52"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Anyway, we'll, we'll work things out, but yeah, so nice to, to, you know, connect with you, and I, and I'll breathe.",
+    "timestamp": "00:15:54"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Briefly, because you might tell me, actually, this is, I can't really help you, because I was thinking, know, what do I need help with, currently, in terms of AI, and why don't we cover this, because maybe very quickly you'll tell me, oh, I don't know, it's going to be tricky, and then we can go back to chatting about other things, if need, you know, if we have time.",
+    "timestamp": "00:16:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "But, yeah, no, basically, I was trying to think, you know, because, I mean, it's super interesting what you're proposing, and I was discussing, and, you know, I've got a cousin who's, you know, I've heard about these things where you can just go on your own and, like, basically explain what you need, like, the little things that were, so, okay, there's two tasks that I thought, and maybe there will be more in the future, but two tasks that I thought, I have two businesses, by the way.",
+    "timestamp": "00:16:18"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "They have Bold Move, which does film and television, pitch decks, and before that, I started another business, which does the same thing, but for advertising competition, so, people who make TV commercials, they always compete with one another, the directors, and we support them, so, it's a similar thing.",
+    "timestamp": "00:16:42"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "We created these crazy presentations, super immersive, but for advertising, and that's a bigger business, because advertising is nonstop, like a company might pitch five times a month or something, whereas TV and film, it's a lot slower, the business, boldmove, is a lot smaller.",
+    "timestamp": "00:17:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So yeah, the other one is really paying my bills, boldmove at the moment, not at all.",
+    "timestamp": "00:17:21"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "No, no, no, the other one is called Ambushed.",
+    "timestamp": "00:17:28"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So Ambushed, which is the other company, which is on LinkedIn, I read it on LinkedIn.",
+    "timestamp": "00:17:31"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, yeah, exactly.",
+    "timestamp": "00:17:36"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So that one is the one that really pays my bills, even though I think we've made some slightly, you know, I was going to say boldmove, like we took a risk, like we basically reinforced the core team, like we have a lot of like, like we have a super great support team, but it's also more expensive, meaning it's quite expensive.",
+    "timestamp": "00:17:36"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So meaning now we have this pressure of like, unless we go over a certain turnover.",
+    "timestamp": "00:17:54"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Then we start losing money.",
+    "timestamp": "00:18:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "yeah, we had to increase prices.",
+    "timestamp": "00:18:01"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "It's kind of this moment where like...",
+    "timestamp": "00:18:05"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "How many people are in each business?",
+    "timestamp": "00:18:07"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "How big are the businesses?",
+    "timestamp": "00:18:09"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So boldmove is just me with one employee full-time, one employee part-time.",
+    "timestamp": "00:18:10"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So we're only three really.",
+    "timestamp": "00:18:16"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "There are other collaborators.",
+    "timestamp": "00:18:18"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Of course, we have a lot of freelancers.",
+    "timestamp": "00:18:19"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So all those people are freelancers?",
+    "timestamp": "00:18:22"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, yeah, yeah.",
+    "timestamp": "00:18:23"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Well, this thing we haven't completely updated.",
+    "timestamp": "00:18:24"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So out of the...",
+    "timestamp": "00:18:26"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Actually, yeah, it's like, you know how websites are like, updating it takes a while.",
+    "timestamp": "00:18:28"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So really now, there's a couple of those people are freelancers.",
+    "timestamp": "00:18:33"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And then the other ones are...",
+    "timestamp": "00:18:38"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah, it changed a little bit.",
+    "timestamp": "00:18:42"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So I think we need to update at some point.",
+    "timestamp": "00:18:43"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "But yeah, let's say we're three full-time.",
+    "timestamp": "00:18:45"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Well, not full-time.",
+    "timestamp": "00:18:47"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "We're going to have full-time with boldmove.",
+    "timestamp": "00:18:48"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Although I can't say I'm completely full-time because I'm also working on screenplays.",
+    "timestamp": "00:18:51"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I work as a writer and I also work for Ambush.",
+    "timestamp": "00:18:55"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So for me, it's like, so...",
+    "timestamp": "00:18:58"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "But that's boldmove.",
+    "timestamp": "00:19:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "The Ambush is very different.",
+    "timestamp": "00:19:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Ambush, we have eight people full-time.",
+    "timestamp": "00:19:02"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Okay.",
+    "timestamp": "00:19:06"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Hang on.",
+    "timestamp": "00:19:07"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Three plus four.",
+    "timestamp": "00:19:08"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "yeah, sorry.",
+    "timestamp": "00:19:11"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Seven plus two.",
+    "timestamp": "00:19:12"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "We are nine if you count me and my business partner.",
+    "timestamp": "00:19:14"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And so this one is, yeah, it's quite, and we work with like maybe 70, 80 freelancers, and we have 50 pitches per month roughly on average, right?",
+    "timestamp": "00:19:17"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Like, yeah, 40.",
+    "timestamp": "00:19:26"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah, so it's, that's big, you know, that is big.",
+    "timestamp": "00:19:28"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "But, yeah, it's currently, to keep that structure, we better do a lot of, yeah.",
+    "timestamp": "00:19:32"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Like, we're not, we don't, so we don't really do sales for Ambush because it's really word of mouth.",
+    "timestamp": "00:19:38"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And if anything, we, sometimes, we were not able to meet the demand, like, you know.",
+    "timestamp": "00:19:43"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So, yeah, so it's good, it's good.",
+    "timestamp": "00:19:48"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "We're in a good position, except that I just, you know, I'm a bit nervous that the price raise was a bit, we'll see, we'll see.",
+    "timestamp": "00:19:49"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "This is a, these weeks are going to.",
+    "timestamp": "00:19:57"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:19:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "But anyway, so yeah, the one thing, so what's happened is with Ambushed, I was thinking, because what I'm doing now is kind of, my business partner I thought would do the finance side of things at first, because he came from a business school, and I knew the business, I was a writer for advertising directors, I did all of that, and he, yeah, when I brought him in I realized he did a lot of good things, but really he's not meticulous, so I ended up, by, yeah, by, what do you call it, default, or, you know, to, I ended up being the person who does all of the payments, and it's, it feels a little bit like, you know, boring, and it is boring, and also it's super repetitive, so we have a team, an admin team, that will, I'll show you a little bit, that will do stuff like, you know, we have a dashboard, so every project, you know,",
+    "timestamp": "00:20:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Like, we put basically the hours of that person, know, you have their rate, and then in the end, you get a percentage of, you know, and then, you know, so we keep track of all of that.",
+    "timestamp": "00:21:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Of course, at the bottom, you've got, like, turnover for the month.",
+    "timestamp": "00:21:11"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So we have this monthly, as you can see, you know, every month is a new tab.",
+    "timestamp": "00:21:14"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "We put here, you know, everyone's rates, et cetera.",
+    "timestamp": "00:21:19"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So we have that, and then I, what I do is every week, actually, which is also quite time-consuming, but the reason I do it every week is I realized we had cash flow problems.",
+    "timestamp": "00:21:23"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So if I did it, what do you call it, sorry, if I did it monthly or two, or by week, by or twice a month, we sometimes would be, have problems with cash flow.",
+    "timestamp": "00:21:36"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Whereas when I do it every week, because cash is coming in at, you know, gradually, then somehow I, that's the solution for, but what it.",
+    "timestamp": "00:21:51"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "It means also it's more admin for me.",
+    "timestamp": "00:22:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So basically what I do is very, you know, which is really quite boring, is like, okay, I open an invoice, I've got a map amount, I know what, you know, I know the project, and I just, I'm very, like, I just don't like to, I don't think I should, you know, I wanna be very, make sure everything's fine, and to be honest, most of the time it is, but you know, okay, Oliver, how many hours I look, oh, see, this was not, normally the admin team would have entered, but I guess it's quite recent, anyway.",
+    "timestamp": "00:22:02"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "But yeah, let's say it was someone else, I would check the amount of hours, check the rate, make sure it, you know, works, and then manually pay each invoice.",
+    "timestamp": "00:22:30"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So that is quite time consuming, and it's something I'm thinking I could, you know, there would be an argument for, you know, like giving, for example, yeah, like, I could ask the admin team to tell me, okay, this week we need to pay, I don't 20,000 euros worth of invoice.",
+    "timestamp": "00:22:39"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And then we could just transfer the sum, and I could ask them to do it, that would be one solution, but what I quite like, and maybe makes me a little bit , but I quite like that there's someone else that checks, that everything checks out, rather than the same person who was supposed to put the number in, because I think they might do shortcuts, and occasionally, oh, there's a project that wasn't even put in the dashboard, therefore it wasn't going to be invoice.",
+    "timestamp": "00:23:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "to the clients, it happened a couple of times, or the rates that match up, there's a crazy amount of hours, like why did this guy work so many hours, can we check what happened with the client on this project, it doesn't make sense, or whatever.",
+    "timestamp": "00:23:30"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So, you know, occasionally I pick up something, it's not a lot, it's like, I would say 90% of the time, everything checks out, and I do spend a day a week, maybe, yeah, maybe not quite a day, but, you know, probably like five, six hours every week, which, if I could somehow, out.",
+    "timestamp": "00:23:43"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I mean, I,",
+    "timestamp": "00:23:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "That's 18 to 20 hours a month.",
+    "timestamp": "00:24:02"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Exactly.",
+    "timestamp": "00:24:04"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So I think that that is something that I think, you know, but I would, but if I was automating it or like using help, getting the help of AI, by the way, I was opening it because it's going to be, I think we'll have, I'm using wise, but I did check.",
+    "timestamp": "00:24:05"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And let me show you.",
+    "timestamp": "00:24:18"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I think there are ways to, sorry, there's something else.",
+    "timestamp": "00:24:20"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Excuse me.",
+    "timestamp": "00:24:31"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Is it this?",
+    "timestamp": "00:24:33"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:24:34"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So there's a way to do batch payments.",
+    "timestamp": "00:24:35"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So I think that, you know, there would be a way for, again, batch payment, but I wouldn't want to do a batch payment before I've checked everything.",
+    "timestamp": "00:24:37"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "But if AI could check things and, you know, tell me if there was a discrepancy, but it, you know, it could be a little bit tricky to, yeah.",
+    "timestamp": "00:24:43"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So anyway, that's one, before we get into, I was just going to say, so that's one thing, and then I'll show you the other thing and then you can.",
+    "timestamp": "00:24:53"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "can tell me your thoughts.",
+    "timestamp": "00:25:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And the other thing is for boldmove, is...",
+    "timestamp": "00:25:01"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Oh, boldmove, I just want to, I just want to...",
+    "timestamp": "00:25:04"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Oh yeah, sorry, yeah, yeah, please.",
+    "timestamp": "00:25:05"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So with the first one, it's with Ambush, particularly.",
+    "timestamp": "00:25:07"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "correct.",
+    "timestamp": "00:25:11"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And you have, so I understand it, you have all of these clients that need to get paid, these freelancers, or other organizations that you're working with.",
+    "timestamp": "00:25:11"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "mostly freelancers, yeah.",
+    "timestamp": "00:25:19"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So we have our clients, you know, here we put like the name of the client, project, client, director, producer, so that's...",
+    "timestamp": "00:25:20"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And I don't do that, like someone else, we have another, we have an invoicing system, and they, the admin team will send the invoice, explain if there's been a bit of overtime or whatever.",
+    "timestamp": "00:25:27"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So that's all been done by someone else.",
+    "timestamp": "00:25:37"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "What my part is, you know, which by the way, if we could, yeah, why not?",
+    "timestamp": "00:25:39"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Like for the organization, if we could make this process, other processes a bit less tedious that could, you know, benefit other members of the team.",
+    "timestamp": "00:25:44"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "But in terms of my, my tasks, what, yeah, that's taking me about 20 hours a month, is really paying the finances.",
+    "timestamp": "00:25:52"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "That's the...",
+    "timestamp": "00:25:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Because I just don't feel super comfortable, and I know I could create an account within our WISE account for, as I was saying earlier, there would be maybe a way to ask someone else to do it, but currently I've just been doing it, and it does make me feel in control, I guess, that I'm doing it, you know?",
+    "timestamp": "00:26:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, well, I mean, the thing is, you know, whenever you're talking about these processes, it doesn't have to be an all or nothing.",
+    "timestamp": "00:26:22"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "doesn't have to be a Sindbad is in the process, or he's not in the process at all, and it's automated, right?",
+    "timestamp": "00:26:30"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "You can always add in like a human checkpoint that says, I just want to see that this is correct, and then it says there's nothing wrong, and I press go, and then it goes off again, right?",
+    "timestamp": "00:26:36"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So just so you know, you can put humans in any loop, but just so I understand it, what's happening right now is you are doing the final checks for all of this invoicing administration.",
+    "timestamp": "00:26:46"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Exactly.",
+    "timestamp": "00:26:57"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Not invoicing.",
+    "timestamp": "00:26:58"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, invoicing.",
+    "timestamp": "00:26:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Paying invoices from freelancers.",
+    "timestamp": "00:27:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So not invoicing the clients, but paying all of our team members.",
+    "timestamp": "00:27:02"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "In fact, and I also pay those that are monthly.",
+    "timestamp": "00:27:06"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So I do basically all the finance to do with, let's say, payroll.",
+    "timestamp": "00:27:09"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I mean, even though they're mostly freelancers, but...",
+    "timestamp": "00:27:13"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, so right.",
+    "timestamp": "00:27:15"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So you have people that are putting in this information, right?",
+    "timestamp": "00:27:16"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yes, correct.",
+    "timestamp": "00:27:19"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Into this dashboard.",
+    "timestamp": "00:27:20"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And then your job is to go into the dashboard every week now, like four or five hours of your time.",
+    "timestamp": "00:27:21"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And then you look through it and make sure everything's okay.",
+    "timestamp": "00:27:28"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "All the payments.",
+    "timestamp": "00:27:31"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Oh, there's a mistake here.",
+    "timestamp": "00:27:32"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "No, that's not.",
+    "timestamp": "00:27:34"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "everything's fine.",
+    "timestamp": "00:27:35"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And if, and then you make the actual payments.",
+    "timestamp": "00:27:36"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "That's right.",
+    "timestamp": "00:27:39"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:27:40"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Then you go.",
+    "timestamp": "00:27:40"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So you, so how many, um, I'm just curious, like how many payments would you be making?",
+    "timestamp": "00:27:41"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Like after you've done this on an average on a week, were you talking like 10 or 15 or?",
+    "timestamp": "00:27:46"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "A bit more than that.",
+    "timestamp": "00:27:50"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "would say, yeah, easily 15, sometimes 20.",
+    "timestamp": "00:27:52"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Okay.",
+    "timestamp": "00:27:57"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So, so, so not only do you have to.",
+    "timestamp": "00:27:58"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Check it, then you've got to create the invoices, put the invoices, and send them out, and email them, however system you do that.",
+    "timestamp": "00:28:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "That's right, yeah, exactly.",
+    "timestamp": "00:28:07"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "tools are Excel.",
+    "timestamp": "00:28:09"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Excel, yeah.",
+    "timestamp": "00:28:11"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I mean, it's the version that's online, right?",
+    "timestamp": "00:28:12"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Google Sheets.",
+    "timestamp": "00:28:15"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah, Google Sheets, and then I pay with Wise, the bank.",
+    "timestamp": "00:28:16"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And I also saw from the invoice, you used Google Docs?",
+    "timestamp": "00:28:21"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Correct, yeah.",
+    "timestamp": "00:28:24"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Okay, you used Google Docs, and then you used Gmail to send?",
+    "timestamp": "00:28:25"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Or what?",
+    "timestamp": "00:28:28"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Oh, I don't need to send, again, I'm not sending the invoices, that's someone else doing it.",
+    "timestamp": "00:28:31"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I'm paying the invoices.",
+    "timestamp": "00:28:35"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So I go to this, so I just go, yeah, I don't even...",
+    "timestamp": "00:28:37"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "It's like the bank accounts.",
+    "timestamp": "00:28:41"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yes, exactly.",
+    "timestamp": "00:28:43"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Wise is the bank account, so I go to my Wise, and then I make the payment manually for everyone.",
+    "timestamp": "00:28:44"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So, you know, for example, sorry, just so you see, let's say we're here.",
+    "timestamp": "00:28:50"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:28:55"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Sometimes it's just, you know, I check basically the way I go is I look at the dates.",
+    "timestamp": "00:28:55"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Let's take this one.",
+    "timestamp": "00:29:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Sorry, not this one.",
+    "timestamp": "00:29:02"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Sorry, it's very boring, but that way you can see.",
+    "timestamp": "00:29:04"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So what I do is I go, okay, 13th is the next payment, and my promise to everyone in the company is that nobody will be paid later than four weeks, between three and four weeks.",
+    "timestamp": "00:29:08"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So what I always do is I check that day, then go one, two, three, four, then I get to 16th of December, and then I know when I'm going through this, I'm going to pay everything up until the 16th of December.",
+    "timestamp": "00:29:20"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And then, you know, for example, this Serafina, as you can see, there's like three.",
+    "timestamp": "00:29:31"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So I will check, and then I'll make one payment.",
+    "timestamp": "00:29:35"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I'll obviously calculate, you know, the total of the three, and then I'll pay.",
+    "timestamp": "00:29:38"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So, you know, and this, I've already done some for this week, but like, as you can see, one, two, you know, there's different, yeah, two, three, four, five, six, seven, eight, nine, ten, different people.",
+    "timestamp": "00:29:42"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "But I already did about, you know, seven or eight.",
+    "timestamp": "00:29:54"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So I think, yeah, like something around the power.",
+    "timestamp": "00:29:57"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "15 to 20 is about right.",
+    "timestamp": "00:30:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Okay, that's a lot of work.",
+    "timestamp": "00:30:02"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I know, and it's very boring.",
+    "timestamp": "00:30:04"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Super boring, right?",
+    "timestamp": "00:30:06"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I mean, I mean, you're just curious, like, if you didn't have to do these five hour, four to five hours every week, what else would you be doing?",
+    "timestamp": "00:30:08"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Oh, wow.",
+    "timestamp": "00:30:14"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "You know, I don't know, like, thinking about the strategy of the business, or working on my screenplay, you know, I might be doing my personal stuff, you know, like, I don't think personal, it's still, you know, but yeah, it's a good, it's a good point, like, it would be really good to save that time.",
+    "timestamp": "00:30:15"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And that's just between me and you.",
+    "timestamp": "00:30:29"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "The sad thing about Ambush is, my business partner and I, like, really, we were very good at the beginning.",
+    "timestamp": "00:30:31"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And now, it's just, I don't, I don't think we have the same vision.",
+    "timestamp": "00:30:38"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I'm not like, I don't think there's a lot of, it's, this is why I started actually Boldmove, because initially Boldmove was a section of Ambush.",
+    "timestamp": "00:30:42"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And then when things got a little bit like he wanted to do his own thing, like AI, like he wanted to do, you know, like create images, with AI, you know, basically, you want to",
+    "timestamp": "00:30:49"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "He started his own thing without really telling me, and then I was realizing he was putting all of this effort in this new thing, and you know, we're 50-50 in the business.",
+    "timestamp": "00:31:02"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So I said to him, okay, you know, it took me a while.",
+    "timestamp": "00:31:10"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I was pretty angry at first, and then I said, okay, I'm going to start a separate company, which is boldmove, and that way I'm putting my efforts.",
+    "timestamp": "00:31:12"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And, you know, currently I would say, now a little bit less so because I've taken, you know, as I said, like one and a half, well, yeah, I've taken two people, one full-time, one part-time for boldmove.",
+    "timestamp": "00:31:20"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "But like I would say before, it was like 90% effort for boldmove, 10% revenue versus, you know, 10% effort for ambush and 90% revenue.",
+    "timestamp": "00:31:32"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So, yeah, it's been like this.",
+    "timestamp": "00:31:43"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "But, yeah, no, I mean, I'm developing, you know, creative projects.",
+    "timestamp": "00:31:44"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I've got so much I could do, and I think, yeah, like it does, and this position, as I said, sorry, so with my business partner on ambush, it's one of those things.",
+    "timestamp": "00:31:48"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "At some point I realized I would prefer, and it's sad to say this, know, because there's no way of buying each other out, we don't have the money to buy each other out, so I would almost prefer that he did like the bare minimum.",
+    "timestamp": "00:32:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So what he does, he does recruitment, which I'm grateful for because like you will meet a new person and like, you know, basically just tell them the same thing over and over about the company and I'm really quite happy I don't have to do that.",
+    "timestamp": "00:32:11"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "But I don't know, yeah, like we're, so we've got, we found a balance, but it's true that I'm like much more interested in developing boldmove because in the long run, I, yeah, Ambushed is, yeah, it's like my partner who is not someone I really want to develop things with, you know, so even though it has a potential, I definitely want to put my, and I'm actually, I'm in the process, which actually for that one, I could really, really use some help probably at some point, we, we're, we start, I've got an idea to",
+    "timestamp": "00:32:24"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "We a new business with a friend, and I'll pitch it very briefly to you, but we know cameramen in a lot of countries, because I used to make documentary films, and he's also a filmmaker, and our idea is to basically offer people who have a family member that's maybe aging a little bit, and they have lots of things to tell, and send them a cameraman with, like, the cup quality equipment, beautiful lighting, beautiful sound, and basically, like, make very sort of, you know, BBC style interviews, super, like, you know, and interview them about their life, you know, ask them questions about, you know, yeah, like life, their life, but also generally, you know, the way they see the world, et cetera, and I think, yeah, so we're going to try, that is a business where we have so many ideas about how to put it together, but one of the things we wanted to do, because editing is very",
+    "timestamp": "00:33:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "It's consuming, and it would cost a lot of money to the client, so we're thinking we're going to prove, what we wanted to do, very briefly, I expect, so, is to film the interview, maybe with the use of AI, he thinks we can do that, I'm sure at some point we can, know if it's ready, but like, kind of get rid of all the bits that are, you know, when someone goes to the toilet or whatever, like, so make it clean, take it, you know, editing out everything that's not good, that doesn't, you know, and, but have maybe, have this processed in a way that is automated, not, I don't know, to make it, and then basically, put it online, and also have a, like, an automated transcript of what they're saying, which means that, let's imagine, it's two hour long interview, and you're like, oh yeah, I want to see what granny said about, you remember what she said about, you know, this house in the countryside that we have, and then you type the name, and then basically, it brings up straight away, at the point where she's talking about it, or maybe 10 seconds before, and that way, and",
+    "timestamp": "00:34:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Even though you don't have an edit, you can use it easily, you know.",
+    "timestamp": "00:35:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Have you used Descript?",
+    "timestamp": "00:35:04"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "No.",
+    "timestamp": "00:35:05"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Okay.",
+    "timestamp": "00:35:06"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "This might be a program you should look into.",
+    "timestamp": "00:35:07"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Just look into it after, yeah.",
+    "timestamp": "00:35:11"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I'll look it up, yeah.",
+    "timestamp": "00:35:12"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Descript, okay.",
+    "timestamp": "00:35:13"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "You're editing because I also make content for what I do.",
+    "timestamp": "00:35:14"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Okay.",
+    "timestamp": "00:35:17"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I hate editing.",
+    "timestamp": "00:35:18"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I do it.",
+    "timestamp": "00:35:19"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I'm my own editor, but I know that it takes so much time.",
+    "timestamp": "00:35:20"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I'm like, oh, if I could only get AI to do this for me.",
+    "timestamp": "00:35:24"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Okay.",
+    "timestamp": "00:35:26"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "But it's not, AI is not yet at the point where it will automatically, like, have the taste to cut, like, I'm to out these five seconds.",
+    "timestamp": "00:35:27"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I'm going to cut out these 10 seconds.",
+    "timestamp": "00:35:36"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And I don't think you necessarily want it to yet because it just doesn't taste, right?",
+    "timestamp": "00:35:38"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "But Descript is a really interesting program where you can upload the footage and you can edit almost by text.",
+    "timestamp": "00:35:42"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "You can actually look at the test and be like.",
+    "timestamp": "00:35:51"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Oh, so let's say if I remove a piece of text that, which says, oh, sorry, I need to take a piece.",
+    "timestamp": "00:35:54"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "You",
+    "timestamp": "00:35:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Break, then I can remove that and it will remove in the video.",
+    "timestamp": "00:36:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:36:02"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "That's really useful.",
+    "timestamp": "00:36:03"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And what it has is a, like, these systems have automatic AI where you could say, just go in and remove all the ums, ahs, these kind of, like, silent stuff.",
+    "timestamp": "00:36:04"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "You'll do that part, and then you can go in and be like, okay, but this line doesn't make any sense, cut this out, and then it'll cut that in the video.",
+    "timestamp": "00:36:13"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Oh, that's super, oh, wow, that's amazing.",
+    "timestamp": "00:36:20"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Okay, that's really good.",
+    "timestamp": "00:36:22"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah, it's a good, it's a good, like, middle, as you said again, like, you know, AI, instead of having AI do everything.",
+    "timestamp": "00:36:23"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Just, just make the process so much easier.",
+    "timestamp": "00:36:29"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:36:32"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "That's one thing we can talk about, because I, I'm, I'm, I'm in this space, because I, I'm also looking for solutions for this constantly.",
+    "timestamp": "00:36:32"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And if not, then check out Descript.",
+    "timestamp": "00:36:38"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "If it doesn't work, we can, I can help you find something else.",
+    "timestamp": "00:36:41"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Okay.",
+    "timestamp": "00:36:43"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "but I'm also curious, you gotta go at 45, right?",
+    "timestamp": "00:36:44"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "You gotta go in like.",
+    "timestamp": "00:36:47"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Uh, about, yeah, exactly.",
+    "timestamp": "00:36:48"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So I've got seven minutes.",
+    "timestamp": "00:36:50"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So yeah, let me talk quick, so shall I talk briefly about the other thing, which is, uh, it's another issue.",
+    "timestamp": "00:36:51"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Let me show you.",
+    "timestamp": "00:36:55"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Uh, so for, for boldmove, like.",
+    "timestamp": "00:36:57"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "We get some time, what do you call it, let me see, what do I, yeah, so we get requests, and then people are interested, then we send maybe the prices, and maybe they thought it was cheaper, or they don't say that, you kind of disappear, you know, and we thought, okay, it would be good to have, and we started, you know, like we called it the request tracker, right, so, yeah, this is what happened, this is, you know, and then basically, waiting on clients, ghosted, you know, canceled, whatever.",
+    "timestamp": "00:37:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So we have all these little, so that's just a quick template we've put together, but we can, you know, improve it, but the idea, my idea, and again, is that, how easy is that, would be to allow AI to go through my emails, and be like, okay, what was this, okay, this is actually someone looking for work, fine, but, you know, we, and then basically kind of have this thing where I could, I mean, I know I can look up, but like, I mean, okay, maybe that, maybe that's,",
+    "timestamp": "00:37:29"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "That example, because it's someone who wants to be employed, but there is basically the other day, and I've got it on the comment, but I went through all of the emails and found all of the leads that we had that didn't turn into a project, right?",
+    "timestamp": "00:38:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And we were thinking it's easier to go back to someone who showed an interest at some point than go on a cold call, right?",
+    "timestamp": "00:38:15"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So I think it's a useful thing to do.",
+    "timestamp": "00:38:25"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "It is quite, again, a little bit, I mean, it's not impossible, it is, but if it was automated, all the better, right?",
+    "timestamp": "00:38:28"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I mean, it's something we can do, but it's one of those things where you're like, I should do this, and then you never really, I don't know, it seems like, okay, it's not that important, but actually, you know, when you're like, okay, I want to, you know, contact an old client, and also, I think it can provide interesting data about, okay, when, maybe now I'm going a little bit too deep, but like, you know, when did the conversation stop?",
+    "timestamp": "00:38:35"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Did we say something?",
+    "timestamp": "00:38:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Something that maybe was wrong, know, made them, you know, so then we can maybe polish and improve the way, you know, because sometimes people go, oh yeah, I'm interested.",
+    "timestamp": "00:39:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And then, so for example, I also approach people on LinkedIn sometimes.",
+    "timestamp": "00:39:09"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And, you know, I don't know, I do this thing where I'm like, okay, do you know, if you have 10 minutes, let's go on a quick call, you know, it's like, it's only going to take you 10 minutes.",
+    "timestamp": "00:39:12"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And still, that doesn't always work.",
+    "timestamp": "00:39:20"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So, you know, maybe we could be like, okay, that 10 minutes call to action to have a quick meet, that doesn't work, but maybe something else works.",
+    "timestamp": "00:39:22"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Maybe we should do a calendly, you know, calendar or whatever it is, like, you know, to improve basically the way, because we, we, we're ambushed, you know, is, as I said, word of mouth, people come, you know, on their own, and we don't really have to sell.",
+    "timestamp": "00:39:31"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Boldmove is the opposite.",
+    "timestamp": "00:39:46"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "It's like, we do great work, but I think we need to get known better.",
+    "timestamp": "00:39:47"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "We were, so yeah, I mean, we've just updated.",
+    "timestamp": "00:39:51"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I know you said, and thank you, you said you like the website.",
+    "timestamp": "00:39:53"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "We've just updated, but know, it's not enough.",
+    "timestamp": "00:39:56"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Like, like, uh, for example, in the way.",
+    "timestamp": "00:39:58"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Now, have some new examples that we've put, you know, all these are new, this is a great tech, for example, and so this also, so yeah, we do these things, we just basically pretty crap at selling, you know, like, you know, you're talking about outbound leads, you basically, well, two things I hear, I hear reactivation, because you're like, how can we reactivate old leads that are warm that we're supposed to, and then how do we generate new leads?",
+    "timestamp": "00:40:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Exactly, and that is a big subject, yeah, because I think we're, so at the moment, I'm working, as I said, I'm working with a guy who's kind of running the operation when projects are on, and he's great, and, you know, but then there's another guy who is also, it's kind of weird, but like, he's a writer, he often contributes to project as a writer, but he also does a little bit of admin for me, and also a little bit of sales, but he, but so far, he's proven, he's just not, you know,",
+    "timestamp": "00:40:31"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I mean, so far he's just didn't have, I think he managed to get one meeting in three months, you know, like that is the level of, and I don't blame him, I'm just as bad, so, and, you know, I guess it's like, I should have maybe chosen someone who's got a sales profile, but I really can't afford it, you know, so he's not, like, he's, you know, he's doing a few hours, like, it's not like he's full time on that, but still, yeah, I think, but I mean, that's a difference, I guess that's not your expertise, you know, like, there's a difference here, mean, yeah, we definitely have to have another call.",
+    "timestamp": "00:41:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So, I think I'll send you a link after, and we'll book another call pretty quick.",
+    "timestamp": "00:41:28"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "That'd be great, yeah, yeah.",
+    "timestamp": "00:41:31"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "There's a couple things that I'm hearing, it's like, you know, there are building, like, one of the things we do do is we build lead generation systems for companies, right, or we will build a, like you're talking about, a reactivation system for companies.",
+    "timestamp": "00:41:33"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "This is a thing that you can look at, you can look at, I want to make more money, I want to cut costs.",
+    "timestamp": "00:41:49"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Those are the two main things, right?",
+    "timestamp": "00:41:56"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And with Amber,",
+    "timestamp": "00:41:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "It's like, I want to cut costs so I can make more money, because if I can cut these five or six hours out, I could use it to strategize, I could use it to do things to generate more money for the company.",
+    "timestamp": "00:42:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Exactly.",
+    "timestamp": "00:42:11"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "That's true.",
+    "timestamp": "00:42:11"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, completely.",
+    "timestamp": "00:42:12"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "That's like an administrative problem that you're like, hey, I would cut this down.",
+    "timestamp": "00:42:13"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And what I would say with that is, I would like to talk with your administrators, because I think it's, I would like to understand the full system before saying, this is what we're going to build here for this.",
+    "timestamp": "00:42:17"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "To be like, the people who are actually putting the information there, I'd like to understand their problem.",
+    "timestamp": "00:42:32"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "like, they might be something totally different, like, actually, the system, right?",
+    "timestamp": "00:42:38"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "You know, so I would need to talk with somebody in that move.",
+    "timestamp": "00:42:43"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "With all the move, the interesting thing about the new leads or reactivating leads, it is doable.",
+    "timestamp": "00:42:47"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I think the question becomes, and this is for you, it's like, how do to綽 ‫ST laugh kotzt kotzt kotzt",
+    "timestamp": "00:42:54"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So, reactivating leads, how many leads do you actually reactivate per month and per year, right?",
+    "timestamp": "00:43:01"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "That would be a question because it's like, do you need to build a system for that?",
+    "timestamp": "00:43:06"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Like, is it worth it?",
+    "timestamp": "00:43:10"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So for me, just so you know, in my mind, was more having the data, not automating emails because I think, I don't want to get on people's nerves, you know, like I think that's always a risk.",
+    "timestamp": "00:43:11"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So I think it has to be done very tactfully, I think.",
+    "timestamp": "00:43:25"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "But, yeah, and you know, to be honest, we've been asking ourselves so many questions, know, do we need to do a newsletter, you know, so many people do think, and I do, I mean, as a, let's say consumer, if you want to use that term, like I don't really like to be bombarded with, you know, with like newsletters and things like that.",
+    "timestamp": "00:43:30"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I know it probably works, but it's still, I don't know.",
+    "timestamp": "00:43:49"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So, and also it is a lot of time to create content.",
+    "timestamp": "00:43:52"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So, sorry, that's maybe again, a bit outside of your, but yeah, there's definitely a need for a strategy.",
+    "timestamp": "00:43:55"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And I.",
+    "timestamp": "00:43:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I don't know if, like, maybe I need to work out my strategy first before asking your help, because otherwise it's like I'm asking you to be a sales advisor, you know, that's a bit different.",
+    "timestamp": "00:44:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "It's two things.",
+    "timestamp": "00:44:10"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "What I do is I'm not, I mean, a bit about Aloxone, I know you don't have time, you've got to run.",
+    "timestamp": "00:44:11"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And I can take two minutes and then, yeah.",
+    "timestamp": "00:44:16"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "What I am is I am like an AI transformation partner.",
+    "timestamp": "00:44:19"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "That's how I build it, right?",
+    "timestamp": "00:44:23"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And it's not that, hey, what do you need built?",
+    "timestamp": "00:44:25"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I'm going to build that thing for you.",
+    "timestamp": "00:44:27"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "It's about me coming in as a partner to help you figure out where the problems are, figure out what you need to build, figure out how feasible it is to you need to build it, figure out whether you need to build it at all, whether it even makes sense.",
+    "timestamp": "00:44:29"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Sometimes it's about a process, like actually building a standard operating system first and then automating something, and then kind of helping you through this process.",
+    "timestamp": "00:44:42"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Because what it is, is that you're like, like very many businesses I work with, it's like, I've got all these things that I need to do, and I don't know how.",
+    "timestamp": "00:44:52"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I don't even know where AI starts, where it ends, what is doable, what is not doable, and my job is to, A, come in and find out what's the real problem, where are the real issues, what are the real bottlenecks, and talk about those things, and then find out and decide with you, maybe the value is doing something over here better than over here, you know, maybe it's actually working on this right now first before we work on this right now, you know what I mean?",
+    "timestamp": "00:45:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So, I think with boldmove, I think doing outbound lead generation is always important, because I mean, once you, the thing is, there's a common problem in businesses, I want to cut down these costs and free up all this time, and then the question is, well, do you have a lead generation machine to get more leads, what do you do with this?",
+    "timestamp": "00:45:24"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And it's kind of the chicken and the egg, well, if I get more leads, I don't have the time to nurture them because I have all these things to do, right?",
+    "timestamp": "00:45:46"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So, these are the things that we've kind of got to work with, if we work together.",
+    "timestamp": "00:45:53"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Sure, yeah, yeah, yeah.",
+    "timestamp": "00:45:56"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I think lead generation is good.",
+    "timestamp": "00:45:57"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I understand your concern of like, I don't want to bother people, but there's another side of it that's like, you got to be present.",
+    "timestamp": "00:46:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "You got to be out there.",
+    "timestamp": "00:46:06"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And the question then becomes how?",
+    "timestamp": "00:46:07"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Maybe it's like a machine that like goes on Instagram and finds contacts for you.",
+    "timestamp": "00:46:09"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "People that are maybe producing films that are interested in pitch decks on LinkedIn and finding these people for you that you can contact them.",
+    "timestamp": "00:46:16"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Maybe it doesn't do the automation, but there's different ways.",
+    "timestamp": "00:46:26"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "There's look at it, right?",
+    "timestamp": "00:46:30"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "There's different ways.",
+    "timestamp": "00:46:31"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "How do I get more leads?",
+    "timestamp": "00:46:32"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "That's really important.",
+    "timestamp": "00:46:33"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah, it would be super interesting to do the next call, but with Richard who's helping me on that as well, because he's been on the ground doing it.",
+    "timestamp": "00:46:36"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "How do we, sorry, and at some point, and I mean, sorry, because we're running out of time, but I wanted to ask you as well, how do you get paid?",
+    "timestamp": "00:46:45"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Of course, like that's quite an important question.",
+    "timestamp": "00:46:51"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "You know, how do you?",
+    "timestamp": "00:46:53"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:46:54"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "It's different.",
+    "timestamp": "00:46:55"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "It's different.",
+    "timestamp": "00:46:56"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "It's always different.",
+    "timestamp": "00:46:57"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Like, okay, basically, I think.",
+    "timestamp": "00:46:58"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "We would have to look at the scope of the problem.",
+    "timestamp": "00:47:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Like when I say the problem, it's like, what are you trying to solve?",
+    "timestamp": "00:47:02"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And right now you've got two different companies.",
+    "timestamp": "00:47:06"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "So it would be looking at like, okay, what's the scope over here?",
+    "timestamp": "00:47:08"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "What's the scope over here?",
+    "timestamp": "00:47:11"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "How big is this thing?",
+    "timestamp": "00:47:12"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "How small is this thing?",
+    "timestamp": "00:47:13"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And what I technically like to do is more based off of like value, right?",
+    "timestamp": "00:47:15"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "It's so, there are two different things.",
+    "timestamp": "00:47:20"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "The one is the administrative thing, which is basically, okay, if this is a system that I'm building and this is the scope of it, and it's, this is how it's built, you could, I could easily just say, well, this is the time it takes to build this thing.",
+    "timestamp": "00:47:23"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "This is the cost of it.",
+    "timestamp": "00:47:35"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And then boom, you have it and you use it, right?",
+    "timestamp": "00:47:36"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Um, when you're looking at lead generation, it's a bit, it's a bit lifted, not tricky.",
+    "timestamp": "00:47:39"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "It's different because you could say, well, I just want the system.",
+    "timestamp": "00:47:44"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I just want to pay for the system.",
+    "timestamp": "00:47:47"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Here you go.",
+    "timestamp": "00:47:49"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "This is what the system is.",
+    "timestamp": "00:47:49"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Or you could say, well, I would use a system and pay you whenever I get leads.",
+    "timestamp": "00:47:51"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Okay.",
+    "timestamp": "00:47:56"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Right?",
+    "timestamp": "00:47:57"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Like there's different ways of looking at it.",
+    "timestamp": "00:47:57"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Oh yeah.",
+    "timestamp": "00:47:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Okay.",
+    "timestamp": "00:47:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Right?",
+    "timestamp": "00:48:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "You know what I mean?",
+    "timestamp": "00:48:01"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And so we can look at them, but I think we, let's, I'll send you another link.",
+    "timestamp": "00:48:01"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "We get another call.",
+    "timestamp": "00:48:06"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Okay.",
+    "timestamp": "00:48:08"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I think we should separate these two things as to boldmove and then forever.",
+    "timestamp": "00:48:08"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Okay.",
+    "timestamp": "00:48:12"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Talk with the other administrators, maybe the next call we can set it up that they're on it so I can get a bit more feedback.",
+    "timestamp": "00:48:13"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah, Good idea.",
+    "timestamp": "00:48:18"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "We call for boldmove.",
+    "timestamp": "00:48:19"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "We do this with your other partner.",
+    "timestamp": "00:48:20"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And honestly, where boldmove is a little bit tight in terms of the money for ambush, if we find ways that, I mean, I'm not saying, you know, we have like a ton of money, but like it's, you know, if we find ways of improving the way the company works so that people also, again, have more free time to do other things, that's beneficial.",
+    "timestamp": "00:48:22"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "So in other words, I would be interested in not only, you know, speeding up my process, but also theirs.",
+    "timestamp": "00:48:42"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And that's the thing too, because I think a lot of the times, like you came in with an idea that's like, yo, I need these two things.",
+    "timestamp": "00:48:47"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And sometimes it's not those two things.",
+    "timestamp": "00:48:53"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:48:56"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Sometimes the real problem is something else.",
+    "timestamp": "00:48:57"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Exactly.",
+    "timestamp": "00:48:59"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I'm not thinking about it, and my job is to really find out what that thing is, because at the end of the day, I've got to build something for you that works, that's valuable, that you use, not that you get it and you're like, oh, this is good, but , there was that thing over there that I needed Exactly, exactly.",
+    "timestamp": "00:49:00"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "And in a way, you know, as I was saying as well, like, mean, you know, yeah.",
+    "timestamp": "00:49:15"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "Well, anyway, I really need to jump up, but like, what do we, basically next week, I'm pretty flexible, so.",
+    "timestamp": "00:49:18"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "I'll send you, um, to, to the meeting link.",
+    "timestamp": "00:49:24"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Yeah.",
+    "timestamp": "00:49:28"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And you can choose two meetings, because you make one meeting with your partner, and you guys do that, and then set it up, and we'll, we'll.",
+    "timestamp": "00:49:29"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "When you say the meeting, like, with a specific time, or you're going to suggest the time, or are we.",
+    "timestamp": "00:49:35"
+  },
+  {
+    "speaker": {
+      "display_name": "Sindbad Iksel",
+      "matched_calendar_invitee_email": "sindbad@boldmove.tv"
+    },
+    "text": "I'll send you my calendar.",
+    "timestamp": "00:49:40"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Oh, perfect.",
+    "timestamp": "00:49:42"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Okay.",
+    "timestamp": "00:49:42"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Okay.",
+    "timestamp": "00:49:43"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Excellent.",
+    "timestamp": "00:49:43"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Sway, it's been a pleasure.",
+    "timestamp": "00:49:44"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Thank you so much.",
+    "timestamp": "00:49:45"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "And we'll speak very soon, next, next week.",
+    "timestamp": "00:49:46"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Okay.",
+    "timestamp": "00:49:48"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Ciao.",
+    "timestamp": "00:49:49"
+  },
+  {
+    "speaker": {
+      "display_name": "Sway Clarke",
+      "matched_calendar_invitee_email": "swayclarkeii@gmail.com"
+    },
+    "text": "Thank you.",
+    "timestamp": "00:49:54"
+  }
+]

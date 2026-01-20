@@ -1,0 +1,367 @@
+{
+  "name": "Fathom Transcript Auto-Fetch",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger-node",
+      "name": "Every 15 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "CREATE TABLE IF NOT EXISTS processed_meetings (\n  meeting_id TEXT PRIMARY KEY,\n  processed_at DATETIME DEFAULT CURRENT_TIMESTAMP\n);"
+      },
+      "id": "create-table-node",
+      "name": "Create Tracking Table",
+      "type": "n8n-nodes-base.sqlite",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.fathom.video/meetings",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "created_after",
+              "value": "={{ $now.minus({ hours: 24 }).toISO() }}"
+            },
+            {
+              "name": "include_transcript",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-meetings-node",
+      "name": "Fetch Fathom Meetings",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "fathom-api-key",
+          "name": "Fathom API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-meetings-condition",
+              "leftValue": "={{ $json.meetings }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-meetings-node",
+      "name": "Has New Meetings?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "meetings",
+        "options": {}
+      },
+      "id": "split-meetings-node",
+      "name": "Split Meetings",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [1050, 200]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT meeting_id FROM processed_meetings WHERE meeting_id = :meetingId",
+        "additionalFields": {
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "meetingId",
+                "value": "={{ $json.id }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "check-processed-node",
+      "name": "Check If Already Processed",
+      "type": "n8n-nodes-base.sqlite",
+      "typeVersion": 1,
+      "position": [1250, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "not-processed-condition",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "empty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "is-new-node",
+      "name": "Is New Meeting?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1450, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get meeting data from the Split Meetings node\nconst meeting = $('Split Meetings').first().json;\n\n// Extract client name from title (everything before first dash or space-dash-space)\nconst title = meeting.title || 'Unknown Meeting';\nconst clientName = title.split(/\\s*[-–—]\\s*/)[0].trim().replace(/[^a-zA-Z0-9\\s-]/g, '').replace(/\\s+/g, '-').toLowerCase();\n\n// Format date as YYYY-MM-DD\nconst meetingDate = new Date(meeting.created_at);\nconst dateStr = meetingDate.toISOString().split('T')[0];\n\n// Create filename\nconst filename = `${dateStr}-${clientName}.md`;\n\n// Format attendees\nconst attendees = (meeting.attendees || []).map(a => a.name || a.email).join(', ');\n\n// Create markdown content\nconst markdown = `# ${title}\n**Date:** ${dateStr}\n**Attendees:** ${attendees}\n**Fathom URL:** ${meeting.url || 'N/A'}\n\n---\n\n${JSON.stringify(meeting.transcript || {}, null, 2)}\n`;\n\nreturn {\n  json: {\n    meeting_id: meeting.id,\n    filename: filename,\n    filepath: `/Users/swayclarke/coding_stuff/transcripts/${filename}`,\n    content: markdown,\n    client_name: clientName,\n    date: dateStr,\n    title: title\n  }\n};"
+      },
+      "id": "format-transcript-node",
+      "name": "Format Transcript",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1650, 100]
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "={{ $json.filepath }}",
+        "options": {
+          "encoding": "utf8"
+        }
+      },
+      "id": "write-file-node",
+      "name": "Write Transcript File",
+      "type": "n8n-nodes-base.writeBinaryFile",
+      "typeVersion": 1,
+      "position": [1850, 100],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO processed_meetings (meeting_id) VALUES (:meetingId)",
+        "additionalFields": {
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "meetingId",
+                "value": "={{ $json.meeting_id }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "mark-processed-node",
+      "name": "Mark as Processed",
+      "type": "n8n-nodes-base.sqlite",
+      "typeVersion": 1,
+      "position": [2050, 100]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": {
+          "__rl": true,
+          "value": "notifications",
+          "mode": "name"
+        },
+        "text": "=📝 New Fathom Transcript Ready\n\nClient: {{ $json.client_name }}\nDate: {{ $json.date }}\nFile: {{ $json.filepath }}\n\nRun this in Claude Code:\n\"Process transcript at /transcripts/{{ $json.filename }} using full-transcript-workflow-agent\"",
+        "otherOptions": {}
+      },
+      "id": "slack-notify-node",
+      "name": "Notify Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [2250, 100],
+      "credentials": {
+        "slackApi": {
+          "id": "slack-credentials",
+          "name": "Slack"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendEmail",
+        "fromEmail": "noreply@oloxa.ai",
+        "toEmail": "swayclarkeii@gmail.com",
+        "subject": "=New Fathom Transcript: {{ $json.client_name }}",
+        "emailFormat": "text",
+        "text": "=📝 New Fathom Transcript Ready\n\nClient: {{ $json.client_name }}\nDate: {{ $json.date }}\nFile: {{ $json.filepath }}\n\nRun this in Claude Code:\n\"Process transcript at /transcripts/{{ $json.filename }} using full-transcript-workflow-agent\"",
+        "options": {}
+      },
+      "id": "email-notify-node",
+      "name": "Fallback Email Notification",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [2250, 220]
+    }
+  ],
+  "connections": {
+    "Every 15 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Create Tracking Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Tracking Table": {
+      "main": [
+        [
+          {
+            "node": "Fetch Fathom Meetings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Fathom Meetings": {
+      "main": [
+        [
+          {
+            "node": "Has New Meetings?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has New Meetings?": {
+      "main": [
+        [
+          {
+            "node": "Split Meetings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Meetings": {
+      "main": [
+        [
+          {
+            "node": "Check If Already Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Already Processed": {
+      "main": [
+        [
+          {
+            "node": "Is New Meeting?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is New Meeting?": {
+      "main": [
+        [
+          {
+            "node": "Format Transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Transcript": {
+      "main": [
+        [
+          {
+            "node": "Write Transcript File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Transcript File": {
+      "main": [
+        [
+          {
+            "node": "Mark as Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark as Processed": {
+      "main": [
+        [
+          {
+            "node": "Notify Slack",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fallback Email Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-01-12T00:00:00.000Z",
+  "versionId": "1"
+}

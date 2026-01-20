@@ -1,0 +1,195 @@
+{
+  "template_id": "1Hxvy9z97_nHwrU_68-vfls6uZlpCBQNOBMUafXVmgug",
+  "template_url": "https://docs.google.com/presentation/d/1Hxvy9z97_nHwrU_68-vfls6uZlpCBQNOBMUafXVmgug/edit",
+  "template_name": "Alignment Presentation Template",
+  "template_version": "1.0",
+  "last_updated": "2026-01-19",
+  "presentation_type": "alignment",
+  "logo_url": "YOUR_LOGO_URL_IN_GOOGLE_DRIVE",
+  "logo_shape_id": "SHAPE_ID_FOR_LOGO_REPLACEMENT",
+  "brand": {
+    "company_name": "Oloxa.ai",
+    "primary_color": "#000000",
+    "secondary_color": "#FFFFFF",
+    "font": "Inter"
+  },
+  "blueprint": {
+    "enabled": true,
+    "blueprint_path": "/Users/swayclarke/coding_stuff/claude-code-os/09-templates/alignment-slides-blueprint.md",
+    "variable_extractor_agent": "/Users/swayclarke/coding_stuff/claude-code-os/05-hr-department/agents/proposal-variable-extractor-agent.md",
+    "extraction_mode": "alignment"
+  },
+  "variables": {
+    "automated": {
+      "total_count": 32,
+      "slides": {
+        "slide_1_title": [
+          "presentation_title",
+          "client_company",
+          "presenter_name",
+          "presentation_date"
+        ],
+        "slide_2_context": [
+          "context_timeline",
+          "context_stakeholders",
+          "context_summary",
+          "context_approach"
+        ],
+        "slide_3_executive_summary": [
+          "client_company_description",
+          "client_context_statement"
+        ],
+        "slide_4_discoveries": [
+          "discovery_1",
+          "discovery_1_description",
+          "discovery_1_impact",
+          "discovery_2",
+          "discovery_2_description",
+          "discovery_2_impact",
+          "discovery_3",
+          "discovery_3_description",
+          "discovery_3_impact",
+          "discovery_4",
+          "discovery_4_description",
+          "discovery_4_impact"
+        ],
+        "slide_5_directions": [
+          "direction_1",
+          "direction_1_description",
+          "direction_2",
+          "direction_2_description",
+          "direction_3",
+          "direction_3_description",
+          "direction_4",
+          "direction_4_description"
+        ],
+        "slide_6_timeline": [
+          "phase_1_name",
+          "phase_1_description",
+          "phase_1_duration",
+          "phase_2_name",
+          "phase_2_description",
+          "phase_2_duration",
+          "timeline_caveat"
+        ],
+        "slide_7_questions": [
+          "input_question_1",
+          "input_question_2",
+          "input_question_3",
+          "input_question_4"
+        ],
+        "slide_8_discussion": [
+          "discussion_point_1",
+          "discussion_point_2",
+          "discussion_point_3",
+          "discussion_point_4"
+        ],
+        "slide_9_thank_you": [
+          "unique_client_thank_you_message",
+          "presenter_contact"
+        ]
+      }
+    }
+  },
+  "framing_rules": {
+    "slide_titles": {
+      "slide_4": "What We Discovered",
+      "slide_5": "Potential Directions",
+      "slide_6": "What This Could Look Like",
+      "slide_7": "Questions for Your Perspective",
+      "slide_8": "Discussion Points"
+    },
+    "language_guidelines": {
+      "use": [
+        "We found...",
+        "The team described...",
+        "Could explore...",
+        "Potential approach...",
+        "One direction might be..."
+      ],
+      "avoid": [
+        "We will build...",
+        "The solution is...",
+        "Here's what we'll deliver...",
+        "You need to...",
+        "The problem is..."
+      ]
+    }
+  },
+  "extraction": {
+    "required_discovery_files": [
+      "discovery/analysis/key_insights.md",
+      "discovery/requirements/project_requirements.md",
+      "discovery/transcripts/**/*.md"
+    ],
+    "optional_discovery_files": [
+      "discovery/analysis/quick_wins.md",
+      "discovery/analysis/pricing_strategy.md",
+      "discovery/analysis/sindbad_responses.md"
+    ],
+    "confidence_thresholds": {
+      "high": 95,
+      "medium": 90,
+      "low": 80,
+      "minimum_acceptable": 80
+    },
+    "word_count_validation": true,
+    "format_validation": true,
+    "source_references": true
+  },
+  "output_settings": {
+    "base_path": "/Users/swayclarke/coding_stuff/claude-code-os/02-operations/projects",
+    "folder_name": "proposals",
+    "naming_convention": "alignment_v{version}_{date}",
+    "variable_map_filename": "alignment_variables.yaml",
+    "save_variable_map": true
+  },
+  "workflow": {
+    "preferred_mode": "automated",
+    "fallback_mode": "manual",
+    "require_approval": true,
+    "show_extraction_preview": true,
+    "allow_variable_editing": true,
+    "generate_companion_proposal": true
+  },
+  "companion_proposal": {
+    "description": "Generate full proposal as 'back pocket' in case stakeholder asks about pricing",
+    "config_path": "/Users/swayclarke/coding_stuff/claude-code-os/09-templates/proposal-config.json",
+    "auto_generate": true
+  },
+  "instructions": {
+    "setup": [
+      "1. Duplicate proposal template in Google Slides",
+      "2. Modify slides per alignment-slides-blueprint.md",
+      "3. Update template_id and template_url with new presentation ID",
+      "4. Test with sample extraction"
+    ],
+    "usage": {
+      "automated": "Invoke alignment-architect-agent with discovery documents present in /02-operations/projects/{client}/discovery/",
+      "manual": "Invoke alignment-architect-agent without discovery documents - will prompt for manual input",
+      "commands": "Tell Claude to 'create an alignment presentation for [client]'"
+    },
+    "when_to_use": [
+      "Stakeholder hasn't been in prior conversations",
+      "Need buy-in before presenting solutions",
+      "Partnership dynamics require care",
+      "Want to invite input, not present decisions"
+    ]
+  },
+  "metadata": {
+    "created": "2026-01-19",
+    "version": "1.0",
+    "changelog": [
+      {
+        "version": "1.0",
+        "date": "2026-01-19",
+        "changes": [
+          "Initial alignment template configuration",
+          "32 automated variables across 9 slides",
+          "Framing rules for alignment vs proposal language",
+          "Companion proposal generation for back pocket pricing"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,189 @@
+# Ambush TV - Alignment Presentation Variables
+# For: Pierre Alignment Call (Wednesday, January 22, 2026)
+# Generated: 2026-01-19
+# Source: Discovery calls (Jan 8, Jan 15), key_insights.md, pricing_strategy.md, transcripts
+
+---
+
+# SLIDE 1: TITLE
+presentation_title: "Discovery Summary & Discussion"
+client_company: "Ambush TV"
+presenter_name: "Sway Clarke"
+presentation_date: "January 2026"
+
+---
+
+# SLIDE 2: HOW WE GOT HERE
+context_timeline: "Over the past two weeks (January 8-15, 2026)"
+context_stakeholders: "Sindbad, Leonor, Madalena, and Alice"
+context_summary: |
+  We explored operational challenges around invoice validation, data
+  synchronization across multiple sheets, and project tracking across
+  Ambush's 50-project-per-month operation.
+context_approach: |
+  Today I want to share what we discovered and get your perspective
+  on these challenges and potential directions.
+
+---
+
+# SLIDE 3: EXECUTIVE SUMMARY
+client_company_description: |
+  Ambush TV creates advertising pitch presentations for commercial directors,
+  managing 50+ projects monthly with a team of 9 core people and 70-80 freelancers.
+client_context_statement: |
+  The admin team handles bookings, project tracking, invoicing, and freelancer
+  payments across multiple interconnected Google Sheets.
+
+---
+
+# SLIDE 4: WHAT WE DISCOVERED
+# Note: Lead with financial impact (€150K), then operational issues
+
+discovery_1: "Outstanding Client Payments"
+discovery_1_description: |
+  €150,000 in outstanding client payments, with €100,000 overdue by more than
+  30 days. Late invoicing (often 1-2 months after project end) and no systematic
+  follow-up contributes to slow collection.
+discovery_1_impact: "Cash flow impact + awkward late invoice conversations"
+discovery_1_source: "Verified with Sindbad (Jan 15)"
+
+discovery_2: "Data Doesn't Flow Between Systems"
+discovery_2_description: |
+  Information exists in 12+ sheets that don't talk to each other. Names don't
+  match across sheets ('Dan Thomas French' vs 'Dan French'), team changes don't
+  sync from Calendar to Dashboard, rates require triple-entry. The team described
+  spending significant time manually transferring and verifying data.
+discovery_2_impact: "5+ hours/week on manual sync and verification across admin team"
+discovery_2_source: "Alice, Madalena, Leonor (Jan 15 admin call)"
+
+discovery_3: "Invoice Validation Burden"
+discovery_3_description: |
+  Sindbad manually validates 15-25 freelancer invoices each week against project
+  hours, catching approximately 10% with errors. Each error averages €150 and
+  requires investigation and correction.
+discovery_3_impact: "22 hours/month of Sindbad's time + error costs"
+discovery_3_source: "Verified with Sindbad (Jan 8, Jan 15)"
+
+discovery_4: "Month-End Invoicing Delays"
+discovery_4_description: |
+  No systematic reminders for project close-out. Projects end, then 1-2 months
+  pass before hours are collected and clients are invoiced. December projects
+  weren't fully closed until January 12th.
+discovery_4_impact: "Delayed cash flow + strained client relationships"
+discovery_4_source: "Alice, Madalena (Jan 15 admin call)"
+
+---
+
+# SLIDE 5: POTENTIAL DIRECTIONS
+# Note: Frame as exploration, not commitment
+
+direction_1: "Single Source of Truth Architecture"
+direction_1_description: |
+  Data entered once, flows everywhere. Calendar to Dashboard to Project Directory
+  to Invoicing. Names normalized. Team changes reflect automatically. Edits
+  anywhere update everywhere.
+
+direction_2: "Systematic Collection & Visibility"
+direction_2_description: |
+  Calendar-driven reminders (Day 4: collect hours, Day 7: invoice client). Aging
+  dashboard showing who owes what, how long. Freed admin capacity to actually
+  chase overdue payments.
+
+direction_3: "Invoice Pre-Validation with Human Checkpoints"
+direction_3_description: |
+  Automated checks flag potential issues before Sindbad reviews. Dashboard
+  validates hours against timesheets. Exceptions surfaced for human decision.
+  Reduces validation time while keeping human judgment in the loop.
+
+---
+
+# SLIDE 6: WHAT THIS COULD LOOK LIKE
+phase_1_name: "Foundation & Quick Wins"
+phase_1_description: |
+  Single source of truth setup, rate sync automation, calendar-driven reminders,
+  Fathom call recording integration.
+phase_1_duration: "4-6 weeks"
+
+phase_2_name: "Invoice Validation System"
+phase_2_description: |
+  Invoice parsing and pre-validation, hours verification against timesheets,
+  exception dashboard, Wise payment preparation.
+phase_2_duration: "8-10 weeks"
+
+timeline_caveat: |
+  This is a rough outline - actual approach depends on priorities we align on today.
+
+---
+
+# SLIDE 7: QUESTIONS FOR YOU
+# Note: Tailored to Pierre - he's into AI, handles recruitment, hasn't been in prior meetings
+
+input_question_1: "What's your perspective on these operational challenges?"
+input_question_2: "Are there pain points from the recruitment side I should understand?"
+input_question_3: "How do you see AI and automation fitting into Ambush's future direction?"
+input_question_4: "What would success look like from your view?"
+
+---
+
+# SLIDE 8: DISCUSSION POINTS
+discussion_point_1: "Which of these challenges feels most urgent to address"
+discussion_point_2: "Who else should be involved in decisions about next steps"
+discussion_point_3: "Timeline for deciding how to proceed"
+discussion_point_4: "Questions or concerns I can address"
+
+---
+
+# SLIDE 9: THANK YOU
+unique_client_thank_you_message: |
+  Thank you for taking the time to share your perspective. Ambush has built
+  something impressive - looking forward to exploring how we can help it
+  run even smoother.
+presenter_contact: "sway@oloxa.ai"
+
+---
+
+# METADATA
+extraction_date: "2026-01-19"
+extraction_mode: "alignment"
+confidence_level: "high"
+verified_numbers: true
+
+# Source Files Used
+sources:
+  - "/02-operations/projects/ambush-tv/discovery/analysis/key_insights.md"
+  - "/02-operations/projects/ambush-tv/discovery/analysis/pricing_strategy.md"
+  - "/02-operations/projects/ambush-tv/discovery/analysis/quick_wins.md"
+  - "/02-operations/projects/ambush-tv/discovery/analysis/sindbad_responses.md"
+  - "/02-operations/projects/ambush-tv/discovery/transcripts/2026-01-15-admin-team-discovery-call.md"
+  - "/02-operations/projects/ambush-tv/discovery/transcripts/raw/Impromptu Google Meet Meeting - 2026-01-15 11H-00m-plain.txt"
+  - "/02-operations/projects/ambush-tv/discovery/transcripts/raw/Impromptu Google Meet Meeting - 2026-01-15 11H-59m-plain.txt"
+
+# Key Verified Data Points (from sindbad_responses.md)
+verified_data:
+  sindbad_hourly_value: "€50/hour"
+  admin_hourly_rate: "€20/hour"
+  outstanding_total: "€150,000"
+  outstanding_overdue: "€100,000 (>30 days)"
+  validation_time_weekly: "5.5 hours"
+  error_rate: "~10%"
+  error_cost_average: "€150"
+  total_annual_value: "€28,400"
+
+# Pierre-Specific Context
+stakeholder_context:
+  name: "Pierre"
+  role: "Business Partner (handles recruitment)"
+  involvement_prior: "Not in prior discovery calls"
+  relationship_notes: "Diverging visions with Sindbad, started separate AI business"
+  interests: "Into AI - opportunity to engage on that topic"
+  decision_authority: "Both partners need to approve larger investments"
+
+# Framing Notes
+framing_notes:
+  lead_with: "€150K outstanding as the hook - highest value"
+  emphasize: "Data interoperability (not just rate sync) - addresses full scope"
+  connect_150k_to:
+    - "Freed admin capacity (automation eliminates manual work)"
+    - "Systematic reminders (nothing falls through cracks)"
+    - "Visibility dashboard (know who owes what, how long)"
+  avoid: "Pushing for pricing decision - this is alignment, not close"

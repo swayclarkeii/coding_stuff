@@ -1,0 +1,699 @@
+### Open tabs
+- 0: (current) [▶️ Expense System - Workflow 1: PDF Intake & Parsing - n8n] (https://n8n.oloxa.ai/workflow/oxHGYOrKHKXyGp4u)
+- 1: [] (about:blank)
+- 2: [] (about:blank)
+- 3: [] (about:blank)
+- 4: [] (about:blank)
+- 5: [] (about:blank)
+- 6: [] (about:blank)
+- 7: [] (about:blank)
+- 8: [] (about:blank)
+- 9: [] (about:blank)
+- 10: [] (about:blank)
+- 11: [] (about:blank)
+- 12: [] (about:blank)
+- 13: [] (about:blank)
+- 14: [] (about:blank)
+- 15: [] (about:blank)
+- 16: [] (about:blank)
+- 17: [] (about:blank)
+- 18: [] (about:blank)
+- 19: [] (about:blank)
+- 20: [] (about:blank)
+- 21: [] (about:blank)
+- 22: [] (about:blank)
+- 23: [] (about:blank)
+- 24: [] (about:blank)
+- 25: [] (about:blank)
+
+### Page state
+- Page URL: https://n8n.oloxa.ai/workflow/oxHGYOrKHKXyGp4u
+- Page Title: ▶️ Expense System - Workflow 1: PDF Intake & Parsing - n8n
+- Page Snapshot:
+```yaml
+- generic [ref=e4]:
+  - generic [ref=e9]:
+    - generic [ref=e11]:
+      - generic [ref=e14]:
+        - link "Personal" [ref=e16] [cursor=pointer]:
+          - /url: /projects/Rs8mhw052fnrzWZM
+          - generic [ref=e18]:
+            - generic "Personal" [ref=e19]:
+              - img [ref=e20]
+            - generic [ref=e24]: Personal
+        - generic [ref=e25]: /
+        - 'generic "Expense System - Workflow 3: Transaction-Receipt Matching" [ref=e2470]':
+          - generic [ref=e28] [cursor=pointer]: "Expense System - Workflow 3: Transaction-Receipt Matching"
+      - generic [ref=e30]: + Add tag
+      - generic [ref=e32]:
+        - button "Publish" [disabled] [ref=e34]
+        - generic [ref=e2802]: Saved
+        - link [ref=e37] [cursor=pointer]:
+          - /url: /workflow/oxHGYOrKHKXyGp4u/history
+          - button [ref=e38]:
+            - img [ref=e40]
+        - button [ref=e47] [cursor=pointer]:
+          - img [ref=e49]
+    - radiogroup [ref=e55]:
+      - radio "Editor" [checked] [ref=e56]:
+        - generic [ref=e57] [cursor=pointer]: Editor
+      - radio "Executions" [ref=e58]:
+        - generic [ref=e59] [cursor=pointer]: Executions
+      - radio "Evaluations" [ref=e60]:
+        - generic [ref=e61] [cursor=pointer]: Evaluations
+  - generic [ref=e63]:
+    - generic [ref=e65]:
+      - generic [ref=e66]:
+        - img [ref=e67]
+        - img [ref=e69]
+      - button "Toggle sidebar" [ref=e73] [cursor=pointer]:
+        - img [ref=e75]
+      - menubar [ref=e78]:
+        - menuitem "Add new item" [ref=e79]:
+          - button "Add new item" [ref=e81] [cursor=pointer]:
+            - img [ref=e83]
+      - button "Open command palette" [ref=e85] [cursor=pointer]:
+        - img [ref=e87]
+    - generic [ref=e93]:
+      - generic [ref=e95]:
+        - menuitem "Overview" [ref=e97] [cursor=pointer]:
+          - img [ref=e99]
+          - generic [ref=e103]: Overview
+        - menuitem "Chat (Beta)" [ref=e105] [cursor=pointer]:
+          - img [ref=e107]
+          - generic [ref=e109]: Chat (Beta)
+      - generic [ref=e111]:
+        - menuitem "Templates" [ref=e113] [cursor=pointer]:
+          - img [ref=e115]
+          - generic [ref=e120]: Templates
+        - menuitem "Insights" [ref=e122] [cursor=pointer]:
+          - img [ref=e124]
+          - generic [ref=e126]: Insights
+        - menuitem "Help" [ref=e128] [cursor=pointer]:
+          - img [ref=e130]
+          - generic [ref=e134]: Help
+          - img [ref=e135]
+        - menuitem "Settings" [ref=e138] [cursor=pointer]:
+          - img [ref=e140]
+          - generic [ref=e144]: Settings
+          - img [ref=e145]
+  - generic [ref=e5]:
+    - generic [ref=e148]:
+      - generic [ref=e150]:
+        - generic [ref=e152]:
+          - generic:
+            - img
+            - img:
+              - group "Edge from d0fff753-88d8-450b-8b07-e00f67c1d891 to 1e99a689-a221-4710-a474-581d085badb1":
+                - img
+            - img:
+              - group "Edge from 1e99a689-a221-4710-a474-581d085badb1 to a3981c32-1e8b-4f42-b22d-eef9a66f86c8":
+                - img
+            - img:
+              - group "Edge from a3981c32-1e8b-4f42-b22d-eef9a66f86c8 to cfaaa61d-c621-480d-b221-ec5771bb1ce7":
+                - img
+            - img:
+              - group "Edge from cfaaa61d-c621-480d-b221-ec5771bb1ce7 to 27cfad6e-de8b-4eaf-9918-d97f53aff290":
+                - img
+            - img:
+              - group "Edge from 27cfad6e-de8b-4eaf-9918-d97f53aff290 to a5dc362b-a392-47e9-bc09-f340d033d921":
+                - img
+            - img:
+              - group "Edge from 27cfad6e-de8b-4eaf-9918-d97f53aff290 to cf8c3304-dfd7-4240-874b-461167701c74" [ref=e153] [cursor=pointer]:
+                - img
+            - img:
+              - group "Edge from a5dc362b-a392-47e9-bc09-f340d033d921 to abc4ac86-649f-4288-9722-c273d958a93d":
+                - img
+            - img:
+              - group "Edge from fe764ec4-e878-4c5a-a781-686daa63b3ef to bc20e7cf-aaa1-4050-ba9c-f7e875f98154":
+                - img
+            - img:
+              - group "Edge from bc20e7cf-aaa1-4050-ba9c-f7e875f98154 to 4482a254-38cf-48af-9118-9762621315cb":
+                - img
+            - img:
+              - group "Edge from 4482a254-38cf-48af-9118-9762621315cb to ba6cddf2-0e26-497b-9aea-a36d345e4bb0":
+                - img
+            - img:
+              - group "Edge from ba6cddf2-0e26-497b-9aea-a36d345e4bb0 to 0945095b-b098-4648-9112-bf72a49d941b":
+                - img
+            - img:
+              - group "Edge from 0945095b-b098-4648-9112-bf72a49d941b to a22a0f42-ef9c-4036-aabd-67f9c3476fdb":
+                - img
+            - img:
+              - group "Edge from a22a0f42-ef9c-4036-aabd-67f9c3476fdb to 7188b0f6-bddb-4b14-a318-ae3596632314":
+                - img
+            - img:
+              - group "Edge from 7188b0f6-bddb-4b14-a318-ae3596632314 to f9cb7094-25f4-42eb-94e1-c41dd792b78a":
+                - img
+            - img:
+              - group "Edge from f9cb7094-25f4-42eb-94e1-c41dd792b78a to ffb3f0be-50c8-44d5-a99b-f70aabc081ba":
+                - img
+            - img:
+              - group "Edge from 45510768-c424-4745-ac47-ed673870e090 to dd5c03c2-6d30-48ad-91fe-41067fdb822e":
+                - img
+            - img:
+              - group "Edge from 45510768-c424-4745-ac47-ed673870e090 to 6337ff8f-b94d-4753-88f7-dfd250ca8c21" [ref=e2476] [cursor=pointer]:
+                - img
+            - img:
+              - group "Edge from dd5c03c2-6d30-48ad-91fe-41067fdb822e to 3ac29616-d96a-4780-a051-1b1952b24ddc":
+                - img
+            - img:
+              - group "Edge from 6337ff8f-b94d-4753-88f7-dfd250ca8c21 to 3ac29616-d96a-4780-a051-1b1952b24ddc" [ref=e2480] [cursor=pointer]:
+                - img
+            - img:
+              - group "Edge from 3ac29616-d96a-4780-a051-1b1952b24ddc to b0d35338-1bfd-4375-96e1-ef02eed3e34b":
+                - img
+            - img:
+              - group "Edge from b0d35338-1bfd-4375-96e1-ef02eed3e34b to c57ead54-9007-4212-9191-95e3b9a0ac36" [ref=e2484] [cursor=pointer]:
+                - img
+            - img:
+              - group "Edge from c57ead54-9007-4212-9191-95e3b9a0ac36 to 7669add7-4769-49f2-9285-2f984632dda2":
+                - img
+            - img:
+              - group "Edge from 7669add7-4769-49f2-9285-2f984632dda2 to 4570d7f1-b8d6-4d70-80c8-67f6c2ae8348":
+                - img
+            - img:
+              - group "Edge from 4570d7f1-b8d6-4d70-80c8-67f6c2ae8348 to 18a57bdc-af85-4c05-a717-5805d6159e95":
+                - img
+            - generic:
+              - group [ref=e157] [cursor=pointer]:
+                - generic [ref=e158]:
+                  - generic [ref=e163]:
+                    - button "Execute step" [ref=e164]:
+                      - img [ref=e166]
+                    - button "Deactivate" [ref=e168]:
+                      - img [ref=e170]
+                    - button "Delete" [ref=e173]:
+                      - img [ref=e175]
+                    - button [ref=e177]:
+                      - img [ref=e179]
+                  - generic [ref=e181]:
+                    - generic [ref=e184]:
+                      - img
+                    - generic:
+                      - generic: Watch Bank Statements Folder
+                      - generic: fileCreated
+                    - img [ref=e186]
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img
+                      - button "Execute workflow":
+                        - generic:
+                          - img
+                        - generic: Execute workflow
+              - group [ref=e188] [cursor=pointer]:
+                - generic [ref=e189]:
+                  - generic [ref=e198]:
+                    - button "Execute step" [ref=e199]:
+                      - img [ref=e201]
+                    - button "Deactivate" [ref=e203]:
+                      - img [ref=e205]
+                    - button "Delete" [ref=e208]:
+                      - img [ref=e210]
+                    - button [ref=e212]:
+                      - img [ref=e214]
+                  - generic [ref=e216]:
+                    - generic [ref=e219]:
+                      - img
+                    - generic:
+                      - generic: Download PDF
+                      - generic: "download: file"
+                    - img [ref=e221]
+              - group [ref=e223] [cursor=pointer]:
+                - generic [ref=e224]:
+                  - generic [ref=e233]:
+                    - button "Execute step" [ref=e234]:
+                      - img [ref=e236]
+                    - button "Deactivate" [ref=e238]:
+                      - img [ref=e240]
+                    - button "Delete" [ref=e243]:
+                      - img [ref=e245]
+                    - button [ref=e247]:
+                      - img [ref=e249]
+                  - generic [ref=e251]:
+                    - generic [ref=e254]:
+                      - img
+                    - generic:
+                      - generic: Extract File Metadata
+              - group [ref=e255] [cursor=pointer]:
+                - generic [ref=e256]:
+                  - generic [ref=e265]:
+                    - button "Execute step" [ref=e266]:
+                      - img [ref=e268]
+                    - button "Deactivate" [ref=e270]:
+                      - img [ref=e272]
+                    - button "Delete" [ref=e275]:
+                      - img [ref=e277]
+                    - button [ref=e279]:
+                      - img [ref=e281]
+                  - generic [ref=e283]:
+                    - generic [ref=e286]:
+                      - img
+                    - generic:
+                      - generic: Parse PDF with OpenAI Vision
+                      - generic: "POST: https://api.anthropic.com/v1/messages"
+              - group [ref=e290] [cursor=pointer]:
+                - generic [ref=e291]:
+                  - generic [ref=e300]:
+                    - button "Execute step" [ref=e301]:
+                      - img [ref=e303]
+                    - button "Deactivate" [ref=e305]:
+                      - img [ref=e307]
+                    - button "Delete" [ref=e310]:
+                      - img [ref=e312]
+                    - button [ref=e314]:
+                      - img [ref=e316]
+                  - generic [ref=e318]:
+                    - generic [ref=e321]:
+                      - img
+                    - generic:
+                      - generic: Parse OpenAI Response
+              - group [ref=e322] [cursor=pointer]:
+                - generic [ref=e323]:
+                  - generic [ref=e332]:
+                    - button "Execute step" [ref=e333]:
+                      - img [ref=e335]
+                    - button "Deactivate" [ref=e337]:
+                      - img [ref=e339]
+                    - button "Delete" [ref=e342]:
+                      - img [ref=e344]
+                    - button [ref=e346]:
+                      - img [ref=e348]
+                  - generic [ref=e350]:
+                    - generic [ref=e353]:
+                      - img
+                    - generic:
+                      - generic: Write Transactions to Database
+                      - generic: "append: sheet"
+                    - img [ref=e355]
+              - group [ref=e357] [cursor=pointer]:
+                - generic [ref=e358]:
+                  - img [ref=e363]
+                  - generic [ref=e371]:
+                    - button "Execute step" [ref=e372]:
+                      - img [ref=e374]
+                    - button "Deactivate" [ref=e376]:
+                      - img [ref=e378]
+                    - button "Delete" [ref=e381]:
+                      - img [ref=e383]
+                    - button [ref=e385]:
+                      - img [ref=e387]
+                  - generic [ref=e389]:
+                    - generic [ref=e392]:
+                      - img
+                    - generic:
+                      - generic: Log Statement Record
+                      - generic: "append: sheet"
+                    - img [ref=e394]
+              - group [ref=e396] [cursor=pointer]:
+                - generic [ref=e397]:
+                  - img [ref=e402]
+                  - generic [ref=e410]:
+                    - button "Execute step" [ref=e411]:
+                      - img [ref=e413]
+                    - button "Deactivate" [ref=e415]:
+                      - img [ref=e417]
+                    - button "Delete" [ref=e420]:
+                      - img [ref=e422]
+                    - button [ref=e424]:
+                      - img [ref=e426]
+                  - generic [ref=e428]:
+                    - generic [ref=e431]:
+                      - img
+                    - generic:
+                      - generic: Move PDF to Archive
+                      - generic: "move: file"
+                    - img [ref=e433]
+              - group [ref=e2157] [cursor=pointer]:
+                - generic [ref=e2158]:
+                  - generic [ref=e2163]:
+                    - button "Execute step" [ref=e2164]:
+                      - img [ref=e2166]
+                    - button "Deactivate" [ref=e2168]:
+                      - img [ref=e2170]
+                    - button "Delete" [ref=e2173]:
+                      - img [ref=e2175]
+                    - button [ref=e2177]:
+                      - img [ref=e2179]
+                  - generic [ref=e2181]:
+                    - generic [ref=e2184]:
+                      - img
+                    - generic:
+                      - generic: Daily Receipt Check
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img
+                      - button "Execute workflow":
+                        - generic:
+                          - img
+                        - generic: Execute workflow
+              - group [ref=e2185] [cursor=pointer]:
+                - generic [ref=e2186]:
+                  - generic [ref=e2195]:
+                    - button "Execute step" [ref=e2196]:
+                      - img [ref=e2198]
+                    - button "Deactivate" [ref=e2200]:
+                      - img [ref=e2202]
+                    - button "Delete" [ref=e2205]:
+                      - img [ref=e2207]
+                    - button [ref=e2209]:
+                      - img [ref=e2211]
+                  - generic [ref=e2213]:
+                    - generic [ref=e2216]:
+                      - img
+                    - generic:
+                      - generic: Load Vendor Patterns
+              - group [ref=e2217] [cursor=pointer]:
+                - generic [ref=e2218]:
+                  - generic [ref=e2227]:
+                    - button "Execute step" [ref=e2228]:
+                      - img [ref=e2230]
+                    - button "Deactivate" [ref=e2232]:
+                      - img [ref=e2234]
+                    - button "Delete" [ref=e2237]:
+                      - img [ref=e2239]
+                    - button [ref=e2241]:
+                      - img [ref=e2243]
+                  - generic [ref=e2245]:
+                    - generic [ref=e2248]:
+                      - img
+                    - generic:
+                      - generic: Search Gmail for Receipts
+                      - generic: "search: message"
+                    - img [ref=e2250]
+              - group [ref=e2252] [cursor=pointer]:
+                - generic [ref=e2253]:
+                  - generic [ref=e2262]:
+                    - button "Execute step" [ref=e2263]:
+                      - img [ref=e2265]
+                    - button "Deactivate" [ref=e2267]:
+                      - img [ref=e2269]
+                    - button "Delete" [ref=e2272]:
+                      - img [ref=e2274]
+                    - button [ref=e2276]:
+                      - img [ref=e2278]
+                  - generic [ref=e2280]:
+                    - generic [ref=e2283]:
+                      - img
+                    - generic:
+                      - generic: Get Email Details
+                      - generic: "get: message"
+                    - img [ref=e2285]
+              - group [ref=e2287] [cursor=pointer]:
+                - generic [ref=e2288]:
+                  - generic [ref=e2297]:
+                    - button "Execute step" [ref=e2298]:
+                      - img [ref=e2300]
+                    - button "Deactivate" [ref=e2302]:
+                      - img [ref=e2304]
+                    - button "Delete" [ref=e2307]:
+                      - img [ref=e2309]
+                    - button [ref=e2311]:
+                      - img [ref=e2313]
+                  - generic [ref=e2315]:
+                    - generic [ref=e2318]:
+                      - img
+                    - generic:
+                      - generic: Extract Attachment Info
+              - group [ref=e2319] [cursor=pointer]:
+                - generic [ref=e2320]:
+                  - generic [ref=e2329]:
+                    - button "Execute step" [ref=e2330]:
+                      - img [ref=e2332]
+                    - button "Deactivate" [ref=e2334]:
+                      - img [ref=e2336]
+                    - button "Delete" [ref=e2339]:
+                      - img [ref=e2341]
+                    - button [ref=e2343]:
+                      - img [ref=e2345]
+                  - generic [ref=e2347]:
+                    - generic [ref=e2350]:
+                      - img
+                    - generic:
+                      - generic: Download Attachment
+                      - generic: "getAttachment: message"
+                    - img [ref=e2352]
+              - group [ref=e2354] [cursor=pointer]:
+                - generic [ref=e2355]:
+                  - generic [ref=e2364]:
+                    - button "Execute step" [ref=e2365]:
+                      - img [ref=e2367]
+                    - button "Deactivate" [ref=e2369]:
+                      - img [ref=e2371]
+                    - button "Delete" [ref=e2374]:
+                      - img [ref=e2376]
+                    - button [ref=e2378]:
+                      - img [ref=e2380]
+                  - generic [ref=e2382]:
+                    - generic [ref=e2385]:
+                      - img
+                    - generic:
+                      - generic: Upload to Receipt Pool
+                      - generic: "upload: file"
+                    - img [ref=e2387]
+              - group [ref=e2389] [cursor=pointer]:
+                - generic [ref=e2390]:
+                  - generic [ref=e2399]:
+                    - button "Execute step" [ref=e2400]:
+                      - img [ref=e2402]
+                    - button "Deactivate" [ref=e2404]:
+                      - img [ref=e2406]
+                    - button "Delete" [ref=e2409]:
+                      - img [ref=e2411]
+                    - button [ref=e2413]:
+                      - img [ref=e2415]
+                  - generic [ref=e2417]:
+                    - generic [ref=e2420]:
+                      - img
+                    - generic:
+                      - generic: Prepare Receipt Record
+              - group [ref=e2421] [cursor=pointer]:
+                - generic [ref=e2422]:
+                  - img [ref=e2427]
+                  - generic [ref=e2435]:
+                    - button "Execute step" [ref=e2436]:
+                      - img [ref=e2438]
+                    - button "Deactivate" [ref=e2440]:
+                      - img [ref=e2442]
+                    - button "Delete" [ref=e2445]:
+                      - img [ref=e2447]
+                    - button [ref=e2449]:
+                      - img [ref=e2451]
+                  - generic [ref=e2453]:
+                    - generic [ref=e2456]:
+                      - img
+                    - generic:
+                      - generic: Log Receipt in Database
+                      - generic: "append: sheet"
+                    - img [ref=e2458]
+              - group [ref=e2488] [cursor=pointer]:
+                - generic [ref=e2489]:
+                  - generic [ref=e2494]:
+                    - button "Execute step" [ref=e2495]:
+                      - img [ref=e2497]
+                    - button "Deactivate" [ref=e2499]:
+                      - img [ref=e2501]
+                    - button "Delete" [ref=e2504]:
+                      - img [ref=e2506]
+                    - button [ref=e2508]:
+                      - img [ref=e2510]
+                  - generic [ref=e2512]:
+                    - generic [ref=e2515]:
+                      - img
+                    - generic:
+                      - generic: Daily Matching Run
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img
+                      - button "Execute workflow":
+                        - generic:
+                          - img
+                        - generic: Execute workflow
+              - group [ref=e2516] [cursor=pointer]:
+                - generic [ref=e2517]:
+                  - generic [ref=e2526]:
+                    - button "Execute step" [ref=e2527]:
+                      - img [ref=e2529]
+                    - button "Deactivate" [ref=e2531]:
+                      - img [ref=e2533]
+                    - button "Delete" [ref=e2536]:
+                      - img [ref=e2538]
+                    - button [ref=e2540]:
+                      - img [ref=e2542]
+                  - generic [ref=e2544]:
+                    - generic [ref=e2547]:
+                      - img
+                    - generic:
+                      - generic: Get Unmatched Transactions
+                      - generic: "read: sheet"
+                    - img [ref=e2549]
+              - group [ref=e2551] [cursor=pointer]:
+                - generic [ref=e2552]:
+                  - generic [ref=e2561]:
+                    - button "Execute step" [ref=e2562]:
+                      - img [ref=e2564]
+                    - button "Deactivate" [ref=e2566]:
+                      - img [ref=e2568]
+                    - button "Delete" [ref=e2571]:
+                      - img [ref=e2573]
+                    - button [ref=e2575]:
+                      - img [ref=e2577]
+                  - generic [ref=e2579]:
+                    - generic [ref=e2582]:
+                      - img
+                    - generic:
+                      - generic: Get Unmatched Receipts
+                      - generic: "read: sheet"
+                    - img [ref=e2584]
+              - group [ref=e2586] [cursor=pointer]:
+                - generic [ref=e2587]:
+                  - generic [ref=e2596]:
+                    - button "Execute step" [ref=e2597]:
+                      - img [ref=e2599]
+                    - button "Deactivate" [ref=e2601]:
+                      - img [ref=e2603]
+                    - button "Delete" [ref=e2606]:
+                      - img [ref=e2608]
+                    - button [ref=e2610]:
+                      - img [ref=e2612]
+                  - generic [ref=e2614]:
+                    - generic [ref=e2617]:
+                      - img
+                    - generic:
+                      - generic: Match Transactions to Receipts
+              - group [ref=e2618] [cursor=pointer]:
+                - generic [ref=e2619]:
+                  - generic [ref=e2622]: done
+                  - generic [ref=e2626]:
+                    - generic [ref=e2627]: loop
+                    - img [ref=e2630]
+                  - generic [ref=e2638]:
+                    - button "Execute step" [ref=e2639]:
+                      - img [ref=e2641]
+                    - button "Deactivate" [ref=e2643]:
+                      - img [ref=e2645]
+                    - button "Delete" [ref=e2648]:
+                      - img [ref=e2650]
+                    - button [ref=e2652]:
+                      - img [ref=e2654]
+                  - generic [ref=e2656]:
+                    - generic [ref=e2659]:
+                      - img
+                    - generic:
+                      - generic: Loop Through Matches
+              - group [ref=e2660] [cursor=pointer]:
+                - generic [ref=e2661]:
+                  - generic [ref=e2670]:
+                    - button "Execute step" [ref=e2671]:
+                      - img [ref=e2673]
+                    - button "Deactivate" [ref=e2675]:
+                      - img [ref=e2677]
+                    - button "Delete" [ref=e2680]:
+                      - img [ref=e2682]
+                    - button [ref=e2684]:
+                      - img [ref=e2686]
+                  - generic [ref=e2688]:
+                    - generic [ref=e2691]:
+                      - img
+                    - generic:
+                      - generic: Update Transaction Record
+                      - generic: "update: sheet"
+                    - img [ref=e2693]
+              - group [ref=e2695] [cursor=pointer]:
+                - generic [ref=e2696]:
+                  - generic [ref=e2705]:
+                    - button "Execute step" [ref=e2706]:
+                      - img [ref=e2708]
+                    - button "Deactivate" [ref=e2710]:
+                      - img [ref=e2712]
+                    - button "Delete" [ref=e2715]:
+                      - img [ref=e2717]
+                    - button [ref=e2719]:
+                      - img [ref=e2721]
+                  - generic [ref=e2723]:
+                    - generic [ref=e2726]:
+                      - img
+                    - generic:
+                      - generic: Update Receipt Record
+                      - generic: "update: sheet"
+                    - img [ref=e2728]
+              - group [ref=e2730] [cursor=pointer]:
+                - generic [ref=e2731]:
+                  - generic [ref=e2740]:
+                    - button "Execute step" [ref=e2741]:
+                      - img [ref=e2743]
+                    - button "Deactivate" [ref=e2745]:
+                      - img [ref=e2747]
+                    - button "Delete" [ref=e2750]:
+                      - img [ref=e2752]
+                    - button [ref=e2754]:
+                      - img [ref=e2756]
+                  - generic [ref=e2758]:
+                    - generic [ref=e2761]:
+                      - img
+                    - generic:
+                      - generic: Determine Target Folder
+              - group [ref=e2762] [cursor=pointer]:
+                - generic [ref=e2763]:
+                  - img [ref=e2768]
+                  - generic [ref=e2776]:
+                    - button "Execute step" [ref=e2777]:
+                      - img [ref=e2779]
+                    - button "Deactivate" [ref=e2781]:
+                      - img [ref=e2783]
+                    - button "Delete" [ref=e2786]:
+                      - img [ref=e2788]
+                    - button [ref=e2790]:
+                      - img [ref=e2792]
+                  - generic [ref=e2794]:
+                    - generic [ref=e2797]:
+                      - img
+                    - generic:
+                      - generic: Move Receipt to Organized Folder
+                      - generic: "move: file"
+                    - img [ref=e2799]
+        - img [ref=e435]
+        - img [ref=e436]
+        - generic [ref=e438]:
+          - button [ref=e439] [cursor=pointer]:
+            - img [ref=e441]
+          - button [ref=e443] [cursor=pointer]:
+            - img [ref=e445]
+          - button [ref=e449] [cursor=pointer]:
+            - img [ref=e451]
+          - button [ref=e455] [cursor=pointer]:
+            - img [ref=e457]
+          - button [ref=e461] [cursor=pointer]:
+            - img [ref=e462]
+      - generic [ref=e465]:
+        - button "Execute workflow from Daily Matching Run" [ref=e2801] [cursor=pointer]:
+          - img [ref=e468]
+          - generic [ref=e470]:
+            - text: Execute workflow
+            - generic [ref=e2461]:
+              - text: from
+              - generic [ref=e2462]: Daily Matching Run
+        - button "Select trigger node" [ref=e2465] [cursor=pointer]:
+          - img [ref=e2467]
+      - generic [ref=e471]:
+        - button [ref=e472] [cursor=pointer]:
+          - img [ref=e474]
+        - button [ref=e476] [cursor=pointer]:
+          - img [ref=e478]
+        - button [ref=e482] [cursor=pointer]:
+          - img [ref=e484]
+        - button [ref=e488] [cursor=pointer]:
+          - img [ref=e490]
+      - generic:
+        - complementary
+    - banner [ref=e502] [cursor=pointer]:
+      - generic [ref=e503]: Logs
+      - generic [ref=e505]:
+        - button "Pop out panel" [ref=e506]:
+          - img [ref=e508]
+        - button "Open panel" [ref=e510]:
+          - img [ref=e512]
+```

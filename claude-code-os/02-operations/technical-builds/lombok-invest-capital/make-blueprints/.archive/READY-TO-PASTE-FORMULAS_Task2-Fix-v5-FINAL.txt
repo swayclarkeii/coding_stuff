@@ -1,0 +1,77 @@
+==========================================================
+TASK 2 PRICE NORMALIZATION - v5 FINAL FIX
+==========================================================
+
+INPUT CONFIRMED: "1,1 Mio. USD"
+ERROR: '1.1.' is not a valid number
+
+ROOT CAUSE: Wrong order of replacements - we need to remove " Mio."
+as a COMPLETE STRING before removing spaces!
+
+PASTE THIS INTO THE "Normalize Price USD for Task 2" MODULE:
+----------------------------------------------------------
+
+{{if(contains(232.priceRaw; "Rp") | contains(232.priceRaw; "IDR"); if(contains(232.priceRaw; "Billion") | contains(232.priceRaw; "Bill") | contains(232.priceRaw; "Miliar"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "Rp"; ""); "IDR"; ""); " Billion"; ""); " Bill."; ""); "Billion"; ""); "Bill"; ""); "."; ""); ","; ".")) * 1000000000 / 15700); if(contains(232.priceRaw; "Million") | contains(232.priceRaw; "Mio") | contains(232.priceRaw; "Juta"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "Rp"; ""); "IDR"; ""); " Million"; ""); " Juta"; ""); "Million"; ""); "Juta"; ""); " "; ""); "."; ""); ","; ".")) * 1000000 / 15700); round(parseNumber(replace(replace(replace(replace(232.priceRaw; "Rp"; ""); "IDR"; ""); "."; ""); ","; "")) / 15700))); if(contains(232.priceRaw; "$") | contains(232.priceRaw; "USD"); if(contains(232.priceRaw; "Mio"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(replace(replace(232.priceRaw; "USD"; ""); "$"; ""); " Mio."; ""); " Mio"; ""); "Mio."; ""); "Mio"; ""); " "; ""); "."; ""); ","; ".")) * 1000000); if(contains(232.priceRaw; "K"); round(parseNumber(replace(replace(replace(replace(replace(replace(232.priceRaw; "USD"; ""); "$"; ""); "K"; ""); " "; ""); "."; ""); ","; "")) * 1000); parseNumber(replace(replace(replace(replace(232.priceRaw; "USD"; ""); "$"; ""); " "; ""); ","; "")))); if(contains(232.priceRaw; "€") | contains(232.priceRaw; "EUR"); round(parseNumber(replace(replace(replace(replace(replace(232.priceRaw; "€"; ""); "EUR"; ""); " "; ""); "."; ""); ","; ".")) * 1.1); 0)))}}
+
+==========================================================
+CORRECT ORDER FOR "1,1 Mio. USD":
+==========================================================
+
+Starting: "1,1 Mio. USD"
+
+1. Remove "USD" → "1,1 Mio. "
+2. Remove "$" → "1,1 Mio. " (no $ to remove)
+3. Remove " Mio." → "1,1 " ✅ (removes the whole " Mio." unit!)
+4. Remove " Mio" → "1,1 " (already gone)
+5. Remove "Mio." → "1,1 " (already gone)
+6. Remove "Mio" → "1,1 " (already gone)
+7. Remove " " (all spaces) → "1,1"
+8. Remove "." (all periods) → "1,1" (no periods left)
+9. Replace "," with "." → "1.1" ✅
+10. parseNumber("1.1") → 1.1 ✅
+11. 1.1 * 1000000 → 1,100,000 ✅
+
+KEY INSIGHT: Remove " Mio." BEFORE removing spaces!
+
+==========================================================
+TESTING CHECKLIST:
+==========================================================
+
+✅ "1,1 Mio. USD"     → Should output: 1100000
+✅ "900,000 USD"      → Should output: 900000
+✅ "615,000 USD"      → Should output: 615000
+✅ "1,9 Bill. IDR"    → Should output: 121019
+✅ "4,5 Bill. IDR"    → Should output: 286624
+✅ "249,000 USD"      → Should output: 249000
+
+==========================================================
+TASK 3 VERSION (same fix):
+==========================================================
+
+{{if(contains(233.priceRaw; "Rp") | contains(233.priceRaw; "IDR"); if(contains(233.priceRaw; "Billion") | contains(233.priceRaw; "Bill") | contains(233.priceRaw; "Miliar"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(replace(233.priceRaw; "Rp"; ""); "IDR"; ""); " Billion"; ""); " Bill."; ""); "Billion"; ""); "Bill"; ""); "."; ""); ","; ".")) * 1000000000 / 15700); if(contains(233.priceRaw; "Million") | contains(233.priceRaw; "Mio") | contains(233.priceRaw; "Juta"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(replace(replace(233.priceRaw; "Rp"; ""); "IDR"; ""); " Million"; ""); " Juta"; ""); "Million"; ""); "Juta"; ""); " "; ""); "."; ""); ","; ".")) * 1000000 / 15700); round(parseNumber(replace(replace(replace(replace(233.priceRaw; "Rp"; ""); "IDR"; ""); "."; ""); ","; "")) / 15700))); if(contains(233.priceRaw; "$") | contains(233.priceRaw; "USD"); if(contains(233.priceRaw; "Mio"); round(parseNumber(replace(replace(replace(replace(replace(replace(replace(replace(replace(233.priceRaw; "USD"; ""); "$"; ""); " Mio."; ""); " Mio"; ""); "Mio."; ""); "Mio"; ""); " "; ""); "."; ""); ","; ".")) * 1000000); if(contains(233.priceRaw; "K"); round(parseNumber(replace(replace(replace(replace(replace(replace(233.priceRaw; "USD"; ""); "$"; ""); "K"; ""); " "; ""); "."; ""); ","; "")) * 1000); parseNumber(replace(replace(replace(replace(233.priceRaw; "USD"; ""); "$"; ""); " "; ""); ","; "")))); if(contains(233.priceRaw; "€") | contains(233.priceRaw; "EUR"); round(parseNumber(replace(replace(replace(replace(replace(233.priceRaw; "€"; ""); "EUR"; ""); " "; ""); "."; ""); ","; ".")) * 1.1); 0)))}}
+
+==========================================================
+WHAT CHANGED FROM v4:
+==========================================================
+
+The KEY change is in the USD Mio path - the order of replacements:
+
+BEFORE (wrong order):
+1. Remove currency
+2. Remove spaces  ← PROBLEM: This happens too early!
+3. Remove "Mio."
+4. Remove periods
+5. Convert comma
+
+AFTER (correct order):
+1. Remove currency
+2. Remove " Mio." ← CORRECT: Remove with the space attached!
+3. Remove "Mio." (catches variations)
+4. Remove spaces
+5. Remove periods
+6. Convert comma
+
+This ensures " Mio." is removed as a complete unit before we start
+removing individual characters.
+
+==========================================================

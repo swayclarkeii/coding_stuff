@@ -1,0 +1,623 @@
+[00:00:02] sindbad ambushed.tv: It's a good point.
+[00:00:03] Sway Clarke: understand that you basically you're saying like the company value is, you know, we're all artists, we're all community.
+[00:00:09] Sway Clarke: And we kind of would like to respect that and respect each other.
+[00:00:12] Sway Clarke: And you kind of work within that dynamic.
+[00:00:14] Sway Clarke: Is that what you were?
+[00:00:14] Sway Clarke: Yeah.
+[00:00:15] Sway Clarke: Yes.
+[00:00:16] Madalena Ribeiro da Fonseca: But it's also like, where we, I mean, we live in Portugal, so we're fine.
+[00:00:22] Madalena Ribeiro da Fonseca: We're great.
+[00:00:23] Madalena Ribeiro da Fonseca: But some freelancers, especially the ones who have been with us for the longest time, aren't particularly happy about what they make.
+[00:00:31] Madalena Ribeiro da Fonseca: Because so for example, like the people who are paid the most are paid 22 or 23 euros an hour.
+[00:00:36] Madalena Ribeiro da Fonseca: And our target is to work 10 hours a day, maybe they're working 1213, which is bad for us.
+[00:00:42] Madalena Ribeiro da Fonseca: But it's just kind of what happens.
+[00:00:44] Madalena Ribeiro da Fonseca: So let's do 22 times.
+[00:00:47] Madalena Ribeiro da Fonseca: Okay, let's assume 11.
+[00:00:49] Madalena Ribeiro da Fonseca: They're making 220 euros a day.
+[00:00:51] Madalena Ribeiro da Fonseca: Some people who make treatments freelance completely on their own are making three or 400 euros a day.
+[00:01:01] Madalena Ribeiro da Fonseca: However, there, they don't have, you know, they have to sort of figure out their own, like, they have to talk to the people and, like, put together their own schedules and stuff.
+[00:01:10] Madalena Ribeiro da Fonseca: All of the  admin parts, so, like, the sending invoices to the clients and the getting paid and getting the jobs, and then specifically, like, working alone with a director and having to do these, like, 18-hour days and, like, you have to because you have, like, a daily fee and stuff.
+[00:01:28] Madalena Ribeiro da Fonseca: All of those difficult parts are why people would prefer to work with us.
+[00:01:34] Madalena Ribeiro da Fonseca: Yeah.
+[00:01:35] Madalena Ribeiro da Fonseca: However, they are, it is kind of a significant...
+[00:01:37] Madalena Ribeiro da Fonseca: Sorry, sorry.
+[00:01:38] sindbad ambushed.tv: In terms of why we kind of, there's a cap to how much we can, I don't know if cap is the right word, but, like, we cannot really pay them a lot more because we have two people working together in a day when normally a freelancer would do it on their own.
+[00:01:53] sindbad ambushed.tv: So, like, producer would reach out to someone who would do both the visual research and the design.
+[00:01:57] sindbad ambushed.tv: So, it's like, it's like, we're really huge.
+[00:02:00] sindbad ambushed.tv: You know, it's like double the workforce, plus the assistant who's making, you know, sometimes like AI images, plus the art director.
+[00:02:09] sindbad ambushed.tv: So really, you have two people full time working, plus two people kind of part time on your project.
+[00:02:15] Madalena Ribeiro da Fonseca: So it's like, yeah, like, there's no way we're making a margin, you know, plus, obviously, all the organization, like, there's no way we're making a Plus, our, like, juniors who we're putting on these projects that we completely don't even factor in into the cost for the client, you know, Plus, sometimes, sometimes something will go horribly wrong.
+[00:02:32] Madalena Ribeiro da Fonseca: And we will just sort of be like, we have to get somebody else to help.
+[00:02:35] Madalena Ribeiro da Fonseca: And so it is, it is like a little bit less pressure for the freelancers who work with us, because it's such a big team effort, but it can also sort of get messy.
+[00:02:44] Madalena Ribeiro da Fonseca: And we, we charge quite a bit, but also our work is excellent.
+[00:02:48] Madalena Ribeiro da Fonseca: But also, we've recently increased rates to cover for the fact that, you know, there's, there's two booking people and one invoicing person and two bosses and two two art directors.
+[00:03:00] Madalena Ribeiro da Fonseca: And two assistants.
+[00:03:01] Madalena Ribeiro da Fonseca: AI is costing us a fortune.
+[00:03:04] Madalena Ribeiro da Fonseca: Yesterday, Zoe and Gaetano and I were like, there was this one project where this director was being like really, really difficult.
+[00:03:13] Madalena Ribeiro da Fonseca: She just wanted us to keep doing stuff and keep doing stuff.
+[00:03:15] Madalena Ribeiro da Fonseca: And her feedback was like really not concise.
+[00:03:20] Madalena Ribeiro da Fonseca: She was just like, you know, she wasn't like, I want this.
+[00:03:22] Madalena Ribeiro da Fonseca: She was just like, change this and change that.
+[00:03:24] Madalena Ribeiro da Fonseca: And so Gaetano was doing AI all day.
+[00:03:27] Madalena Ribeiro da Fonseca: We probably spent more on AI for this project than they're going to pay us.
+[00:03:31] Madalena Ribeiro da Fonseca: I hope you're exaggerating.
+[00:03:33] Madalena Ribeiro da Fonseca: I also think I'm exaggerating, but it was expensive.
+[00:03:37] Madalena Ribeiro da Fonseca: Meaning, was doing it or are you talking about like the actual cost?
+[00:03:41] Sway Clarke: It's the cost of the AI.
+[00:03:43] sindbad ambushed.tv: The cost of the AI.
+[00:03:45] sindbad ambushed.tv: You pay for each generation.
+[00:03:47] sindbad ambushed.tv: So really, it gets really expensive quickly.
+[00:03:49] sindbad ambushed.tv: And that is one problem I was going to actually ask you because one of the things that could be maybe automated is, you know, when we receive the invoices, people charge us for the with Bye.
+[00:04:00] sindbad ambushed.tv: Currently, we might change that system, but it's a bit tricky.
+[00:04:02] sindbad ambushed.tv: The charges for the AI, they use the freelancers, and I thought maybe there would be a system, like maybe an AI bot or whatever, like could scan all of the invoices and give me the figure of how much was spent on AI, you know, like, but, you know, we'd have to give them, obviously, because sometimes it's mid-journey, sometimes it's CREA, there's different, like, tools that they use.
+[00:04:24] Sway Clarke: Ah, so each freelancer has their own account, for example, and they're just using AI generating, and then they're telling you later, hey, this was the cost for me.
+[00:04:35] sindbad ambushed.tv: Although, to be fair, thankfully, because that would be so scary in terms of unknown costs, so luckily it's not, it's a little bit like that, but really the most expensive AI that we do are done by the supporting ADs, and those, so, you know, there's like an AD for the full days, and then there's a basically, yeah, we call it assistant supporting, these guys tend to be the people who do the most AI.
+[00:05:00] sindbad ambushed.tv: So really, so you're on a project, imagine you're a visual researcher, and like the director is asking for really specific things, you would go to your supporting AD and be like, how can you generate some stuff for me?
+[00:05:12] sindbad ambushed.tv: And then you can concentrate on the visual research, you know, looking for references and like, so they do a little bit, it is a bit of a gray area because we, you some people will be better at doing AI, but some people will rely more on the, and so it's a little bit more controllable because we know when it's the assistant AD, we can kind of see where for us to keep track of the costs, but you don't have an enterprise company account that says this is the account that everybody uses?
+[00:05:37] sindbad ambushed.tv: Yeah, well, we, we, so we've been discussing it with Pierre, we're trying because at the moment, the problem is like people use a lot of different tools.
+[00:05:45] sindbad ambushed.tv: And so it's kind of hard, but we're thinking if we can find a tool that works for everyone, that can can do all and then do a company one and then have, so we've been looking, we're, yeah, this is a conversation we had yesterday, actually, it's like, another
+[00:06:00] Madalena Ribeiro da Fonseca: Another thing about these services being very expensive is that if we are having freelancers charge us per project, then we know how much we spent on each project.
+[00:06:11] Madalena Ribeiro da Fonseca: If we just sort of had like an enterprise-wide account, people could just be like  around on it and like spending loads of our money.
+[00:06:19] Madalena Ribeiro da Fonseca: Yeah, that's true.
+[00:06:20] Madalena Ribeiro da Fonseca: That's another way.
+[00:06:22] Sway Clarke: I mean, unless you had, it's something to look at.
+[00:06:27] Sway Clarke: The question here is if you had an enterprise account, can you monitor individual usage?
+[00:06:33] Sway Clarke: That would be the solution, right?
+[00:06:35] Madalena Ribeiro da Fonseca: You could, but I feel like the people who would be more suited to it, you know, I don't think we're going to have like one police person.
+[00:06:45] Madalena Ribeiro da Fonseca: And, you know, the people who are on the ground, the ADs and their assistants are aware of what's happening.
+[00:06:49] Madalena Ribeiro da Fonseca: So if they saw something weird happen, they could be like, yeah, that's weird.
+[00:06:52] Madalena Ribeiro da Fonseca: But we can barely get the ADs to send us a message being like, please tell the producer we're going in.
+[00:07:00] Madalena Ribeiro da Fonseca: So we absolutely cannot add any more friction to their end.
+[00:07:04] Sway Clarke: Well, I mean, one solution to problems like this, I mean, and actually the enterprise idea is actually the wrong solution.
+[00:07:16] Sway Clarke: What you want to do in situations like that, you want to do, but you want to put, the problem is the feedback loop for these producers and people that are generating images, they don't get the feedback loop.
+[00:07:29] Sway Clarke: Right?
+[00:07:30] Sway Clarke: They're just like, I need a palm tree and something, generate that image.
+[00:07:33] Sway Clarke: I need this and then, and then there's no, there's nothing telling them saying, you've just, you've just done a hundred generate, a hundred images, and this cost is a thousand bucks so far.
+[00:07:43] Sway Clarke: For example, they don't, they're not in the loop and what you want to do in just in general in the system, you want to put them in the loop.
+[00:07:50] Sway Clarke: You want to say something like, look, you get 500 free credits for every day.
+[00:07:55] Sway Clarke: If you go above that, we'll, we'll pay to that 500, but anything you go above, we don't.
+[00:08:00] Sway Clarke: Pay for it, for example, and you go back to the producer, for example, you know what mean?
+[00:08:03] Sway Clarke: It's just in a general sense.
+[00:08:05] Sway Clarke: And you would say something like, look, you can use your account, you can generate, but we're going to max out AI generations at 1000.
+[00:08:14] Sway Clarke: That just puts them in a space where they have to be more conscientious about whether their request is worth it or not.
+[00:08:23] Sway Clarke: You know, so it's not that you don't pay for it, you can give them a good number, but just giving them a feedback, putting them in the loop that says, hey, if you go wild on this ship, you also have to pay for this as well.
+[00:08:36] Madalena Ribeiro da Fonseca: Another problem with this is the same as like, so because obviously our costs are really high, big teams, lots of AI, it's just the cost for what we do are kind of high and we wish they could be higher so we could pay people better.
+[00:08:50] Madalena Ribeiro da Fonseca: And so the rates we charge are quite high.
+[00:08:53] Madalena Ribeiro da Fonseca: And so we're already having a really tough time with like, our standard ambush day is up to 10 hours.
+[00:08:58] Madalena Ribeiro da Fonseca: If you go beyond 10 hours, we'll need to charge
+[00:09:00] Madalena Ribeiro da Fonseca: We hourly.
+[00:09:00] Madalena Ribeiro da Fonseca: And so what happens is that the project goes long because the director is being difficult or we do lots of AI because the director wants more AI.
+[00:09:08] Madalena Ribeiro da Fonseca: And when we can, and we've been really trying to do this lately, we can catch it in the middle of the project and go to the producer and be like, this is happening.
+[00:09:17] Madalena Ribeiro da Fonseca: It will cost more.
+[00:09:18] Madalena Ribeiro da Fonseca: They have to rein in the director because they're paying.
+[00:09:24] Madalena Ribeiro da Fonseca: But for example, like two days ago, we emailed a producer about this, and this is already a nightmare to book.
+[00:09:32] Madalena Ribeiro da Fonseca: And this woman called me like four times on a Friday night at 11 PM.
+[00:09:36] Madalena Ribeiro da Fonseca: And she was like, she was making the schedule.
+[00:09:38] Madalena Ribeiro da Fonseca: And as she was creating the schedule, I was like, please, like, this is not our system.
+[00:09:42] Madalena Ribeiro da Fonseca: Like, I would recommend this.
+[00:09:43] Madalena Ribeiro da Fonseca: What you want is going to be expensive.
+[00:09:45] Madalena Ribeiro da Fonseca: What you want is going to be inefficient.
+[00:09:46] Madalena Ribeiro da Fonseca: And so when finally we got our art director to talk to her director before the project started, which is unusual.
+[00:09:52] Madalena Ribeiro da Fonseca: So they finally sort of let us make the schedule like we wanted it.
+[00:09:56] Madalena Ribeiro da Fonseca: And then she called me and was like, please explain the rates.
+[00:09:58] Madalena Ribeiro da Fonseca: And I was like, well,
+[00:10:00] Madalena Ribeiro da Fonseca: You know, you have them.
+[00:10:01] Madalena Ribeiro da Fonseca: she was like, well, this is way too much.
+[00:10:03] Madalena Ribeiro da Fonseca: Like, we need a lot less.
+[00:10:06] Madalena Ribeiro da Fonseca: And so I, you know, I was like, we'll do it in less days.
+[00:10:08] Madalena Ribeiro da Fonseca: And I'll do a little discount for a first time client, whatever.
+[00:10:12] Madalena Ribeiro da Fonseca: And so she's been, but they've been the ones with the, with all of the AI.
+[00:10:17] Madalena Ribeiro da Fonseca: I emailed her being like, hey, it's late.
+[00:10:19] Madalena Ribeiro da Fonseca: And we're going to keep going late because Fiona's still giving us feedback at 10pm.
+[00:10:23] Madalena Ribeiro da Fonseca: She was like, oh, well, we don't have more budget for this.
+[00:10:26] Madalena Ribeiro da Fonseca: So, you know, wrap it up.
+[00:10:29] Madalena Ribeiro da Fonseca: The producer was saying, yeah, yeah.
+[00:10:31] Madalena Ribeiro da Fonseca: The producer, she wasn't like, well, if we're going late today, then we have to finish early tomorrow.
+[00:10:35] Madalena Ribeiro da Fonseca: Like, that's not my problem.
+[00:10:36] Madalena Ribeiro da Fonseca: Like, we can't pay you more.
+[00:10:38] Madalena Ribeiro da Fonseca: And then we have the case of the director who's, you know, the director, they're, they're making the project and it's all for them.
+[00:10:44] Madalena Ribeiro da Fonseca: And we all have to be like, yes, director.
+[00:10:46] Madalena Ribeiro da Fonseca: They're the ones who were like, create more, stay longer, put in this edit.
+[00:10:51] Madalena Ribeiro da Fonseca: Yeah.
+[00:10:52] sindbad ambushed.tv: So we kind of in the middle between the producer who wants to remain within budget and the director who tends to, yeah, like.
+[00:11:00] sindbad ambushed.tv: Unreasonable requests.
+[00:11:01] sindbad ambushed.tv: Alice?
+[00:11:03] Alice Carreto: No, sorry, I was reinforcing that, that it is like a balance between trying to manage all these different parts, you know, like the team wants to just get the best job done, the producer wants to get the best thing for the least amount of money, and so yeah, there's kind of like the financial element to it, and then there's the creative side, which is like, we want to do the best, but here are our limitations.
+[00:11:31] Sway Clarke: Okay, so I just wanted to kind of get back to the flow again, because we were talking about once you get in the calendar, once you have figured out, I think you were going between the sheets, you were saying that you've got to check, ah, that was it, it was Viana, and then you were saying, okay, I go over to this sheet, and I check the rates, make sure everything's the same.
+[00:11:55] sindbad ambushed.tv: Yeah.
+[00:11:56] Alice Carreto: Yeah, so at this point, once we've booked the project.
+[00:11:59] Alice Carreto: Thank you.
+[00:12:00] Alice Carreto: As Madalena said, it's out of our hands, so that's when it's handed over to James and Zoe and the team, and they're like on the ground getting it all done.
+[00:12:11] Alice Carreto: After that, once the project is done, we then fill in the dashboard with the hours, which we have to do manually, as we were saying.
+[00:12:21] Alice Carreto: We need to go to the timesheets, we need to find out what were the hours from each person.
+[00:12:26] Alice Carreto: Sometimes there's one person who hasn't filled it out, so we can't quite close that project until we have all the hours, so we can see everything.
+[00:12:35] Sway Clarke: I'm going to just share the screen to illustrate what Elise is saying as well.
+[00:12:39] Madalena Ribeiro da Fonseca: Please, thank you.
+[00:12:41] Alice Carreto: So I guess we were on Unibet.
+[00:12:43] Alice Carreto: This was a really difficult one because the team worked crazy hours.
+[00:12:49] Alice Carreto: This brings us to another small point, which is regarding overtime.
+[00:12:52] Alice Carreto: We've had in the past, we've increasingly, like, were...
+[00:13:00] Alice Carreto: Before we were working like 10 hours, 9, 8, like 10 hours max, which is great, so our margins are designed to withhold that amount of like daily hours from each team member, but then some projects were going super crazy late, and we're letting the producers know like the next day, or once the project's over, and most of the time we're okaying the stuff, but then they're saying like, no, please let us know in real time so we can account for these added charges.
+[00:13:31] Sway Clarke: So that's created its own, sorry, I'm just curious.
+[00:13:36] Sway Clarke: So you're saying that once a job is booked, you have a timeframe, and then when you're going over time, right, everybody's pushing I understand directors and they're like, we got to get the best shot, we're gonna stay here all night.
+[00:13:48] Sway Clarke: And so they want to do that.
+[00:13:50] Sway Clarke: But time is calculating, like money is calculating at the moment, and they want you to give them an update of like, where the budget stands at that time.
+[00:14:00] Alice Carreto: Yes, or they don't want this to be a surprise at the end.
+[00:14:04] Alice Carreto: And it's not all of them.
+[00:14:06] Alice Carreto: It's just, you know, naturally, it's the ones that are like, we need to know now.
+[00:14:12] sindbad ambushed.tv: We have implemented the system, Sway.
+[00:14:14] sindbad ambushed.tv: Sorry.
+[00:14:15] sindbad ambushed.tv: Basically, now we're trying and, you know, it's not completely, you know, foolproof, but basically around like, I think 7 p.m.
+[00:14:24] sindbad ambushed.tv: We're going to, so I think, you know, one of you guys send a message to our assistant, director, and they know on the ground, which one is going to go over or not.
+[00:14:34] sindbad ambushed.tv: If one is going to go really over quite a lot, he needs to give us reasons.
+[00:14:39] sindbad ambushed.tv: So he's going to send a quick message.
+[00:14:41] sindbad ambushed.tv: And we thought actually with PIS would be a good idea to start a channel on Discord just for that.
+[00:14:45] sindbad ambushed.tv: You know, I think that would be quite nice because then you can really quickly go back to, you know, what the situations, how they work.
+[00:14:51] sindbad ambushed.tv: So, you know, imagine you're on the ground, you know, that the reason why we're going to probably work five hours more after seven is because the direct.
+[00:15:00] sindbad ambushed.tv: For example, send that text really late.
+[00:15:04] sindbad ambushed.tv: Can I butt in a little bit?
+[00:15:07] Madalena Ribeiro da Fonseca: There's like several reasons we might go over late.
+[00:15:10] Madalena Ribeiro da Fonseca: So if we're doing a three-day project, we're hoping that at the end of the project, each freelancer will have worked a total of 33 hours max.
+[00:15:19] Madalena Ribeiro da Fonseca: But it's very difficult sometimes to keep track of this for several reasons.
+[00:15:23] Madalena Ribeiro da Fonseca: One is, you know, if, for example, Andres on this day worked 15 hours, it's either because the director was insane or because the brief was too big or because Andres was .
+[00:15:35] Madalena Ribeiro da Fonseca: And we don't know until James comes back on shift and we can ask him.
+[00:15:40] Madalena Ribeiro da Fonseca: Or in the case of everyone went over two hours each day and we can only figure that out at the very end.
+[00:15:47] Madalena Ribeiro da Fonseca: And it's always difficult to go to the, because obviously they're going to fight us, right?
+[00:15:51] Madalena Ribeiro da Fonseca: We can, we can, we can be like, hey, Fiona had us working until 1am yesterday because she sent the text late.
+[00:15:58] Madalena Ribeiro da Fonseca: And that's a really.
+[00:15:59] Madalena Ribeiro da Fonseca: Absolutely.
+[00:15:59] Madalena Ribeiro da Fonseca: you.
+[00:16:02] Madalena Ribeiro da Fonseca: But at the end of the project, sometimes we're like, oh, our days were all a little bit long and it was just extra hours.
+[00:16:10] Madalena Ribeiro da Fonseca: Please pay us.
+[00:16:11] Madalena Ribeiro da Fonseca: Like, that's difficult.
+[00:16:12] Madalena Ribeiro da Fonseca: And so for us to have rates that would completely cover this without us having to nitpick every single thing would be very expensive.
+[00:16:22] Madalena Ribeiro da Fonseca: And like the reason why people come to us is the work is so good at the absolute cheapest we can provide it.
+[00:16:33] Madalena Ribeiro da Fonseca: And so we offer the competitive price by staying nitpicky, but it takes us a while and it's unpleasant for the customers.
+[00:16:44] Madalena Ribeiro da Fonseca: And only recently have we been able to start being like mid project being like, hey, today's going to go late.
+[00:16:49] Madalena Ribeiro da Fonseca: It's going to go into overtime unless you wrap up.
+[00:16:51] Madalena Ribeiro da Fonseca: It used to just be that we'd get to the end of a three day project that's supposed to have 30 hours per person.
+[00:16:56] Madalena Ribeiro da Fonseca: And we'd have like 45 and we'd be like, now you owe us an extra.
+[00:17:02] Madalena Ribeiro da Fonseca: And we have to be like, but the fine print that you should have read.
+[00:17:08] Madalena Ribeiro da Fonseca: And so if we, one of these things with overtime that we've been, this has been a really big issue over the last six months, adding more, more fine prints.
+[00:17:19] Madalena Ribeiro da Fonseca: being like, if you go over this much generation for AI, you'll have to pay more.
+[00:17:26] Madalena Ribeiro da Fonseca: That's a conversation we're having with the producers.
+[00:17:27] Madalena Ribeiro da Fonseca: The directors are busy, busy people.
+[00:17:31] Madalena Ribeiro da Fonseca: The directors do not care there.
+[00:17:33] Madalena Ribeiro da Fonseca: They don't even want to like hop on a call or look at the email thread.
+[00:17:36] Madalena Ribeiro da Fonseca: They've got us on WhatsApp.
+[00:17:37] Madalena Ribeiro da Fonseca: They're sending voice notes.
+[00:17:41] Madalena Ribeiro da Fonseca: It's just kind of tricky to coordinate all of this.
+[00:17:44] Madalena Ribeiro da Fonseca: But so, for example, at the end, then in this case, we wrapped up the project on maybe the 15th of December.
+[00:17:52] Madalena Ribeiro da Fonseca: 30th of December, we're requested an invoice, and only on the 12th can we get back with like a laptop, and maybe maybe back I you I
+[00:18:00] Madalena Ribeiro da Fonseca: Whole recap.
+[00:18:00] Madalena Ribeiro da Fonseca: Here's the recap.
+[00:18:01] Madalena Ribeiro da Fonseca: We include everyone's hours.
+[00:18:07] Madalena Ribeiro da Fonseca: And so in this case, we worked one, two, three, four, five, six, six days.
+[00:18:13] Madalena Ribeiro da Fonseca: And we've asked for an extra half day.
+[00:18:17] Madalena Ribeiro da Fonseca: So six and a half days.
+[00:18:19] Madalena Ribeiro da Fonseca: But if we look here, and this actually worked like seven and a half days worth of hours, and the designers also worked.
+[00:18:29] Madalena Ribeiro da Fonseca: Yeah, seven days worth of hours.
+[00:18:32] Madalena Ribeiro da Fonseca: So we're still not making as much money as we want here, which we can tell by the margin.
+[00:18:38] Madalena Ribeiro da Fonseca: Because people work long days.
+[00:18:42] Sway Clarke: So the more people, the longer days that they work, you burn your margin.
+[00:18:47] Sway Clarke: We burn our margin.
+[00:18:50] Madalena Ribeiro da Fonseca: And the long days depend on several factors, which is the scope of the project.
+[00:18:55] Madalena Ribeiro da Fonseca: So ideally, we've booked enough days.
+[00:18:57] Madalena Ribeiro da Fonseca: How difficult the director is.
+[00:18:59] Madalena Ribeiro da Fonseca: to time we've liked and Thank
+[00:19:00] Madalena Ribeiro da Fonseca: How good the team is.
+[00:19:03] Madalena Ribeiro da Fonseca: And then how reasonable the producers are in giving us more money or not.
+[00:19:11] Madalena Ribeiro da Fonseca: So in this case, we didn't ask for that much more money, because we didn't want to have that conversation.
+[00:19:19] Madalena Ribeiro da Fonseca: Because sometimes it's just a lot of back and forwards and they're, you know, regular clients, and you don't want to ruin the relationship.
+[00:19:25] Madalena Ribeiro da Fonseca: So we didn't ask for that much more money.
+[00:19:27] Madalena Ribeiro da Fonseca: And three days later, now Tom is like, hey, this is looks great.
+[00:19:30] Madalena Ribeiro da Fonseca: Please send over the invoice.
+[00:19:33] Sway Clarke: And sorry, one thing between the time that you're doing, you get the invoice request, and then you're doing all of the everything that you're doing manually, right?
+[00:19:41] Sway Clarke: To like put together and checking.
+[00:19:44] Sway Clarke: You said that takes it took 12 days?
+[00:19:46] Sway Clarke: Or what did you say it took?
+[00:19:48] Sway Clarke: Yeah, 12 days.
+[00:19:50] Madalena Ribeiro da Fonseca: It took, so we came back to work.
+[00:19:53] Madalena Ribeiro da Fonseca: We came back to work on the 2nd of January.
+[00:19:54] Madalena Ribeiro da Fonseca: We actually really started on the 5th.
+[00:19:58] Madalena Ribeiro da Fonseca: Yeah, so from the 5th.
+[00:20:00] Madalena Ribeiro da Fonseca: To the 12th was what it took us to, you know, we opened up, we're doing the bookings, we're chasing the overdues, we're doing all of this, and we have to find the time to, like, come in here and look at all these numbers and go to their little timesheets and make sure everything's right, and then we still have to, like, Elise and I will communicate, and we'll be like, this is a 40% margin, we can't ask them for two more days, that's insane, like, what are we going to do, like...
+[00:20:28] Sway Clarke: Because the aim, sorry, Sway, the aim is 50% margin on production.% margin, but, but, but, that, like, per job, how long does it take you to do a wrap-up?
+[00:20:40] Alice Carreto: Just, just, just to answer that question, I started on the 5th, and this particular one, Unibet, was my very last, I was leaving it towards the end because I knew it was going to be a nightmare, these French producers, the days had gone super late, I knew it was going to be a tough one.
+[00:21:00] Alice Carreto: To wrap my head around and to write this checking, like this invoice checking, and it was the very last one that I sent to close December.
+[00:21:10] Alice Carreto: So basically from the 5th until the 12th, obviously excluding the weekend, I was really focused on filling in this December.
+[00:21:24] Alice Carreto: So at the bottom, like 12th of the 12th, 25th, I was really focused on sending out all these checkings, filling in all these projects with the hours, making sure the margins were okay or not okay, sending invoices if they were ready or sending checking emails if they weren't.
+[00:21:42] Alice Carreto: And so we did 30 projects, I think like, I think I'd managed to close about five of them before December, actually, before we even broke off into the holiday.
+[00:21:54] Alice Carreto: So there was a little bit done, but not a lot.
+[00:21:57] Alice Carreto: And so in those five days, in that first-
+[00:22:00] Alice Carreto: The week, given that I also took Friday off because it was my birthday.
+[00:22:05] Alice Carreto: So technically, one less day.
+[00:22:08] Alice Carreto: did you do that?
+[00:22:08] Sway Clarke: Why did you do that?
+[00:22:11] Alice Carreto: So one less day, the Madalena covered for me that day.
+[00:22:14] Alice Carreto: Well, to be fair, she took my Tuesday and I took her Friday and it was like, it was very symbiotic.
+[00:22:19] Madalena Ribeiro da Fonseca: It was good for us.
+[00:22:20] Alice Carreto: It was fine.
+[00:22:21] Alice Carreto: But I did work one less day.
+[00:22:23] Alice Carreto: So technically it took about five days to really handle bookings, wrapping up all of these projects, chasing people, sending emails, chasing people for their hours.
+[00:22:38] Alice Carreto: And so, yeah, that is a thing that takes a while to wrap your head around.
+[00:22:45] Madalena Ribeiro da Fonseca: It's not always like that.
+[00:22:47] Madalena Ribeiro da Fonseca: It's not always like that.
+[00:22:48] Madalena Ribeiro da Fonseca: We have, we have a few, we have four, the last four projects down here, or actually the last five or six, whatever were like those produce.
+[00:22:59] Madalena Ribeiro da Fonseca: Yeah.
+[00:23:00] Madalena Ribeiro da Fonseca: They come in, they want three days, they go out, and we put in everyone's hours, the margins are good, and so we just send them an email being like, we have, we've just looked over everything, and it's all looking, oh, wrong one.
+[00:23:21] Madalena Ribeiro da Fonseca: Okay, sorry, I was looking for an example.
+[00:23:22] Madalena Ribeiro da Fonseca: We've just looked at everything, all the hours went great, you know what the rate is, here's your invoice, and they're like, great, thanks.
+[00:23:28] Madalena Ribeiro da Fonseca: So this is, this happens.
+[00:23:30] Sway Clarke: What's percentage of like, the edge cases, like the difficult, the difficult producers, the ones that you're just, you know what I mean, those projects, like if you were say out of 100%, what's the rate of the ones that you're like, oh my god, I can't believe it, not again.
+[00:23:43] Alice Carreto: So it's not, sometimes it's not so much the difficult producers, but, but I, on a percentage wise, I don't think it's that much, I don't think it's that much, the super difficult clients that we have.
+[00:23:57] Alice Carreto: Okay.
+[00:23:58] Sway Clarke: But, but I'd say at least.
+[00:24:00] Alice Carreto: Half of the projects of each month won't have completely respected the initial agreement, so at least half of the projects we need to get back and have, like, we need to touch base with the producers before we send them an invoice with, like, here's the final amount, which isn't quite the amount that we agreed at in the beginning, but here are the reasons why.
+[00:24:24] Alice Carreto: So there's always some element of, like, justifying, here's the final schedule, here's what we agreed, and here's what we want to charge you and why.
+[00:24:36] sindbad ambushed.tv: So what's happened is we kind of, our fixed costs generally have gone up because last year is when we got two assistants, you know, so that's like two full-time positions, really, every month.
+[00:24:51] sindbad ambushed.tv: So basically, we got to this point where we had to raise our prices also with all the AI, and it's still kind of a bit murky.
+[00:24:58] sindbad ambushed.tv: We don't know how much we're going to spend on it.
+[00:25:00] sindbad ambushed.tv: And so normally the price rates we're hoping is going to be able to kind of diminish how much we need to, you know, like hopefully, but still, because we're first trying to cover also all of these fixed costs that have increased, maybe it's not going to be a, you know, it's true that like, yeah, I think, I don't know what you think, but if we're going to have to, you know, with the new prices, maybe clients will be a little bit less, like, you know, happy to pay extra hours, you know, so it is good in a way that we're charging more because it can cover certain things, but like, it might make the negotiation even harder.
+[00:25:43] sindbad ambushed.tv: I don't know, we'll have to see how that goes.
+[00:25:46] sindbad ambushed.tv: But, you know, we have increased the prices by 14%.
+[00:25:49] sindbad ambushed.tv: Okay.
+[00:25:52] Madalena Ribeiro da Fonseca: And so a year and a half ago, we also increased the prices, but it was mostly so that we could increase people's rates, which we were also aiming to.
+[00:26:00] Madalena Ribeiro da Fonseca: But it's a little bit difficult because of the new costs.
+[00:26:07] Sway Clarke: If you can keep that open, actually, because that's just good.
+[00:26:10] Sway Clarke: Oh, absolutely.
+[00:26:13] Sway Clarke: When you, because it seems like there's the booking, right, you get a job in and then there's a dash for, okay, I got a book, I got to manually input information over here, I got to do this, I got to check the availabilities, you know, put this project together, and then you're putting everything over to Discord.
+[00:26:29] Sway Clarke: You're getting everybody wrapped in and you're getting this confirmed and then you're sending an email to the producer.
+[00:26:35] Madalena Ribeiro da Fonseca: when I had at one point, this was so exhausting, that I had this so like, so that I would know that I had everything.
+[00:26:42] Madalena Ribeiro da Fonseca: So, you know, a project comes in, have the project people told me who the director is, have the project people told me when, because people will be like, hi, I need a team.
+[00:26:51] Madalena Ribeiro da Fonseca: And I'm like, for who, for when, how long, give me your deck.
+[00:26:55] Madalena Ribeiro da Fonseca: Have I shown them the rate card?
+[00:26:57] Madalena Ribeiro da Fonseca: Have they sent me the assets that I can give the.
+[00:27:00] Madalena Ribeiro da Fonseca: Have they confirmed the schedule?
+[00:27:02] Madalena Ribeiro da Fonseca: Has the team confirmed they're available?
+[00:27:03] Madalena Ribeiro da Fonseca: Have I managed to book a call?
+[00:27:05] Madalena Ribeiro da Fonseca: Have I added the project to the dashboard?
+[00:27:07] Madalena Ribeiro da Fonseca: Have I sent out the connecting thread?
+[00:27:09] Madalena Ribeiro da Fonseca: Have I created the team on Discord?
+[00:27:12] Madalena Ribeiro da Fonseca: And WhatsApp is no longer, we try to keep everything off of WhatsApp because it's very difficult to follow.
+[00:27:19] Madalena Ribeiro da Fonseca: Ideally, we would really just keep all of our comms with the people on the other side through the email because it would be very easy.
+[00:27:28] Madalena Ribeiro da Fonseca: would be like, you know, we send out the ops thread and then once a day, there would be at the end of the day, we'd be like, here's the batch, here is the design.
+[00:27:40] Madalena Ribeiro da Fonseca: And then ideally, the next day, we'd get like all of the feedback at night in the morning to work from.
+[00:27:44] Madalena Ribeiro da Fonseca: Okay.
+[00:27:45] Madalena Ribeiro da Fonseca: And so it would be great if like these things could go like this, but usually, you know, busy people, creatives, different time zones.
+[00:27:53] Madalena Ribeiro da Fonseca: Sometimes we just have WhatsApps going and things get missed and it's very difficult.
+[00:27:58] Madalena Ribeiro da Fonseca: But, but yes, we make the
+[00:28:00] Madalena Ribeiro da Fonseca: Discord, it goes.
+[00:28:01] Alice Carreto: Project's finished.
+[00:28:02] Alice Carreto: We come back to the dashboard.
+[00:28:04] Alice Carreto: We fill everything in.
+[00:28:07] Alice Carreto: Hopefully, after all the back and forths, we invoice for the project.
+[00:28:11] Alice Carreto: This is done on Servant, which hopefully by the way they can pop it up, which is a platform which has all of our customers.
+[00:28:19] Alice Carreto: It kind of generates an invoice and sends it directly.
+[00:28:22] Madalena Ribeiro da Fonseca: So I can I can put the customer here and then we usually just any customer and then we'll just go to the dashboard and pick up the, you know, information.
+[00:28:33] Madalena Ribeiro da Fonseca: This is the information.
+[00:28:35] Madalena Ribeiro da Fonseca: We'll look at the dashboard.
+[00:28:36] Madalena Ribeiro da Fonseca: Oh, another thing that's annoying that I wish we could do is have some sort of like this is cut and paste again, right?
+[00:28:41] Sway Clarke: Yeah.
+[00:28:42] Madalena Ribeiro da Fonseca: Another thing that would be really cool is if we could have maybe some sort of like because we'll be here.
+[00:28:49] Madalena Ribeiro da Fonseca: And God, this was so a couple of years ago, we increased our our very normal prices by 10%.
+[00:28:54] Madalena Ribeiro da Fonseca: And so we stopped being like 2500 plus 100.
+[00:28:58] Madalena Ribeiro da Fonseca: And we were then like.
+[00:28:59] Madalena Ribeiro da Fonseca: like.
+[00:28:59] Madalena Ribeiro da Fonseca: him.
+[00:28:59] Madalena Ribeiro da Fonseca: Thank you.
+[00:29:00] Madalena Ribeiro da Fonseca: Two six forty plus one twenty five plus whatever.
+[00:29:04] Madalena Ribeiro da Fonseca: so we're all doing this like with our brains and our calculators, which you shouldn't.
+[00:29:11] Madalena Ribeiro da Fonseca: Yeah.
+[00:29:11] Madalena Ribeiro da Fonseca: And so at the end, we have to be like, OK, so because sometimes sometimes like one of us will be doing this and we'll be like, OK, so the way to get the 50 percent will be that we'll charge.
+[00:29:23] Madalena Ribeiro da Fonseca: It was three days plus a weekend fee, but we'll actually tell them we'll charge three and a half days and no weekend fee.
+[00:29:29] Madalena Ribeiro da Fonseca: And so someone will put in a number and the other person who comes next and who goes to send out the invoice is like, how did you get to this number?
+[00:29:36] Madalena Ribeiro da Fonseca: Yeah.
+[00:29:38] Madalena Ribeiro da Fonseca: And so then I've actually already updated this, which sounds like it should have been something I did last year.
+[00:29:45] Madalena Ribeiro da Fonseca: But it's it's we have all of we have everything here.
+[00:29:48] Madalena Ribeiro da Fonseca: So, for example, if someone has done a three day project with this year's rate, plus an additional.
+[00:29:57] Madalena Ribeiro da Fonseca: Oh, where's the additional day.
+[00:29:59] Madalena Ribeiro da Fonseca: Where's
+[00:30:01] Alice Carreto: No, it said hourly.
+[00:30:04] Madalena Ribeiro da Fonseca: These are the defined packages, so to speak, are the prices.
+[00:30:08] Madalena Ribeiro da Fonseca: Yeah, maybe I got rid of that.
+[00:30:09] Madalena Ribeiro da Fonseca: Maybe I have to redo it.
+[00:30:11] Madalena Ribeiro da Fonseca: Write additional day.
+[00:30:12] Alice Carreto: It just, it doesn't start with additional.
+[00:30:14] Alice Carreto: It's like, write additional, it's gonna show up.
+[00:30:19] Alice Carreto: Visual research and design additional day to existing package.
+[00:30:23] Madalena Ribeiro da Fonseca: That is, that is the wrong year.
+[00:30:29] Madalena Ribeiro da Fonseca: There we go.
+[00:30:33] Madalena Ribeiro da Fonseca: And then it's like an extra half day.
+[00:30:36] Madalena Ribeiro da Fonseca: And then we'll add a weekend fee.
+[00:30:42] Madalena Ribeiro da Fonseca: Yeah.
+[00:30:43] Madalena Ribeiro da Fonseca: And then, so that does everything for us.
+[00:30:45] Madalena Ribeiro da Fonseca: And then we send this out.
+[00:30:47] Madalena Ribeiro da Fonseca: Yeah.
+[00:30:48] Sway Clarke: Then I send it.
+[00:30:51] Alice Carreto: I will also input, input the invoice number in the dashboard.
+[00:30:56] Alice Carreto: So we can also like in the dashboard, find out.
+[00:31:00] Alice Carreto: Once the project's closed, if it's invoiced, which one was it, if we need to find it, and then it's like, yeah, let's hope that they pay us in 30 days, and most do.
+[00:31:11] Alice Carreto: Now, when they don't, then this is the next part of my task, and this is when the next two things that I will say are two things that I hope and wish we could find ways to do it more efficiently, because I find that my priorities go from booking to filling in dashboard and closing projects to invoicing.
+[00:31:35] Alice Carreto: This is by like order importance, and then afterwards it's invoicing, after which it's chasing invoices.
+[00:31:44] Alice Carreto: And then the bottom of my food chain, but which is also very relevant and important, is filling in a project directory.
+[00:31:52] Alice Carreto: So it's once all projects are closed, we have another sheet, that's all of our projects.
+[00:32:00] Madalena Ribeiro da Fonseca: The big, the big mother sheets with every, when I started, so this sheet is a nightmare and it hurts, but when I started this sheet was just like the title, the production company, and the link, but so I'd have, I'd have, you have to manually do this.
+[00:32:20] Alice Carreto: So we used to do it manually completely, but now there are elements, thankfully that feed in automatically from the dashboard.
+[00:32:31] Alice Carreto: So the project name, client, director, producer, scope, and when it was delivered comes automatically from the dashboard.
+[00:32:40] Alice Carreto: These are all directly from the dashboard.
+[00:32:42] Madalena Ribeiro da Fonseca: Yeah.
+[00:32:42] Alice Carreto: So I don't, before like a year ago, I was having to write the project and the client and everything like, yeah.
+[00:32:52] Alice Carreto: And so that's changed and yay.
+[00:32:54] Alice Carreto: Um, but now I still need to go back and figure out exactly.
+[00:33:00] Alice Carreto: How many days did we take to do this?
+[00:33:02] Alice Carreto: Okay, this was five days, so I liked the days.
+[00:33:04] Alice Carreto: And then I go to the, I find the link, I hyperlink the final link, and I put whatever platform it was done on.
+[00:33:13] Alice Carreto: And then I have to, and then this part gets really annoying.
+[00:33:17] Alice Carreto: I have to go to the dashboard and find out exactly who worked on it.
+[00:33:21] Alice Carreto: So I'm like, okay, was Rita and Gaetano and assisted by this person.
+[00:33:29] Alice Carreto: then that, and sometimes there, sometimes the project, as we're seeing there with like Nutella Cookie has like Sean, Lauma, Maria, Suradi, Tyler, and Rai was assisting on it every time.
+[00:33:41] Alice Carreto: Okay.
+[00:33:43] sindbad ambushed.tv: Sorry, just to understand also the, I mean, sorry, unless you'd explain, because I had lost connection for a while, but the reason we need that, well, need, A, it's good, it's just our archive, but it's also at some point, you know, if a client wants to see, you know, the work that's one person.
+[00:34:00] sindbad ambushed.tv: And we can show them something recent.
+[00:34:02] sindbad ambushed.tv: Although, what is problematic is because of confidentiality, normally we cannot really share projects that have the real text because, you know, maybe an ad hasn't come out yet.
+[00:34:13] sindbad ambushed.tv: And even if they do, even if they do, like we have to sanitize everything.
+[00:34:18] Madalena Ribeiro da Fonseca: So we will create, for example, a sanitized version.
+[00:34:22] sindbad ambushed.tv: So we make dummy text versions of the project.
+[00:34:26] Madalena Ribeiro da Fonseca: And we remove the director's name and stuff.
+[00:34:29] Madalena Ribeiro da Fonseca: But the problem is, even this, I feel like sometimes is like a break of confidentiality agreements.
+[00:34:37] Madalena Ribeiro da Fonseca: So if there's an NDA, we absolutely cannot do this.
+[00:34:40] Madalena Ribeiro da Fonseca: And also we have to wait a certain amount of months to find out whether they have won or lost or whether the campaign has been made, things like that.
+[00:34:48] Madalena Ribeiro da Fonseca: But the reason this project director exists mostly is that if a producer, this happened yesterday, a producer came in and they were like, uh, we have a bid with, uh,
+[00:35:00] Madalena Ribeiro da Fonseca: Oh, Dan.
+[00:35:01] Madalena Ribeiro da Fonseca: We have a bid with Dan Thomas French.
+[00:35:05] Madalena Ribeiro da Fonseca: And I'm making up a team.
+[00:35:06] Madalena Ribeiro da Fonseca: And I'm like, you know what, I want to put in Maria, designer Maria.
+[00:35:12] Madalena Ribeiro da Fonseca: And I figured out that Maria actually worked with Dan on this MTEL thing.
+[00:35:18] Madalena Ribeiro da Fonseca: So I can be like, yes, we're available.
+[00:35:22] Madalena Ribeiro da Fonseca: This date would be best for us.
+[00:35:24] Madalena Ribeiro da Fonseca: And actually, Maria has worked with Dan on these two winning projects.
+[00:35:29] Madalena Ribeiro da Fonseca: So people will like, have you have you worked with this person?
+[00:35:32] Madalena Ribeiro da Fonseca: I'm like, yes, we have.
+[00:35:33] Madalena Ribeiro da Fonseca: And they'll be like, who has worked with this person?
+[00:35:35] Madalena Ribeiro da Fonseca: And I'm not gonna be like,  if I know, but there are, you know, almost 2000 entries here.
+[00:35:40] Sway Clarke: Okay, but but projects, but this is this is kind of like a master database of what has happened.
+[00:35:47] Sway Clarke: And and but all of this information is to my understanding, all of this information exists somewhere else.
+[00:35:53] Sway Clarke: It's scattered like it's like, and you're pulling all of this together manually, but all of this to this is a good
+[00:36:00] Sway Clarke: Across your, I think I saw 12 different other , and your invoicing system, all of this exists somewhere, but you're manually putting this all together.
+[00:36:09] Alice Carreto: And in particular with the project directory, like I don't, it's actually fun for me.
+[00:36:14] Alice Carreto: Once I've managed to get through all the others, all of the above, I'm actually like, yes, I did it.
+[00:36:19] Alice Carreto: All the overdues are chased.
+[00:36:21] Alice Carreto: I'm going to get to the project directory.
+[00:36:23] Alice Carreto: And it's actually a fun time for me.
+[00:36:25] Alice Carreto: It's kind of like, I have some music playing in the background.
+[00:36:28] Alice Carreto: I'm really going through, and I can see the final treatments from everything, and I can scroll, and it's kind of like a fun time for me.
+[00:36:36] Alice Carreto: The only point where it gets, so I get the link, as soon as I get the link, I'm like, okay, this was done in four days, and it's ReadyMag and it's Figma.
+[00:36:43] Alice Carreto: And with one click, checking the link, I have everything.
+[00:36:48] Alice Carreto: But with the names, with the names, I'm like, I go to the dashboard.
+[00:36:52] Alice Carreto: I'm like, okay, it was Rita Sirad Yugaiten.
+[00:36:54] Alice Carreto: And then by the time I get back to the street, I'm like, was it Kaytan or was it Rita?
+[00:36:59] Alice Carreto: Yeah, like...
+[00:36:59] Alice Carreto: Kimberly
+[00:37:00] Alice Carreto: And then I have to go back and check the name.
+[00:37:03] Alice Carreto: And so with the names, I'm like, I'm sure there's a really easy way for the names to be taken from the dashboard and to feed into the project directory automatically in a way that I don't have to go.
+[00:37:15] Alice Carreto: That would be great.
+[00:37:16] sindbad ambushed.tv: Yeah.
+[00:37:16] sindbad ambushed.tv: Sorry, can you just, because there's an idea that pops into my head.
+[00:37:19] sindbad ambushed.tv: And before I forget, wanted to ask if you think that's something that would be feasible, Sway, and also if you guys think it would be useful.
+[00:37:30] sindbad ambushed.tv: I, you know, as we said earlier, we don't want to necessarily monitor every single hour that people spend, but what we could do potentially is that time sheet could directly fill in the dashboard.
+[00:37:41] sindbad ambushed.tv: But with, because what's what would be good is to have an application if someone has done crazy hours.
+[00:37:48] sindbad ambushed.tv: So, for example, if they put 10 hours, no problem.
+[00:37:52] sindbad ambushed.tv: If they put 12, they need to just justify, yes, that's the reason.
+[00:37:57] sindbad ambushed.tv: If they put 14...
+[00:37:59] sindbad ambushed.tv: Yeah.
+[00:38:00] sindbad ambushed.tv: Biggest justification or something like that, but then that would fill in straight directly the dashboard, that way Alice wouldn't need to go and like fetch this information, move it around, but at the same time, we'd have this system where, you know, red flags would appear when there's been something, and that way we can immediately, you know, like put our attention to this project and say, okay, something else happened here, like why did this person work 15 hours, you know, I don't know, do you know what I mean?
+[00:38:27] sindbad ambushed.tv: Like that, because that way, because what was the reason why, sorry, just to do the reason why I think we all at the moment, we want to automatize some things, but we're worried that if we do too much, then we're going to miss problems, you know, this is, you know, at least here, everyone is kind of seeing when there's a something that shouldn't have happened a certain way.
+[00:38:48] sindbad ambushed.tv: So, you know, I guess it would be great to automatize a lot of those things, as long as we have a system that can flag, flag situations that we can then resolve.
+[00:38:59] sindbad ambushed.tv: You know, yeah.
+[00:39:00] Madalena Ribeiro da Fonseca: else?
+[00:39:00] Madalena Ribeiro da Fonseca: Oh, sorry.
+[00:39:02] Madalena Ribeiro da Fonseca: Well, I also want to mention that the reason all these sheets exist is because, so when I joined, there was a dashboard and a calendar and kind of a team directory, but, and so like the team directory was very, very basic, and I went over it with Sinbad, and he, like, I remade it in front of him so that I could get the gist of what everything is.
+[00:39:19] Madalena Ribeiro da Fonseca: But, for example, the project directory had like three rows in it.
+[00:39:23] Madalena Ribeiro da Fonseca: And so all of these sheets exist, or they got altered or whatever, because I, a person who studied nothing to do with computer engineering or science or anything, like, Googled, like, how can I do this, or how can I get this sheet to transfer there or whatever.
+[00:39:38] Madalena Ribeiro da Fonseca: And so all of these sort of like got a little bit bigger as I needed, as I, like, at the point where I was like, , like, this is really not working, like, I have to find a minute and like fix it.
+[00:39:50] Madalena Ribeiro da Fonseca: And they just grew and grew and grew and and it's kind of, you know, we need all this information.
+[00:39:56] Madalena Ribeiro da Fonseca: But Google Sheets was never made to be like a database where you.
+[00:40:00] Madalena Ribeiro da Fonseca: You can like open, like it's just made for like inputting stuff and like getting numbers, you know?
+[00:40:04] Madalena Ribeiro da Fonseca: Yeah.
+[00:40:05] Madalena Ribeiro da Fonseca: And that's, that's the question, right?
+[00:40:06] Sway Clarke: I mean, it's, it's, it's a balance, right?
+[00:40:08] Sway Clarke: It's a delicate balance.
+[00:40:09] Sway Clarke: And I'd say kudos to you, to be honest to you, for putting this together, because this is an elaborate, this is an elaborate system here.
+[00:40:16] Madalena Ribeiro da Fonseca: it's too elaborate.
+[00:40:17] Madalena Ribeiro da Fonseca: That's the thing.
+[00:40:17] Madalena Ribeiro da Fonseca: We're trying to make it so it's more intuitive.
+[00:40:19] Sway Clarke: You've got to make it more intuitive and you've got to look at the, the thing is, you probably notice I constantly ask you, what are you manually doing?
+[00:40:28] Sway Clarke: Are you manually doing that?
+[00:40:29] Sway Clarke: Are you manually moving that thing over there?
+[00:40:31] Sway Clarke: you manually doing that?
+[00:40:32] Sway Clarke: Because these are the things where automation is brilliant, right?
+[00:40:35] Sway Clarke: Yeah.
+[00:40:35] Sway Clarke: That's the whole point of it.
+[00:40:36] Madalena Ribeiro da Fonseca: It's like, so you don't have to manually do those things.
+[00:40:39] Sway Clarke: In terms of flagging, this is where systems are also really great, is you could say, for example, in a timesheet, if, if user inputs more than 10 hours, then user must also input here reason, for example, just right beside it, right?
+[00:40:57] Sway Clarke: And so you can do things like this.
+[00:40:59] Sway Clarke: And
+[00:41:00] Sway Clarke: And if there is, and if that is more than 10 hours, then email is sent or information or notification is sent to whomever, right?
+[00:41:09] Sway Clarke: Those things are super, super simple.
+[00:41:11] Sway Clarke: And you can also have exceptions and you can say, but if it is, you know, those things are all possible.
+[00:41:19] Sway Clarke: The thing about it as well is you're balancing, you sound like, well, you sound like you are, you're balancing this kind of human relationship, you know, between the production companies, between the freelancers, between yourselves.
+[00:41:36] Sway Clarke: And you're trying to really keep these things very artistic, harmonious and fair.
+[00:41:41] Sway Clarke: That's what I hear as well.
+[00:41:42] Sway Clarke: You want to keep it very fair.
+[00:41:44] Sway Clarke: You can completely build systems that are fair and that are harmonious and that have a human, human feel to it.
+[00:41:51] Sway Clarke: The question is always, where do you put the automation and where do you put the human?
+[00:41:55] Sway Clarke: It's always going to be the question.
+[00:41:57] Sway Clarke: And that's just, that's a balance.
+[00:41:59] Sway Clarke: I mean, the best system.
+[00:42:00] Sway Clarke: The are very human-like, and the best systems have humans in the loop.
+[00:42:04] Sway Clarke: It's not about the complete automation.
+[00:42:06] Sway Clarke: It's just about where, right?
+[00:42:09] Sway Clarke: The next question would be, for example, you know, Alice did this whole breakdown of like, here's my priority to here, to here, to here, to here, to here, to here, and here's the bottom.
+[00:42:18] Sway Clarke: And the question would be, you know, when you get into booking, what part of it is communication with the producer?
+[00:42:24] Sway Clarke: What part of it is data entry?
+[00:42:26] Sway Clarke: When you get to the follow-ups with the producers, what part of it is, like, after the job is done, what part of it is communication?
+[00:42:34] Sway Clarke: What part of it is more data entry?
+[00:42:36] Sway Clarke: Now you're going to be looking at the invoicing and did people do their jobs?
+[00:42:40] Sway Clarke: What part of it is communication with, hey, Tamara, can you please fill out your sheet because we need to close this job?
+[00:42:48] Sway Clarke: Then what part of that is more data entry?
+[00:42:50] Sway Clarke: And the data entry parts, you can almost get these to virtually zero, right?
+[00:42:55] Sway Clarke: As much as you can so that what your job is really just dealing with.
+[00:43:00] Sway Clarke: Working with the clients, working with the human beings, right?
+[00:43:04] Sway Clarke: That's essentially what you want your most efficient system to look like.
+[00:43:08] Sway Clarke: Yeah.
+[00:43:09] sindbad ambushed.tv: No, no, that would be amazing.
+[00:43:11] sindbad ambushed.tv: Yeah.
+[00:43:11] sindbad ambushed.tv: you know, so to you, sorry, Sway, like everything that we've shown you, you can see a lot of ways of automating without risking errors.
+[00:43:22] sindbad ambushed.tv: Because that's the other thing is like, I don't know.
+[00:43:25] sindbad ambushed.tv: I'm suspicious sometimes of systems thinking maybe they won't understand if there's an error, like they will not, do you know what mean?
+[00:43:32] sindbad ambushed.tv: Like they might input wrong or something.
+[00:43:35] Sway Clarke: No, it's, I mean, give it, let's give a concrete example.
+[00:43:37] Sway Clarke: Let's say when a person is put on a job, those individuals are put into, like they're in the booking system, they're also now in the invoicing system, they're also now in the project directory.
+[00:43:53] Sway Clarke: All of that is automated, for example, and if somebody is pulled off a job and you're like, ah, they quit, they're not in there anymore.
+[00:43:59] Sway Clarke: more.
+[00:44:00] Sway Clarke: You pulled them out, that person's name is pulled out of somewhere, for example.
+[00:44:04] Sway Clarke: Those kind of things can happen and be automated so that the checking is like when Alice goes in and she says, okay, this product directories here, it's more about looking at the project directory and being like, is everything filled in and does it make sense?
+[00:44:19] Sway Clarke: Rather than, okay, the project name is there.
+[00:44:22] Sway Clarke: Now I've got to go back and find who worked on the job.
+[00:44:25] Sway Clarke: Then she's got to go back to the other dashboard and then look at what are the names.
+[00:44:29] Sway Clarke: Okay, now it's Richard.
+[00:44:31] Sway Clarke: And then go back to the other one, typing in Richard.
+[00:44:33] Sway Clarke: This is the part where it takes another 15, 20 minutes.
+[00:44:36] Sway Clarke: It's a waste of time, right?
+[00:44:38] Sway Clarke: So what she should be able to do is just look in and be like, is the system performing well?
+[00:44:43] Sway Clarke: Does the system have errors?
+[00:44:46] Sway Clarke: And then you work on, ah, there is an error here, or there's a flag here, or there's something that looks suspicious, but you're not having to put in the information then to also do the follow up of whether things are erroneous or not, right?
+[00:44:59] Sway Clarke: So that's...
+[00:45:00] Sway Clarke: That's kind of the part you want to get to zero.
+[00:45:01] Sway Clarke: And so I understand it, I think we can wrap this up in 15 minutes, but as I understand it, after this whole process, then Sindbad, you come in and you do an overlook of this to see.
+[00:45:16] sindbad ambushed.tv: Yes, basically what I do is, you know, I look at invoices, I, you know, check that what's on the dashboard corresponds to the invoice.
+[00:45:28] sindbad ambushed.tv: I, yeah, if I see something that seems a bit strange, then I will, you know, ask, you know, how come like this person's charged so much, seems like a lot or whatever, you know, but then if everything is, seems correct, you know, you know, we'll look at the margins, everything seems to be matching, then I, and I manually, so, you know, as I was saying, Sway, I think I told you before, but every week, I try, so initially, I was, I think I was playing every couple of weeks, or once that, and
+[00:46:00] sindbad ambushed.tv: And I realized because of the cash flow, when we pay every week, actually, there's less risk of having a cash flow situation because clients, you know, so really it is.
+[00:46:11] sindbad ambushed.tv: Yeah.
+[00:46:12] sindbad ambushed.tv: So every week, sometimes someone will have invoiced like seven invoices because they do it once a month and it will happen to be in that week.
+[00:46:20] sindbad ambushed.tv: And then I'll have to check, you know, and then I'll pay one big payment.
+[00:46:23] sindbad ambushed.tv: Sometimes people will pay every.
+[00:46:25] sindbad ambushed.tv: So, but I was telling you, I think usually it's between, you know, there's several invoices per person or sometimes just one, but there's probably at least 20 people, 22, yeah, 15 to 25 people to pay every single week.
+[00:46:40] sindbad ambushed.tv: So, yeah, but I'll make sure basically everything seems to be matching.
+[00:46:43] sindbad ambushed.tv: And sometimes I raise the problem.
+[00:46:45] sindbad ambushed.tv: I contact, you know, sir, or, you know, Alice or Leonor or Madalena can help me like figure out something that didn't seem quite right.
+[00:46:53] sindbad ambushed.tv: So, yeah, that's that.
+[00:46:56] sindbad ambushed.tv: But I think there, so within the system, I mean, it's, it's, it is.
+[00:47:00] Sway Clarke: rather complex in a way, and I would definitely need to have another call with you guys to find it, like, just to get into details, like, if you want to get into a detail, like, for example, we want to make sure that the margins are at this point or not at this point, right?
+[00:47:17] Sway Clarke: And if the margins are at this point, something gets flagged, and if the margins are above, then, you know, things like this are what I would call the details of the system.
+[00:47:26] Sway Clarke: I think I have a general idea of it.
+[00:47:28] Sway Clarke: think I have a general sense of how it kind of works.
+[00:47:31] Sway Clarke: What I would still, the questions I still have for you, and I think we can get this done in 10 minutes, is, like, what parts of this system are the most time-consuming?
+[00:47:45] Sway Clarke: And I say time-consuming, annoying, and, you know, just what would you like to automate, right, as the three of you that are using this system regularly?
+[00:47:56] Sway Clarke: I would just love to look very quickly, because there's a lot of parts to it that you've mentioned.
+[00:48:02] Sway Clarke: But if you were to all name one or two parts of it, you're like, this is the absolute word.
+[00:48:07] Sway Clarke: And they can be the same.
+[00:48:08] Sway Clarke: I just want to know because the goal of us is to find out and agree upon these are the parts that are the real, real, real, real problem.
+[00:48:17] Sway Clarke: And let's focus on fixing those parts.
+[00:48:20] Sway Clarke: Right.
+[00:48:20] Sway Clarke: And I wouldn't I wouldn't want to do any fixing until we've all come to the conclusion of like this actually makes sense and this saves the most time because at the end of the day, anything that needs to be fixed is about value.
+[00:48:32] Sway Clarke: If it doesn't have any value to you and it gets fixed and at the end of the day, you're like, well, I still got this problem over here, then we haven't fixed anything realistic.
+[00:48:39] Sway Clarke: Right.
+[00:48:40] Sway Clarke: So we want to look at it in terms of most priority to least priority and then of all the parts.
+[00:48:47] Sway Clarke: Does that make sense?
+[00:48:48] Sway Clarke: Yes, I have.
+[00:48:49] Madalena Ribeiro da Fonseca: I have a couple.
+[00:48:51] Madalena Ribeiro da Fonseca: So one thing that's annoying.
+[00:48:54] sindbad ambushed.tv: I'm really sorry, but I will need to leave in six minutes.
+[00:48:57] sindbad ambushed.tv: So we could try to do it as quick as possible.
+[00:48:59] sindbad ambushed.tv: next time.
+[00:49:00] Sway Clarke: So then we can all talk about it.
+[00:49:03] Madalena Ribeiro da Fonseca: There's a couple of things, but for example, I have data transferring from one place to the other.
+[00:49:08] Madalena Ribeiro da Fonseca: So that we have to do less things, all of these details here from the dashboard we use daily get transferred to this very long total dashboard situation so that this can then transfer to the project directory.
+[00:49:24] Madalena Ribeiro da Fonseca: Now, one issue here is if I find that, for example, there's a directory, work with Dan Thomas French, sometimes it says Dan French, sometimes it says Dan Thomas.
+[00:49:34] Madalena Ribeiro da Fonseca: If I decide to change it here, I ruin the entire sheet.
+[00:49:38] Madalena Ribeiro da Fonseca: I wish that there was some way that like once the project comes in and I fill it in in the calendar, the calendar fills to the dashboard that fills to the project directory and all of them are interchangeably editable.
+[00:49:51] Madalena Ribeiro da Fonseca: And so like if I, if I, if if I changed the project name here, cause it was, it was for Apple, but then they gave us a code name.
+[00:49:57] Madalena Ribeiro da Fonseca: So now we have to use the code name.
+[00:49:58] Madalena Ribeiro da Fonseca: I have to
+[00:50:00] Madalena Ribeiro da Fonseca: If to the dashboard here, or if I go to the project directory, and I want to do the same, I have to go to the dashboard, and then the dashboard won't match the calendar.
+[00:50:11] Madalena Ribeiro da Fonseca: So I think that would be one good, great thing that would have us do less work.
+[00:50:16] Madalena Ribeiro da Fonseca: And then another one, I believe, would be, I'm sure Elise will have a better idea about the timesheets, but for me, for the rates on the actual dashboard itself, I would love to have some sort of like, either have the rates sort of suggested here, so like I can add, I can be like, this plus this plus this, and then it totals itself here.
+[00:50:42] Madalena Ribeiro da Fonseca: Or once everyone's hours are in, it would like suggest an amount here that brings the margin up to 50.
+[00:50:50] Madalena Ribeiro da Fonseca: But that amount wouldn't just be like the 50%, it would be like, how to use our rates to get to the 50%.
+[00:50:57] Madalena Ribeiro da Fonseca: So it would, it would tell me like,
+[00:51:00] Madalena Ribeiro da Fonseca: In order to meet 50 or above for this specific project, you would need to charge them, you know, five days plus six hours of overtime or that kind of stuff.
+[00:51:12] Madalena Ribeiro da Fonseca: But then it would also probably have to take into account weekends and stuff.
+[00:51:16] Madalena Ribeiro da Fonseca: Yeah, because we charge a weekend fee.
+[00:51:18] sindbad ambushed.tv: Is that what you mean Madalena?
+[00:51:20] sindbad ambushed.tv: Because we, yeah, clients pay a little bit extra when people work on weekends and we pay freelancers a bit extra on the weekend.
+[00:51:26] Sway Clarke: It sounds like you're talking about like general calculations between all of these, these, these, these, these numbers you've got, right?
+[00:51:34] Sway Clarke: All of these things and numbers and the sheets, because it's not automatically calculating.
+[00:51:39] Sway Clarke: And then it's not, and it could give you like your shortfall.
+[00:51:41] Sway Clarke: Hey, if you raise this by 10%, then you would hit your target, for example.
+[00:51:45] Sway Clarke: Well, no, no, that's the problem.
+[00:51:47] Madalena Ribeiro da Fonseca: It can't like, we can't just make up prices.
+[00:51:48] Madalena Ribeiro da Fonseca: So like if for some reason, um, let's say we do a three day project and we end up needed, needed, needing to charge them like a few extra hours.
+[00:51:57] Madalena Ribeiro da Fonseca: The dashboard needs to tell me.
+[00:52:01] Madalena Ribeiro da Fonseca: If them a few extra hours or charge them an extra half day of just research because it was just the research that was long, it can't just grab a random price and be like, oh, this $125 that we charge for the weekend fee covers it, so it can't tell me to, like, just charge three days and a weekend fee if it didn't happen on a weekend.
+[00:52:17] Sway Clarke: Okay, no, but it's, I mean, it's a very detailed situation of, like, how you would create this calculation, but essentially you're talking about the calculating.
+[00:52:26] Sway Clarke: Just general, like, things moving around needs to be calculated.
+[00:52:30] Sway Clarke: You would love to have more calculation in this database in itself.
+[00:52:34] Madalena Ribeiro da Fonseca: I would, but I think I should also defer to Elise, because, I mean, Elise and I are not bad with numbers, so it's not terribly difficult.
+[00:52:42] Madalena Ribeiro da Fonseca: Yeah.
+[00:52:43] Madalena Ribeiro da Fonseca: But it would be one of those things that, like, if it were there for me, ah, great.
+[00:52:47] Alice Carreto: I would love for, for example, the names that I have to put in the dashboard, I would love for them to come directly from the calendar.
+[00:52:57] Alice Carreto: Mm-hmm.
+[00:52:58] Alice Carreto: if the calendar, I.
+[00:53:00] sindbad ambushed.tv: I've got the team, it's confirmed, it's starting.
+[00:53:03] Alice Carreto: If this information here could be put automatically on the dashboard without me having to input it, in the same way that then from the dashboard it would go to the project directory, then I wouldn't have to input these names.
+[00:53:19] Alice Carreto: And if the names change on the calendar, then they change automatically also because sometimes I'll put in a project, like I'll then manually put in...
+[00:53:30] Alice Carreto: the team in the dashboard, but then the project's over and, you know, more people were added or somebody had to leave early and we had to add someone else.
+[00:53:39] Alice Carreto: So I need to go back to the calendar to just double check and double checking, double checking is fine.
+[00:53:46] Alice Carreto: So I'm happy to like, once something's input, just do a quick peek, be like, bing, bing, bing, bing, everything's fine.
+[00:53:52] Alice Carreto: But when there's a lot of changing and then adding, things can be lost in the process.
+[00:53:58] Sway Clarke: To be great, things can be
+[00:54:00] Alice Carreto: Small things like names, team names, and quickness.
+[00:54:04] sindbad ambushed.tv: One thing about this, sorry, correct me if I'm wrong, but this is the place actually where you communicate with the art director.
+[00:54:10] sindbad ambushed.tv: So for example, normally, if we bring in an extra pair of hands, the art director is supposed to add it there, right?
+[00:54:18] sindbad ambushed.tv: Am I correct?
+[00:54:19] sindbad ambushed.tv: Yeah, yeah, yeah.
+[00:54:20] sindbad ambushed.tv: And so that would also automatically, so let's say, for example, we have like this really good vision researcher that just helps us like when it's something really, really tricky, we add his name, Dayo, and then automatically would add also to the column and, yeah.
+[00:54:33] Alice Carreto: There's also been times, and I guess this is so, but there has been times when like James on the weekend or something asked Dayo to come, and then he didn't put him in the calendar.
+[00:54:43] Alice Carreto: So we got to the end, we invoiced for the project, and then only when you received the invoice from Dayo for two hours, and I'm like, where's Dayo?
+[00:54:53] Alice Carreto: I'm like, oh, he wasn't on the calendar, he wasn't anywhere.
+[00:54:55] Alice Carreto: Then I go check on the Discord, and on the Discord, I see that he was online.
+[00:55:00] Alice Carreto: And for two hours, I'm halfway through the project, and I'm like, but that's not so bad, because it doesn't happen very often.
+[00:55:08] Alice Carreto: Okay.
+[00:55:09] sindbad ambushed.tv: I'm sorry, because I must go because I've got a meeting, but thank you so much, Sway.
+[00:55:15] sindbad ambushed.tv: Can I let you finish?
+[00:55:16] sindbad ambushed.tv: Yeah, yeah, yeah.
+[00:55:17] sindbad ambushed.tv: We can finish.
+[00:55:18] sindbad ambushed.tv: And we'll talk later.
+[00:55:21] sindbad ambushed.tv: All right.
+[00:55:21] sindbad ambushed.tv: Thank you so much.
+[00:55:22] sindbad ambushed.tv: Bye-bye.
+[00:55:24] Alice Carreto: So in the same way, if some way timesheets could communicate with the dashboard, so I just have to green light.
+[00:55:33] Alice Carreto: So I have to be like, okay, let me double check that these hours are correct instead of having to manually put them.
+[00:55:41] Alice Carreto: Although I understand that that's also like a big part of the way that we work, so I don't mind opening timesheets.
+[00:55:49] Alice Carreto: But if it could be better, that would be great.
+[00:55:51] Alice Carreto: And then, last but not least, the project directory, because it is sort of at the bottom of
+[00:56:00] Alice Carreto: My priorities, but I always want to get to it.
+[00:56:03] Alice Carreto: And I feel like I never can.
+[00:56:05] Alice Carreto: Like there's not enough hours in my week in terms of how it justifies my picks.
+[00:56:11] Alice Carreto: I'm supposed to work Monday, Friday, and then Wednesday is supposed to be my admin day.
+[00:56:16] Alice Carreto: I managed to do admin during my booking days to in between the gaps of like, like, oh, I had all these emails to reply, but now it's sort of lunchtime.
+[00:56:28] Alice Carreto: And I finished my lunch and I can fit in like two hours of admin here before LA wakes up and I have to like deal with their emails.
+[00:56:36] Alice Carreto: But if I was actually just doing admin on Wednesdays, like there wouldn't be enough time to do all the dashboard plus all the emails, plus invoicing, plus chasing overdo's and then get to the project directory.
+[00:56:51] Alice Carreto: Yeah.
+[00:56:52] Alice Carreto: And so it's sort of always really frustrating for me because I want to get to the project directory, but there's always things ahead of it.
+[00:57:00] Alice Carreto: There's always new projects that are being booked and that I need to then go back to the dashboard and blah, blah, blah.
+[00:57:05] Alice Carreto: So yeah, that's it.
+[00:57:06] Alice Carreto: If certain elements of the dashboard could be streamlined, and then if the project directory could also be automated, that would be fantastic in giving me more time to focus on other things and also being more efficient at having this all done.
+[00:57:26] Alice Carreto: Makes sense.
+[00:57:28] Sway Clarke: I want to, I know that we're going over two hours, which is okay with me.
+[00:57:32] Sway Clarke: I want to just allow Leonor to really be able to talk within two minutes.
+[00:57:37] Sway Clarke: So I sent another link.
+[00:57:40] Sway Clarke: Let's just jump into that link and then let's max this out like, I don't know, 10 minutes and then we can get back to lunch or something.
+[00:57:48] Sway Clarke: Okay.

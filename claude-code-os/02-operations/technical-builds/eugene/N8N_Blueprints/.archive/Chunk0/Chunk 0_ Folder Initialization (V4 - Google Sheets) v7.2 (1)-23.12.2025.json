@@ -1,0 +1,519 @@
+{
+  "name": "Chunk 0: Folder Initialization (V4 - Google Sheets) v7.2",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger - Run Once",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        112,
+        304
+      ],
+      "id": "node-manual-trigger",
+      "notes": "V4: Run this workflow ONCE to create all 37 folders and set n8n variables automatically. Safe to re-run - checks if folders exist before creating."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Define all folders as array for loop processing\n\nconst rootFolderName = 'AMA_Documents';\n\nconst folderConfig = {\n  root: rootFolderName,\n  staging: '_Staging',\n  parents: [\n    { name: 'OBJEKTUNTERLAGEN', varPrefix: 'OBJEKT' },\n    { name: 'WIRTSCHAFTLICHE_UNTERLAGEN', varPrefix: 'WIRT' },\n    { name: 'RECHTLICHE_UNTERLAGEN', varPrefix: 'RECHT' },\n    { name: 'SONSTIGES', varPrefix: 'SONST' }\n  ],\n  subfolders: [\n    // OBJEKTUNTERLAGEN\n    { parent: 'OBJEKTUNTERLAGEN', name: '01_Projektbeschreibung', varName: 'FOLDER_01_PROJEKTBESCHREIBUNG' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '02_Kaufvertrag', varName: 'FOLDER_02_KAUFVERTRAG' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '03_Grundbuchauszug', varName: 'FOLDER_03_GRUNDBUCHAUSZUG' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '04_Eintragungsbewilligungen', varName: 'FOLDER_04_EINTRAGUNGSBEWILLIGUNGEN' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '05_Bodenrichtwert', varName: 'FOLDER_05_BODENRICHTWERT' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '06_Baulastenverzeichnis', varName: 'FOLDER_06_BAULASTENVERZEICHNIS' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '07_Altlastenkataster', varName: 'FOLDER_07_ALTLASTENKATASTER' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '08_Baugrundgutachten', varName: 'FOLDER_08_BAUGRUNDGUTACHTEN' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '09_Lageplan', varName: 'FOLDER_09_LAGEPLAN' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '10_Bautraegerkalkulation_DIN276', varName: 'FOLDER_10_BAUTRAEGERKALKULATION' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '15_Flaechenberechnung_DIN277', varName: 'FOLDER_15_FLAECHENBERECHNUNG' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '16_GU_Werkvertraege', varName: 'FOLDER_16_GU_WERKVERTRAEGE' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '17_Bauzeichnungen', varName: 'FOLDER_17_BAUZEICHNUNGEN' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '18_Baugenehmigung', varName: 'FOLDER_18_BAUGENEHMIGUNG' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '22_Gutachterauftrag', varName: 'FOLDER_22_GUTACHTERAUFTRAG' },\n    // WIRTSCHAFTLICHE_UNTERLAGEN\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '11_Verkaufspreise', varName: 'FOLDER_11_VERKAUFSPREISE' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '12_Bauzeitenplan_Liquiditaet', varName: 'FOLDER_12_BAUZEITENPLAN' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '13_Vertriebsweg', varName: 'FOLDER_13_VERTRIEBSWEG' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '14_Bau_Ausstattungsbeschreibung', varName: 'FOLDER_14_AUSSTATTUNG' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '19_Teilungserklaerung', varName: 'FOLDER_19_TEILUNGSERKLAERUNG' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '20_Versicherungen', varName: 'FOLDER_20_VERSICHERUNGEN' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '21_Muster_Verkaufsvertrag', varName: 'FOLDER_21_MUSTER_VERKAUFSVERTRAG' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '23_Umsatzsteuervoranmeldung', varName: 'FOLDER_23_USTVA' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '24_BWA', varName: 'FOLDER_24_BWA' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '25_Jahresabschluss', varName: 'FOLDER_25_JAHRESABSCHLUSS' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '26_Finanzierungsbestaetigung', varName: 'FOLDER_26_FINANZIERUNGSBESTAETIGUNG' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '27_Darlehensvertrag', varName: 'FOLDER_27_DARLEHENSVERTRAG' },\n    // RECHTLICHE_UNTERLAGEN\n    { parent: 'RECHTLICHE_UNTERLAGEN', name: '28_Gesellschaftsvertrag', varName: 'FOLDER_28_GESELLSCHAFTSVERTRAG' },\n    { parent: 'RECHTLICHE_UNTERLAGEN', name: '29_Handelsregisterauszug', varName: 'FOLDER_29_HANDELSREGISTERAUSZUG' },\n    { parent: 'RECHTLICHE_UNTERLAGEN', name: '30_Gewerbeanmeldung', varName: 'FOLDER_30_GEWERBEANMELDUNG' },\n    { parent: 'RECHTLICHE_UNTERLAGEN', name: '31_Steuer_ID', varName: 'FOLDER_31_STEUER_ID' },\n    { parent: 'RECHTLICHE_UNTERLAGEN', name: '32_Freistellungsbescheinigung', varName: 'FOLDER_32_FREISTELLUNGSBESCHEINIGUNG' },\n    { parent: 'RECHTLICHE_UNTERLAGEN', name: '33_Vollmachten', varName: 'FOLDER_33_VOLLMACHTEN' },\n    // SONSTIGES\n    { parent: 'SONSTIGES', name: '34_Korrespondenz', varName: 'FOLDER_34_KORRESPONDENZ' },\n    { parent: 'SONSTIGES', name: '35_Sonstiges_Allgemein', varName: 'FOLDER_35_SONSTIGES_ALLGEMEIN' },\n    { parent: 'SONSTIGES', name: '36_Exit_Strategie', varName: 'FOLDER_36_EXIT_STRATEGIE' },\n    { parent: 'SONSTIGES', name: '37_Others', varName: 'FOLDER_37_OTHERS' },\n    { parent: 'SONSTIGES', name: '38_Unknowns', varName: 'FOLDER_38_UNKNOWNS' },\n    // V4: _Archive subfolders for document versioning\n    { parent: 'OBJEKTUNTERLAGEN', name: '01_Projektbeschreibung/_Archive', varName: 'FOLDER_01_ARCHIVE' },\n    { parent: 'OBJEKTUNTERLAGEN', name: '03_Grundbuchauszug/_Archive', varName: 'FOLDER_03_ARCHIVE' },\n    { parent: 'WIRTSCHAFTLICHE_UNTERLAGEN', name: '10_Bautraegerkalkulation_DIN276/_Archive', varName: 'FOLDER_10_ARCHIVE' },\n    { parent: 'SONSTIGES', name: '36_Exit_Strategie/_Archive', varName: 'FOLDER_36_ARCHIVE' }\n  ]\n};\n\n// Store for collecting folder IDs\nconst createdFolders = {\n  root: null,\n  staging: null,\n  parents: {},\n  subfolders: {}\n};\n\nreturn [{ json: { folderConfig, createdFolders } }];"
+      },
+      "name": "Define Folder Structure",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        304
+      ],
+      "id": "node-define-structure",
+      "notes": "V4: Defines all folders as arrays for loop processing. 41 subfolders (37 main + 4 archive) + 4 parents + staging + root = 47 total."
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "AMA_Documents",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1ikw3k-EgpVg_h2ySDdqdUFB7-FQyYDFm",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "name": "Create Root Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        560,
+        304
+      ],
+      "id": "node-create-root",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7vK12cTuYm7XlNAy",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "notes": "Creates 'Eugene_Documents' root folder in My Drive."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Prepare parent folders for batch creation\nconst folderConfig = $('Define Folder Structure').item.json.folderConfig;\nconst rootFolderId = $input.first().json.id;\n\nconst parentItems = folderConfig.parents.map(p => ({\n  parentName: p.name,\n  parentFolderId: rootFolderId,\n  varPrefix: p.varPrefix\n}));\n\n// Add staging folder\nparentItems.push({\n  parentName: folderConfig.staging,\n  parentFolderId: rootFolderId,\n  varPrefix: 'STAGING'\n});\n\nreturn parentItems.map(item => ({ json: item }));"
+      },
+      "name": "Prepare Parent Folders",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        304
+      ],
+      "id": "node-prepare-parents",
+      "notes": "Prepares 5 parent folders (4 categories + staging) for loop creation."
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Loop Parents",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1008,
+        304
+      ],
+      "id": "node-loop-parents",
+      "notes": "Loops through parent folders one at a time."
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $('Prepare Parent Folders').item.json.parentName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Prepare Parent Folders').item.json.parentFolderId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "name": "Create Parent Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1232,
+        208
+      ],
+      "id": "node-create-parent",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7vK12cTuYm7XlNAy",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "notes": "Creates each parent folder in root."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Collect parent folder IDs and prepare subfolders\nconst folderConfig = $('Define Folder Structure').item.json.folderConfig;\nconst rootFolderId = $('Create Root Folder').first().json.id;\n\n// Get parent folder IDs from Create Parent Folder node\nconst parentItems = $('Create Parent Folder').all();\nconst parentIds = {};\nparentItems.forEach(item => {\n  parentIds[item.json.name] = item.json.id;\n});\n\n// Prepare subfolder items with their parent IDs\nconst subfolderItems = folderConfig.subfolders.map(sf => ({\n  subfolderName: sf.name,\n  parentFolderId: parentIds[sf.parent],\n  parentName: sf.parent,\n  varName: sf.varName\n}));\n\nreturn subfolderItems.map(item => ({ json: item }));"
+      },
+      "name": "Prepare Subfolders",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1232,
+        400
+      ],
+      "id": "node-prepare-subfolders",
+      "notes": "Collects parent IDs and prepares 37 subfolders for creation."
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Loop Subfolders",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1456,
+        400
+      ],
+      "id": "node-loop-subfolders",
+      "notes": "Loops through 37 subfolders one at a time."
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $('Prepare Subfolders').item.json.subfolderName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Prepare Subfolders').item.json.parentFolderId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "name": "Create Subfolder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1680,
+        256
+      ],
+      "id": "node-create-subfolder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7vK12cTuYm7XlNAy",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "notes": "Creates each subfolder in its parent folder."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Collect all folder IDs from Google Drive - ONLY use $input data\n// Get all folders from Google Drive (input from List All Folders)\nconst allFolders = $input.all();\n\n// Create a map of folder name to folder ID\nconst folderMap = {};\nallFolders.forEach(item => {\n  folderMap[item.json.name] = item.json.id;\n});\n\nconst variables = [];\n\n// Root folder - hardcoded name\nif (folderMap['AMA_Documents']) {\n  variables.push({ \n    Variable_Name: 'FOLDER_ROOT', \n    Folder_ID: folderMap['AMA_Documents'], \n    Updated: new Date().toISOString() \n  });\n}\n\n// Parent folders (4 categories + staging) - hardcoded\nconst parentFolders = [\n  { name: 'OBJEKTUNTERLAGEN', varName: 'FOLDER_OBJEKTUNTERLAGEN' },\n  { name: 'WIRTSCHAFTLICHE_UNTERLAGEN', varName: 'FOLDER_WIRTSCHAFTLICHE_UNTERLAGEN' },\n  { name: 'RECHTLICHE_UNTERLAGEN', varName: 'FOLDER_RECHTLICHE_UNTERLAGEN' },\n  { name: 'SONSTIGES', varName: 'FOLDER_SONSTIGES' },\n  { name: '_Staging', varName: 'FOLDER_STAGING' }\n];\n\nparentFolders.forEach(p => {\n  if (folderMap[p.name]) {\n    variables.push({ \n      Variable_Name: p.varName, \n      Folder_ID: folderMap[p.name], \n      Updated: new Date().toISOString() \n    });\n  }\n});\n\n// Subfolders - hardcoded complete list\nconst subfolders = [\n  // OBJEKTUNTERLAGEN\n  { name: '01_Projektbeschreibung', varName: 'FOLDER_01_PROJEKTBESCHREIBUNG' },\n  { name: '02_Kaufvertrag', varName: 'FOLDER_02_KAUFVERTRAG' },\n  { name: '03_Grundbuchauszug', varName: 'FOLDER_03_GRUNDBUCHAUSZUG' },\n  { name: '04_Eintragungsbewilligungen', varName: 'FOLDER_04_EINTRAGUNGSBEWILLIGUNGEN' },\n  { name: '05_Bodenrichtwert', varName: 'FOLDER_05_BODENRICHTWERT' },\n  { name: '06_Baulastenverzeichnis', varName: 'FOLDER_06_BAULASTENVERZEICHNIS' },\n  { name: '07_Altlastenkataster', varName: 'FOLDER_07_ALTLASTENKATASTER' },\n  { name: '08_Baugrundgutachten', varName: 'FOLDER_08_BAUGRUNDGUTACHTEN' },\n  { name: '09_Lageplan', varName: 'FOLDER_09_LAGEPLAN' },\n  { name: '10_Bautraegerkalkulation_DIN276', varName: 'FOLDER_10_BAUTRAEGERKALKULATION' },\n  { name: '15_Flaechenberechnung_DIN277', varName: 'FOLDER_15_FLAECHENBERECHNUNG' },\n  { name: '16_GU_Werkvertraege', varName: 'FOLDER_16_GU_WERKVERTRAEGE' },\n  { name: '17_Bauzeichnungen', varName: 'FOLDER_17_BAUZEICHNUNGEN' },\n  { name: '18_Baugenehmigung', varName: 'FOLDER_18_BAUGENEHMIGUNG' },\n  { name: '22_Gutachterauftrag', varName: 'FOLDER_22_GUTACHTERAUFTRAG' },\n  // WIRTSCHAFTLICHE_UNTERLAGEN\n  { name: '11_Verkaufspreise', varName: 'FOLDER_11_VERKAUFSPREISE' },\n  { name: '12_Bauzeitenplan_Liquiditaet', varName: 'FOLDER_12_BAUZEITENPLAN' },\n  { name: '13_Vertriebsweg', varName: 'FOLDER_13_VERTRIEBSWEG' },\n  { name: '14_Bau_Ausstattungsbeschreibung', varName: 'FOLDER_14_AUSSTATTUNG' },\n  { name: '19_Teilungserklaerung', varName: 'FOLDER_19_TEILUNGSERKLAERUNG' },\n  { name: '20_Versicherungen', varName: 'FOLDER_20_VERSICHERUNGEN' },\n  { name: '21_Muster_Verkaufsvertrag', varName: 'FOLDER_21_MUSTER_VERKAUFSVERTRAG' },\n  { name: '23_Umsatzsteuervoranmeldung', varName: 'FOLDER_23_USTVA' },\n  { name: '24_BWA', varName: 'FOLDER_24_BWA' },\n  { name: '25_Jahresabschluss', varName: 'FOLDER_25_JAHRESABSCHLUSS' },\n  { name: '26_Finanzierungsbestaetigung', varName: 'FOLDER_26_FINANZIERUNGSBESTAETIGUNG' },\n  { name: '27_Darlehensvertrag', varName: 'FOLDER_27_DARLEHENSVERTRAG' },\n  // RECHTLICHE_UNTERLAGEN\n  { name: '28_Gesellschaftsvertrag', varName: 'FOLDER_28_GESELLSCHAFTSVERTRAG' },\n  { name: '29_Handelsregisterauszug', varName: 'FOLDER_29_HANDELSREGISTERAUSZUG' },\n  { name: '30_Gewerbeanmeldung', varName: 'FOLDER_30_GEWERBEANMELDUNG' },\n  { name: '31_Steuer_ID', varName: 'FOLDER_31_STEUER_ID' },\n  { name: '32_Freistellungsbescheinigung', varName: 'FOLDER_32_FREISTELLUNGSBESCHEINIGUNG' },\n  { name: '33_Vollmachten', varName: 'FOLDER_33_VOLLMACHTEN' },\n  // SONSTIGES\n  { name: '34_Korrespondenz', varName: 'FOLDER_34_KORRESPONDENZ' },\n  { name: '35_Sonstiges_Allgemein', varName: 'FOLDER_35_SONSTIGES_ALLGEMEIN' },\n  { name: '36_Exit_Strategie', varName: 'FOLDER_36_EXIT_STRATEGIE' },\n  { name: '37_Others', varName: 'FOLDER_37_OTHERS' },\n  { name: '38_Unknowns', varName: 'FOLDER_38_UNKNOWNS' },\n  // Archive subfolders\n  { name: '01_Projektbeschreibung/_Archive', varName: 'FOLDER_01_ARCHIVE' },\n  { name: '03_Grundbuchauszug/_Archive', varName: 'FOLDER_03_ARCHIVE' },\n  { name: '10_Bautraegerkalkulation_DIN276/_Archive', varName: 'FOLDER_10_ARCHIVE' },\n  { name: '36_Exit_Strategie/_Archive', varName: 'FOLDER_36_ARCHIVE' }\n];\n\nsubfolders.forEach(sf => {\n  if (folderMap[sf.name]) {\n    variables.push({ \n      Variable_Name: sf.varName, \n      Folder_ID: folderMap[sf.name], \n      Updated: new Date().toISOString() \n    });\n  }\n});\n\nreturn variables.map(v => ({ json: v }));"
+      },
+      "name": "Collect Folder IDs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1904,
+        448
+      ],
+      "id": "node-collect-ids",
+      "notes": "V4: Collects all folder IDs and prepares variables for n8n API."
+    },
+    {
+      "parameters": {
+        "sendTo": "sway@oloxa.ai",
+        "subject": "Document Organizer V4 - Folder Setup Complete",
+        "message": "=  Document Organizer V4 - Folder Initialization Complete\n==========================================\n\nThe folder structure has been created successfully in Google Drive.\n\n✓ Root folder: AMA_Documents\n✓ Parent folders: 5 (4 categories + staging)\n✓ Subfolders: 41 (37 main + 4 archive folders)\n✓ Total folders created: 47\n\nAll folder IDs have been saved to Google Sheet: AMA_Folder_IDs\n\nNext Steps:\n1. Verify folders in Google Drive\n2. Check the AMA_Folder_IDs spreadsheet\n3. Import the main workflow (Chunks 1-5)\n4. Test with sample documents\n\n--\nDocument Organizer V4\nCompleted: {{ $now.toISO() }}",
+        "options": {}
+      },
+      "name": "Send Confirmation Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2576,
+        448
+      ],
+      "id": "node-send-email",
+      "webhookId": "1b7baad0-983e-40cd-99ae-a43f34d500f7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "o11Tv2e4SgGDcVpo",
+          "name": "Gmail account 2"
+        }
+      },
+      "notes": "Sends confirmation email with setup summary."
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1-CPnCr3locAORVX5tUEoh6r0i-x3tQ_ROTN0VXatOAU",
+          "mode": "list",
+          "cachedResultName": "AMA - Folder ID Spreadsheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-CPnCr3locAORVX5tUEoh6r0i-x3tQ_ROTN0VXatOAU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "AMA_Folder_IDs",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Variable Name": "={{ $json.Variable_Name }}",
+            "Folder ID ": "={{ $json.Folder_ID }}",
+            "Updated": "={{ $json.Updated }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Variable Name",
+              "displayName": "Variable Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Folder ID ",
+              "displayName": "Folder ID ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Updated",
+              "displayName": "Updated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "name": "Write Folder IDs to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2128,
+        448
+      ],
+      "id": "node-write-sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3AIbwgVoWqlgyVKF",
+          "name": "Google Sheets account"
+        }
+      },
+      "notes": "Appends folder IDs to Google Sheet"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{ $json.name }}",
+        "returnAll": true,
+        "filter": {},
+        "options": {}
+      },
+      "id": "24925610-582b-4a83-aa43-ca144296d12b",
+      "name": "List All Folders from Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1680,
+        448
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7vK12cTuYm7XlNAy",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2352,
+        448
+      ],
+      "id": "5a54a854-1196-4166-b536-7748dfb2c4d2",
+      "name": "Aggregate"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger - Run Once": {
+      "main": [
+        [
+          {
+            "node": "Define Folder Structure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define Folder Structure": {
+      "main": [
+        [
+          {
+            "node": "Create Root Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Root Folder": {
+      "main": [
+        [
+          {
+            "node": "Prepare Parent Folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Parent Folders": {
+      "main": [
+        [
+          {
+            "node": "Loop Parents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Parents": {
+      "main": [
+        [
+          {
+            "node": "Prepare Subfolders",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Parent Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Parent Folder": {
+      "main": [
+        [
+          {
+            "node": "Loop Parents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Subfolders": {
+      "main": [
+        [
+          {
+            "node": "Loop Subfolders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Subfolders": {
+      "main": [
+        [
+          {
+            "node": "List All Folders from Drive",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Subfolder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Subfolder": {
+      "main": [
+        [
+          {
+            "node": "Loop Subfolders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Folder IDs to Sheet": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect Folder IDs": {
+      "main": [
+        [
+          {
+            "node": "Write Folder IDs to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List All Folders from Drive": {
+      "main": [
+        [
+          {
+            "node": "Collect Folder IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "7973bdc6-8fc4-4bc9-a46b-ee50fcb7b75e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e2b405e5464bb13e979b361068935fe61683c06e02bf91c2e07b852111743546"
+  },
+  "id": "AnQXPsbzeB9ejzWI",
+  "tags": [
+    {
+      "updatedAt": "2025-11-24T10:40:43.859Z",
+      "createdAt": "2025-11-24T10:40:43.859Z",
+      "id": "BAfcRNqPP3YWxAV3",
+      "name": "real estate"
+    }
+  ]
+}

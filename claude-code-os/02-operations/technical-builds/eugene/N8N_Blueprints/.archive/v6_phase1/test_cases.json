@@ -1,0 +1,361 @@
+{
+  "test_repository": {
+    "location": "Google Drive folder dummy_files",
+    "folder_id": "1GG_OCKvT1ivR0F-uIVq0b1jhHreWg1Kh",
+    "clients": [
+      {
+        "name": "Adolf-Martens-Straße (ADM10)",
+        "folder_id": "18i4O8VhBUczeXXW13pucX3DxpPtIMIkf",
+        "normalized_name": "adolf_martens_strasse"
+      },
+      {
+        "name": "Propos-Menrad",
+        "folder_id": "1-jO4unjKgedFqVqtofR4QEM18xC09Fsk",
+        "normalized_name": "propos_menrad"
+      }
+    ]
+  },
+  "test_cases": [
+    {
+      "test_case_id": "TC_CHUNK2_EXPOSE_ADM10",
+      "description": "Test Chunk 2 classification with clean Exposé document",
+      "client": "adolf_martens_strasse",
+      "file_id": "1SaAnbMGcyZgLkmYC4KZJyI9gN26N_l7L",
+      "file_name": "ADM10_Exposé.pdf",
+      "document_type_expected": "EXPOSE",
+      "is_scanned": false,
+      "chunk_2_expected": {
+        "documentType": "01_PROJEKTBESCHREIBUNG",
+        "confidence": ">= 0.9",
+        "extractionMethod": "digital",
+        "reasoning": "Exposé contains project description, property details, marketing information"
+      },
+      "chunk_2_5_expected": {
+        "validation_result": "complete",
+        "missing_docs": [],
+        "reasoning": "Exposé is typically standalone, no missing documents expected"
+      },
+      "chunk_3_expected": {
+        "deal_score": ">= 7.5",
+        "pass_fail": "PASS",
+        "reasoning": "Exposé indicates established project with clear marketing materials"
+      }
+    },
+    {
+      "test_case_id": "TC_CHUNK2_BAUBESCHREIBUNG_ADM10",
+      "description": "Test Chunk 2 classification with building description",
+      "client": "adolf_martens_strasse",
+      "file_id": "1gr8b69ZbRtyB1JB4xk9qlH_cNV7hzZm4",
+      "file_name": "Baubeschreibung Regelgeschoss.pdf",
+      "document_type_expected": "BAUBESCHREIBUNG",
+      "is_scanned": false,
+      "chunk_2_expected": {
+        "documentType": "14_BAU_AUSSTATTUNGSBESCHREIBUNG",
+        "confidence": ">= 0.9",
+        "extractionMethod": "digital",
+        "reasoning": "Baubeschreibung = building/equipment description document"
+      },
+      "chunk_2_5_expected": {
+        "validation_result": "incomplete",
+        "missing_docs": ["02_KAUFVERTRAG", "03_GRUNDBUCHAUSZUG"],
+        "reasoning": "Building description alone indicates project phase, but missing key legal documents"
+      },
+      "chunk_3_expected": {
+        "deal_score": ">= 6.0",
+        "pass_fail": "REVIEW",
+        "reasoning": "Has building plans but missing critical legal/financial documents"
+      }
+    },
+    {
+      "test_case_id": "TC_CHUNK2_KALKULATION_PROPOS",
+      "description": "Test Chunk 2 classification with calculation document",
+      "client": "propos_menrad",
+      "file_id": "1BRz-SaE8gSW1BqeLOh4e4tsg9iG94xvC",
+      "file_name": "251103_Kalkulation Schlossberg.pdf",
+      "document_type_expected": "KALKULATION",
+      "is_scanned": false,
+      "chunk_2_expected": {
+        "documentType": "10_BAUTRAEGERKALKULATION_DIN276",
+        "confidence": ">= 0.9",
+        "extractionMethod": "digital",
+        "reasoning": "Kalkulation = cost calculation, matches DIN276 builder calculation category"
+      },
+      "chunk_2_5_expected": {
+        "validation_result": "incomplete",
+        "missing_docs": ["02_KAUFVERTRAG", "03_GRUNDBUCHAUSZUG", "18_BAUGENEHMIGUNG"],
+        "reasoning": "Cost calculation indicates active project but missing legal foundation documents"
+      },
+      "chunk_3_expected": {
+        "deal_score": ">= 7.0",
+        "pass_fail": "REVIEW",
+        "reasoning": "Has financial planning but needs legal documents for full deal assessment"
+      }
+    },
+    {
+      "test_case_id": "TC_CHUNK2_KAUFPREISE_PROPOS",
+      "description": "Test Chunk 2 classification with purchase prices document",
+      "client": "propos_menrad",
+      "file_id": "1km2a6MU7mLI9NfeJQGvGujKkEEnI8G5B",
+      "file_name": "251103_Kaufpreise Schlossberg.pdf",
+      "document_type_expected": "VERKAUFSPREISE",
+      "is_scanned": false,
+      "chunk_2_expected": {
+        "documentType": "11_VERKAUFSPREISE",
+        "confidence": ">= 0.9",
+        "extractionMethod": "digital",
+        "reasoning": "Kaufpreise = purchase/sales prices, direct match to sales prices category"
+      },
+      "chunk_2_5_expected": {
+        "validation_result": "incomplete",
+        "missing_docs": ["02_KAUFVERTRAG", "10_BAUTRAEGERKALKULATION_DIN276"],
+        "reasoning": "Sales prices without purchase contract or cost basis needs additional documents"
+      },
+      "chunk_3_expected": {
+        "deal_score": ">= 6.5",
+        "pass_fail": "REVIEW",
+        "reasoning": "Pricing information available but missing cost structure for margin analysis"
+      }
+    },
+    {
+      "test_case_id": "TC_CHUNK2_BAUGRUND_PROPOS",
+      "description": "Test Chunk 2 classification with building ground assessment",
+      "client": "propos_menrad",
+      "file_id": "1xx0rJEk5h1vAx757rcNPZainf_kYvfyi",
+      "file_name": "Baugrund_und_Gründungsgutachten.pdf",
+      "document_type_expected": "BAUGRUNDGUTACHTEN",
+      "is_scanned": false,
+      "chunk_2_expected": {
+        "documentType": "08_BAUGRUNDGUTACHTEN",
+        "confidence": ">= 0.9",
+        "extractionMethod": "digital",
+        "reasoning": "Baugrund/Gründungsgutachten = building ground/foundation assessment, exact match"
+      },
+      "chunk_2_5_expected": {
+        "validation_result": "incomplete",
+        "missing_docs": ["02_KAUFVERTRAG", "03_GRUNDBUCHAUSZUG", "18_BAUGENEHMIGUNG"],
+        "reasoning": "Technical assessment without legal foundation documents"
+      },
+      "chunk_3_expected": {
+        "deal_score": ">= 5.5",
+        "pass_fail": "REVIEW",
+        "reasoning": "Ground assessment reduces risk but missing core deal documents"
+      }
+    },
+    {
+      "test_case_id": "TC_CHUNK2_BEBAUUNGSPLAN_PROPOS",
+      "description": "Test Chunk 2 classification with development plan (zoning)",
+      "client": "propos_menrad",
+      "file_id": "1rFEyF1FYJdCDVmt4gd41str-fEsyAyeJ",
+      "file_name": "Bebauungsplan.pdf",
+      "document_type_expected": "BEBAUUNGSPLAN",
+      "is_scanned": false,
+      "chunk_2_expected": {
+        "documentType": "09_LAGEPLAN",
+        "confidence": ">= 0.8",
+        "extractionMethod": "digital",
+        "reasoning": "Bebauungsplan (development plan) closely related to site plan/Lageplan"
+      },
+      "chunk_2_5_expected": {
+        "validation_result": "incomplete",
+        "missing_docs": ["02_KAUFVERTRAG", "18_BAUGENEHMIGUNG"],
+        "reasoning": "Zoning/site plan without purchase agreement or building permit"
+      },
+      "chunk_3_expected": {
+        "deal_score": ">= 6.0",
+        "pass_fail": "REVIEW",
+        "reasoning": "Zoning clarity is positive but missing core transactional documents"
+      }
+    },
+    {
+      "test_case_id": "TC_CHUNK2_ALTLASTEN_PROPOS",
+      "description": "Test Chunk 2 classification with contamination register",
+      "client": "propos_menrad",
+      "file_id": "1c8ttlunVUconQP5ZXsXSaF2dnFZWm6Mz",
+      "file_name": "Bodenschutz-u.Altlastenkataster.pdf",
+      "document_type_expected": "ALTLASTENKATASTER",
+      "is_scanned": false,
+      "chunk_2_expected": {
+        "documentType": "07_ALTLASTENKATASTER",
+        "confidence": ">= 0.9",
+        "extractionMethod": "digital",
+        "reasoning": "Altlastenkataster = contamination register, exact match"
+      },
+      "chunk_2_5_expected": {
+        "validation_result": "incomplete",
+        "missing_docs": ["02_KAUFVERTRAG", "03_GRUNDBUCHAUSZUG"],
+        "reasoning": "Environmental clearance without property ownership documentation"
+      },
+      "chunk_3_expected": {
+        "deal_score": ">= 5.0",
+        "pass_fail": "REVIEW",
+        "reasoning": "Contamination register is due diligence item but not sufficient alone"
+      }
+    },
+    {
+      "test_case_id": "TC_CHUNK2_BAULASTEN_PROPOS",
+      "description": "Test Chunk 2 classification with building charges/monument protection",
+      "client": "propos_menrad",
+      "file_id": "188pg_qflwJdriuTUMWvV8Rwn10e2fgao",
+      "file_name": "Baulasten und Denkmalschutz.pdf",
+      "document_type_expected": "BAULASTENVERZEICHNIS",
+      "is_scanned": false,
+      "chunk_2_expected": {
+        "documentType": "06_BAULASTENVERZEICHNIS",
+        "confidence": ">= 0.9",
+        "extractionMethod": "digital",
+        "reasoning": "Baulasten = building charges register, exact match"
+      },
+      "chunk_2_5_expected": {
+        "validation_result": "incomplete",
+        "missing_docs": ["02_KAUFVERTRAG", "03_GRUNDBUCHAUSZUG"],
+        "reasoning": "Building charges without ownership verification"
+      },
+      "chunk_3_expected": {
+        "deal_score": ">= 5.5",
+        "pass_fail": "REVIEW",
+        "reasoning": "Legal encumbrance documentation without core deal structure"
+      }
+    },
+    {
+      "test_case_id": "TC_CHUNK2_BAUVORBESCHEID_PROPOS",
+      "description": "Test Chunk 2 classification with preliminary building permit (potentially scanned)",
+      "client": "propos_menrad",
+      "file_id": "1ZeM7xdFh6M-c-ODSV0AKtqpWhH6sFooD",
+      "file_name": "20251015_Bauvorbescheid.pdf",
+      "document_type_expected": "BAUGENEHMIGUNG",
+      "is_scanned": "unknown",
+      "chunk_2_expected": {
+        "documentType": "18_BAUGENEHMIGUNG",
+        "confidence": ">= 0.8",
+        "extractionMethod": "digital_or_ocr",
+        "reasoning": "Bauvorbescheid = preliminary building permit, maps to building permit category"
+      },
+      "chunk_2_5_expected": {
+        "validation_result": "incomplete",
+        "missing_docs": ["02_KAUFVERTRAG", "03_GRUNDBUCHAUSZUG", "10_BAUTRAEGERKALKULATION_DIN276"],
+        "reasoning": "Building permit without financial structure or legal ownership"
+      },
+      "chunk_3_expected": {
+        "deal_score": ">= 7.0",
+        "pass_fail": "REVIEW",
+        "reasoning": "Building permit is significant positive but missing core deal documents"
+      }
+    },
+    {
+      "test_case_id": "TC_CHUNK2_FINANZIERUNG_PROPOS",
+      "description": "Test Chunk 2 classification with bank financing overview",
+      "client": "propos_menrad",
+      "file_id": "1Afaa_ovQg2uCe92TTjlox5lsxX1Ht6FM",
+      "file_name": "251104_Übersicht Banken Finanzierungen PROPOS-Gruppe.pdf",
+      "document_type_expected": "FINANZIERUNGSBESTAETIGUNG",
+      "is_scanned": false,
+      "chunk_2_expected": {
+        "documentType": "26_FINANZIERUNGSBESTAETIGUNG",
+        "confidence": ">= 0.85",
+        "extractionMethod": "digital",
+        "reasoning": "Bank financing overview = financing confirmation/overview document"
+      },
+      "chunk_2_5_expected": {
+        "validation_result": "incomplete",
+        "missing_docs": ["02_KAUFVERTRAG", "27_DARLEHENSVERTRAG"],
+        "reasoning": "Financing overview without actual contracts"
+      },
+      "chunk_3_expected": {
+        "deal_score": ">= 7.5",
+        "pass_fail": "PASS",
+        "reasoning": "Financing lined up indicates serious deal but needs contract documentation"
+      }
+    }
+  ],
+  "chunk_validation_rules": {
+    "chunk_2": {
+      "required_fields": ["documentType", "confidence", "extractionMethod"],
+      "confidence_threshold": 0.9,
+      "high_confidence_threshold": 0.95,
+      "valid_document_types": [
+        "01_PROJEKTBESCHREIBUNG",
+        "02_KAUFVERTRAG",
+        "03_GRUNDBUCHAUSZUG",
+        "04_EINTRAGUNGSBEWILLIGUNGEN",
+        "05_BODENRICHTWERT",
+        "06_BAULASTENVERZEICHNIS",
+        "07_ALTLASTENKATASTER",
+        "08_BAUGRUNDGUTACHTEN",
+        "09_LAGEPLAN",
+        "10_BAUTRAEGERKALKULATION_DIN276",
+        "11_VERKAUFSPREISE",
+        "12_BAUZEITENPLAN_LIQUIDITAET",
+        "13_VERTRIEBSWEG",
+        "14_BAU_AUSSTATTUNGSBESCHREIBUNG",
+        "15_FLAECHENBERECHNUNG_DIN277",
+        "16_GU_WERKVERTRAEGE",
+        "17_BAUZEICHNUNGEN",
+        "18_BAUGENEHMIGUNG",
+        "19_TEILUNGSERKLAERUNG",
+        "20_VERSICHERUNGEN",
+        "21_MUSTER_VERKAUFSVERTRAG",
+        "22_GUTACHTERAUFTRAG",
+        "23_UMSATZSTEUERVORANMELDUNG",
+        "24_BWA",
+        "25_JAHRESABSCHLUSS",
+        "26_FINANZIERUNGSBESTAETIGUNG",
+        "27_DARLEHENSVERTRAG",
+        "28_GESELLSCHAFTSVERTRAG",
+        "29_HANDELSREGISTERAUSZUG",
+        "30_GEWERBEANMELDUNG",
+        "31_STEUER_ID",
+        "32_FREISTELLUNGSBESCHEINIGUNG",
+        "33_VOLLMACHTEN",
+        "34_KORRESPONDENZ",
+        "35_SONSTIGES_ALLGEMEIN",
+        "36_EXIT_STRATEGIE",
+        "37_OTHERS",
+        "38_UNKNOWNS"
+      ]
+    },
+    "chunk_2_5": {
+      "required_fields": ["validation_result", "missing_docs"],
+      "valid_validation_results": ["complete", "incomplete", "critical_missing"],
+      "critical_documents": [
+        "02_KAUFVERTRAG",
+        "03_GRUNDBUCHAUSZUG",
+        "18_BAUGENEHMIGUNG"
+      ]
+    },
+    "chunk_3": {
+      "required_fields": ["deal_score", "pass_fail"],
+      "score_range": [0, 10],
+      "valid_pass_fail": ["PASS", "REVIEW", "FAIL"],
+      "pass_threshold": 7.0,
+      "fail_threshold": 4.0
+    },
+    "chunk_4": {
+      "required_fields": ["folder_assignment", "move_status"],
+      "valid_move_statuses": ["moved", "failed", "skipped"]
+    },
+    "chunk_5": {
+      "required_fields": ["notification_sent", "recipients"],
+      "required_recipients": ["swayclarkeii@gmail.com"]
+    }
+  },
+  "test_execution_notes": {
+    "layer_1_testing": "Use test_runner_agent with simulated input data matching test case file_id and expected outputs",
+    "layer_2_testing": "Send real email via Email Sender workflow with test_case_id, pdf_file_id, pdf_file_name, target_chunk",
+    "validation_approach": "Compare actual chunk output against expected values using validation rules",
+    "edge_cases": [
+      "Scanned PDFs requiring OCR (check is_scanned flag)",
+      "Multi-page documents with mixed content types",
+      "Documents with ambiguous naming (Baubeschreibung vs Ausstattungsbeschreibung)",
+      "Foreign language documents (currently all German)",
+      "Incomplete documents or partial uploads"
+    ]
+  },
+  "metadata": {
+    "created": "2026-01-08",
+    "version": "1.0",
+    "last_updated": "2026-01-08",
+    "test_cases_count": 10,
+    "clients_count": 2,
+    "chunk_coverage": ["2", "2.5", "3"]
+  }
+}

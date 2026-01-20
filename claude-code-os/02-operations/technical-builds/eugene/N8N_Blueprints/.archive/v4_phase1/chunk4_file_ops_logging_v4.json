@@ -1,0 +1,402 @@
+{
+  "name": "Chunk 4: File Operations & Logging (Document Organizer V4)",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// V4: Normalize input from Chunk 3\nconst item = $input.first().json;\n\nreturn [{\n  json: {\n    fileId: item.fileId,\n    fileName: item.fileName,\n    originalFileName: item.originalFileName,\n    newFileName: item.newFileName,\n    mimeType: item.mimeType,\n    extension: item.extension,\n    size: item.size,\n    emailId: item.emailId,\n    emailFrom: item.emailFrom,\n    emailSubject: item.emailSubject,\n    emailDate: item.emailDate,\n    documentType: item.documentType,\n    confidence: item.confidence,\n    confidencePercent: item.confidencePercent,\n    classificationReason: item.classificationReason,\n    projectName: item.projectName,\n    normalizedProjectName: item.normalizedProjectName,\n    isNewProject: item.isNewProject,\n    targetFolderVar: item.targetFolderVar,\n    targetFolderId: item.targetFolderId,\n    processedAt: new Date().toISOString(),\n    extractedFromZip: item.extractedFromZip,\n    zipFileName: item.zipFileName,\n    stagingPath: item.stagingPath,\n    isScanned: item.isScanned,\n    ocrUsed: item.ocrUsed,\n    version: 1\n  }\n}];"
+      },
+      "name": "Normalize Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [100, 400],
+      "id": "node-normalize-input",
+      "notes": "V4: Ensures consistent field names from Chunk 3."
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.PROJECT_TRACKER_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Processing Log"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Project Name",
+              "lookupValue": "={{ $json.projectName }}"
+            },
+            {
+              "lookupColumn": "Document Type",
+              "lookupValue": "={{ $json.documentType }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Check Existing Version",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [300, 400],
+      "id": "node-check-version",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
+          "name": "Google Sheets"
+        }
+      },
+      "notes": "V4: Checks if this doc type exists for this project (for versioning).",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Determine version number\nconst existingDocs = $input.all().map(i => i.json);\nconst originalData = $('Normalize Input').first().json;\n\nlet version = 1;\nlet previousVersionFileId = null;\n\nif (existingDocs && existingDocs.length > 0) {\n  // Find highest version number\n  const versions = existingDocs\n    .map(doc => parseInt(doc.Version) || 1)\n    .filter(v => !isNaN(v));\n  \n  if (versions.length > 0) {\n    version = Math.max(...versions) + 1;\n    // Get the file ID of the previous version for archiving\n    const latestDoc = existingDocs.find(doc => parseInt(doc.Version) === version - 1);\n    previousVersionFileId = latestDoc?.['File ID'] || null;\n  }\n}\n\n// V4: Update filename to include version if > 1\nlet newFileName = originalData.newFileName;\nif (version > 1) {\n  // Insert version before confidence: EXPOSE_Eugene_20251222_143052_v2_97%.pdf\n  const parts = newFileName.split('_');\n  const confPart = parts.pop(); // Remove \"97%.pdf\"\n  parts.push(`v${version}`);\n  parts.push(confPart);\n  newFileName = parts.join('_');\n}\n\nreturn [{\n  json: {\n    ...originalData,\n    version: version,\n    previousVersionFileId: previousVersionFileId,\n    newFileName: newFileName,\n    isVersionUpdate: version > 1\n  }\n}];"
+      },
+      "name": "Determine Version",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 400],
+      "id": "node-determine-version",
+      "notes": "V4 NEW: Determines version number for document updates."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "leftValue": "", "caseSensitive": true, "typeValidation": "strict" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-previous-version",
+              "leftValue": "={{ $json.previousVersionFileId }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty" }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "IF Previous Version Exists",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [700, 400],
+      "id": "node-if-previous-version",
+      "notes": "V4 ARCHIVE: Checks if a previous version exists to be archived."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4 ARCHIVE: Get archive folder ID for this document type\nconst data = $input.first().json;\n\nconst archiveMapping = {\n  'expose': 'FOLDER_01_ARCHIVE',\n  'grundbuch': 'FOLDER_03_ARCHIVE',\n  'calculation': 'FOLDER_10_ARCHIVE',\n  'exit': 'FOLDER_36_ARCHIVE'\n};\n\nconst archiveFolderVar = archiveMapping[data.documentType];\n\n// If no archive folder for this type (Others/Unknown), skip archiving\nif (!archiveFolderVar) {\n  return [{ json: { ...data, skipArchive: true } }];\n}\n\nconst archiveFolderId = $vars[archiveFolderVar];\n\nif (!archiveFolderId) {\n  // Archive folder variable not set, skip archiving\n  return [{ json: { ...data, skipArchive: true } }];\n}\n\nreturn [{\n  json: {\n    ...data,\n    archiveFolderId: archiveFolderId,\n    skipArchive: false\n  }\n}];"
+      },
+      "name": "Get Archive Folder ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300],
+      "id": "node-get-archive-folder",
+      "notes": "V4 ARCHIVE: Maps document type to archive folder variable."
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.previousVersionFileId }}"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.archiveFolderId }}"
+        },
+        "options": {}
+      },
+      "name": "Move Old Version to Archive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1100, 300],
+      "id": "node-move-to-archive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      },
+      "notes": "V4 ARCHIVE: Moves previous version to _Archive subfolder.",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.fileId }}"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.targetFolderId }}"
+        },
+        "options": {}
+      },
+      "name": "Move to Target Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [700, 400],
+      "id": "node-move-file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      },
+      "notes": "V4: Moves file from staging to target folder."
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "rename",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.fileId }}"
+        },
+        "name": "={{ $json.newFileName }}",
+        "options": {}
+      },
+      "name": "Rename File",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [900, 400],
+      "id": "node-rename-file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      },
+      "notes": "V4: Renames file with V4 format including confidence%."
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.PROJECT_TRACKER_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Processing Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ new Date().toISOString() }}",
+            "Project Name": "={{ $json.projectName }}",
+            "Document Type": "={{ $json.documentType }}",
+            "Filename": "={{ $json.newFileName }}",
+            "Confidence": "={{ $json.confidencePercent }}%",
+            "Version": "={{ $json.version }}",
+            "Folder Path": "={{ $json.targetFolderVar }}",
+            "File ID": "={{ $json.fileId }}",
+            "Status": "Processed",
+            "Email From": "={{ $json.emailFrom }}",
+            "Email Subject": "={{ $json.emailSubject }}",
+            "OCR Used": "={{ $json.ocrUsed }}",
+            "Scanned": "={{ $json.isScanned }}",
+            "From ZIP": "={{ $json.extractedFromZip }}"
+          }
+        },
+        "options": {}
+      },
+      "name": "Log to Processing Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [1100, 400],
+      "id": "node-log-processing",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
+          "name": "Google Sheets"
+        }
+      },
+      "notes": "V4: Logs document processing to main log sheet."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4 FIX: Build Project Tracker update (fixes empty field crash)\nconst data = $input.first().json;\n\nconst docType = data.documentType.toLowerCase();\n\n// V4 FIX: Only update tracker for the 4 priority document types\nconst fieldMapping = {\n  'expose': { checkboxField: 'Exposé', versionField: 'Exposé Version' },\n  'grundbuch': { checkboxField: 'Grundbuch', versionField: 'Grundbuch Version' },\n  'calculation': { checkboxField: 'Calculation', versionField: 'Calculation Version' },\n  'exit': { checkboxField: 'Exit Strategy', versionField: 'Exit Version' }\n};\n\nconst mapping = fieldMapping[docType];\n\n// V4 FIX: Skip update for Others/Unknown (prevents empty field crash)\nif (!mapping) {\n  return [{\n    json: {\n      ...data,\n      trackerUpdateSkipped: true,\n      skipReason: 'Not a priority document type'\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    ...data,\n    trackerUpdateSkipped: false,\n    updateCheckboxField: mapping.checkboxField,\n    updateVersionField: mapping.versionField\n  }\n}];"
+      },
+      "name": "Build Tracker Update",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, 400],
+      "id": "node-build-update",
+      "notes": "V4 FIX: Prevents crash on Others/Unknown by checking doc type."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "leftValue": "", "caseSensitive": true, "typeValidation": "strict" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "should-update-tracker",
+              "leftValue": "={{ $json.trackerUpdateSkipped }}",
+              "rightValue": false,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "IF Update Tracker",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1500, 400],
+      "id": "node-if-update",
+      "notes": "V4: Only updates tracker for priority document types."
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.PROJECT_TRACKER_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Projects"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Project Name",
+              "lookupValue": "={{ $json.projectName }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "values": [
+            {
+              "column": "={{ $json.updateCheckboxField }}",
+              "fieldValue": "TRUE"
+            },
+            {
+              "column": "={{ $json.updateVersionField }}",
+              "fieldValue": "={{ 'v' + $json.version }}"
+            },
+            {
+              "column": "Last Updated",
+              "fieldValue": "={{ new Date().toISOString() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Update Project Tracker",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [1700, 300],
+      "id": "node-update-tracker",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
+          "name": "Google Sheets"
+        }
+      },
+      "notes": "V4 FIX: Updates project tracker with document status and version."
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "mergeByFields": {
+          "values": []
+        },
+        "options": {}
+      },
+      "name": "Merge Update Paths",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1900, 400],
+      "id": "node-merge-paths",
+      "notes": "Combines tracker update and skip paths."
+    },
+    {
+      "parameters": {
+        "jsCode": "// V4: Calculate project completion status\nconst data = $input.first()?.json || $input.all()[0]?.json;\n\n// Count which priority docs are complete for this project\n// This would normally query the tracker, but we'll pass through the data\n// The actual completion calculation happens in the email summary\n\nreturn [{\n  json: {\n    // V4 Standard output fields\n    fileId: data.fileId,\n    fileName: data.fileName,\n    originalFileName: data.originalFileName,\n    newFileName: data.newFileName,\n    documentType: data.documentType,\n    confidence: data.confidence,\n    confidencePercent: data.confidencePercent,\n    projectName: data.projectName,\n    version: data.version,\n    isVersionUpdate: data.isVersionUpdate || false,\n    targetFolderVar: data.targetFolderVar,\n    // Status\n    status: 'Processed',\n    processedAt: new Date().toISOString(),\n    trackerUpdated: !data.trackerUpdateSkipped,\n    // Email context\n    emailFrom: data.emailFrom,\n    emailSubject: data.emailSubject,\n    emailDate: data.emailDate,\n    // Processing details\n    isScanned: data.isScanned,\n    ocrUsed: data.ocrUsed,\n    extractedFromZip: data.extractedFromZip,\n    zipFileName: data.zipFileName\n  }\n}];"
+      },
+      "name": "Normalize Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2100, 400],
+      "id": "node-normalize-output",
+      "notes": "V4: Final output for email summary and next batch item."
+    }
+  ],
+  "connections": {
+    "Normalize Input": {
+      "main": [[{ "node": "Check Existing Version", "type": "main", "index": 0 }]]
+    },
+    "Check Existing Version": {
+      "main": [[{ "node": "Determine Version", "type": "main", "index": 0 }]]
+    },
+    "Determine Version": {
+      "main": [[{ "node": "IF Previous Version Exists", "type": "main", "index": 0 }]]
+    },
+    "IF Previous Version Exists": {
+      "main": [
+        [{ "node": "Get Archive Folder ID", "type": "main", "index": 0 }],
+        [{ "node": "Move to Target Folder", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get Archive Folder ID": {
+      "main": [[{ "node": "Move Old Version to Archive", "type": "main", "index": 0 }]]
+    },
+    "Move Old Version to Archive": {
+      "main": [[{ "node": "Move to Target Folder", "type": "main", "index": 0 }]]
+    },
+    "Move to Target Folder": {
+      "main": [[{ "node": "Rename File", "type": "main", "index": 0 }]]
+    },
+    "Rename File": {
+      "main": [[{ "node": "Log to Processing Sheet", "type": "main", "index": 0 }]]
+    },
+    "Log to Processing Sheet": {
+      "main": [[{ "node": "Build Tracker Update", "type": "main", "index": 0 }]]
+    },
+    "Build Tracker Update": {
+      "main": [[{ "node": "IF Update Tracker", "type": "main", "index": 0 }]]
+    },
+    "IF Update Tracker": {
+      "main": [
+        [{ "node": "Update Project Tracker", "type": "main", "index": 0 }],
+        [{ "node": "Merge Update Paths", "type": "main", "index": 1 }]
+      ]
+    },
+    "Update Project Tracker": {
+      "main": [[{ "node": "Merge Update Paths", "type": "main", "index": 0 }]]
+    },
+    "Merge Update Paths": {
+      "main": [[{ "node": "Normalize Output", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateId": "document_organizer_v4_chunk4",
+    "version": "4.0"
+  }
+}

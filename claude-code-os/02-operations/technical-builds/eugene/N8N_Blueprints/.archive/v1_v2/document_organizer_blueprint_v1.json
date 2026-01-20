@@ -1,0 +1,804 @@
+{
+  "name": "Document Organizer v1.0 - Gmail Edition",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "includeSpamTrash": false
+        },
+        "options": {
+          "attachmentsPrefix": "attachment_"
+        }
+      },
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1,
+      "position": [250, 400],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-credential-id",
+          "name": "Gmail OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAttachments",
+        "messageId": "={{ $json.id }}"
+      },
+      "name": "Download Email Attachments",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [450, 400],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-credential-id",
+          "name": "Gmail OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filter for PDF and DOCX files only\nconst items = $input.all();\nconst validFiles = [];\n\nfor (const item of items) {\n  const fileName = item.json?.filename || item.binary?.data?.fileName || 'unknown';\n  const fileExt = fileName.split('.').pop().toLowerCase();\n  \n  if (['pdf', 'docx', 'doc'].includes(fileExt)) {\n    validFiles.push(item);\n  } else {\n    console.log(`Skipping unsupported file type: ${fileName}`);\n  }\n}\n\nreturn validFiles;"
+      },
+      "name": "Filter File Types",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 400]
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "name": "={{ $json.filename || 'document.pdf' }}",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "={{ $vars.uploadFolderId }}"
+        },
+        "options": {}
+      },
+      "name": "Upload to Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [850, 400],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "google-drive-credential-id",
+          "name": "Google Drive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": "={{ $json.id }}"
+      },
+      "name": "Download from Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1050, 400],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "google-drive-credential-id",
+          "name": "Google Drive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "extractText",
+        "binaryPropertyName": "data",
+        "options": {
+          "maxPages": 10
+        }
+      },
+      "name": "Extract PDF Text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [1250, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare document text and metadata for AI classification\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const extractedText = item.json?.text || '';\n  const originalFileName = item.json?.name || 'unknown.pdf';\n  const fileId = item.json?.id;\n  \n  // Get sender email from Gmail trigger\n  const gmailData = $('Gmail Trigger').first().json;\n  const senderEmail = gmailData?.from || 'unknown@email.com';\n  const emailSubject = gmailData?.subject || 'No subject';\n  \n  results.push({\n    json: {\n      documentText: extractedText.substring(0, 3000), // First 3000 chars for classification\n      originalFileName: originalFileName,\n      fileId: fileId,\n      senderEmail: senderEmail,\n      emailSubject: emailSubject,\n      clientName: 'Eugene_Client', // Could be extracted from email or subject\n      uploadDate: new Date().toISOString()\n    },\n    binary: item.binary\n  });\n}\n\nreturn results;"
+      },
+      "name": "Prepare Classification Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1450, 400]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a document classifier for real estate files.\n\nClassify documents into these types:\n- \"gundh_book\": Land measurement records, plot dimensions, surveys, boundary descriptions\n- \"exit_strategy\": Exit plans, liquidation strategies, timeline documents, ROI projections\n- \"financial_projections\": IRR calculations, cash flow analysis, cap rate, NPV, financial models\n- \"property_deed\": Legal property ownership documents, title documents\n- \"loan_documents\": Mortgage agreements, loan terms, financing documents\n- \"appraisal\": Property valuation reports, appraisal documents\n- \"unknown\": Cannot determine type\n\nAnalyze the document content and respond with ONLY the document type.\nExamples:\n- If you see plot dimensions, boundaries, area → \"gundh_book\"\n- If you see exit timeline, ROI, liquidation → \"exit_strategy\"\n- If you see IRR, NPV, cash flows → \"financial_projections\"\n\nReturn ONLY the type name, nothing else."
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.documentText }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "AI Classify Document",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1,
+      "position": [1650, 400],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-credential-id",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "value1": "={{ $json.output }}",
+                    "operation": "equals",
+                    "value2": "gundh_book"
+                  }
+                ]
+              },
+              "output": 0
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "value1": "={{ $json.output }}",
+                    "operation": "equals",
+                    "value2": "exit_strategy"
+                  }
+                ]
+              },
+              "output": 1
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "value1": "={{ $json.output }}",
+                    "operation": "equals",
+                    "value2": "financial_projections"
+                  }
+                ]
+              },
+              "output": 2
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "value1": "={{ $json.output }}",
+                    "operation": "equals",
+                    "value2": "property_deed"
+                  }
+                ]
+              },
+              "output": 3
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "value1": "={{ $json.output }}",
+                    "operation": "equals",
+                    "value2": "loan_documents"
+                  }
+                ]
+              },
+              "output": 4
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "value1": "={{ $json.output }}",
+                    "operation": "equals",
+                    "value2": "appraisal"
+                  }
+                ]
+              },
+              "output": 5
+            }
+          ]
+        },
+        "fallbackOutput": 6
+      },
+      "name": "Route by Document Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [1850, 400]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "newFileName",
+              "value": "=GUNDH_{{ $json.clientName }}_{{ $now.format('YYYYMMDD') }}.pdf"
+            },
+            {
+              "name": "destinationFolder",
+              "value": "01_Gundh_Books"
+            },
+            {
+              "name": "documentType",
+              "value": "gundh_book"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set Filename - Gundh Book",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [2050, 100]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "newFileName",
+              "value": "=EXIT_{{ $json.clientName }}_{{ $now.format('YYYYMMDD') }}.pdf"
+            },
+            {
+              "name": "destinationFolder",
+              "value": "02_Exit_Strategies"
+            },
+            {
+              "name": "documentType",
+              "value": "exit_strategy"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set Filename - Exit Strategy",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [2050, 200]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "newFileName",
+              "value": "=FIN_{{ $json.clientName }}_{{ $now.format('YYYYMMDD') }}.pdf"
+            },
+            {
+              "name": "destinationFolder",
+              "value": "03_Financial_Projections"
+            },
+            {
+              "name": "documentType",
+              "value": "financial_projections"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set Filename - Financial",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [2050, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "newFileName",
+              "value": "=DEED_{{ $json.clientName }}_{{ $now.format('YYYYMMDD') }}.pdf"
+            },
+            {
+              "name": "destinationFolder",
+              "value": "04_Property_Deeds"
+            },
+            {
+              "name": "documentType",
+              "value": "property_deed"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set Filename - Property Deed",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [2050, 400]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "newFileName",
+              "value": "=LOAN_{{ $json.clientName }}_{{ $now.format('YYYYMMDD') }}.pdf"
+            },
+            {
+              "name": "destinationFolder",
+              "value": "05_Loan_Documents"
+            },
+            {
+              "name": "documentType",
+              "value": "loan_documents"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set Filename - Loan Documents",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [2050, 500]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "newFileName",
+              "value": "=APPR_{{ $json.clientName }}_{{ $now.format('YYYYMMDD') }}.pdf"
+            },
+            {
+              "name": "destinationFolder",
+              "value": "06_Appraisals"
+            },
+            {
+              "name": "documentType",
+              "value": "appraisal"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set Filename - Appraisal",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [2050, 600]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "newFileName",
+              "value": "=MISC_{{ $json.clientName }}_{{ $now.format('YYYYMMDD') }}.pdf"
+            },
+            {
+              "name": "destinationFolder",
+              "value": "07_Miscellaneous"
+            },
+            {
+              "name": "documentType",
+              "value": "unknown"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set Filename - Unknown",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [2050, 700]
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": "={{ $('Upload to Google Drive').item.json.id }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "={{ $vars.googleDriveFolderId }}/{{ $json.destinationFolder }}"
+        },
+        "options": {
+          "fileName": "={{ $json.newFileName }}"
+        }
+      },
+      "name": "Move File to Final Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [2250, 400],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "google-drive-credential-id",
+          "name": "Google Drive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "={{ $vars.logSheetId }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "Processing Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $now.format('YYYY-MM-DD HH:mm:ss') }}",
+            "Original Filename": "={{ $('Prepare Classification Data').item.json.originalFileName }}",
+            "Document Type": "={{ $json.documentType }}",
+            "New Filename": "={{ $json.newFileName }}",
+            "Destination Folder": "={{ $json.destinationFolder }}",
+            "Client Name": "={{ $json.clientName }}",
+            "Sender Email": "={{ $('Prepare Classification Data').item.json.senderEmail }}",
+            "Email Subject": "={{ $('Prepare Classification Data').item.json.emailSubject }}",
+            "Processing Status": "Success"
+          }
+        },
+        "options": {}
+      },
+      "name": "Log to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [2450, 400],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "google-sheets-credential-id",
+          "name": "Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "sendTo": "={{ $('Prepare Classification Data').item.json.senderEmail }}",
+        "subject": "=Document Processed: {{ $json.newFileName }}",
+        "message": "=Your document has been successfully processed and organized.\n\nOriginal File: {{ $('Prepare Classification Data').item.json.originalFileName }}\nDocument Type: {{ $json.documentType }}\nNew Location: {{ $json.destinationFolder }}/{{ $json.newFileName }}\n\nProcessed at: {{ $now.format('YYYY-MM-DD HH:mm:ss') }}\n\nThank you!",
+        "options": {}
+      },
+      "name": "Send Confirmation Email (Optional)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [2650, 400],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-credential-id",
+          "name": "Gmail OAuth2"
+        }
+      },
+      "disabled": true
+    }
+  ],
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download Email Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Email Attachments": {
+      "main": [
+        [
+          {
+            "node": "Filter File Types",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter File Types": {
+      "main": [
+        [
+          {
+            "node": "Upload to Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Download from Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download from Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Extract PDF Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract PDF Text": {
+      "main": [
+        [
+          {
+            "node": "Prepare Classification Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Classification Data": {
+      "main": [
+        [
+          {
+            "node": "AI Classify Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Classify Document": {
+      "main": [
+        [
+          {
+            "node": "Route by Document Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Document Type": {
+      "main": [
+        [
+          {
+            "node": "Set Filename - Gundh Book",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Filename - Exit Strategy",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Filename - Financial",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Filename - Property Deed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Filename - Loan Documents",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Filename - Appraisal",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Filename - Unknown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Filename - Gundh Book": {
+      "main": [
+        [
+          {
+            "node": "Move File to Final Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Filename - Exit Strategy": {
+      "main": [
+        [
+          {
+            "node": "Move File to Final Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Filename - Financial": {
+      "main": [
+        [
+          {
+            "node": "Move File to Final Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Filename - Property Deed": {
+      "main": [
+        [
+          {
+            "node": "Move File to Final Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Filename - Loan Documents": {
+      "main": [
+        [
+          {
+            "node": "Move File to Final Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Filename - Appraisal": {
+      "main": [
+        [
+          {
+            "node": "Move File to Final Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Filename - Unknown": {
+      "main": [
+        [
+          {
+            "node": "Move File to Final Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move File to Final Folder": {
+      "main": [
+        [
+          {
+            "node": "Log to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation Email (Optional)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2024-12-20T00:00:00.000Z",
+      "updatedAt": "2024-12-20T00:00:00.000Z",
+      "id": "1",
+      "name": "Eugene"
+    },
+    {
+      "createdAt": "2024-12-20T00:00:00.000Z",
+      "updatedAt": "2024-12-20T00:00:00.000Z",
+      "id": "2",
+      "name": "Document Processing"
+    },
+    {
+      "createdAt": "2024-12-20T00:00:00.000Z",
+      "updatedAt": "2024-12-20T00:00:00.000Z",
+      "id": "3",
+      "name": "Gmail Automation"
+    },
+    {
+      "createdAt": "2024-12-20T00:00:00.000Z",
+      "updatedAt": "2024-12-20T00:00:00.000Z",
+      "id": "4",
+      "name": "v1.0"
+    }
+  ],
+  "pinData": {},
+  "versionId": "1.0.0",
+  "meta": {
+    "version": "1.0.0",
+    "created": "2024-12-20",
+    "updated": "2024-12-20",
+    "author": "Sway Clarke",
+    "client": "Eugene - Real Estate Debt Advisory",
+    "description": "Automated document classification and organization workflow with Gmail integration",
+    "features": [
+      "Gmail inbox monitoring",
+      "Automatic attachment download",
+      "Google Drive integration",
+      "Text extraction from PDFs",
+      "AI-powered document classification",
+      "Standardized file naming",
+      "Automated folder organization",
+      "Google Sheets audit logging",
+      "Optional email confirmations"
+    ],
+    "dependencies": [
+      "Gmail API (OAuth2)",
+      "OpenAI API (GPT-4o-mini)",
+      "Google Drive API",
+      "Google Sheets API"
+    ],
+    "estimatedCost": "$0.007 per document",
+    "processingTime": "8-12 seconds per document",
+    "nodes": 19,
+    "triggers": 1
+  }
+}

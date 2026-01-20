@@ -1,0 +1,772 @@
+{
+  "name": "Chunk 0: Folder Initialization (Document Organizer V3.5)",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger - Run Once",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [100, 400],
+      "id": "node-manual-trigger",
+      "notes": "Run this workflow ONCE to create all 37 folders. Safe to re-run - checks if folders exist before creating."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Define all parent and subfolder names for Eugene's Bauträger business\n\nconst folderStructure = {\n  parentFolders: [\n    'OBJEKTUNTERLAGEN',\n    'WIRTSCHAFTLICHE_UNTERLAGEN', \n    'RECHTLICHE_UNTERLAGEN',\n    'SONSTIGES'\n  ],\n  \n  subfolders: {\n    'OBJEKTUNTERLAGEN': [\n      '01_Projektbeschreibung',\n      '02_Kaufvertrag',\n      '03_Grundbuchauszug',\n      '04_Eintragungsbewilligungen',\n      '05_Bodenrichtwert',\n      '06_Baulastenverzeichnis',\n      '07_Altlastenkataster',\n      '08_Baugrundgutachten',\n      '09_Lageplan',\n      '10_Bautraegerkalkulation_DIN276',\n      '15_Flaechenberechnung_DIN277',\n      '16_GU_Werkvertraege',\n      '17_Bauzeichnungen',\n      '18_Baugenehmigung',\n      '22_Gutachterauftrag'\n    ],\n    'WIRTSCHAFTLICHE_UNTERLAGEN': [\n      '11_Verkaufspreise',\n      '12_Bauzeitenplan_Liquiditaet',\n      '13_Vertriebsweg',\n      '14_Bau_Ausstattungsbeschreibung',\n      '19_Teilungserklaerung',\n      '20_Versicherungen',\n      '21_Muster_Verkaufsvertrag',\n      '23_Umsatzsteuervoranmeldung',\n      '24_BWA',\n      '25_Jahresabschluss',\n      '26_Finanzierungsbestaetigung',\n      '27_Darlehensvertrag'\n    ],\n    'RECHTLICHE_UNTERLAGEN': [\n      '28_Gesellschaftsvertrag',\n      '29_Handelsregisterauszug',\n      '30_Gewerbeanmeldung',\n      '31_Steuer_ID',\n      '32_Freistellungsbescheinigung',\n      '33_Vollmachten'\n    ],\n    'SONSTIGES': [\n      '34_Korrespondenz',\n      '35_Sonstiges_Allgemein',\n      '36_Exit_Strategie',\n      '37_Others',\n      '38_Unknowns'\n    ]\n  },\n  \n  // Staging folder (not in parent structure)\n  staging: '_Staging'\n};\n\nreturn [{ json: { folderStructure } }];"
+      },
+      "name": "Define Folder Structure",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [300, 400],
+      "id": "node-define-structure",
+      "notes": "Defines all 37 subfolders + 4 parent folders + staging folder. Total: 42 folders to create."
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "list",
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "filters": {
+          "query": "name='Bautraeger_Dokumente' and mimeType='application/vnd.google-apps.folder' and trashed=false"
+        },
+        "options": {}
+      },
+      "name": "Check if Root Folder Exists",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [500, 400],
+      "id": "node-check-root",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      },
+      "notes": "Searches for 'Bautraeger_Dokumente' root folder. If exists, uses it. If not, creates it."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "root-exists-check",
+              "leftValue": "={{ $json.files.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "IF Root Folder Exists",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [700, 400],
+      "id": "node-if-root-exists",
+      "notes": "Routes to 'Use Existing' if folder found, otherwise creates new folder."
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "create",
+        "name": "Bautraeger_Dokumente",
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "options": {}
+      },
+      "name": "Create Root Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [900, 500],
+      "id": "node-create-root",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      },
+      "notes": "Creates 'Bautraeger_Dokumente' root folder if it doesn't exist."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Use existing root folder ID\nconst rootFolderId = $input.first().json.files[0].id;\n\nreturn [{ json: { rootFolderId } }];"
+      },
+      "name": "Use Existing Root",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300],
+      "id": "node-use-existing-root",
+      "notes": "Extracts folder ID from existing 'Bautraeger_Dokumente' folder."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get root folder ID from previous nodes\nconst items = $input.all();\nlet rootFolderId;\n\nfor (const item of items) {\n  if (item.json.rootFolderId) {\n    rootFolderId = item.json.rootFolderId;\n    break;\n  } else if (item.json.id) {\n    // From create operation\n    rootFolderId = item.json.id;\n    break;\n  }\n}\n\n// Get folder structure from earlier node\nconst structureNode = $('Define Folder Structure').first().json;\nconst folderStructure = structureNode.folderStructure;\n\nreturn [{ \n  json: { \n    rootFolderId,\n    folderStructure \n  } \n}];"
+      },
+      "name": "Merge Root Folder ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 400],
+      "id": "node-merge-root-id",
+      "notes": "Combines root folder ID (whether existing or newly created) with folder structure data."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "parent-folder-loop",
+              "name": "parentFolder",
+              "value": "={{ $json.folderStructure.parentFolders }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Loop: Parent Folders",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1300, 400],
+      "id": "node-loop-parents",
+      "notes": "Loops through 4 parent folders (OBJEKTUNTERLAGEN, WIRTSCHAFTLICHE_UNTERLAGEN, RECHTLICHE_UNTERLAGEN, SONSTIGES)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Create or check parent folder\nconst rootFolderId = $json.rootFolderId;\nconst parentFolderName = $json.parentFolder;\n\nreturn [{ \n  json: { \n    rootFolderId,\n    parentFolderName,\n    checkQuery: `name='${parentFolderName}' and '${rootFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`\n  } \n}];"
+      },
+      "name": "Prepare Parent Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 400],
+      "id": "node-prep-parent-check",
+      "notes": "Prepares query to check if parent folder already exists."
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "list",
+        "filters": {
+          "query": "={{ $json.checkQuery }}"
+        },
+        "options": {}
+      },
+      "name": "Check Parent Exists",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1700, 400],
+      "id": "node-check-parent",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      },
+      "notes": "Searches for parent folder. If found, uses existing ID. If not, creates it."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Determine if parent folder exists\nconst exists = $json.files && $json.files.length > 0;\nconst parentFolderId = exists ? $json.files[0].id : null;\nconst rootFolderId = $('Prepare Parent Check').first().json.rootFolderId;\nconst parentFolderName = $('Prepare Parent Check').first().json.parentFolderName;\n\nreturn [{ \n  json: { \n    parentExists: exists,\n    parentFolderId,\n    rootFolderId,\n    parentFolderName\n  } \n}];"
+      },
+      "name": "Process Parent Check Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1900, 400],
+      "id": "node-process-parent-result",
+      "notes": "Determines next action based on whether parent folder exists."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "parent-exists-condition",
+              "leftValue": "={{ $json.parentExists }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "IF Parent Exists",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2100, 400],
+      "id": "node-if-parent-exists",
+      "notes": "Routes to create or use existing parent folder."
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "create",
+        "name": "={{ $json.parentFolderName }}",
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.rootFolderId }}"
+        },
+        "options": {}
+      },
+      "name": "Create Parent Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [2300, 500],
+      "id": "node-create-parent",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      },
+      "notes": "Creates parent folder (e.g., OBJEKTUNTERLAGEN) inside root Bautraeger_Dokumente folder."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract parent folder ID from create operation\nconst parentFolderId = $json.id;\nconst parentFolderName = $('Process Parent Check Result').first().json.parentFolderName;\n\nreturn [{ json: { parentFolderId, parentFolderName } }];"
+      },
+      "name": "Extract Created Parent ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2500, 500],
+      "id": "node-extract-created-parent",
+      "notes": "Extracts ID from newly created parent folder."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Use existing parent folder ID\nconst parentFolderId = $json.parentFolderId;\nconst parentFolderName = $json.parentFolderName;\n\nreturn [{ json: { parentFolderId, parentFolderName } }];"
+      },
+      "name": "Use Existing Parent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2300, 300],
+      "id": "node-use-existing-parent",
+      "notes": "Uses existing parent folder ID."
+    },
+    {
+      "parameters": {},
+      "name": "Merge Parent Folder ID",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [2700, 400],
+      "id": "node-merge-parent-id",
+      "notes": "Combines parent folder ID (whether created or existing) for next step."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get subfolders for this parent\nconst parentFolderName = $json.parentFolderName;\nconst parentFolderId = $json.parentFolderId;\nconst folderStructure = $('Define Folder Structure').first().json.folderStructure;\n\nconst subfolders = folderStructure.subfolders[parentFolderName] || [];\n\n// Create output items for each subfolder\nconst output = subfolders.map(subfolder => ({\n  json: {\n    parentFolderId,\n    parentFolderName,\n    subfolderName: subfolder\n  }\n}));\n\nreturn output;"
+      },
+      "name": "Get Subfolders for Parent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2900, 400],
+      "id": "node-get-subfolders",
+      "notes": "Retrieves list of subfolders for current parent (e.g., 01_Projektbeschreibung, 02_Kaufvertrag for OBJEKTUNTERLAGEN)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare subfolder existence check\nconst parentFolderId = $json.parentFolderId;\nconst subfolderName = $json.subfolderName;\n\nreturn [{ \n  json: { \n    parentFolderId,\n    subfolderName,\n    checkQuery: `name='${subfolderName}' and '${parentFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`\n  } \n}];"
+      },
+      "name": "Prepare Subfolder Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3100, 400],
+      "id": "node-prep-subfolder-check",
+      "notes": "Prepares query to check if subfolder already exists in parent folder."
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "list",
+        "filters": {
+          "query": "={{ $json.checkQuery }}"
+        },
+        "options": {}
+      },
+      "name": "Check Subfolder Exists",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [3300, 400],
+      "id": "node-check-subfolder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      },
+      "notes": "Checks if subfolder exists. If found, uses it. If not, creates it."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Determine if subfolder exists\nconst exists = $json.files && $json.files.length > 0;\nconst subfolderFolderId = exists ? $json.files[0].id : null;\nconst parentFolderId = $('Prepare Subfolder Check').first().json.parentFolderId;\nconst subfolderName = $('Prepare Subfolder Check').first().json.subfolderName;\n\nreturn [{ \n  json: { \n    subfolderExists: exists,\n    subfolderFolderId,\n    parentFolderId,\n    subfolderName\n  } \n}];"
+      },
+      "name": "Process Subfolder Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3500, 400],
+      "id": "node-process-subfolder-result",
+      "notes": "Determines whether to create subfolder or use existing one."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "subfolder-exists-condition",
+              "leftValue": "={{ $json.subfolderExists }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "IF Subfolder Exists",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [3700, 400],
+      "id": "node-if-subfolder-exists",
+      "notes": "Routes to create or use existing subfolder."
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "create",
+        "name": "={{ $json.subfolderName }}",
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.parentFolderId }}"
+        },
+        "options": {}
+      },
+      "name": "Create Subfolder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [3900, 500],
+      "id": "node-create-subfolder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}",
+          "name": "Google Drive"
+        }
+      },
+      "notes": "Creates subfolder (e.g., 01_Projektbeschreibung) inside parent folder."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract subfolder ID and name\nconst subfolderFolderId = $json.id;\nconst subfolderName = $('Process Subfolder Check').first().json.subfolderName;\n\nreturn [{ json: { subfolderFolderId, subfolderName } }];"
+      },
+      "name": "Extract Created Subfolder ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [4100, 500],
+      "id": "node-extract-created-subfolder",
+      "notes": "Extracts ID from newly created subfolder."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Use existing subfolder ID\nconst subfolderFolderId = $json.subfolderFolderId;\nconst subfolderName = $json.subfolderName;\n\nreturn [{ json: { subfolderFolderId, subfolderName } }];"
+      },
+      "name": "Use Existing Subfolder",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3900, 300],
+      "id": "node-use-existing-subfolder",
+      "notes": "Uses existing subfolder ID."
+    },
+    {
+      "parameters": {},
+      "name": "Merge Subfolder ID",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [4300, 400],
+      "id": "node-merge-subfolder-id",
+      "notes": "Combines subfolder ID (whether created or existing)."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Collect all subfolder IDs\nconst items = $input.all();\n\nconst folderMap = {};\n\nfor (const item of items) {\n  const subfolderName = item.json.subfolderName;\n  const subfolderFolderId = item.json.subfolderFolderId;\n  \n  if (subfolderName && subfolderFolderId) {\n    // Create n8n variable name from subfolder name\n    // e.g., \"01_Projektbeschreibung\" -> \"FOLDER_01_PROJEKTBESCHREIBUNG\"\n    const varName = `FOLDER_${subfolderName.toUpperCase()}`;\n    folderMap[varName] = subfolderFolderId;\n  }\n}\n\n// Get root folder ID\nconst rootFolderId = $('Merge Root Folder ID').first().json.rootFolderId;\nfolderMap['FOLDER_ROOT_BAUTRAEGER'] = rootFolderId;\n\nreturn [{ json: { folderMap, totalFolders: Object.keys(folderMap).length } }];"
+      },
+      "name": "Build Folder Variable Map",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [4500, 400],
+      "id": "node-build-var-map",
+      "notes": "Builds n8n variable map: FOLDER_01_PROJEKTBESCHREIBUNG, FOLDER_03_GRUNDBUCHAUSZUG, etc. Ready to set as workflow variables."
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $vars.EUGENE_EMAIL || 'eugene@example.com' }}",
+        "subject": "Bauträger Folder Structure Created",
+        "message": "=Folder initialization complete!\n\nTotal folders created/verified: {{ $json.totalFolders }}\n\nFolder IDs have been stored as n8n workflow variables:\n{{ Object.keys($json.folderMap).join('\\n') }}\n\nThe Document Organizer workflow can now access these folders automatically.\n\n---\nFolder Structure Status:\n✅ Root folder: Bautraeger_Dokumente\n✅ Parent folders: 4 (OBJEKTUNTERLAGEN, WIRTSCHAFTLICHE, RECHTLICHE, SONSTIGES)\n✅ Subfolders: {{ $json.totalFolders - 1 }}\n\nYou can now activate the main Document Organizer workflow.",
+        "options": {}
+      },
+      "name": "Send Confirmation Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [4700, 400],
+      "id": "node-send-confirmation",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "{{GMAIL_CREDENTIAL_ID}}",
+          "name": "Gmail OAuth2"
+        }
+      },
+      "notes": "Sends confirmation to Eugene with folder count and variable names created."
+    }
+  ],
+  "connections": {
+    "Manual Trigger - Run Once": {
+      "main": [
+        [
+          {
+            "node": "Define Folder Structure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define Folder Structure": {
+      "main": [
+        [
+          {
+            "node": "Check if Root Folder Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Root Folder Exists": {
+      "main": [
+        [
+          {
+            "node": "IF Root Folder Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Root Folder Exists": {
+      "main": [
+        [
+          {
+            "node": "Use Existing Root",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Root Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Root Folder": {
+      "main": [
+        [
+          {
+            "node": "Merge Root Folder ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use Existing Root": {
+      "main": [
+        [
+          {
+            "node": "Merge Root Folder ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Root Folder ID": {
+      "main": [
+        [
+          {
+            "node": "Loop: Parent Folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop: Parent Folders": {
+      "main": [
+        [
+          {
+            "node": "Prepare Parent Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Parent Check": {
+      "main": [
+        [
+          {
+            "node": "Check Parent Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Parent Exists": {
+      "main": [
+        [
+          {
+            "node": "Process Parent Check Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Parent Check Result": {
+      "main": [
+        [
+          {
+            "node": "IF Parent Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Parent Exists": {
+      "main": [
+        [
+          {
+            "node": "Use Existing Parent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Parent Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Parent Folder": {
+      "main": [
+        [
+          {
+            "node": "Extract Created Parent ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use Existing Parent": {
+      "main": [
+        [
+          {
+            "node": "Merge Parent Folder ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Created Parent ID": {
+      "main": [
+        [
+          {
+            "node": "Merge Parent Folder ID",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Parent Folder ID": {
+      "main": [
+        [
+          {
+            "node": "Get Subfolders for Parent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Subfolders for Parent": {
+      "main": [
+        [
+          {
+            "node": "Prepare Subfolder Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Subfolder Check": {
+      "main": [
+        [
+          {
+            "node": "Check Subfolder Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Subfolder Exists": {
+      "main": [
+        [
+          {
+            "node": "Process Subfolder Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Subfolder Check": {
+      "main": [
+        [
+          {
+            "node": "IF Subfolder Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Subfolder Exists": {
+      "main": [
+        [
+          {
+            "node": "Use Existing Subfolder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Subfolder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Subfolder": {
+      "main": [
+        [
+          {
+            "node": "Extract Created Subfolder ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use Existing Subfolder": {
+      "main": [
+        [
+          {
+            "node": "Merge Subfolder ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Created Subfolder ID": {
+      "main": [
+        [
+          {
+            "node": "Merge Subfolder ID",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Subfolder ID": {
+      "main": [
+        [
+          {
+            "node": "Build Folder Variable Map",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Folder Variable Map": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "chunk0-folder-init-v3.5"
+  },
+  "pinData": {},
+  "versionId": "v3.5-chunk0-2025-12-21",
+  "triggerCount": 0
+}

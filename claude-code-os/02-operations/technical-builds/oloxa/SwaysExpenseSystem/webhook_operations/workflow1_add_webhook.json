@@ -1,0 +1,48 @@
+{
+  "id": "MPjDdVMI88158iFW",
+  "operations": [
+    {
+      "type": "addNode",
+      "node": {
+        "name": "Manual Test Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [250, 100],
+        "parameters": {
+          "path": "test-expense-w1",
+          "httpMethod": "POST",
+          "responseMode": "lastNode",
+          "options": {}
+        },
+        "id": "webhook-test-1"
+      }
+    },
+    {
+      "type": "addNode",
+      "node": {
+        "name": "Prepare File Data",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [400, 100],
+        "parameters": {
+          "jsCode": "// Transform webhook payload to match Google Drive trigger output\nconst fileId = $json.fileId || $json.body?.fileId;\n\nif (!fileId) {\n  throw new Error('Missing fileId in webhook payload. Send: {\"fileId\": \"your-google-drive-file-id\"}');\n}\n\nreturn {\n  json: {\n    id: fileId,\n    testMode: true\n  }\n};"
+        },
+        "id": "code-prepare-file-1"
+      }
+    },
+    {
+      "type": "addConnection",
+      "source": "Manual Test Trigger",
+      "sourceOutput": "main",
+      "target": "Prepare File Data",
+      "targetInput": "main"
+    },
+    {
+      "type": "addConnection",
+      "source": "Prepare File Data",
+      "sourceOutput": "main",
+      "target": "Download PDF",
+      "targetInput": "main"
+    }
+  ]
+}

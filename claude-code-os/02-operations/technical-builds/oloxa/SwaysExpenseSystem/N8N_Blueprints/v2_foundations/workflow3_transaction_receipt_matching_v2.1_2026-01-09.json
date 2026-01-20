@@ -1,0 +1,737 @@
+{
+  "name": "Expense System - Workflow 3 v2.1: Transaction-Receipt-Invoice Matching",
+  "description": "Matches unmatched receipts (expenses) and invoices (income) to transactions using fuzzy matching algorithm, then updates both sheets",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "node-1",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 336]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Receipts"
+        },
+        "options": {}
+      },
+      "id": "node-2",
+      "name": "Read Unmatched Receipts",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [464, 240],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const receipts = $input.all();\n\n// Filter for unmatched receipts (Matched = FALSE or empty transaction_id)\nconst unmatchedReceipts = receipts.filter(item => {\n  const matched = item.json.Matched;\n  const transactionId = item.json.transaction_id;\n  \n  // Include if Matched is FALSE or empty, OR transaction_id is empty\n  return (!matched || matched === 'FALSE' || matched === false || !transactionId || transactionId === '');\n});\n\n// Return unmatched receipts, or empty array if none\nif (unmatchedReceipts.length === 0) {\n  return [{ json: { message: 'No unmatched receipts found', count: 0 } }];\n}\n\nreturn unmatchedReceipts;"
+      },
+      "id": "node-3",
+      "name": "Filter Unmatched Receipts Only",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [688, 144]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Transactions"
+        },
+        "options": {}
+      },
+      "id": "node-4",
+      "name": "Read All Transactions",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [464, 528],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get transactions from Read All Transactions node\nconst transactions = $input.all();\n\n// Filter for Type = 'expense' transactions only\nconst expenseTransactions = transactions.filter(item => {\n  const type = item.json.Type;\n  return type && type.toLowerCase() === 'expense';\n});\n\n// Return expense transactions\nif (expenseTransactions.length === 0) {\n  return [{ json: { message: 'No expense transactions found', count: 0 } }];\n}\n\nreturn expenseTransactions;"
+      },
+      "id": "node-filter-expense",
+      "name": "Filter Expense Transactions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [688, 432]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get transactions from Read All Transactions node\nconst transactions = $input.all();\n\n// Filter for Type = 'income' transactions only\nconst incomeTransactions = transactions.filter(item => {\n  const type = item.json.Type;\n  return type && type.toLowerCase() === 'income';\n});\n\n// Return income transactions\nif (incomeTransactions.length === 0) {\n  return [{ json: { message: 'No income transactions found', count: 0 } }];\n}\n\nreturn incomeTransactions;"
+      },
+      "id": "node-filter-income",
+      "name": "Filter Income Transactions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [688, 624]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get receipts and expense transactions\nconst receipts = $('Filter Unmatched Receipts Only').all();\nconst transactions = $('Filter Expense Transactions').all();\n\n// Check if we have data to work with\nif (receipts.length === 1 && receipts[0].json.message === 'No unmatched receipts found') {\n  return receipts; // Pass through the \"no receipts\" message\n}\n\nif (transactions.length === 1 && transactions[0].json.message === 'No expense transactions found') {\n  return [{ json: { message: 'No expense transactions to match receipts against', count: 0 } }];\n}\n\n// Helper function: Calculate Levenshtein distance for fuzzy matching\nfunction levenshteinDistance(str1, str2) {\n  const len1 = str1.length;\n  const len2 = str2.length;\n  const matrix = [];\n\n  for (let i = 0; i <= len1; i++) {\n    matrix[i] = [i];\n  }\n\n  for (let j = 0; j <= len2; j++) {\n    matrix[0][j] = j;\n  }\n\n  for (let i = 1; i <= len1; i++) {\n    for (let j = 1; j <= len2; j++) {\n      const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;\n      matrix[i][j] = Math.min(\n        matrix[i - 1][j] + 1,\n        matrix[i][j - 1] + 1,\n        matrix[i - 1][j - 1] + cost\n      );\n    }\n  }\n\n  return matrix[len1][len2];\n}\n\n// Helper function: Calculate string similarity (0-1 scale)\nfunction stringSimilarity(str1, str2) {\n  const maxLen = Math.max(str1.length, str2.length);\n  if (maxLen === 0) return 1.0;\n  const distance = levenshteinDistance(str1, str2);\n  return 1.0 - (distance / maxLen);\n}\n\n// Helper function: Normalize vendor name for comparison\nfunction normalizeVendor(vendor) {\n  if (!vendor) return '';\n  return vendor.toLowerCase().trim();\n}\n\n// Helper function: Check if dates are within X days\nfunction datesWithinDays(date1, date2, days) {\n  const d1 = new Date(date1);\n  const d2 = new Date(date2);\n  const diffMs = Math.abs(d1 - d2);\n  const diffDays = diffMs / (1000 * 60 * 60 * 24);\n  return diffDays <= days;\n}\n\n// Main matching algorithm\nconst matches = [];\n\nfor (const receipt of receipts) {\n  const receiptData = receipt.json;\n  const receiptVendor = normalizeVendor(receiptData.Vendor);\n  const receiptAmount = parseFloat(receiptData.Amount) || 0;\n  const receiptDate = receiptData.Date;\n  \n  let bestMatch = null;\n  let bestConfidence = 0.0;\n  \n  for (const transaction of transactions) {\n    const txData = transaction.json;\n    const txVendor = normalizeVendor(txData.Vendor);\n    const txAmount = parseFloat(txData.Amount) || 0;\n    const txDate = txData.Date;\n    \n    // Skip if transaction already has a receipt\n    if (txData.ReceiptID && txData.ReceiptID !== '') {\n      continue;\n    }\n    \n    // TIER 1: Exact Match (High Confidence)\n    const vendorExactMatch = receiptVendor === txVendor;\n    const amountExactMatch = Math.abs(receiptAmount - txAmount) <= 0.02;\n    const dateWithin3Days = datesWithinDays(receiptDate, txDate, 3);\n    \n    if (vendorExactMatch && amountExactMatch && dateWithin3Days) {\n      bestMatch = txData;\n      bestConfidence = 0.95;\n      break; // Exact match found, stop searching\n    }\n    \n    // TIER 2: Fuzzy Match (Medium Confidence)\n    const vendorSimilarity = stringSimilarity(receiptVendor, txVendor);\n    const amountFuzzyMatch = Math.abs(receiptAmount - txAmount) <= 0.50;\n    \n    if (vendorSimilarity > 0.8 && amountFuzzyMatch && dateWithin3Days) {\n      const confidence = 0.7 + (vendorSimilarity * 0.2); // Range: 0.7 to 0.9\n      if (confidence > bestConfidence) {\n        bestMatch = txData;\n        bestConfidence = confidence;\n      }\n    }\n  }\n  \n  // Add match result\n  matches.push({\n    json: {\n      // Receipt data\n      ReceiptID: receiptData.ReceiptID,\n      ReceiptVendor: receiptData.Vendor,\n      ReceiptAmount: receiptData.Amount,\n      ReceiptDate: receiptData.Date,\n      ReceiptRowNumber: receiptData._rowNumber || null,\n      \n      // Match data\n      matched: bestMatch !== null,\n      confidence: bestConfidence,\n      matchType: 'receipt',\n      \n      // Transaction data (if matched)\n      TransactionID: bestMatch ? bestMatch.TransactionID : null,\n      TransactionVendor: bestMatch ? bestMatch.Vendor : null,\n      TransactionAmount: bestMatch ? bestMatch.Amount : null,\n      TransactionDate: bestMatch ? bestMatch.Date : null,\n      TransactionRowNumber: bestMatch ? bestMatch._rowNumber : null,\n      \n      // Match tier\n      matchTier: bestConfidence >= 0.95 ? 'EXACT' : (bestConfidence >= 0.7 ? 'FUZZY' : 'NONE')\n    }\n  });\n}\n\nreturn matches;"
+      },
+      "id": "node-5",
+      "name": "Match Receipts to Expense Transactions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1136, 240]
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "queryString": "='name contains \"Invoice\" and parents in \"' + $json.invoicesFolderId + '\"'",
+        "options": {}
+      },
+      "id": "node-search-invoices",
+      "name": "Search Invoices in Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [912, 720],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "PGGNF2ZKD2XqDhe0",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get income transactions and invoices from Google Drive\nconst transactions = $('Filter Income Transactions').all();\nconst invoices = $input.all();\n\n// Check if we have data to work with\nif (transactions.length === 1 && transactions[0].json.message === 'No income transactions found') {\n  return [{ json: { message: 'No income transactions to match invoices against', count: 0 } }];\n}\n\nif (invoices.length === 0) {\n  return [{ json: { message: 'No invoices found in Google Drive', count: 0 } }];\n}\n\n// Helper function: Calculate Levenshtein distance for fuzzy matching\nfunction levenshteinDistance(str1, str2) {\n  const len1 = str1.length;\n  const len2 = str2.length;\n  const matrix = [];\n\n  for (let i = 0; i <= len1; i++) {\n    matrix[i] = [i];\n  }\n\n  for (let j = 0; j <= len2; j++) {\n    matrix[0][j] = j;\n  }\n\n  for (let i = 1; i <= len1; i++) {\n    for (let j = 1; j <= len2; j++) {\n      const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;\n      matrix[i][j] = Math.min(\n        matrix[i - 1][j] + 1,\n        matrix[i][j - 1] + 1,\n        matrix[i - 1][j - 1] + cost\n      );\n    }\n  }\n\n  return matrix[len1][len2];\n}\n\n// Helper function: Calculate string similarity (0-1 scale)\nfunction stringSimilarity(str1, str2) {\n  const maxLen = Math.max(str1.length, str2.length);\n  if (maxLen === 0) return 1.0;\n  const distance = levenshteinDistance(str1, str2);\n  return 1.0 - (distance / maxLen);\n}\n\n// Helper function: Normalize vendor/client name for comparison\nfunction normalizeVendor(vendor) {\n  if (!vendor) return '';\n  return vendor.toLowerCase().trim();\n}\n\n// Helper function: Extract amount from invoice filename\nfunction extractAmountFromFilename(filename) {\n  // Common patterns: \"Invoice_ClientName_$1500.pdf\", \"Invoice_1500.pdf\"\n  const amountMatch = filename.match(/[\\$£€]?([0-9,]+\\.?[0-9]{0,2})/);\n  if (amountMatch) {\n    return parseFloat(amountMatch[1].replace(/,/g, ''));\n  }\n  return null;\n}\n\n// Helper function: Check if dates are within X days\nfunction datesWithinDays(date1, date2, days) {\n  const d1 = new Date(date1);\n  const d2 = new Date(date2);\n  const diffMs = Math.abs(d1 - d2);\n  const diffDays = diffMs / (1000 * 60 * 60 * 24);\n  return diffDays <= days;\n}\n\n// Main matching algorithm for invoices\nconst matches = [];\n\nfor (const transaction of transactions) {\n  const txData = transaction.json;\n  const txVendor = normalizeVendor(txData.Vendor);\n  const txAmount = parseFloat(txData.Amount) || 0;\n  const txDate = txData.Date;\n  \n  let bestMatch = null;\n  let bestConfidence = 0.0;\n  \n  for (const invoice of invoices) {\n    const invoiceData = invoice.json;\n    const invoiceName = invoiceData.name || '';\n    const invoiceVendor = normalizeVendor(invoiceName);\n    const invoiceAmount = extractAmountFromFilename(invoiceName);\n    const invoiceDate = invoiceData.createdTime;\n    \n    // TIER 1: Exact Match (High Confidence)\n    const vendorSimilarity = stringSimilarity(txVendor, invoiceVendor);\n    const vendorExactMatch = vendorSimilarity > 0.95;\n    const amountExactMatch = invoiceAmount && Math.abs(txAmount - invoiceAmount) <= 0.02;\n    const dateWithin7Days = datesWithinDays(txDate, invoiceDate, 7);\n    \n    if (vendorExactMatch && amountExactMatch && dateWithin7Days) {\n      bestMatch = invoiceData;\n      bestConfidence = 0.95;\n      break; // Exact match found, stop searching\n    }\n    \n    // TIER 2: Fuzzy Match (Medium Confidence)\n    const amountFuzzyMatch = invoiceAmount && Math.abs(txAmount - invoiceAmount) <= 1.00;\n    \n    if (vendorSimilarity > 0.7 && amountFuzzyMatch && dateWithin7Days) {\n      const confidence = 0.7 + (vendorSimilarity * 0.2); // Range: 0.7 to 0.9\n      if (confidence > bestConfidence) {\n        bestMatch = invoiceData;\n        bestConfidence = confidence;\n      }\n    }\n    \n    // TIER 3: Vendor-only match (Lower confidence)\n    if (vendorSimilarity > 0.8 && dateWithin7Days) {\n      const confidence = 0.6 + (vendorSimilarity * 0.1); // Range: 0.6 to 0.7\n      if (confidence > bestConfidence) {\n        bestMatch = invoiceData;\n        bestConfidence = confidence;\n      }\n    }\n  }\n  \n  // Add match result\n  matches.push({\n    json: {\n      // Transaction data\n      TransactionID: txData.TransactionID,\n      TransactionVendor: txData.Vendor,\n      TransactionAmount: txData.Amount,\n      TransactionDate: txData.Date,\n      TransactionRowNumber: txData._rowNumber || null,\n      \n      // Match data\n      matched: bestMatch !== null,\n      confidence: bestConfidence,\n      matchType: 'invoice',\n      \n      // Invoice data (if matched)\n      InvoiceID: bestMatch ? bestMatch.id : null,\n      InvoiceName: bestMatch ? bestMatch.name : null,\n      InvoiceURL: bestMatch ? bestMatch.webViewLink : null,\n      \n      // Match tier\n      matchTier: bestConfidence >= 0.95 ? 'EXACT' : (bestConfidence >= 0.7 ? 'FUZZY' : (bestConfidence >= 0.6 ? 'VENDOR_ONLY' : 'NONE'))\n    }\n  });\n}\n\nreturn matches;"
+      },
+      "id": "node-match-invoices",
+      "name": "Match Invoices to Income Transactions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1136, 720]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-receipt-invoice-matches",
+      "name": "Merge Receipt and Invoice Matches",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1360, 480]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "condition-1",
+              "leftValue": "={{ $json.matched }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "condition-2",
+              "leftValue": "={{ $json.confidence }}",
+              "rightValue": 0.7,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-6",
+      "name": "Filter Successful Matches",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1584, 480]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Prepare data for updating Receipts sheet (only if match type is receipt)\nconst item = $input.item;\n\nif (item.json.matchType !== 'receipt') {\n  return null; // Skip non-receipt matches\n}\n\nreturn {\n  json: {\n    ReceiptID: item.json.ReceiptID,\n    transaction_id: item.json.TransactionID,\n    Matched: 'TRUE',\n    rowNumber: item.json.ReceiptRowNumber\n  }\n};"
+      },
+      "id": "node-7",
+      "name": "Prepare Receipt Updates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1808, 336]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Receipts"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ReceiptID": "={{ $json.ReceiptID }}",
+            "transaction_id": "={{ $json.transaction_id }}",
+            "Matched": "={{ $json.Matched }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "node-8",
+      "name": "Update Receipts Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [2032, 336],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Prepare data for updating Transactions sheet\nconst item = $input.item;\n\nif (item.json.matchType === 'receipt') {\n  // Receipt match: Use ReceiptID\n  return {\n    json: {\n      TransactionID: item.json.TransactionID,\n      ReceiptID: item.json.ReceiptID,\n      InvoiceID: null,\n      MatchStatus: 'matched',\n      MatchConfidence: item.json.confidence.toFixed(2),\n      rowNumber: item.json.TransactionRowNumber\n    }\n  };\n} else if (item.json.matchType === 'invoice') {\n  // Invoice match: Use InvoiceID\n  return {\n    json: {\n      TransactionID: item.json.TransactionID,\n      ReceiptID: null,\n      InvoiceID: item.json.InvoiceID,\n      MatchStatus: 'invoice_matched',\n      MatchConfidence: item.json.confidence.toFixed(2),\n      rowNumber: item.json.TransactionRowNumber\n    }\n  };\n}\n\nreturn null;"
+      },
+      "id": "node-9",
+      "name": "Prepare Transaction Updates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1808, 624]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Transactions"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "TransactionID": "={{ $json.TransactionID }}",
+            "ReceiptID": "={{ $json.ReceiptID }}",
+            "InvoiceID": "={{ $json.InvoiceID }}",
+            "MatchStatus": "={{ $json.MatchStatus }}",
+            "MatchConfidence": "={{ $json.MatchConfidence }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "node-10",
+      "name": "Update Transactions Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [2032, 624],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all match results from both branches\nconst receiptMatches = $('Match Receipts to Expense Transactions').all();\nconst invoiceMatches = $('Match Invoices to Income Transactions').all();\n\n// Combine both\nconst allMatches = [...receiptMatches, ...invoiceMatches];\n\n// Calculate statistics\nconst totalItems = allMatches.length;\nconst matched = allMatches.filter(m => m.json.matched && m.json.confidence > 0.7);\nconst unmatched = allMatches.filter(m => !m.json.matched || m.json.confidence <= 0.7);\nconst receiptMatchCount = matched.filter(m => m.json.matchType === 'receipt').length;\nconst invoiceMatchCount = matched.filter(m => m.json.matchType === 'invoice').length;\nconst exactMatches = matched.filter(m => m.json.matchTier === 'EXACT');\nconst fuzzyMatches = matched.filter(m => m.json.matchTier === 'FUZZY');\n\n// Calculate average confidence (only for successful matches)\nconst avgConfidence = matched.length > 0 \n  ? matched.reduce((sum, m) => sum + m.json.confidence, 0) / matched.length \n  : 0;\n\nreturn [{\n  json: {\n    summary: `Processed ${totalItems} items: ${matched.length} matched (${receiptMatchCount} receipts, ${invoiceMatchCount} invoices), ${unmatched.length} unmatched`,\n    totalItems: totalItems,\n    successfulMatches: matched.length,\n    receiptMatches: receiptMatchCount,\n    invoiceMatches: invoiceMatchCount,\n    unmatchedItems: unmatched.length,\n    exactMatches: exactMatches.length,\n    fuzzyMatches: fuzzyMatches.length,\n    averageConfidence: avgConfidence.toFixed(2),\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-11",
+      "name": "Generate Summary Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2256, 480]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Transactions"
+        },
+        "options": {}
+      },
+      "id": "node-read-transactions-for-missing",
+      "name": "Read All Transactions for Missing Items",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [2480, 480],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Receipts"
+        },
+        "options": {}
+      },
+      "id": "node-read-receipts-for-missing",
+      "name": "Read All Receipts for Missing Items",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [2480, 672],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all transactions from Read All Transactions for Missing Items node\nconst transactions = $input.all();\n\n// Filter for unmatched expense transactions (Type='expense' AND ReceiptID is empty)\nconst unmatchedExpenses = transactions.filter(item => {\n  const type = item.json.Type;\n  const receiptId = item.json.ReceiptID;\n  \n  return type && type.toLowerCase() === 'expense' && (!receiptId || receiptId === '');\n});\n\n// Return unmatched expense transactions\nif (unmatchedExpenses.length === 0) {\n  return [{ json: { message: 'No unmatched expense transactions', count: 0, items: [] } }];\n}\n\nreturn [{\n  json: {\n    message: `Found ${unmatchedExpenses.length} unmatched expense transactions`,\n    count: unmatchedExpenses.length,\n    items: unmatchedExpenses.map(item => ({\n      TransactionID: item.json.TransactionID,\n      Date: item.json.Date,\n      Vendor: item.json.Vendor,\n      Amount: item.json.Amount,\n      Type: item.json.Type\n    }))\n  }\n}];"
+      },
+      "id": "node-find-unmatched-expenses",
+      "name": "Find Unmatched Expense Transactions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2704, 336]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all transactions from Read All Transactions for Missing Items node\nconst transactions = $('Read All Transactions for Missing Items').all();\n\n// Filter for unmatched income transactions (Type='income' AND InvoiceID is empty)\nconst unmatchedIncome = transactions.filter(item => {\n  const type = item.json.Type;\n  const invoiceId = item.json.InvoiceID;\n  \n  return type && type.toLowerCase() === 'income' && (!invoiceId || invoiceId === '');\n});\n\n// Return unmatched income transactions\nif (unmatchedIncome.length === 0) {\n  return [{ json: { message: 'No unmatched income transactions', count: 0, items: [] } }];\n}\n\nreturn [{\n  json: {\n    message: `Found ${unmatchedIncome.length} unmatched income transactions`,\n    count: unmatchedIncome.length,\n    items: unmatchedIncome.map(item => ({\n      TransactionID: item.json.TransactionID,\n      Date: item.json.Date,\n      Vendor: item.json.Vendor,\n      Amount: item.json.Amount,\n      Type: item.json.Type\n    }))\n  }\n}];"
+      },
+      "id": "node-find-unmatched-income",
+      "name": "Find Unmatched Income Transactions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2704, 528]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all receipts from Read All Receipts for Missing Items node\nconst receipts = $input.all();\n\n// Filter for orphaned receipts (no transaction_id or empty transaction_id)\nconst orphanedReceipts = receipts.filter(item => {\n  const transactionId = item.json.transaction_id;\n  return !transactionId || transactionId === '';\n});\n\n// Return orphaned receipts\nif (orphanedReceipts.length === 0) {\n  return [{ json: { message: 'No orphaned receipts', count: 0, items: [] } }];\n}\n\nreturn [{\n  json: {\n    message: `Found ${orphanedReceipts.length} orphaned receipts`,\n    count: orphanedReceipts.length,\n    items: orphanedReceipts.map(item => ({\n      ReceiptID: item.json.ReceiptID,\n      Date: item.json.Date,\n      Vendor: item.json.Vendor,\n      Amount: item.json.Amount\n    }))\n  }\n}];"
+      },
+      "id": "node-find-orphaned-receipts",
+      "name": "Find Orphaned Receipts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2704, 720]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from all missing items nodes\nconst unmatchedExpenses = $('Find Unmatched Expense Transactions').first().json;\nconst unmatchedIncome = $('Find Unmatched Income Transactions').first().json;\nconst orphanedReceipts = $('Find Orphaned Receipts').first().json;\nconst summary = $('Generate Summary Report').first().json;\n\n// Calculate totals\nconst totalUnmatched = unmatchedExpenses.count + unmatchedIncome.count;\nconst totalOrphaned = orphanedReceipts.count;\nconst totalTransactions = parseInt(summary.totalItems) || 0;\nconst totalMatched = parseInt(summary.successfulMatches) || 0;\n\n// Calculate success rate\nconst successRate = totalTransactions > 0 \n  ? ((totalMatched / totalTransactions) * 100).toFixed(1)\n  : '0.0';\n\n// Build markdown report\nlet report = `# Missing Items Report\\n\\n`;\nreport += `**Generated:** ${new Date().toISOString()}\\n\\n`;\nreport += `---\\n\\n`;\n\n// Overall Statistics\nreport += `## 📊 Overall Statistics\\n\\n`;\nreport += `- **Total Transactions Processed:** ${totalTransactions}\\n`;\nreport += `- **Successfully Matched:** ${totalMatched} (${successRate}%)\\n`;\nreport += `- **Unmatched Transactions:** ${totalUnmatched}\\n`;\nreport += `- **Orphaned Documents:** ${totalOrphaned}\\n\\n`;\nreport += `---\\n\\n`;\n\n// Unmatched Expense Transactions\nreport += `## 💳 Unmatched Expense Transactions (Need Receipts)\\n\\n`;\nif (unmatchedExpenses.count > 0) {\n  report += `**Count:** ${unmatchedExpenses.count}\\n\\n`;\n  report += `| Date | Vendor | Amount |\\n`;\n  report += `|------|--------|--------|\\n`;\n  unmatchedExpenses.items.forEach(item => {\n    report += `| ${item.Date} | ${item.Vendor} | $${item.Amount} |\\n`;\n  });\n  report += `\\n`;\n} else {\n  report += `✅ **All expense transactions have receipts!**\\n\\n`;\n}\n\nreport += `---\\n\\n`;\n\n// Unmatched Income Transactions\nreport += `## 📄 Unmatched Income Transactions (Need Invoices)\\n\\n`;\nif (unmatchedIncome.count > 0) {\n  report += `**Count:** ${unmatchedIncome.count}\\n\\n`;\n  report += `| Date | Vendor | Amount |\\n`;\n  report += `|------|--------|--------|\\n`;\n  unmatchedIncome.items.forEach(item => {\n    report += `| ${item.Date} | ${item.Vendor} | $${item.Amount} |\\n`;\n  });\n  report += `\\n`;\n} else {\n  report += `✅ **All income transactions have invoices!**\\n\\n`;\n}\n\nreport += `---\\n\\n`;\n\n// Orphaned Receipts\nreport += `## 🧾 Orphaned Receipts (No Transaction Match)\\n\\n`;\nif (orphanedReceipts.count > 0) {\n  report += `**Count:** ${orphanedReceipts.count}\\n\\n`;\n  report += `| Date | Vendor | Amount |\\n`;\n  report += `|------|--------|--------|\\n`;\n  orphanedReceipts.items.forEach(item => {\n    report += `| ${item.Date} | ${item.Vendor} | $${item.Amount} |\\n`;\n  });\n  report += `\\n`;\n  report += `> **Note:** These receipts don't match any transaction. Consider creating transactions or removing if duplicates.\\n\\n`;\n} else {\n  report += `✅ **All receipts are matched to transactions!**\\n\\n`;\n}\n\nreport += `---\\n\\n`;\n\n// Action Items\nreport += `## ✅ Action Items\\n\\n`;\nif (unmatchedExpenses.count > 0) {\n  report += `1. **Find ${unmatchedExpenses.count} missing receipts** for expense transactions listed above\\n`;\n}\nif (unmatchedIncome.count > 0) {\n  report += `${unmatchedExpenses.count > 0 ? '2' : '1'}. **Find ${unmatchedIncome.count} missing invoices** for income transactions listed above\\n`;\n}\nif (orphanedReceipts.count > 0) {\n  const step = (unmatchedExpenses.count > 0 ? 1 : 0) + (unmatchedIncome.count > 0 ? 1 : 0) + 1;\n  report += `${step}. **Review ${orphanedReceipts.count} orphaned receipts** - create transactions or remove duplicates\\n`;\n}\n\nif (unmatchedExpenses.count === 0 && unmatchedIncome.count === 0 && orphanedReceipts.count === 0) {\n  report += `🎉 **No action needed! All documents are properly matched.**\\n\\n`;\n}\n\nreturn [{\n  json: {\n    reportMarkdown: report,\n    summary: {\n      totalTransactions: totalTransactions,\n      totalMatched: totalMatched,\n      successRate: successRate,\n      unmatchedExpenses: unmatchedExpenses.count,\n      unmatchedIncome: unmatchedIncome.count,\n      orphanedReceipts: orphanedReceipts.count,\n      totalIssues: totalUnmatched + totalOrphaned\n    },\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-format-missing-items-report",
+      "name": "Format Missing Items Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2928, 480]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-receipts-transactions",
+      "name": "Merge Receipts and Expense Txns",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [912, 240]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Get Invoices folder ID from Google Drive\n// Configured: 2026-01-09\n// Folder: Invoices (in Expenses-System parent folder)\n\nreturn {\n  json: {\n    invoicesFolderId: '1V7UmNvDP3a2t6IIbJJI7y8YXz6_X7F6l'\n  }\n};"
+      },
+      "id": "node-get-invoice-folder",
+      "name": "Get Invoices Folder ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [688, 816]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read Unmatched Receipts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read All Transactions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Unmatched Receipts": {
+      "main": [
+        [
+          {
+            "node": "Filter Unmatched Receipts Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read All Transactions": {
+      "main": [
+        [
+          {
+            "node": "Filter Expense Transactions",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Filter Income Transactions",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Invoices Folder ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Unmatched Receipts Only": {
+      "main": [
+        [
+          {
+            "node": "Merge Receipts and Expense Txns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Expense Transactions": {
+      "main": [
+        [
+          {
+            "node": "Merge Receipts and Expense Txns",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Filter Income Transactions": {
+      "main": [
+        [
+          {
+            "node": "Search Invoices in Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Receipts and Expense Txns": {
+      "main": [
+        [
+          {
+            "node": "Match Receipts to Expense Transactions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match Receipts to Expense Transactions": {
+      "main": [
+        [
+          {
+            "node": "Merge Receipt and Invoice Matches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Invoices Folder ID": {
+      "main": [
+        [
+          {
+            "node": "Search Invoices in Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Invoices in Drive": {
+      "main": [
+        [
+          {
+            "node": "Match Invoices to Income Transactions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match Invoices to Income Transactions": {
+      "main": [
+        [
+          {
+            "node": "Merge Receipt and Invoice Matches",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Receipt and Invoice Matches": {
+      "main": [
+        [
+          {
+            "node": "Filter Successful Matches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Successful Matches": {
+      "main": [
+        [
+          {
+            "node": "Prepare Receipt Updates",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prepare Transaction Updates",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Prepare Receipt Updates": {
+      "main": [
+        [
+          {
+            "node": "Update Receipts Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Transaction Updates": {
+      "main": [
+        [
+          {
+            "node": "Update Transactions Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Receipts Sheet": {
+      "main": [
+        [
+          {
+            "node": "Generate Summary Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Transactions Sheet": {
+      "main": [
+        [
+          {
+            "node": "Generate Summary Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Summary Report": {
+      "main": [
+        [
+          {
+            "node": "Read All Transactions for Missing Items",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read All Receipts for Missing Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read All Transactions for Missing Items": {
+      "main": [
+        [
+          {
+            "node": "Find Unmatched Expense Transactions",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Find Unmatched Income Transactions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read All Receipts for Missing Items": {
+      "main": [
+        [
+          {
+            "node": "Find Orphaned Receipts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Unmatched Expense Transactions": {
+      "main": [
+        [
+          {
+            "node": "Format Missing Items Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Unmatched Income Transactions": {
+      "main": [
+        [
+          {
+            "node": "Format Missing Items Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Orphaned Receipts": {
+      "main": [
+        [
+          {
+            "node": "Format Missing Items Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "exportedAt": "2026-01-09T16:30:00.000Z",
+    "version": "v2.1",
+    "changesSinceV2.0": [
+      "Added parallel invoice matching for Type='income' transactions",
+      "Split transaction filtering into expense vs income branches",
+      "Added Google Drive search for invoices folder",
+      "Implemented same fuzzy matching algorithm for invoices",
+      "Added invoice_matched status for income transactions",
+      "Merged both receipt and invoice matching results before updating sheets",
+      "Updated Transactions sheet to track both ReceiptID and InvoiceID",
+      "Added comprehensive missing items reporting functionality",
+      "Identifies unmatched expense transactions (need receipts)",
+      "Identifies unmatched income transactions (need invoices)",
+      "Identifies orphaned receipts (no transaction match)",
+      "Generates detailed markdown report with actionable items"
+    ],
+    "configuration_required": [
+      "Update 'Get Invoices Folder ID' node with actual Google Drive Invoices folder ID",
+      "Ensure Transactions sheet has 'Type' column (expense/income)",
+      "Ensure Transactions sheet has 'InvoiceID' column",
+      "Test with sample income transactions and invoice PDFs"
+    ],
+    "new_features_v2.1": {
+      "missing_items_report": {
+        "description": "Comprehensive missing items report showing what documents are still needed",
+        "includes": [
+          "Count of unmatched expense transactions (need receipts)",
+          "Count of unmatched income transactions (need invoices)",
+          "List of specific unmatched transactions with Date, Vendor, Amount, Type",
+          "Count of orphaned receipts (receipts without transaction)",
+          "Overall matching success rate (%)",
+          "Actionable checklist of items to find/resolve"
+        ],
+        "format": "Markdown report with tables and statistics",
+        "nodes": [
+          "Read All Transactions for Missing Items",
+          "Read All Receipts for Missing Items",
+          "Find Unmatched Expense Transactions",
+          "Find Unmatched Income Transactions",
+          "Find Orphaned Receipts",
+          "Format Missing Items Report"
+        ]
+      }
+    }
+  }
+}

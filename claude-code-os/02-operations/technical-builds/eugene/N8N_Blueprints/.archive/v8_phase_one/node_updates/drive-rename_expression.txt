@@ -1,0 +1,67 @@
+={{
+  const actionType = $json.actionType;
+  const documentType = $json.documentType;
+  const combinedConfidence = $json.combinedConfidence;
+  const originalFilename = $json.filename;
+
+  // Extract file extension
+  const extension = originalFilename.split('.').pop();
+
+  // Extract client name from email (e.g., villa_martens@ama.de → villa_martens)
+  const clientEmail = $json.clientEmail;
+  const clientName = clientEmail.split('@')[0];
+
+  // Build type code (snake_case English name from documentType)
+  let typeCode;
+
+  if (actionType === 'LOW_CONFIDENCE') {
+    typeCode = 'REVIEW_unknown';
+  } else {
+    // Map document type to English snake_case
+    const typeMapping = {
+      '01_Projektbeschreibung': 'CORE_expose',
+      '02_Kaufvertrag': 'purchase_agreement',
+      '03_Grundbuchauszug': 'CORE_grundbuch',
+      '04_Eintragungsbewilligungen': 'entry_permits',
+      '05_Bodenrichtwert': 'land_value',
+      '06_Baulastenverzeichnis': 'building_encumbrance',
+      '07_Altlastenkataster': 'contaminated_sites',
+      '08_Baugrundgutachten': 'soil_survey',
+      '09_Lageplan': 'site_plan',
+      '10_Bautraegerkalkulation_DIN276': 'CORE_calculation',
+      '11_Verkaufspreise': 'sales_prices',
+      '12_Bauzeitenplan_Liquiditaet': 'construction_schedule',
+      '13_Vertriebsweg': 'distribution_channel',
+      '14_Bau_Ausstattungsbeschreibung': 'construction_specs',
+      '15_Flaechenberechnung_DIN277': 'area_calculation',
+      '16_GU_Werkvertraege': 'contractor_agreements',
+      '17_Bauzeichnungen': 'construction_drawings',
+      '18_Baugenehmigung': 'building_permit',
+      '19_Teilungserklaerung': 'division_declaration',
+      '20_Versicherungen': 'insurance',
+      '21_Muster_Verkaufsvertrag': 'sample_sales_contract',
+      '22_Gutachterauftrag': 'expert_assignment',
+      '23_Umsatzsteuervoranmeldung': 'vat_return',
+      '24_BWA': 'business_evaluation',
+      '25_Jahresabschluss': 'annual_financial',
+      '26_Finanzierungsbestaetigung': 'financing_confirmation',
+      '27_Darlehensvertrag': 'loan_agreement',
+      '28_Gesellschaftsvertrag': 'partnership_agreement',
+      '29_Handelsregisterauszug': 'commercial_register',
+      '30_Gewerbeanmeldung': 'business_registration',
+      '31_Steuer_ID': 'tax_id',
+      '32_Freistellungsbescheinigung': 'exemption_certificate',
+      '33_Vollmachten': 'power_of_attorney',
+      '34_Korrespondenz': 'correspondence',
+      '35_Sonstiges_Allgemein': 'general_misc',
+      '36_Exit_Strategie': 'CORE_exit_strategy',
+      '37_Others': 'others',
+      '38_Unknowns': 'unknowns'
+    };
+
+    typeCode = typeMapping[documentType] || 'unknown';
+  }
+
+  // Build filename: typeCode_clientName_confidencePct.ext
+  return `${typeCode}_${clientName}_${combinedConfidence}pct.${extension}`;
+}}

@@ -1,0 +1,43 @@
+{
+  "name": "Fathom Meeting Notification",
+  "nodes": [
+    {
+      "id": "webhook_fathom",
+      "name": "Fathom Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "fathom-meeting",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fathom-meeting",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "email_notify",
+      "name": "Send Notification Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [500, 300],
+      "parameters": {
+        "fromEmail": "n8n@oloxa.ai",
+        "toEmail": "swayclarkeii@gmail.com",
+        "subject": "New Fathom Meeting Ready: {{ $json.body.recording.title }}",
+        "emailType": "text",
+        "message": "A new Fathom meeting recording is ready for processing!\n\nMeeting: {{ $json.body.recording.title }}\nDate: {{ $json.body.recording.created_at }}\n\nRun /process-meetings in Claude Code to process this meeting.",
+        "options": {}
+      },
+      "credentials": {}
+    }
+  ],
+  "connections": {
+    "Fathom Webhook": {
+      "main": [[{"node": "Send Notification Email", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

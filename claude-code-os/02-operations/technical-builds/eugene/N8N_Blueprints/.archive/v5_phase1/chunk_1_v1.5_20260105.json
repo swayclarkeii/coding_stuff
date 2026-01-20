@@ -1,0 +1,1185 @@
+{
+  "success": true,
+  "data": {
+    "updatedAt": "2026-01-05T16:54:56.902Z",
+    "createdAt": "2026-01-02T14:44:05.486Z",
+    "id": "djsBWsrAEKbj2omB",
+    "name": "AMA Chunk 1: Email to Staging (Document Organizer V4)",
+    "description": null,
+    "active": true,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "simple": false,
+          "filters": {
+            "labelIds": [
+              "={{ $vars.GMAIL_LABEL_ID }}"
+            ],
+            "readStatus": "unread"
+          },
+          "options": {
+            "downloadAttachments": true
+          }
+        },
+        "name": "Gmail Trigger",
+        "type": "n8n-nodes-base.gmailTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          112,
+          416
+        ],
+        "id": "node-gmail-trigger",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "aYzk7sZF8ZVyfOan",
+            "name": "Gmail account"
+          }
+        },
+        "disabled": true,
+        "notes": "DEPRECATED V4: Old Gmail polling trigger. Replaced by Execute Workflow Trigger from Pre-Chunk 0. Kept for rollback capability only."
+      },
+      {
+        "parameters": {
+          "jsCode": "// V4: Extract email metadata and normalize field names\n// FIXED: Read from Gmail API response format (capitalized fields)\nconst inputItem = $input.first();\nconst email = inputItem.json;\nconst binary = inputItem.binary || {};\n\n// Count actual binary attachments\nconst binaryKeys = Object.keys(binary);\nconst attachmentCount = binaryKeys.length;\n\nconst normalizedEmail = {\n  emailId: email.id,\n  threadId: email.threadId,\n  from: email.From || email.from?.text || email.from || 'Unknown Sender',\n  subject: email.Subject || email.subject || 'No Subject',\n  date: email.internalDate ? new Date(parseInt(email.internalDate)).toISOString() : new Date().toISOString(),\n  hasAttachments: attachmentCount > 0,\n  attachmentCount: attachmentCount,\n  processedAt: new Date().toISOString()\n};\n\n// ✅ Pass through binary data to downstream nodes\nreturn [{\n  json: normalizedEmail,\n  binary: binary\n}];"
+        },
+        "name": "Normalize Email Data",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          336,
+          416
+        ],
+        "id": "node-normalize-email",
+        "disabled": true,
+        "notes": "V4: Normalizes email data with consistent field names."
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "has-attachments",
+                "leftValue": "={{ $json.hasAttachments }}",
+                "rightValue": true,
+                "operator": {
+                  "type": "boolean",
+                  "operation": "equals"
+                }
+              }
+            ]
+          },
+          "options": {}
+        },
+        "name": "IF Has Attachments",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          560,
+          416
+        ],
+        "id": "node-if-attachments",
+        "disabled": true,
+        "notes": "Routes emails with attachments for processing."
+      },
+      {
+        "parameters": {
+          "jsCode": " // V4: Extract attachments to individual items for sequential processing\n  // FIXED: Read from binary data, not json.attachments\n  const inputItem = $input.first();\n  const emailData = inputItem.json;\n  const binary = inputItem.binary || {};\n\n  // Check if we have any binary attachments\n  const binaryKeys = Object.keys(binary);\n  if (binaryKeys.length === 0) {\n    return [];\n  }\n\n  const attachmentItems = [];\n\n  // Iterate over binary keys (attachment_0, attachment_1, etc.)\n  for (const [key, att] of Object.entries(binary)) {\n    const fileName = att.fileName || `attachment_${key}`;  // ✅ fileName not filename\n    const mimeType = att.mimeType || 'application/octet-stream';\n    const extension = fileName.split('.').pop()?.toLowerCase() || '';\n    const attachmentIndex = parseInt(key.replace('attachment_', '')) || 0;\n\n    attachmentItems.push({\n      json: {\n        // Normalized field names (V4)\n        fileId: null, // Will be set after upload\n        fileName: fileName,\n        originalFileName: fileName,\n        mimeType: mimeType,\n        extension: extension,\n        size: att.fileSize || 0,  // ✅ fileSize not size\n        attachmentIndex: attachmentIndex,\n        attachmentKey: key,\n        // Email context\n        emailId: emailData.emailId,\n        emailFrom: emailData.from,\n        emailSubject: emailData.subject,\n        emailDate: emailData.date,\n        // Processing metadata\n        processedAt: emailData.processedAt,\n        isZip: extension === 'zip',\n        isPdf: extension === 'pdf',\n        isSupported: ['pdf', 'zip'].includes(extension)\n      },\n      binary: {\n        data: att  // ✅ Pass through binary attachment\n      }\n    });\n  }\n\n  return attachmentItems;"
+        },
+        "name": "Extract Attachments",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          784,
+          416
+        ],
+        "id": "node-extract-attachments",
+        "disabled": true,
+        "notes": "V4: Extracts attachments with normalized field names."
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "is-supported",
+                "leftValue": "={{ $json.isSupported }}",
+                "rightValue": true,
+                "operator": {
+                  "type": "boolean",
+                  "operation": "equals"
+                }
+              }
+            ]
+          },
+          "options": {}
+        },
+        "name": "Filter Supported Files",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          1008,
+          416
+        ],
+        "id": "node-filter-supported",
+        "disabled": true,
+        "notes": "Only processes PDF and ZIP files. Other types are logged and skipped."
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "name": "Sequential Processing",
+        "type": "n8n-nodes-base.splitInBatches",
+        "typeVersion": 3,
+        "position": [
+          1232,
+          416
+        ],
+        "id": "node-sequential",
+        "disabled": true,
+        "notes": "V4 FIX: Processes documents ONE AT A TIME to prevent race conditions."
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "is-zip",
+                "leftValue": "={{ $json.isZip }}",
+                "rightValue": true,
+                "operator": {
+                  "type": "boolean",
+                  "operation": "equals"
+                }
+              }
+            ]
+          },
+          "options": {}
+        },
+        "name": "IF ZIP File",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          1456,
+          352
+        ],
+        "id": "node-if-zip",
+        "disabled": true,
+        "notes": "Routes ZIP files for extraction."
+      },
+      {
+        "parameters": {},
+        "name": "Extract ZIP",
+        "type": "n8n-nodes-base.compression",
+        "typeVersion": 1,
+        "position": [
+          1680,
+          272
+        ],
+        "id": "node-extract-zip",
+        "disabled": true,
+        "notes": "Extracts all files from ZIP archive."
+      },
+      {
+        "parameters": {
+          "jsCode": "// V4: Normalize extracted ZIP contents\nconst items = $input.all();\nconst originalItem = $('IF ZIP File').first().json;\n\nconst extractedFiles = [];\n\nfor (const item of items) {\n  const fileName = item.json.fileName || 'extracted_file';\n  const extension = fileName.split('.').pop()?.toLowerCase() || '';\n  \n  // Only process PDFs from ZIP\n  if (extension === 'pdf') {\n    extractedFiles.push({\n      json: {\n        fileId: null,\n        fileName: fileName,\n        originalFileName: fileName,\n        mimeType: 'application/pdf',\n        extension: extension,\n        size: item.json.size || 0,\n        emailId: originalItem.emailId,\n        emailFrom: originalItem.emailFrom,\n        emailSubject: originalItem.emailSubject,\n        emailDate: originalItem.emailDate,\n        processedAt: new Date().toISOString(),\n        isZip: false,\n        isPdf: true,\n        isSupported: true,\n        extractedFromZip: true,\n        zipFileName: originalItem.fileName\n      },\n      binary: item.binary\n    });\n  }\n}\n\nreturn extractedFiles;"
+        },
+        "name": "Normalize ZIP Contents",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1904,
+          272
+        ],
+        "id": "node-normalize-zip",
+        "disabled": true,
+        "notes": "V4: Normalizes extracted files with consistent field names."
+      },
+      {
+        "parameters": {
+          "jsCode": "// V4: Simple pass-through - no node references\nreturn $input.all();"
+        },
+        "name": "Merge File Streams",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2128,
+          352
+        ],
+        "id": "node-merge-streams",
+        "disabled": true,
+        "notes": "Combines direct PDFs and extracted PDFs into single stream."
+      },
+      {
+        "parameters": {
+          "name": "={{ $json.fileName }}",
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $('Merge Parameters').first().json.staging_folder_id }}"
+          },
+          "options": {}
+        },
+        "name": "Upload to Staging",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          2352,
+          352
+        ],
+        "id": "node-upload-staging",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        },
+        "disabled": true,
+        "onError": "continueRegularOutput",
+        "notes": "Uploads file to staging folder for processing."
+      },
+      {
+        "parameters": {
+          "jsCode": "// V4: Normalize output with fileId from upload\nconst uploadResult = $input.first().json;\nconst originalData = $('Merge File Streams').first().json;\n\nreturn [{\n  json: {\n    // Normalized field names (V4 standard)\n    fileId: uploadResult.id,\n    fileName: originalData.fileName,\n    originalFileName: originalData.originalFileName,\n    mimeType: originalData.mimeType,\n    extension: originalData.extension,\n    size: originalData.size,\n    // Email context\n    emailId: originalData.emailId,\n    emailFrom: originalData.emailFrom,\n    emailSubject: originalData.emailSubject,\n    emailDate: originalData.emailDate,\n    // Processing metadata\n    processedAt: new Date().toISOString(),\n    stagingPath: uploadResult.name,\n    extractedFromZip: originalData.extractedFromZip || false,\n    zipFileName: originalData.zipFileName || null,\n    // Placeholder fields for downstream chunks\n    documentType: null,\n    confidence: null,\n    projectName: null\n  }\n}];"
+        },
+        "name": "Normalize Output",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2576,
+          416
+        ],
+        "id": "node-normalize-output",
+        "disabled": true,
+        "notes": "V4: Ensures consistent field names for Chunk 2."
+      },
+      {
+        "parameters": {},
+        "id": "node-execute-workflow-trigger",
+        "name": "Receive from Pre-Chunk 0",
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1,
+        "position": [
+          112,
+          288
+        ],
+        "notes": "V4: Receives file_id, client_normalized, and staging_folder_id from Pre-Chunk 0"
+      },
+      {
+        "parameters": {
+          "operation": "get",
+          "messageId": "={{ $json.email_id }}"
+        },
+        "id": "node-get-gmail-message",
+        "name": "Get Gmail Message",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          336,
+          288
+        ],
+        "webhookId": "9d132a58-0db1-44a6-abd5-84c0455a93bb",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "aYzk7sZF8ZVyfOan",
+            "name": "Gmail account"
+          }
+        },
+        "disabled": true,
+        "notes": "V4: Fetches specific email by ID from Pre-Chunk 0 with attachments downloaded"
+      },
+      {
+        "parameters": {
+          "jsCode": "// V4: Merge email data with parameters from Pre-Chunk 0\nconst emailData = $('Normalize Email Data').first().json;\nconst parameters = $('Receive from Pre-Chunk 0').first().json;\n\n// ✅ Pass through binary data from email\nconst binary = $('Normalize Email Data').first().binary || {};\n\nreturn [{\n  json: {\n    ...emailData,\n    client_normalized: parameters.client_normalized,\n    staging_folder_id: parameters.staging_folder_id\n  },\n  binary: binary  // ✅ Don't lose PDF attachments!\n}];"
+        },
+        "id": "node-merge-parameters",
+        "name": "Merge Parameters",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          784,
+          288
+        ],
+        "disabled": true,
+        "notes": "V4: Combines email data with Pre-Chunk 0 parameters (client_normalized + staging_folder_id)"
+      },
+      {
+        "parameters": {
+          "operation": "move",
+          "fileId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $json.file_id }}"
+          },
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $json.staging_folder_id }}"
+          }
+        },
+        "id": "node-move-file",
+        "name": "Move File to Staging",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          336,
+          288
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        },
+        "onError": "continueRegularOutput",
+        "notes": "V4: Moves file from temp folder (1ikw3k-EgpVg_h2ySDdqdUFB7-FQyYDFm) to staging_folder_id"
+      }
+    ],
+    "connections": {
+      "Gmail Trigger": {
+        "main": [
+          [
+            {
+              "node": "Normalize Email Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Normalize Email Data": {
+        "main": [
+          [
+            {
+              "node": "Merge Parameters",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF Has Attachments": {
+        "main": [
+          [
+            {
+              "node": "Extract Attachments",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          []
+        ]
+      },
+      "Extract Attachments": {
+        "main": [
+          [
+            {
+              "node": "Filter Supported Files",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF ZIP File": {
+        "main": [
+          [
+            {
+              "node": "Extract ZIP",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Merge File Streams",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract ZIP": {
+        "main": [
+          [
+            {
+              "node": "Normalize ZIP Contents",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Normalize ZIP Contents": {
+        "main": [
+          [
+            {
+              "node": "Merge File Streams",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge File Streams": {
+        "main": [
+          [
+            {
+              "node": "Upload to Staging",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload to Staging": {
+        "main": [
+          [
+            {
+              "node": "Normalize Output",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter Supported Files": {
+        "main": [
+          [
+            {
+              "node": "Sequential Processing",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Sequential Processing": {
+        "main": [
+          [],
+          [
+            {
+              "node": "IF ZIP File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Normalize Output": {
+        "main": [
+          [
+            {
+              "node": "Sequential Processing",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Gmail Message": {
+        "main": [
+          [
+            {
+              "node": "Normalize Email Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge Parameters": {
+        "main": [
+          [
+            {
+              "node": "IF Has Attachments",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Receive from Pre-Chunk 0": {
+        "main": [
+          [
+            {
+              "node": "Move File to Staging",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "saveManualExecutions": true,
+      "callerPolicy": "workflowsFromSameOwner",
+      "availableInMCP": false
+    },
+    "staticData": {
+      "node:Gmail Trigger": {
+        "Gmail Trigger": {
+          "lastTimeChecked": 1767486353,
+          "possibleDuplicates": [
+            "19b8665d03d49ed9"
+          ]
+        }
+      }
+    },
+    "meta": {
+      "templateCredsSetupCompleted": true
+    },
+    "pinData": {},
+    "versionId": "5e969a90-06e7-4cc8-be2a-931cade2e5de",
+    "activeVersionId": "5e969a90-06e7-4cc8-be2a-931cade2e5de",
+    "versionCounter": 105,
+    "triggerCount": 0,
+    "shared": [
+      {
+        "updatedAt": "2026-01-02T14:44:05.486Z",
+        "createdAt": "2026-01-02T14:44:05.486Z",
+        "role": "workflow:owner",
+        "workflowId": "djsBWsrAEKbj2omB",
+        "projectId": "Rs8mhw052fnrzWZM",
+        "project": {
+          "updatedAt": "2025-12-31T15:54:29.115Z",
+          "createdAt": "2025-12-31T15:27:33.865Z",
+          "id": "Rs8mhw052fnrzWZM",
+          "name": "Sway Clarke <sway@oloxa.ai>",
+          "type": "personal",
+          "icon": null,
+          "description": null,
+          "creatorId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+          "projectRelations": [
+            {
+              "updatedAt": "2025-12-31T15:27:33.865Z",
+              "createdAt": "2025-12-31T15:27:33.865Z",
+              "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+              "projectId": "Rs8mhw052fnrzWZM",
+              "user": {
+                "updatedAt": "2026-01-04T23:00:49.437Z",
+                "createdAt": "2025-12-31T15:27:33.119Z",
+                "id": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+                "email": "sway@oloxa.ai",
+                "firstName": "Sway",
+                "lastName": "Clarke",
+                "personalizationAnswers": {
+                  "version": "v4",
+                  "personalization_survey_submitted_at": "2025-12-31T15:54:37.562Z",
+                  "personalization_survey_n8n_version": "2.1.4"
+                },
+                "settings": {
+                  "userActivated": true,
+                  "easyAIWorkflowOnboarded": true,
+                  "firstSuccessfulWorkflowId": "zbxHkXOoD1qaz6OS",
+                  "userActivatedAt": 1767398053308
+                },
+                "disabled": false,
+                "mfaEnabled": false,
+                "lastActiveAt": "2026-01-04",
+                "isPending": false
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "tags": [],
+    "activeVersion": {
+      "updatedAt": "2026-01-05T16:55:03.630Z",
+      "createdAt": "2026-01-05T16:54:56.912Z",
+      "versionId": "5e969a90-06e7-4cc8-be2a-931cade2e5de",
+      "workflowId": "djsBWsrAEKbj2omB",
+      "nodes": [
+        {
+          "parameters": {
+            "pollTimes": {
+              "item": [
+                {
+                  "mode": "everyMinute"
+                }
+              ]
+            },
+            "simple": false,
+            "filters": {
+              "labelIds": [
+                "={{ $vars.GMAIL_LABEL_ID }}"
+              ],
+              "readStatus": "unread"
+            },
+            "options": {
+              "downloadAttachments": true
+            }
+          },
+          "name": "Gmail Trigger",
+          "type": "n8n-nodes-base.gmailTrigger",
+          "typeVersion": 1.2,
+          "position": [
+            112,
+            416
+          ],
+          "id": "node-gmail-trigger",
+          "credentials": {
+            "gmailOAuth2": {
+              "id": "aYzk7sZF8ZVyfOan",
+              "name": "Gmail account"
+            }
+          },
+          "disabled": true,
+          "notes": "DEPRECATED V4: Old Gmail polling trigger. Replaced by Execute Workflow Trigger from Pre-Chunk 0. Kept for rollback capability only."
+        },
+        {
+          "parameters": {
+            "jsCode": "// V4: Extract email metadata and normalize field names\n// FIXED: Read from Gmail API response format (capitalized fields)\nconst inputItem = $input.first();\nconst email = inputItem.json;\nconst binary = inputItem.binary || {};\n\n// Count actual binary attachments\nconst binaryKeys = Object.keys(binary);\nconst attachmentCount = binaryKeys.length;\n\nconst normalizedEmail = {\n  emailId: email.id,\n  threadId: email.threadId,\n  from: email.From || email.from?.text || email.from || 'Unknown Sender',\n  subject: email.Subject || email.subject || 'No Subject',\n  date: email.internalDate ? new Date(parseInt(email.internalDate)).toISOString() : new Date().toISOString(),\n  hasAttachments: attachmentCount > 0,\n  attachmentCount: attachmentCount,\n  processedAt: new Date().toISOString()\n};\n\n// ✅ Pass through binary data to downstream nodes\nreturn [{\n  json: normalizedEmail,\n  binary: binary\n}];"
+          },
+          "name": "Normalize Email Data",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            336,
+            416
+          ],
+          "id": "node-normalize-email",
+          "disabled": true,
+          "notes": "V4: Normalizes email data with consistent field names."
+        },
+        {
+          "parameters": {
+            "conditions": {
+              "options": {
+                "leftValue": "",
+                "caseSensitive": true,
+                "typeValidation": "strict"
+              },
+              "combinator": "and",
+              "conditions": [
+                {
+                  "id": "has-attachments",
+                  "leftValue": "={{ $json.hasAttachments }}",
+                  "rightValue": true,
+                  "operator": {
+                    "type": "boolean",
+                    "operation": "equals"
+                  }
+                }
+              ]
+            },
+            "options": {}
+          },
+          "name": "IF Has Attachments",
+          "type": "n8n-nodes-base.if",
+          "typeVersion": 2,
+          "position": [
+            560,
+            416
+          ],
+          "id": "node-if-attachments",
+          "disabled": true,
+          "notes": "Routes emails with attachments for processing."
+        },
+        {
+          "parameters": {
+            "jsCode": " // V4: Extract attachments to individual items for sequential processing\n  // FIXED: Read from binary data, not json.attachments\n  const inputItem = $input.first();\n  const emailData = inputItem.json;\n  const binary = inputItem.binary || {};\n\n  // Check if we have any binary attachments\n  const binaryKeys = Object.keys(binary);\n  if (binaryKeys.length === 0) {\n    return [];\n  }\n\n  const attachmentItems = [];\n\n  // Iterate over binary keys (attachment_0, attachment_1, etc.)\n  for (const [key, att] of Object.entries(binary)) {\n    const fileName = att.fileName || `attachment_${key}`;  // ✅ fileName not filename\n    const mimeType = att.mimeType || 'application/octet-stream';\n    const extension = fileName.split('.').pop()?.toLowerCase() || '';\n    const attachmentIndex = parseInt(key.replace('attachment_', '')) || 0;\n\n    attachmentItems.push({\n      json: {\n        // Normalized field names (V4)\n        fileId: null, // Will be set after upload\n        fileName: fileName,\n        originalFileName: fileName,\n        mimeType: mimeType,\n        extension: extension,\n        size: att.fileSize || 0,  // ✅ fileSize not size\n        attachmentIndex: attachmentIndex,\n        attachmentKey: key,\n        // Email context\n        emailId: emailData.emailId,\n        emailFrom: emailData.from,\n        emailSubject: emailData.subject,\n        emailDate: emailData.date,\n        // Processing metadata\n        processedAt: emailData.processedAt,\n        isZip: extension === 'zip',\n        isPdf: extension === 'pdf',\n        isSupported: ['pdf', 'zip'].includes(extension)\n      },\n      binary: {\n        data: att  // ✅ Pass through binary attachment\n      }\n    });\n  }\n\n  return attachmentItems;"
+          },
+          "name": "Extract Attachments",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            784,
+            416
+          ],
+          "id": "node-extract-attachments",
+          "disabled": true,
+          "notes": "V4: Extracts attachments with normalized field names."
+        },
+        {
+          "parameters": {
+            "conditions": {
+              "options": {
+                "leftValue": "",
+                "caseSensitive": true,
+                "typeValidation": "strict"
+              },
+              "combinator": "and",
+              "conditions": [
+                {
+                  "id": "is-supported",
+                  "leftValue": "={{ $json.isSupported }}",
+                  "rightValue": true,
+                  "operator": {
+                    "type": "boolean",
+                    "operation": "equals"
+                  }
+                }
+              ]
+            },
+            "options": {}
+          },
+          "name": "Filter Supported Files",
+          "type": "n8n-nodes-base.if",
+          "typeVersion": 2,
+          "position": [
+            1008,
+            416
+          ],
+          "id": "node-filter-supported",
+          "disabled": true,
+          "notes": "Only processes PDF and ZIP files. Other types are logged and skipped."
+        },
+        {
+          "parameters": {
+            "options": {}
+          },
+          "name": "Sequential Processing",
+          "type": "n8n-nodes-base.splitInBatches",
+          "typeVersion": 3,
+          "position": [
+            1232,
+            416
+          ],
+          "id": "node-sequential",
+          "disabled": true,
+          "notes": "V4 FIX: Processes documents ONE AT A TIME to prevent race conditions."
+        },
+        {
+          "parameters": {
+            "conditions": {
+              "options": {
+                "leftValue": "",
+                "caseSensitive": true,
+                "typeValidation": "strict"
+              },
+              "combinator": "and",
+              "conditions": [
+                {
+                  "id": "is-zip",
+                  "leftValue": "={{ $json.isZip }}",
+                  "rightValue": true,
+                  "operator": {
+                    "type": "boolean",
+                    "operation": "equals"
+                  }
+                }
+              ]
+            },
+            "options": {}
+          },
+          "name": "IF ZIP File",
+          "type": "n8n-nodes-base.if",
+          "typeVersion": 2,
+          "position": [
+            1456,
+            352
+          ],
+          "id": "node-if-zip",
+          "disabled": true,
+          "notes": "Routes ZIP files for extraction."
+        },
+        {
+          "parameters": {},
+          "name": "Extract ZIP",
+          "type": "n8n-nodes-base.compression",
+          "typeVersion": 1,
+          "position": [
+            1680,
+            272
+          ],
+          "id": "node-extract-zip",
+          "disabled": true,
+          "notes": "Extracts all files from ZIP archive."
+        },
+        {
+          "parameters": {
+            "jsCode": "// V4: Normalize extracted ZIP contents\nconst items = $input.all();\nconst originalItem = $('IF ZIP File').first().json;\n\nconst extractedFiles = [];\n\nfor (const item of items) {\n  const fileName = item.json.fileName || 'extracted_file';\n  const extension = fileName.split('.').pop()?.toLowerCase() || '';\n  \n  // Only process PDFs from ZIP\n  if (extension === 'pdf') {\n    extractedFiles.push({\n      json: {\n        fileId: null,\n        fileName: fileName,\n        originalFileName: fileName,\n        mimeType: 'application/pdf',\n        extension: extension,\n        size: item.json.size || 0,\n        emailId: originalItem.emailId,\n        emailFrom: originalItem.emailFrom,\n        emailSubject: originalItem.emailSubject,\n        emailDate: originalItem.emailDate,\n        processedAt: new Date().toISOString(),\n        isZip: false,\n        isPdf: true,\n        isSupported: true,\n        extractedFromZip: true,\n        zipFileName: originalItem.fileName\n      },\n      binary: item.binary\n    });\n  }\n}\n\nreturn extractedFiles;"
+          },
+          "name": "Normalize ZIP Contents",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            1904,
+            272
+          ],
+          "id": "node-normalize-zip",
+          "disabled": true,
+          "notes": "V4: Normalizes extracted files with consistent field names."
+        },
+        {
+          "parameters": {
+            "jsCode": "// V4: Simple pass-through - no node references\nreturn $input.all();"
+          },
+          "name": "Merge File Streams",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            2128,
+            352
+          ],
+          "id": "node-merge-streams",
+          "disabled": true,
+          "notes": "Combines direct PDFs and extracted PDFs into single stream."
+        },
+        {
+          "parameters": {
+            "name": "={{ $json.fileName }}",
+            "driveId": {
+              "__rl": true,
+              "mode": "list",
+              "value": "My Drive"
+            },
+            "folderId": {
+              "__rl": true,
+              "mode": "id",
+              "value": "={{ $('Merge Parameters').first().json.staging_folder_id }}"
+            },
+            "options": {}
+          },
+          "name": "Upload to Staging",
+          "type": "n8n-nodes-base.googleDrive",
+          "typeVersion": 3,
+          "position": [
+            2352,
+            352
+          ],
+          "id": "node-upload-staging",
+          "credentials": {
+            "googleDriveOAuth2Api": {
+              "id": "a4m50EefR3DJoU0R",
+              "name": "Google Drive account"
+            }
+          },
+          "disabled": true,
+          "onError": "continueRegularOutput",
+          "notes": "Uploads file to staging folder for processing."
+        },
+        {
+          "parameters": {
+            "jsCode": "// V4: Normalize output with fileId from upload\nconst uploadResult = $input.first().json;\nconst originalData = $('Merge File Streams').first().json;\n\nreturn [{\n  json: {\n    // Normalized field names (V4 standard)\n    fileId: uploadResult.id,\n    fileName: originalData.fileName,\n    originalFileName: originalData.originalFileName,\n    mimeType: originalData.mimeType,\n    extension: originalData.extension,\n    size: originalData.size,\n    // Email context\n    emailId: originalData.emailId,\n    emailFrom: originalData.emailFrom,\n    emailSubject: originalData.emailSubject,\n    emailDate: originalData.emailDate,\n    // Processing metadata\n    processedAt: new Date().toISOString(),\n    stagingPath: uploadResult.name,\n    extractedFromZip: originalData.extractedFromZip || false,\n    zipFileName: originalData.zipFileName || null,\n    // Placeholder fields for downstream chunks\n    documentType: null,\n    confidence: null,\n    projectName: null\n  }\n}];"
+          },
+          "name": "Normalize Output",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            2576,
+            416
+          ],
+          "id": "node-normalize-output",
+          "disabled": true,
+          "notes": "V4: Ensures consistent field names for Chunk 2."
+        },
+        {
+          "parameters": {},
+          "id": "node-execute-workflow-trigger",
+          "name": "Receive from Pre-Chunk 0",
+          "type": "n8n-nodes-base.executeWorkflowTrigger",
+          "typeVersion": 1,
+          "position": [
+            112,
+            288
+          ],
+          "notes": "V4: Receives file_id, client_normalized, and staging_folder_id from Pre-Chunk 0"
+        },
+        {
+          "parameters": {
+            "operation": "get",
+            "messageId": "={{ $json.email_id }}"
+          },
+          "id": "node-get-gmail-message",
+          "name": "Get Gmail Message",
+          "type": "n8n-nodes-base.gmail",
+          "typeVersion": 2.1,
+          "position": [
+            336,
+            288
+          ],
+          "webhookId": "9d132a58-0db1-44a6-abd5-84c0455a93bb",
+          "credentials": {
+            "gmailOAuth2": {
+              "id": "aYzk7sZF8ZVyfOan",
+              "name": "Gmail account"
+            }
+          },
+          "disabled": true,
+          "notes": "V4: Fetches specific email by ID from Pre-Chunk 0 with attachments downloaded"
+        },
+        {
+          "parameters": {
+            "jsCode": "// V4: Merge email data with parameters from Pre-Chunk 0\nconst emailData = $('Normalize Email Data').first().json;\nconst parameters = $('Receive from Pre-Chunk 0').first().json;\n\n// ✅ Pass through binary data from email\nconst binary = $('Normalize Email Data').first().binary || {};\n\nreturn [{\n  json: {\n    ...emailData,\n    client_normalized: parameters.client_normalized,\n    staging_folder_id: parameters.staging_folder_id\n  },\n  binary: binary  // ✅ Don't lose PDF attachments!\n}];"
+          },
+          "id": "node-merge-parameters",
+          "name": "Merge Parameters",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            784,
+            288
+          ],
+          "disabled": true,
+          "notes": "V4: Combines email data with Pre-Chunk 0 parameters (client_normalized + staging_folder_id)"
+        },
+        {
+          "parameters": {
+            "operation": "move",
+            "fileId": {
+              "__rl": true,
+              "mode": "id",
+              "value": "={{ $json.file_id }}"
+            },
+            "driveId": {
+              "__rl": true,
+              "mode": "list",
+              "value": "My Drive"
+            },
+            "folderId": {
+              "__rl": true,
+              "mode": "id",
+              "value": "={{ $json.staging_folder_id }}"
+            }
+          },
+          "id": "node-move-file",
+          "name": "Move File to Staging",
+          "type": "n8n-nodes-base.googleDrive",
+          "typeVersion": 3,
+          "position": [
+            336,
+            288
+          ],
+          "credentials": {
+            "googleDriveOAuth2Api": {
+              "id": "a4m50EefR3DJoU0R",
+              "name": "Google Drive account"
+            }
+          },
+          "onError": "continueRegularOutput",
+          "notes": "V4: Moves file from temp folder (1ikw3k-EgpVg_h2ySDdqdUFB7-FQyYDFm) to staging_folder_id"
+        }
+      ],
+      "connections": {
+        "Gmail Trigger": {
+          "main": [
+            [
+              {
+                "node": "Normalize Email Data",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Normalize Email Data": {
+          "main": [
+            [
+              {
+                "node": "Merge Parameters",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "IF Has Attachments": {
+          "main": [
+            [
+              {
+                "node": "Extract Attachments",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            []
+          ]
+        },
+        "Extract Attachments": {
+          "main": [
+            [
+              {
+                "node": "Filter Supported Files",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "IF ZIP File": {
+          "main": [
+            [
+              {
+                "node": "Extract ZIP",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "Merge File Streams",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Extract ZIP": {
+          "main": [
+            [
+              {
+                "node": "Normalize ZIP Contents",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Normalize ZIP Contents": {
+          "main": [
+            [
+              {
+                "node": "Merge File Streams",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge File Streams": {
+          "main": [
+            [
+              {
+                "node": "Upload to Staging",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Upload to Staging": {
+          "main": [
+            [
+              {
+                "node": "Normalize Output",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Filter Supported Files": {
+          "main": [
+            [
+              {
+                "node": "Sequential Processing",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Sequential Processing": {
+          "main": [
+            [],
+            [
+              {
+                "node": "IF ZIP File",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Normalize Output": {
+          "main": [
+            [
+              {
+                "node": "Sequential Processing",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Get Gmail Message": {
+          "main": [
+            [
+              {
+                "node": "Normalize Email Data",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge Parameters": {
+          "main": [
+            [
+              {
+                "node": "IF Has Attachments",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Receive from Pre-Chunk 0": {
+          "main": [
+            [
+              {
+                "node": "Move File to Staging",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "authors": "Sway Clarke",
+      "name": "Version 5e969a90",
+      "description": "",
+      "autosaved": false,
+      "workflowPublishHistory": [
+        {
+          "createdAt": "2026-01-05T16:55:03.625Z",
+          "id": 268,
+          "workflowId": "djsBWsrAEKbj2omB",
+          "versionId": "5e969a90-06e7-4cc8-be2a-931cade2e5de",
+          "event": "activated",
+          "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8"
+        }
+      ]
+    }
+  }
+}

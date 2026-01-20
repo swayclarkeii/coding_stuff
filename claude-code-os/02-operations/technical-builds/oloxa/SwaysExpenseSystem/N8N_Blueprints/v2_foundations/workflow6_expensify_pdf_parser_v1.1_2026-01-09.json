@@ -1,0 +1,486 @@
+{
+  "name": "Expense System - Workflow 6: Expensify PDF Parser v1.1",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1g8WVSZqfq6JB34M79a1JpZGWV1nCYYYx",
+          "mode": "id"
+        },
+        "event": "fileUpdated",
+        "options": {}
+      },
+      "id": "expensify-folder-trigger",
+      "name": "Watch Expensify PDFs Folder",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        340,
+        460
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      },
+      "notes": "Monitors designated 'Expensify PDFs' folder for new uploads. USER MUST: Create folder and update PLACEHOLDER_EXPENSIFY_FOLDER_ID"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{$json.id}}"
+        },
+        "options": {}
+      },
+      "id": "download-expensify-pdf",
+      "name": "Download Expensify PDF",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        580,
+        460
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract metadata and preserve binary for Anthropic Vision API call\nconst item = $input.first();\nconst fileName = item.json.name;\nconst fileId = item.json.id;\n\n// Parse report date from Expensify filename (e.g., \"SwayClarkeAugExpenseReport20240801[55877].pdf\")\nconst dateMatch = fileName.match(/([A-Z][a-z]{2})ExpenseReport(\\d{8})/);\nconst reportMonth = dateMatch ? dateMatch[1] : 'Unknown';\nconst reportDate = dateMatch ? dateMatch[2] : new Date().toISOString().split('T')[0].replace(/-/g, '');\n\n// Generate unique report ID\nconst reportId = `EXPENSIFY-${reportDate}-${Date.now()}`;\n\n// ✅ CORRECT: Preserve binary for Vision API downstream\nreturn {\n  json: {\n    fileName,\n    fileId,\n    reportMonth,\n    reportDate,\n    reportId,\n    processedAt: new Date().toISOString()\n  },\n  binary: item.binary\n};"
+      },
+      "id": "extract-expensify-metadata",
+      "name": "Extract Report Metadata",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        820,
+        460
+      ],
+      "notes": "Parses Expensify filename to extract report month and date. Preserves binary for Vision API."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build Anthropic API request to extract transaction table from pages 1-2\nconst inputItem = $input.first();\nconst metadata = inputItem.json;\n\n// CRITICAL: Use this.helpers.getBinaryDataBuffer() for n8n 2.1.4 filesystem mode\nconst binaryPropertyName = 'data';\nconst binaryBuffer = await this.helpers.getBinaryDataBuffer(0, binaryPropertyName);\nconst base64Data = binaryBuffer.toString('base64');\n\n// Validate PDF magic bytes (should start with JVBERi... which is \"%PDF-\" in base64)\nif (!base64Data.startsWith('JVBERi')) {\n  throw new Error('ERROR: Base64 does not start with PDF magic bytes. Got: ' + base64Data.substring(0, 50));\n}\n\n// Build Anthropic Vision API request for transaction table extraction\nconst requestBody = {\n  model: \"claude-sonnet-4-5\",\n  max_tokens: 4096,\n  messages: [\n    {\n      role: \"user\",\n      content: [\n        {\n          type: \"text\",\n          text: `You are parsing an Expensify expense report PDF. Extract the transaction table from pages 1-2 ONLY.\n\nReturn JSON array with this exact structure:\n[\n  {\n    \"date\": \"YYYY-MM-DD\",\n    \"merchant\": \"Merchant Name\",\n    \"amount\": 20.00,\n    \"currency\": \"USD\" or \"EUR\",\n    \"category\": \"Category Name\"\n  }\n]\n\nRules:\n- Parse dates to YYYY-MM-DD format\n- Extract numeric amount (remove currency symbols)\n- Detect currency (USD $ or EUR €)\n- Include category from table\n- Return ONLY the JSON array, no markdown or explanation`\n        },\n        {\n          type: \"document\",\n          source: {\n            type: \"base64\",\n            media_type: \"application/pdf\",\n            data: base64Data\n          }\n        }\n      ]\n    }\n  ]\n};\n\nreturn {\n  json: {\n    requestBody: requestBody,\n    fileName: metadata.fileName,\n    fileId: metadata.fileId,\n    reportMonth: metadata.reportMonth,\n    reportDate: metadata.reportDate,\n    reportId: metadata.reportId,\n    processedAt: metadata.processedAt\n  }\n};"
+      },
+      "id": "build-anthropic-table-request",
+      "name": "Build Anthropic Table Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1060,
+        460
+      ],
+      "notes": "Prepares Anthropic Vision API call to extract transaction table from pages 1-2. Uses document type for PDF."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.requestBody }}",
+        "options": {}
+      },
+      "id": "call-anthropic-table-extraction",
+      "name": "Call Anthropic Table Extraction",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1300,
+        460
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "MRSNO4UW3OEIA3tQ",
+          "name": "Anthropic account"
+        }
+      },
+      "notes": "Calls Anthropic Claude Sonnet 4.5 Vision API to extract transaction table. USER MUST: Configure Anthropic API credentials."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Anthropic response and convert transactions to individual records\nconst response = $input.first().json;\nconst metadata = $('Build Anthropic Table Request').first().json;\n\n// Extract text content from Anthropic response\nconst textContent = response.content[0].text;\n\n// Parse JSON from text (remove markdown if present)\nconst cleanJson = textContent.replace(/```json\\n|```/g, '').trim();\nconst transactions = JSON.parse(cleanJson);\n\n// Convert to individual transaction records with generated TransactionIDs\nconst transactionRecords = transactions.map((txn, index) => {\n  // Generate unique TransactionID\n  const transactionId = `${metadata.reportId}-TXN-${String(index + 1).padStart(3, '0')}`;\n  \n  // Normalize currency to USD if needed (simple conversion placeholder)\n  let amountUSD = txn.amount;\n  if (txn.currency === 'EUR') {\n    // Placeholder: User should configure actual exchange rate\n    amountUSD = txn.amount * 1.1; // Example conversion rate\n  }\n  \n  return {\n    TransactionID: transactionId,\n    Date: txn.date,\n    Vendor: txn.merchant,\n    Amount: amountUSD,\n    Currency: 'USD',\n    OriginalAmount: txn.amount,\n    OriginalCurrency: txn.currency,\n    Category: txn.category,\n    Type: 'expense',\n    Source: 'Expensify',\n    ReportID: metadata.reportId,\n    ReceiptID: '', // Will be filled after matching\n    ExpensifyNumber: index + 1, // For matching to receipt images\n    ProcessedAt: new Date().toISOString()\n  };\n});\n\nreturn transactionRecords.map(txn => ({ json: txn }));"
+      },
+      "id": "parse-transactions-to-records",
+      "name": "Parse Transactions to Records",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        460
+      ],
+      "notes": "Converts Anthropic JSON response to individual transaction records. Generates TransactionIDs and normalizes currency."
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Transactions",
+          "mode": "name"
+        },
+        "dataMode": "autoMapInputData",
+        "columnToMatchOn": "TransactionID",
+        "options": {}
+      },
+      "id": "write-transactions-to-sheet",
+      "name": "Write Transactions to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1780,
+        460
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Sheets account"
+        }
+      },
+      "notes": "Writes transactions to Transactions sheet. Auto-maps fields. Uses TransactionID as unique key."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build second Anthropic request to extract receipt images from pages 3+\nconst metadata = $('Build Anthropic Table Request').first().json;\nconst transactions = $('Parse Transactions to Records').all();\n\n// Get binary from original download (preserved through workflow)\nconst binaryPropertyName = 'data';\nconst binaryBuffer = await this.helpers.getBinaryDataBuffer(0, binaryPropertyName);\nconst base64Data = binaryBuffer.toString('base64');\n\n// Build request to extract receipt metadata from pages 3+\nconst requestBody = {\n  model: \"claude-sonnet-4-5\",\n  max_tokens: 4096,\n  messages: [\n    {\n      role: \"user\",\n      content: [\n        {\n          type: \"text\",\n          text: `You are parsing an Expensify expense report PDF. Pages 3+ contain receipt thumbnail images.\n\nFor EACH receipt image, extract:\n1. Receipt number (1, 2, 3...)\n2. Date\n3. Merchant name\n4. Total amount\n\nReturn JSON array:\n[\n  {\n    \"receiptNumber\": 1,\n    \"date\": \"YYYY-MM-DD\",\n    \"merchant\": \"Merchant Name\",\n    \"amount\": 20.00\n  }\n]\n\nReturn ONLY the JSON array, no markdown.`\n        },\n        {\n          type: \"document\",\n          source: {\n            type: \"base64\",\n            media_type: \"application/pdf\",\n            data: base64Data\n          }\n        }\n      ]\n    }\n  ]\n};\n\nreturn {\n  json: {\n    requestBody: requestBody,\n    reportId: metadata.reportId,\n    transactionCount: transactions.length\n  }\n};"
+      },
+      "id": "build-receipt-extraction-request",
+      "name": "Build Receipt Extraction Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        680
+      ],
+      "notes": "Prepares second Anthropic call to extract receipt metadata from pages 3+. Note: Actual image extraction requires PDF processing library."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.requestBody }}",
+        "options": {}
+      },
+      "id": "call-receipt-extraction",
+      "name": "Call Receipt Extraction",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2020,
+        680
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "MRSNO4UW3OEIA3tQ",
+          "name": "Anthropic account"
+        }
+      },
+      "notes": "Extracts receipt metadata. NOTE: Full implementation requires PDF image extraction library (not in n8n core)."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse receipt metadata and prepare for matching\nconst response = $input.first().json;\nconst metadata = $('Build Receipt Extraction Request').first().json;\n\n// Extract text content from Anthropic response\nconst textContent = response.content[0].text;\nconst cleanJson = textContent.replace(/```json\\n|```/g, '').trim();\nconst receipts = JSON.parse(cleanJson);\n\n// Convert to receipt records\nconst receiptRecords = receipts.map(receipt => {\n  const receiptId = `${metadata.reportId}-RCP-${String(receipt.receiptNumber).padStart(3, '0')}`;\n  \n  return {\n    ReceiptID: receiptId,\n    Date: receipt.date,\n    Vendor: receipt.merchant,\n    Amount: receipt.amount,\n    ExpensifyNumber: receipt.receiptNumber,\n    Source: 'Expensify',\n    ReportID: metadata.reportId,\n    FilePath: '', // Will be filled after upload\n    ProcessedAt: new Date().toISOString()\n  };\n});\n\nreturn receiptRecords.map(rcp => ({ json: rcp }));"
+      },
+      "id": "parse-receipt-metadata",
+      "name": "Parse Receipt Metadata",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2260,
+        680
+      ],
+      "notes": "Converts receipt metadata to records. NOTE: Actual receipt image files would need separate PDF extraction step."
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Receipts",
+          "mode": "name"
+        },
+        "dataMode": "autoMapInputData",
+        "columnToMatchOn": "ReceiptID",
+        "options": {}
+      },
+      "id": "write-receipts-to-sheet",
+      "name": "Write Receipts to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2500,
+        680
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Sheets account"
+        }
+      },
+      "notes": "Writes receipt metadata to Receipts sheet. Auto-maps fields."
+    },
+    {
+      "parameters": {
+        "mode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "wait-for-receipts-and-transactions",
+      "name": "Wait for Receipts and Transactions",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        2260,
+        570
+      ],
+      "notes": "FIX v1.1: Merge node prevents race condition. Waits for BOTH Parse Transactions (from top branch) AND Parse Receipt Metadata (from bottom branch) to complete before allowing Match Receipts to execute."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Match receipts to transactions using Expensify numbering\nconst transactions = $('Parse Transactions to Records').all();\nconst receipts = $('Parse Receipt Metadata').all();\n\n// Create a map of ExpensifyNumber to ReceiptID\nconst receiptMap = {};\nreceipts.forEach(receipt => {\n  receiptMap[receipt.json.ExpensifyNumber] = receipt.json.ReceiptID;\n});\n\n// Update transactions with ReceiptID\nconst updatedTransactions = transactions.map(txn => {\n  const expensifyNumber = txn.json.ExpensifyNumber;\n  const receiptId = receiptMap[expensifyNumber] || '';\n  \n  return {\n    json: {\n      TransactionID: txn.json.TransactionID,\n      ReceiptID: receiptId,\n      MatchStatus: receiptId ? 'MATCHED' : 'NO_RECEIPT'\n    }\n  };\n});\n\nreturn updatedTransactions;"
+      },
+      "id": "match-receipts-to-transactions",
+      "name": "Match Receipts to Transactions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2500,
+        570
+      ],
+      "notes": "Uses Expensify numbering (1, 2, 3...) to match receipts to transactions. Updates ReceiptID field."
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Transactions",
+          "mode": "name"
+        },
+        "dataMode": "autoMapInputData",
+        "columnToMatchOn": "TransactionID",
+        "options": {}
+      },
+      "id": "update-transactions-with-receipts",
+      "name": "Update Transactions with ReceiptIDs",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2740,
+        570
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Sheets account"
+        }
+      },
+      "notes": "Updates Transactions sheet with ReceiptID and MatchStatus after matching."
+    }
+  ],
+  "connections": {
+    "Watch Expensify PDFs Folder": {
+      "main": [
+        [
+          {
+            "node": "Download Expensify PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Expensify PDF": {
+      "main": [
+        [
+          {
+            "node": "Extract Report Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Report Metadata": {
+      "main": [
+        [
+          {
+            "node": "Build Anthropic Table Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Anthropic Table Request": {
+      "main": [
+        [
+          {
+            "node": "Call Anthropic Table Extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Anthropic Table Extraction": {
+      "main": [
+        [
+          {
+            "node": "Parse Transactions to Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Transactions to Records": {
+      "main": [
+        [
+          {
+            "node": "Write Transactions to Sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait for Receipts and Transactions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Transactions to Sheet": {
+      "main": [
+        [
+          {
+            "node": "Build Receipt Extraction Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Receipt Extraction Request": {
+      "main": [
+        [
+          {
+            "node": "Call Receipt Extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Receipt Extraction": {
+      "main": [
+        [
+          {
+            "node": "Parse Receipt Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Receipt Metadata": {
+      "main": [
+        [
+          {
+            "node": "Write Receipts to Sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait for Receipts and Transactions",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Wait for Receipts and Transactions": {
+      "main": [
+        [
+          {
+            "node": "Match Receipts to Transactions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match Receipts to Transactions": {
+      "main": [
+        [
+          {
+            "node": "Update Transactions with ReceiptIDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-01-09T00:00:00.000Z",
+  "versionId": "workflow6-expensify-v1.1"
+}

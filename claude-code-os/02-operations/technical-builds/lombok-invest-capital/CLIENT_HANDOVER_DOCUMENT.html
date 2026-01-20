@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>CLIENT_HANDOVER_DOCUMENT</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="/dev/fd/11" />
+</head>
+<body>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#lombok-invest-capital---property-scraper-automation"
+id="toc-lombok-invest-capital---property-scraper-automation">Lombok
+Invest Capital - Property Scraper Automation</a>
+<ul>
+<li><a href="#complete-handover-documentation"
+id="toc-complete-handover-documentation">Complete Handover
+Documentation</a></li>
+<li><a href="#table-of-contents" id="toc-table-of-contents">📋 Table of
+Contents</a></li>
+<li><a href="#system-overview" id="toc-system-overview">🎯 System
+Overview</a></li>
+<li><a href="#account-access-credentials"
+id="toc-account-access-credentials">🔐 Account Access &amp;
+Credentials</a></li>
+<li><a href="#how-the-automation-works"
+id="toc-how-the-automation-works">⚙️ How the Automation Works</a></li>
+<li><a href="#quick-start-guide" id="toc-quick-start-guide">🚀 Quick
+Start Guide</a></li>
+<li><a href="#configuration-details" id="toc-configuration-details">🔧
+Configuration Details</a></li>
+<li><a href="#google-sheets-reference"
+id="toc-google-sheets-reference">📊 Google Sheets Reference</a></li>
+<li><a href="#troubleshooting" id="toc-troubleshooting">🔍
+Troubleshooting</a></li>
+<li><a href="#maintenance-monitoring" id="toc-maintenance-monitoring">🛠️
+Maintenance &amp; Monitoring</a></li>
+<li><a href="#contact-support" id="toc-contact-support">📞 Contact &amp;
+Support</a></li>
+<li><a href="#additional-resources" id="toc-additional-resources">📚
+Additional Resources</a></li>
+<li><a href="#final-checklist" id="toc-final-checklist">✅ Final
+Checklist</a></li>
+<li><a href="#youre-all-set" id="toc-youre-all-set">🎉 You’re All
+Set!</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="lombok-invest-capital---property-scraper-automation">Lombok
+Invest Capital - Property Scraper Automation</h1>
+<h2 id="complete-handover-documentation">Complete Handover
+Documentation</h2>
+<p><strong>Created:</strong> January 15, 2026 <strong>Client:</strong>
+Benito (Lombok Invest Capital) <strong>System Status:</strong> ✅ Fully
+Operational - Automated Bi-Weekly Runs</p>
+<hr />
+<h2 id="table-of-contents">📋 Table of Contents</h2>
+<ol type="1">
+<li><a href="#system-overview">System Overview</a></li>
+<li><a href="#account-access--credentials">Account Access &amp;
+Credentials</a></li>
+<li><a href="#how-the-automation-works">How the Automation
+Works</a></li>
+<li><a href="#quick-start-guide">Quick Start Guide</a></li>
+<li><a href="#configuration-details">Configuration Details</a></li>
+<li><a href="#google-sheets-reference">Google Sheets Reference</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#maintenance--monitoring">Maintenance &amp;
+Monitoring</a></li>
+<li><a href="#contact--support">Contact &amp; Support</a></li>
+</ol>
+<hr />
+<h2 id="system-overview">🎯 System Overview</h2>
+<h3 id="what-this-automation-does">What This Automation Does</h3>
+<p>Your property scraper automation runs <strong>automatically every 2
+weeks</strong> (on the 1st and 15th of each month) and:</p>
+<ol type="1">
+<li><strong>Scrapes 10 property websites</strong> in Lombok for new
+listings</li>
+<li><strong>Filters properties</strong> to show only:
+<ul>
+<li>✅ Completed/built properties (ready to move in)</li>
+<li>✅ Located in Kuta or Selong</li>
+<li>✅ Freehold or Leasehold ownership</li>
+<li>❌ Excludes: Off-plan, under construction, or properties in other
+locations</li>
+</ul></li>
+<li><strong>Removes duplicates</strong> - Only shows properties you
+haven’t seen before</li>
+<li><strong>Sends email notification</strong> with new properties
+found</li>
+<li><strong>Updates Google Sheets</strong> with all data for your
+review</li>
+</ol>
+<h3 id="next-scheduled-run">Next Scheduled Run</h3>
+<p><strong>Next run:</strong> February 1, 2026 at 2:00 AM (Jakarta time)
+<strong>Following run:</strong> February 15, 2026 at 2:00 AM (Jakarta
+time)</p>
+<p>The system will continue running automatically on the 1st and 15th of
+every month.</p>
+<hr />
+<h2 id="account-access-credentials">🔐 Account Access &amp;
+Credentials</h2>
+<h3 id="master-gmail-account">Master Gmail Account</h3>
+<p><strong>Email:</strong> lombokinvestcapitalnow@gmail.com
+<strong>Password:</strong> [Provided separately by Sway]</p>
+<p><strong>This account is used for:</strong> - Gmail notifications
+(receiving scraped property emails) - Google Sheets storage (all
+property data) - Google Cloud Platform (OAuth for Make.com
+integrations)</p>
+<p><strong>Important:</strong> This is your central account - all other
+services connect through it.</p>
+<hr />
+<h3 id="apify-account-web-scraper">Apify Account (Web Scraper)</h3>
+<p><strong>Login URL:</strong> https://console.apify.com
+<strong>Email:</strong> lombokinvestcapitalnow@gmail.com
+<strong>Password:</strong> [Provided separately]</p>
+<p><strong>What it does:</strong> Runs the web scraping tasks on
+property websites</p>
+<p><strong>Your Apify Tasks:</strong> - <strong>Task 1:</strong> Scrapes
+4 primary Lombok property sites (~20 properties) - <strong>Task
+2:</strong> Scrapes 4 mixed sites with Bali filtering (~45 properties) -
+<strong>Task 3:</strong> Scrapes 2 international sites (~20
+properties)</p>
+<p><strong>Cron Schedules (Auto-run every 2 weeks):</strong> - Task 1:
+<code>0 2 1,15 * *</code> (2:00 AM on 1st &amp; 15th) - Task 2:
+<code>0 3 1,15 * *</code> (3:00 AM on 1st &amp; 15th) - Task 3:
+<code>0 4 1,15 * *</code> (4:00 AM on 1st &amp; 15th)</p>
+<p><strong>Status:</strong> ✅ Schedules enabled - Next run February 1,
+2026</p>
+<hr />
+<h3 id="make.com-account-automation-workflow">Make.com Account
+(Automation Workflow)</h3>
+<p><strong>Login URL:</strong> https://www.make.com/en/login
+<strong>Email:</strong> lombokinvestcapitalnow@gmail.com
+<strong>Password:</strong> [Provided separately]</p>
+<p><strong>What it does:</strong> Receives scraped data, filters it,
+removes duplicates, and sends you email notifications</p>
+<p><strong>Your Make.com Scenario:</strong> - <strong>Name:</strong>
+“Lombok Invest Capital Property Scraper v7” - <strong>Trigger:</strong>
+Webhook (receives data from Apify Task 3 completion) -
+<strong>Processing:</strong> Filters, deduplicates, formats data -
+<strong>Output:</strong> Email + Google Sheets update</p>
+<p><strong>Status:</strong> ✅ Active and configured</p>
+<hr />
+<h3 id="google-cloud-platform-oauth-app">Google Cloud Platform (OAuth
+App)</h3>
+<p><strong>Login URL:</strong> https://console.cloud.google.com
+<strong>Email:</strong> lombokinvestcapitalnow@gmail.com
+<strong>Password:</strong> [Same as Gmail]</p>
+<p><strong>What it does:</strong> Allows Make.com to access your Google
+Sheets without re-authenticating every 7 days</p>
+<p><strong>OAuth App Details:</strong> - <strong>App Name:</strong>
+Lombok Invest Capital Property Scraper - <strong>Status:</strong> ✅
+Published to Production (no 7-day re-auth required) -
+<strong>Scopes:</strong> Google Sheets API, Google Drive API</p>
+<p><strong>Client ID:</strong> [Provided separately] <strong>Client
+Secret:</strong> [Provided separately]</p>
+<p><strong>Important:</strong> This is already configured in Make.com.
+You only need these credentials if you need to reconnect.</p>
+<hr />
+<h2 id="how-the-automation-works">⚙️ How the Automation Works</h2>
+<h3 id="complete-workflow-diagram">Complete Workflow Diagram</h3>
+<pre><code>Every 2 weeks (1st &amp; 15th of month)
+         │
+         ▼
+┌─────────────────────────────────────┐
+│  APIFY SCRAPING (Sequential)        │
+│                                      │
+│  2:00 AM → Task 1 runs (48 min)     │
+│            ├─ Reef Property Lombok  │
+│            ├─ Island Properties     │
+│            ├─ Discover Lombok       │
+│            └─ Nour Estates          │
+│                                      │
+│  3:00 AM → Task 2 runs (15 min)     │
+│            ├─ Bali Exception        │
+│            ├─ Estate Lombok         │
+│            ├─ South Lombok Land     │
+│            └─ Maju Properties       │
+│                                      │
+│  4:00 AM → Task 3 runs (9 min)      │
+│            ├─ Bali Home Immo        │
+│            └─ Invest Lombok         │
+│                                      │
+│  Task 3 completes → Sends webhook   │
+└──────────────┬──────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────┐
+│  MAKE.COM PROCESSING                │
+│                                      │
+│  1. Receives webhook from Task 3    │
+│  2. Fetches Task 1 latest dataset   │
+│  3. Fetches Task 2 latest dataset   │
+│  4. Fetches Task 3 latest dataset   │
+│  5. Combines all data (~85 props)   │
+│  6. Filters:                         │
+│     ✅ Kuta or Selong only          │
+│     ✅ Completed/built only         │
+│     ✅ Freehold or Leasehold        │
+│     ❌ No off-plan/construction     │
+│  7. Checks Data Store for duplicates│
+│  8. Keeps only NEW properties       │
+│  9. Updates Google Sheets           │
+│ 10. Sends email notification        │
+└──────────────┬──────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────┐
+│  YOU RECEIVE                         │
+│                                      │
+│  📧 Email: &quot;X new properties found&quot; │
+│  📊 Google Sheet updated with data  │
+└─────────────────────────────────────┘</code></pre>
+<h3 id="what-each-component-does">What Each Component Does</h3>
+<p><strong>Apify (Scraping Layer):</strong> - Visits each property
+website - Extracts property details (title, price, location, ownership,
+status) - Detects construction status (“Built”, “Off-Plan”, “Under
+Construction”) - Saves results to datasets (one per task)</p>
+<p><strong>Make.com (Processing Layer):</strong> - Receives completion
+notification from Apify - Fetches all 3 datasets - Applies your filters
+(location, ownership, construction status) - Removes properties you’ve
+already seen (using Data Store) - Formats data nicely - Sends you an
+email + updates Google Sheets</p>
+<p><strong>Google Sheets (Storage Layer):</strong> - <strong>Raw Data
+Sheet:</strong> All properties from all websites (before filtering) -
+<strong>Filtered Data Sheet:</strong> Only properties matching your
+criteria - <strong>Data Store:</strong> Invisible database tracking
+which properties you’ve seen</p>
+<hr />
+<h2 id="quick-start-guide">🚀 Quick Start Guide</h2>
+<h3 id="for-first-time-use">For First-Time Use</h3>
+<p>If this is your first time accessing the system:</p>
+<ol type="1">
+<li><strong>Check Your Email</strong>
+<ul>
+<li>Look for emails from <code>notifications@make.com</code></li>
+<li>Subject: “New Lombok Properties Found - [Date]”</li>
+<li>Opens to a formatted list of properties</li>
+</ul></li>
+<li><strong>Review Google Sheets</strong>
+<ul>
+<li><strong>Raw Data Sheet:</strong>
+https://docs.google.com/spreadsheets/d/1W2rnvacmbVl-OZ8EPacS8L89uN80TA8xxmw2uAEdn54/edit</li>
+<li><strong>Filtered Data Sheet:</strong>
+https://docs.google.com/spreadsheets/d/1Ksmb1UMBzruLc_arwWKe7uph1Sx84BFPG55Mi41jR1k/edit</li>
+<li><strong>Error Log Sheet:</strong>
+https://docs.google.com/spreadsheets/d/1mAh4jU9Tky5hfdSg0-uY_oyIwo7sPNgAXmuCSBuwZcA/edit</li>
+</ul></li>
+<li><strong>Monitor Apify (Optional)</strong>
+<ul>
+<li>Login to https://console.apify.com</li>
+<li>Check <strong>“Runs”</strong> to see scraping history</li>
+<li>Verify all 3 tasks completed successfully</li>
+</ul></li>
+<li><strong>Monitor Make.com (Optional)</strong>
+<ul>
+<li>Login to https://www.make.com</li>
+<li>Open your scenario: “Lombok Invest Capital Property Scraper v7”</li>
+<li>Click <strong>“History”</strong> to see execution logs</li>
+</ul></li>
+</ol>
+<h3 id="regular-use">Regular Use</h3>
+<p><strong>What you need to do:</strong> Nothing! The system runs
+automatically.</p>
+<p><strong>How to check if it’s working:</strong> 1. After the 1st or
+15th of each month, check your email for new properties 2. If you
+receive “0 new properties found” - that’s normal (no new listings) 3. If
+you receive “X new properties found” - open the email to review</p>
+<p><strong>When to take action:</strong> - If you <strong>don’t receive
+an email</strong> after the 1st or 15th → Check troubleshooting section
+- If properties seem <strong>incorrect or off-plan</strong> → Check
+filtering configuration</p>
+<hr />
+<h2 id="configuration-details">🔧 Configuration Details</h2>
+<h3 id="apify-task-ids">Apify Task IDs</h3>
+<p><strong>Task 1 Dataset ID:</strong> <code>a9zcGM6bQZbNLS9nf</code>
+<strong>Task 2 Dataset ID:</strong> <code>R5FWB04ujtigD8Mo7</code>
+<strong>Task 3 Dataset ID:</strong> <code>6kCy5ZnpavOkAxTjR</code></p>
+<p><strong>Note:</strong> These IDs are used by Make.com to fetch the
+latest scraped data. They don’t change unless you delete and recreate
+the Apify tasks.</p>
+<h3 id="make.com-variable-configuration">Make.com Variable
+Configuration</h3>
+<p>The Make.com scenario has a <strong>“Set Variables”</strong> module
+(Module 524) that stores all configuration:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 23%" />
+<col style="width: 43%" />
+</colgroup>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>userEmail</code></td>
+<td>lombokinvestcapitalnow@gmail.com</td>
+<td>Your email</td>
+</tr>
+<tr>
+<td><code>notificationEmail</code></td>
+<td>lombokinvestcapitalnow@gmail.com</td>
+<td>Where notifications are sent</td>
+</tr>
+<tr>
+<td><code>raw_spreadsheet_Id</code></td>
+<td>1W2rnvacmbVl-OZ8EPacS8L89uN80TA8xxmw2uAEdn54</td>
+<td>Raw data Google Sheet</td>
+</tr>
+<tr>
+<td><code>filter_spreadsheet_id</code></td>
+<td>1Ksmb1UMBzruLc_arwWKe7uph1Sx84BFPG55Mi41jR1k</td>
+<td>Filtered data Google Sheet</td>
+</tr>
+<tr>
+<td><code>error_log_spreadsheet_id</code></td>
+<td>1mAh4jU9Tky5hfdSg0-uY_oyIwo7sPNgAXmuCSBuwZcA</td>
+<td>Error log Google Sheet</td>
+</tr>
+<tr>
+<td><code>dataStoreId</code></td>
+<td>87067</td>
+<td>Duplicate tracking database</td>
+</tr>
+<tr>
+<td><code>workflowName</code></td>
+<td>Lombok Property Scraper</td>
+<td>Name shown in notifications</td>
+</tr>
+</tbody>
+</table>
+<p><strong>To update these:</strong> 1. Login to Make.com 2. Open your
+scenario 3. Click on the “Set Variables” module (Module 524) 4. Edit the
+values 5. Click “OK” → “Save” scenario</p>
+<h3 id="filtering-logic">Filtering Logic</h3>
+<p><strong>Properties are INCLUDED if:</strong> - ✅ Location contains
+“Kuta” OR “Selong” - ✅ Construction status is “Completed” OR “Built” -
+✅ Ownership is “Freehold” OR “Leasehold” (or contains “HGB”) - ✅ NOT
+previously seen (checked against Data Store)</p>
+<p><strong>Properties are EXCLUDED if:</strong> - ❌ Location is NOT
+Kuta or Selong (e.g., Bali, Senggigi, other areas) - ❌ Construction
+status is “Off-Plan” OR “Under Construction” OR “In Progress” - ❌
+Already seen in a previous run (duplicate)</p>
+<h3 id="websites-being-scraped">Websites Being Scraped</h3>
+<table>
+<thead>
+<tr>
+<th>Website</th>
+<th>URL</th>
+<th>Task</th>
+<th>Properties</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reef Property Lombok</td>
+<td>reefpropertylombok.com</td>
+<td>Task 1</td>
+<td>~5</td>
+</tr>
+<tr>
+<td>Island Properties Lombok</td>
+<td>islandpropertylombok.com</td>
+<td>Task 1</td>
+<td>~4</td>
+</tr>
+<tr>
+<td>Discover Lombok Property</td>
+<td>discoverlombokproperty.com</td>
+<td>Task 1</td>
+<td>~6</td>
+</tr>
+<tr>
+<td>Nour Estates</td>
+<td>nourestates.com</td>
+<td>Task 1</td>
+<td>~5</td>
+</tr>
+<tr>
+<td>Bali Exception</td>
+<td>baliexception.com</td>
+<td>Task 2</td>
+<td>~10</td>
+</tr>
+<tr>
+<td>Estate Lombok</td>
+<td>estate-lombok.com</td>
+<td>Task 2</td>
+<td>~12</td>
+</tr>
+<tr>
+<td>South Lombok Land Sales</td>
+<td>southlomboklandsales.com</td>
+<td>Task 2</td>
+<td>~8</td>
+</tr>
+<tr>
+<td>Maju Properties</td>
+<td>majuproperties.com</td>
+<td>Task 2</td>
+<td>~15</td>
+</tr>
+<tr>
+<td>Bali Home Immo</td>
+<td>bali-home-immo.com</td>
+<td>Task 3</td>
+<td>~13</td>
+</tr>
+<tr>
+<td>Invest Lombok</td>
+<td>invest-lombok.com</td>
+<td>Task 3</td>
+<td>~7</td>
+</tr>
+<tr>
+<td><strong>TOTAL</strong></td>
+<td></td>
+<td></td>
+<td><strong>~85 properties</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="google-sheets-reference">📊 Google Sheets Reference</h2>
+<h3 id="sheet-structure">Sheet Structure</h3>
+<p>Your automation uses <strong>3 separate Google Sheets:</strong></p>
+<h4 id="raw-data-sheet">1. Raw Data Sheet</h4>
+<p><strong>URL:</strong>
+https://docs.google.com/spreadsheets/d/1W2rnvacmbVl-OZ8EPacS8L89uN80TA8xxmw2uAEdn54/edit</p>
+<p><strong>Contains:</strong> All properties scraped from all websites
+(before filtering)</p>
+<p><strong>Columns:</strong> - <strong>Property Title:</strong> Name of
+the property - <strong>URL:</strong> Direct link to property listing -
+<strong>Price (Raw):</strong> Original price as shown on website -
+<strong>Price (Normalized USD):</strong> Converted to USD for comparison
+- <strong>Location:</strong> City/area (Kuta, Selong, Bali, etc.) -
+<strong>Ownership:</strong> Freehold, Leasehold, HGB - <strong>Property
+Type:</strong> Villa, House, Land, etc. - <strong>Construction
+Status:</strong> Completed, Off-Plan, Under Construction, Unknown -
+<strong>Year Built:</strong> Year property was built (if available) -
+<strong>Source Website:</strong> Which website it came from -
+<strong>Scraped At:</strong> Date/time when data was collected</p>
+<p><strong>Use this tab to:</strong> - See ALL properties regardless of
+filters - Review pricing trends across all locations - Check what’s
+being scraped from each website</p>
+<hr />
+<h4 id="filtered-data-sheet">2. Filtered Data Sheet</h4>
+<p><strong>URL:</strong>
+https://docs.google.com/spreadsheets/d/1Ksmb1UMBzruLc_arwWKe7uph1Sx84BFPG55Mi41jR1k/edit</p>
+<p><strong>Contains:</strong> Only properties matching your criteria
+(Kuta/Selong, Completed, Freehold/Leasehold)</p>
+<p><strong>Columns:</strong> Same as Raw Data Sheet</p>
+<p><strong>Use this tab to:</strong> - Review properties you should
+actually consider - See only investment-ready properties - Track new
+opportunities</p>
+<hr />
+<h4 id="error-log-sheet">3. Error Log Sheet</h4>
+<p><strong>URL:</strong>
+https://docs.google.com/spreadsheets/d/1mAh4jU9Tky5hfdSg0-uY_oyIwo7sPNgAXmuCSBuwZcA/edit</p>
+<p><strong>Contains:</strong> Errors and issues encountered during
+scraping or processing</p>
+<p><strong>Columns:</strong> - <strong>Timestamp:</strong> When the
+error occurred - <strong>Error Type:</strong> Type of error (scraping,
+filtering, data processing) - <strong>Error Message:</strong> Detailed
+error description - <strong>Property URL:</strong> URL that caused the
+error (if applicable) - <strong>Source Website:</strong> Which website
+was being scraped - <strong>Resolution Status:</strong> Fixed, pending,
+or ignored</p>
+<p><strong>Use this sheet to:</strong> - Monitor system health -
+Identify problematic websites or properties - Track recurring issues -
+Provide error details when contacting support</p>
+<p><strong>Note:</strong> Most errors are minor and automatically
+handled by the system. Only contact support if you see the same error
+repeatedly.</p>
+<hr />
+<h3 id="how-to-use-the-sheets">How to Use the Sheets</h3>
+<p><strong>After each automation run:</strong></p>
+<ol type="1">
+<li><strong>Start with the Filtered Data Sheet</strong>
+<ul>
+<li>Open:
+https://docs.google.com/spreadsheets/d/1Ksmb1UMBzruLc_arwWKe7uph1Sx84BFPG55Mi41jR1k/edit</li>
+<li>Look for new rows at the bottom (sorted by date)</li>
+<li>Review each property:
+<ul>
+<li>Check price vs. comparable properties</li>
+<li>Click URL to see full listing</li>
+<li>Note any that interest you</li>
+</ul></li>
+</ul></li>
+<li><strong>Review Raw Data (optional)</strong>
+<ul>
+<li>Open:
+https://docs.google.com/spreadsheets/d/1W2rnvacmbVl-OZ8EPacS8L89uN80TA8xxmw2uAEdn54/edit</li>
+<li>See ALL properties (including off-plan, other locations)</li>
+<li>Use Google Sheets filters to explore different areas/types</li>
+</ul></li>
+<li><strong>Check Error Log (if needed)</strong>
+<ul>
+<li>Open:
+https://docs.google.com/spreadsheets/d/1mAh4jU9Tky5hfdSg0-uY_oyIwo7sPNgAXmuCSBuwZcA/edit</li>
+<li>Review any errors or issues</li>
+<li>Most errors are handled automatically</li>
+</ul></li>
+</ol>
+<p><strong>Pro tip:</strong> Add a column called “My Notes” or “Status”
+to track which properties you’ve contacted about or visited.</p>
+<hr />
+<h2 id="troubleshooting">🔍 Troubleshooting</h2>
+<h3 id="problem-no-email-received-after-scheduled-run">Problem: No Email
+Received After Scheduled Run</h3>
+<p><strong>Check these in order:</strong></p>
+<ol type="1">
+<li><strong>Check your spam folder</strong>
+<ul>
+<li>Emails come from <code>notifications@make.com</code></li>
+<li>Mark as “Not Spam” if found</li>
+</ul></li>
+<li><strong>Verify Apify tasks ran successfully:</strong>
+<ul>
+<li>Login to https://console.apify.com</li>
+<li>Click <strong>“Runs”</strong> in left sidebar</li>
+<li>Look for runs on the 1st or 15th of the month</li>
+<li>All 3 tasks should show “Succeeded” status</li>
+<li><strong>If failed:</strong> Click on the run → Check error message →
+See “Apify Errors” section below</li>
+</ul></li>
+<li><strong>Verify Make.com scenario executed:</strong>
+<ul>
+<li>Login to https://www.make.com</li>
+<li>Open your scenario</li>
+<li>Click <strong>“History”</strong> tab</li>
+<li>Look for execution on the date</li>
+<li><strong>If no execution:</strong> Webhook may not have fired → See
+“Webhook Issues” section below</li>
+<li><strong>If execution shows errors:</strong> Click on it → See which
+module failed → See “Make.com Errors” section below</li>
+</ul></li>
+<li><strong>Check if 0 new properties were found:</strong>
+<ul>
+<li>Sometimes all properties are duplicates (already seen)</li>
+<li>Email may say “0 new properties found” or not be sent at all</li>
+<li>This is normal - it means no NEW listings appeared</li>
+</ul></li>
+</ol>
+<hr />
+<h3
+id="problem-properties-showing-off-plan-or-under-construction-in-results">Problem:
+Properties Showing “Off-Plan” or “Under Construction” in Results</h3>
+<p><strong>This shouldn’t happen</strong> - filtering should exclude
+these.</p>
+<p><strong>To fix:</strong></p>
+<ol type="1">
+<li><p>Login to Make.com → Open your scenario</p></li>
+<li><p>Find the <strong>“Filter Module”</strong> (usually around Module
+527-530)</p></li>
+<li><p>Verify the filter condition includes:</p>
+<pre><code>Construction Status NOT EQUAL TO &quot;Off-Plan&quot;
+AND
+Construction Status NOT EQUAL TO &quot;Under Construction&quot;
+AND
+Construction Status NOT EQUAL TO &quot;In Progress&quot;</code></pre></li>
+<li><p>If missing → Edit the filter → Add these conditions → Save
+scenario</p></li>
+</ol>
+<p><strong>If problem persists:</strong> - Check the <strong>Raw Data
+Sheet</strong> → See if construction status is being detected correctly
+- Some websites may use different terminology (e.g., “Pre-construction”,
+“Being built”) - Contact Sway for filter updates</p>
+<hr />
+<h3 id="problem-apify-tasks-failing">Problem: Apify Tasks Failing</h3>
+<p><strong>Common Apify errors:</strong></p>
+<h4 id="error-page-timeout">Error: “Page timeout”</h4>
+<p><strong>Cause:</strong> Website took too long to load
+<strong>Fix:</strong> Apify will automatically retry. If it keeps
+failing: 1. Login to Apify → Open the failed task 2. Click
+<strong>“Run”</strong> to manually re-run 3. If still fails → Website
+may be down temporarily</p>
+<h4 id="error-maximum-retries-exceeded">Error: “Maximum retries
+exceeded”</h4>
+<p><strong>Cause:</strong> Website blocking the scraper
+<strong>Fix:</strong> 1. Wait 24 hours (website may have temporary rate
+limits) 2. Try running again manually 3. If persists → Contact Sway for
+proxy configuration</p>
+<h4 id="error-no-data-extracted">Error: “No data extracted”</h4>
+<p><strong>Cause:</strong> Website changed its structure
+<strong>Fix:</strong> This requires code updates. Contact Sway
+immediately.</p>
+<hr />
+<h3 id="problem-webhook-not-triggering-make.com">Problem: Webhook Not
+Triggering Make.com</h3>
+<p><strong>Symptoms:</strong> - Apify tasks run successfully - But
+Make.com scenario doesn’t execute - No email received</p>
+<p><strong>To diagnose:</strong></p>
+<ol type="1">
+<li><strong>Check Apify Task 3 webhook configuration:</strong>
+<ul>
+<li>Login to Apify → Go to Task 3</li>
+<li>Click <strong>Settings</strong> → <strong>“Post-run
+webhook”</strong></li>
+<li>Verify webhook URL is set (should look like
+<code>https://hook.make.com/...</code>)</li>
+<li>If missing or wrong → Contact Sway for correct URL</li>
+</ul></li>
+<li><strong>Check Make.com webhook module:</strong>
+<ul>
+<li>Login to Make.com → Open scenario</li>
+<li>First module should be “Webhook”</li>
+<li>Click on it → Copy the webhook URL</li>
+<li>Compare to Apify Task 3 webhook URL</li>
+<li>If different → Update Apify with correct URL</li>
+</ul></li>
+</ol>
+<hr />
+<h3 id="problem-google-sheets-not-updating">Problem: Google Sheets Not
+Updating</h3>
+<p><strong>Check these:</strong></p>
+<ol type="1">
+<li><strong>Verify Make.com execution succeeded:</strong>
+<ul>
+<li>Login to Make.com → Scenario History</li>
+<li>If execution failed at a Google Sheets module → Connection may have
+expired</li>
+</ul></li>
+<li><strong>Reconnect Google Sheets:</strong>
+<ul>
+<li>Open your scenario</li>
+<li>Find any Google Sheets module (e.g., “Add a Row”)</li>
+<li>Click on it</li>
+<li>Click <strong>“Account”</strong> field →
+<strong>“Reconnect”</strong></li>
+<li>Authorize with lombokinvestcapitalnow@gmail.com</li>
+<li>Save scenario</li>
+</ul></li>
+<li><strong>Check spreadsheet ID:</strong>
+<ul>
+<li>Make sure Variables module (524) has the correct spreadsheet ID</li>
+<li>Verify the spreadsheet still exists and you have edit access</li>
+</ul></li>
+</ol>
+<hr />
+<h3 id="problem-receiving-duplicate-properties">Problem: Receiving
+Duplicate Properties</h3>
+<p><strong>Symptoms:</strong> - Same property appears in multiple emails
+- Properties you’ve seen before keep showing up</p>
+<p><strong>Cause:</strong> Data Store may have been cleared or
+corrupted</p>
+<p><strong>To fix:</strong></p>
+<ol type="1">
+<li>Login to Make.com</li>
+<li>Go to <strong>Data stores</strong> in left sidebar</li>
+<li>Find your data store: <strong>ID 87067</strong> (named
+“lombok-properties”)</li>
+<li>Or access directly:
+https://eu1.make.com/829332/data-stores/browse/87067</li>
+<li>Check if it contains property URLs</li>
+<li><strong>If empty:</strong> It got cleared. The system will now
+re-learn which properties are duplicates.</li>
+<li><strong>If you want to reset completely:</strong>
+<ul>
+<li>Delete all entries in Data Store</li>
+<li>Next run will treat all properties as “new”</li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="maintenance-monitoring">🛠️ Maintenance &amp; Monitoring</h2>
+<h3 id="monthly-checks-recommended">Monthly Checks (Recommended)</h3>
+<p><strong>Do this once a month to ensure everything is
+working:</strong></p>
+<ol type="1">
+<li><strong>Review email notifications:</strong>
+<ul>
+<li>Check that you received notifications on the 1st and 15th</li>
+<li>Verify property count seems reasonable (~5-20 new properties per
+run)</li>
+</ul></li>
+<li><strong>Check Apify usage:</strong>
+<ul>
+<li>Login to Apify → Dashboard</li>
+<li>Verify you’re not hitting usage limits</li>
+<li>Free tier: 100 actor runs/month (you use 6/month = well within
+limits)</li>
+</ul></li>
+<li><strong>Check Make.com operations:</strong>
+<ul>
+<li>Login to Make.com → Dashboard</li>
+<li>Verify operations count is reasonable</li>
+<li>Free tier: 1,000 operations/month (you use ~200/month = OK)</li>
+</ul></li>
+<li><strong>Audit Google Sheets:</strong>
+<ul>
+<li>Open your spreadsheet</li>
+<li>Check row count (shouldn’t exceed 10,000 rows)</li>
+<li>If getting large → Archive old data or increase sheet size</li>
+</ul></li>
+</ol>
+<hr />
+<h3 id="when-to-contact-support">When to Contact Support</h3>
+<p><strong>Contact Sway if:</strong></p>
+<ul>
+<li>❌ No emails received for 2+ consecutive runs (1st &amp; 15th)</li>
+<li>❌ Apify tasks consistently failing with errors</li>
+<li>❌ Properties in results don’t match filter criteria</li>
+<li>❌ Website structure changed (no data being scraped)</li>
+<li>❌ Google Sheets stops updating</li>
+<li>❌ You want to change filter criteria (location, construction
+status, etc.)</li>
+<li>❌ You want to add or remove websites from scraping list</li>
+</ul>
+<p><strong>DON’T contact support for:</strong></p>
+<ul>
+<li>✅ “0 new properties found” emails (this is normal)</li>
+<li>✅ Occasional task failures (Apify auto-retries)</li>
+<li>✅ One-time webhook miss (will resume next run)</li>
+</ul>
+<hr />
+<h3 id="system-costs-limits">System Costs &amp; Limits</h3>
+<p><strong>Apify (Free Tier):</strong> - <strong>Limit:</strong> 100
+actor runs/month - <strong>Your usage:</strong> 6 runs/month (3 tasks ×
+2 runs/month) - <strong>Status:</strong> ✅ Well within limits</p>
+<p><strong>Make.com (Free Tier):</strong> - <strong>Limit:</strong>
+1,000 operations/month - <strong>Your usage:</strong> ~200
+operations/month (100 per run × 2 runs) - <strong>Status:</strong> ✅
+Well within limits</p>
+<p><strong>Google Cloud Platform (OAuth):</strong> -
+<strong>Cost:</strong> Free (no API charges for Sheets/Drive) -
+<strong>Status:</strong> ✅ No costs</p>
+<p><strong>Total Monthly Cost:</strong> $0 (all free tiers)</p>
+<p><strong>Note:</strong> If you need more frequent runs or add more
+websites, you may need to upgrade: - Apify Pro: $49/month (unlimited
+runs) - Make.com Pro: $9/month (10,000 operations)</p>
+<hr />
+<h2 id="contact-support">📞 Contact &amp; Support</h2>
+<h3 id="primary-contact-sway-clarke">Primary Contact: Sway Clarke</h3>
+<p><strong>Email:</strong> sway@oloxa.ai <strong>For:</strong> Technical
+issues, changes to automation, adding websites, filter updates</p>
+<p><strong>Response time:</strong> Within 24-48 hours</p>
+<hr />
+<h3 id="platform-support-links">Platform Support Links</h3>
+<p><strong>Apify:</strong> - Documentation: https://docs.apify.com -
+Support: support@apify.com - Status page: https://status.apify.com</p>
+<p><strong>Make.com:</strong> - Documentation:
+https://www.make.com/en/help - Support: support@make.com - Community
+forum: https://community.make.com</p>
+<p><strong>Google Cloud Platform:</strong> - Documentation:
+https://cloud.google.com/docs - Support:
+https://support.google.com/cloud</p>
+<hr />
+<h2 id="additional-resources">📚 Additional Resources</h2>
+<h3 id="video-walkthrough">Video Walkthrough</h3>
+<p><strong>URL:</strong>
+https://drive.google.com/file/d/1T4CCjyLnsfOoNS7dVeBT3M5MHad6vrqO/view?usp=drive_link</p>
+<p><strong>Covers:</strong> - How to access all accounts - How to check
+if automation is working - How to review Google Sheets - Basic
+troubleshooting - Step-by-step walkthrough of the complete system</p>
+<hr />
+<h3 id="configuration-files-advanced">Configuration Files
+(Advanced)</h3>
+<p>If you need to recreate the automation or understand the technical
+details:</p>
+<p><strong>Apify Actor Configurations:</strong> - Task 1 JSON:
+<code>/technical-builds/lombok-invest-capital/apify-configs/json/Lombok Invest Capital (Task 1) - v7 - Dec-17-2024.json</code>
+- Task 2 JSON:
+<code>/technical-builds/lombok-invest-capital/apify-configs/json/Lombok Invest Capital (Task 2) 11_12_2025 - v4 - Dec-14-2024.json</code>
+- Task 3 JSON:
+<code>/technical-builds/lombok-invest-capital/apify-configs/json/Lombok Invest Capital (Task 3) 11_12_2025 - v4 - Dec-14-2024.json</code></p>
+<p><strong>Make.com Blueprint:</strong> - File:
+<code>/technical-builds/lombok-invest-capital/make-blueprints/Lombok_Property_Scraper_v7_Blueprint.json</code></p>
+<p><strong>Technical Documentation:</strong> - Setup Guide:
+<code>APIFY_MAKE_SETUP_GUIDE.md</code> - Technical Specs:
+<code>CLAUDE.md</code> - Handover Checklist:
+<code>CLIENT_HANDOVER_CHECKLIST.md</code></p>
+<hr />
+<h2 id="final-checklist">✅ Final Checklist</h2>
+<p>Before considering the handover complete, verify:</p>
+<p><strong>Accounts:</strong> - [x] Gmail account accessible
+(lombokinvestcapitalnow@gmail.com) - [x] Apify account accessible and
+tasks configured - [x] Make.com account accessible and scenario active -
+[x] Google Cloud Console OAuth app published to production</p>
+<p><strong>Configuration:</strong> - [x] Apify cron schedules enabled
+(1st &amp; 15th of month) - [x] Make.com webhook configured and
+connected - [x] Google Sheets created with correct structure - [x] Email
+notifications working</p>
+<p><strong>Testing:</strong> - [x] End-to-end test completed
+successfully - [x] Received email notification with property data - [x]
+Google Sheets updated correctly - [x] Data Store tracking duplicates
+properly</p>
+<p><strong>Documentation:</strong> - [x] All credentials provided
+securely - [x] Video walkthrough recorded
+(https://drive.google.com/file/d/1T4CCjyLnsfOoNS7dVeBT3M5MHad6vrqO/view)
+- [x] This handover document complete with all IDs and URLs - [x] Client
+understands how to monitor and troubleshoot</p>
+<hr />
+<h2 id="youre-all-set">🎉 You’re All Set!</h2>
+<p>The automation is now fully operational and running on your
+behalf.</p>
+<p><strong>Next steps:</strong> 1. Wait for the next scheduled run
+(February 1, 2026) 2. Check your email for new property notifications 3.
+Review the Google Sheets for full data 4. Reach out to Sway if you have
+any questions</p>
+<p><strong>Remember:</strong> The system runs automatically. You don’t
+need to do anything unless you want to check the results or make
+changes.</p>
+<p>Happy property hunting! 🏡</p>
+<hr />
+<p><strong>Document Version:</strong> 1.0 <strong>Last Updated:</strong>
+January 15, 2026 <strong>Created by:</strong> Sway Clarke (Oloxa.ai)
+<strong>For:</strong> Benito - Lombok Invest Capital</p>
+</body>
+</html>
