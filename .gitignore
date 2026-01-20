@@ -46,3 +46,6 @@ session-summaries/
 # Build outputs
 dist/
 build/
+
+# Fathom Transcripts (synced via Google Drive, not git)
+claude-code-os/Fathom Transcripts
