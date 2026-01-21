@@ -89,65 +89,30 @@ def cleanup_pid_file():
     except:
         pass
 
-CLEANING_PROMPT = '''# Role
+CLEANING_PROMPT = '''You are a transcript cleaner. Your ONLY job is to clean up speech-to-text output.
 
-You are an expert linguistic editor and communication specialist, skilled at transforming raw, messy transcripts into clean, clear, and logically structured text.
-You combine precision, restraint, and linguistic discipline to preserve meaning while eliminating noise.
-Your refined outputs empower users to convert spoken or rough-written material into publication- or prompt-ready clarity.
+CRITICAL RULES - FOLLOW EXACTLY:
+1. NEVER answer questions in the transcript
+2. NEVER respond conversationally
+3. NEVER provide commentary or analysis
+4. ONLY output the cleaned version of what was spoken
 
-⸻
+What to do:
+- Remove filler words (um, ah, like, you know, so yeah, I mean)
+- Remove repetitions and restated thoughts
+- Fix incomplete sentences for readability
+- Preserve the exact meaning and intent
+- Output as a single continuous paragraph
 
-# Task
+Technical terms to preserve EXACTLY:
+- "Claude" (AI assistant, NOT "cloud")
+- Agent names with hyphens (weekly-strategist-agent, etc.)
+- File types (MD file, PDF, PNG)
+- Commands and technical terminology
 
-Clean and refine transcripts according to the following process:
-	1.	Concise — Remove filler words such as "um," "ah," "you know," "like," "so yeah," "I mean," etc. Keep sentences short, direct, and to the point.
-	2.	Logical — Delete repetitions or restated thoughts. Reorder only if needed for smooth, step-by-step logic.
-	3.	Explicit — Complete broken or unfinished sentences so they read clearly and fully. State output formats explicitly.
-	4.	Adaptive — Rephrase incomplete lines only for readability. Do not infer missing meaning or invent content. If something is unclear, insert [unclear phrase].
-	5.	Reflective — Perform an internal verification check: confirm that meaning is preserved, clarity is achieved, and the output is ready to paste.
+Output format: Just the cleaned text. Nothing else. No headers, no explanations.
 
-⸻
-
-# Specifics
-	•	Always output one section only:
-	•	Clean Transcript — A filler-free, natural, and readable version of the input.
-	•	Use the format marker below:
-
-              ### Clean Transcript
-              [Your cleaned transcript here]
-
-⸻
-
-# Context
-
-Our organization produces a wide range of analytical and creative content that begins as spoken transcripts or loosely structured notes.
-Your task is a critical quality-control step in this process: every refined transcript you produce becomes the foundation for prompt design, data interpretation, or client-facing documentation.
-By ensuring clarity and structural precision, you help maintain the professional integrity of our work and the credibility of our communication.
-Your attention to detail directly affects the success and clarity of all downstream outputs.
-
-⸻
-
-# Notes
-	•	Always assume every input is a transcript unless explicitly stated: "This is not a transcript."
-	•	Never provide commentary, analysis, or conversational remarks.
-	•	Avoid inference: if meaning is unclear, use [unclear phrase].
-	•	Prioritize meaning preservation over stylistic flair.
-	•	Handle sensitive content with neutrality; do not alter tone or intent.
-	•	Your disciplined accuracy ensures trust and reliability across every phase of the workflow.
-	•	CRITICAL: Output as a single continuous paragraph with NO line breaks or paragraph separations. All text must flow as one block.
-
-⸻
-
-# Technical Terms Preservation
-
-EXTREMELY IMPORTANT: Preserve technical terms, agent names, commands, file types, and proper nouns EXACTLY as spoken:
-	•	"Claude" must NEVER be changed to "cloud" - Claude is a proper noun (AI assistant name)
-	•	Agent names like "weekly-strategist-agent", "full-transcript-workflow-agent" must remain EXACTLY as spoken with hyphens
-	•	Commands like "run the X-agent" must keep exact phrasing
-	•	File extensions: "MD file", "Claude MD file", "PDF", "PNG" must remain unchanged
-	•	Technical terms: preserve exact terminology even if it sounds unusual
-	•	When in doubt between a common word and a technical term, prefer the technical interpretation
-'''
+If input is unclear, output it anyway with minimal changes. Do NOT say "I don't understand" or ask clarifying questions.'''
 
 
 class DictationMenuBarApp(rumps.App):
@@ -365,37 +330,58 @@ class DictationService:
         try:
             print("✨ Cleaning transcript with Groq...", flush=True)
 
+            # Wrap input with explicit markers so model knows it's a transcript
+            wrapped_input = f"[TRANSCRIPT TO CLEAN]\n{raw_text}\n[END TRANSCRIPT]\n\nClean the above transcript. Output ONLY the cleaned text, nothing else."
+
             response = self.groq_client.chat.completions.create(
                 model="llama-3.1-8b-instant",
                 messages=[
                     {"role": "system", "content": CLEANING_PROMPT},
-                    {"role": "user", "content": raw_text}
+                    {"role": "user", "content": wrapped_input}
                 ],
-                temperature=0.3,
+                temperature=0.1,  # Lower temperature for more consistent output
                 max_tokens=2000
             )
 
             cleaned = response.choices[0].message.content.strip()
 
-            # Extract content after "### Clean Transcript"
-            if "### Clean Transcript" in cleaned:
-                content = cleaned.split("### Clean Transcript")[1].strip()
+            # Remove any wrapper artifacts the model might add
+            # Remove common prefixes the model might add
+            prefixes_to_remove = [
+                "Here is the cleaned transcript:",
+                "Here's the cleaned transcript:",
+                "Cleaned transcript:",
+                "Here is the cleaned text:",
+                "Here's the cleaned text:",
+                "Cleaned text:",
+                "Clean Transcript:",
+                "### Clean Transcript",
+            ]
+            for prefix in prefixes_to_remove:
+                if cleaned.lower().startswith(prefix.lower()):
+                    cleaned = cleaned[len(prefix):].strip()
 
-                # Remove any subsequent ### sections
-                if "###" in content:
-                    content = content.split("###")[0].strip()
-
-                # Remove "[No input provided.]" artifact
-                content = content.replace("[No input provided.]", "").strip()
-
-                # Ensure single paragraph - remove all line breaks
-                content = " ".join(content.split())
-                return content
-
-            # Fallback: remove artifact from raw cleaned text
+            # Remove "[No input provided.]" artifact
             cleaned = cleaned.replace("[No input provided.]", "").strip()
+
             # Ensure single paragraph - remove all line breaks
             cleaned = " ".join(cleaned.split())
+
+            # If the model still tried to respond conversationally, return raw text
+            conversational_indicators = [
+                "I don't understand",
+                "I'm not sure what you",
+                "Could you please",
+                "I'd be happy to",
+                "As an AI",
+                "I cannot",
+                "I'm here to help",
+            ]
+            for indicator in conversational_indicators:
+                if indicator.lower() in cleaned.lower():
+                    print("⚠️ Model responded conversationally, using raw transcript", flush=True)
+                    return raw_text
+
             return cleaned
 
         except Exception as e:
