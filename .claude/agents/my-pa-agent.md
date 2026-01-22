@@ -204,11 +204,24 @@ curl -X POST "https://n8n.oloxa.ai/webhook/brain-dump" \
   -d '{
     "tasks": [
       {"title": "Build content agent", "dueDate": "2026-01-24", "priority": "High", "type": "Work"},
-      {"title": "Land another client", "dueDate": "2026-01-24", "priority": "High", "type": "Work"},
-      {"title": "Start recruitment initiative", "dueDate": "2026-01-24", "priority": "Medium", "type": "Work"}
+      {"title": "Land another client", "dueDate": "2026-01-24", "priority": "High", "type": "Work"}
+    ],
+    "calendar": [
+      {"title": "Meeting with Eugene", "start": "2026-01-26T11:00:00+01:00", "end": "2026-01-26T12:00:00+01:00", "description": "AMA project discussion"},
+      {"title": "Call with Otto Petersen", "start": "2026-01-22T19:00:00+01:00", "end": "2026-01-22T20:00:00+01:00", "description": "AI audit deliverables"}
     ]
   }'
 ```
+
+**Calendar Event Format:**
+| Field | Required | Format | Example |
+|-------|----------|--------|---------|
+| title | Yes | String | "Meeting with Eugene" |
+| start | Yes | ISO 8601 with timezone | "2026-01-26T11:00:00+01:00" |
+| end | Yes | ISO 8601 with timezone | "2026-01-26T12:00:00+01:00" |
+| description | No | String | "Optional details" |
+
+**IMPORTANT:** Always include timezone offset (+01:00 for CET, +02:00 for CEST) in start/end times.
 
 #### Option B: Route to Sub-Agents (For Non-Work Items)
 
@@ -255,7 +268,8 @@ Should I:
 | Kita/Personal | pa-family-agent |
 | CRM updates | pa-crm-agent |
 | Strategic planning | pa-strategy-agent |
-| Calendar events | pa-family-agent (for family) or pa-strategy-agent (for work) |
+| Calendar events (work) | n8n webhook directly (include in calendar array) |
+| Calendar events (family) | pa-family-agent |
 
 ---
 

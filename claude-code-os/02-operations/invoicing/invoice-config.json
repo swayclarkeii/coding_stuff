@@ -1,0 +1,51 @@
+{
+  "business": {
+    "company_name": "Oloxa.ai",
+    "owner_name": "Sway Clarke",
+    "address": {
+      "street": "Glogauerstr 20",
+      "city": "Berlin",
+      "country": "DE",
+      "postal_code": "10999",
+      "formatted": "Glogauerstr 20\nBerlin, DE 10999"
+    },
+    "contact": {
+      "email": "sway@oloxa.ai",
+      "admin_email": "admin@oloxa.ai",
+      "phone": "+491727350808",
+      "website": "www.oloxa.ai"
+    },
+    "tax": {
+      "vat_number": "DE289348805",
+      "vat_rate": 0.19,
+      "vat_rate_display": "19%"
+    },
+    "banking": {
+      "account_holder": "Sway Clarke",
+      "bank_name": "ING-Diba",
+      "iban": "DE36500105175422586473",
+      "bic": ""
+    }
+  },
+  "invoice_settings": {
+    "template_id": "1g2P1xP7eS1qMSat1N-OBx42SdkzoZ1d45MV3Z65rCvE",
+    "number_prefix": "INV",
+    "number_format": "INV-{YEAR}-{SEQ:3}",
+    "default_due_days": 14,
+    "currency": "EUR",
+    "currency_symbol": "€"
+  },
+  "google_sheets": {
+    "tracker_sheet_id": "1-8-DiC2azg04lhmzzknfQLt6Z47VMP8b13cYAXfFqhE",
+    "tracker_sheet_name": "Invoice Tracker"
+  },
+  "output": {
+    "google_drive_folder_id": "",
+    "local_backup_path": "/Users/computer/coding_stuff/claude-code-os/02-operations/invoicing/generated/"
+  },
+  "n8n_workflow": {
+    "workflow_id": "wWrDhIFO7dGcv0kl",
+    "webhook_path": "/invoice-generate",
+    "webhook_url": "https://n8n.oloxa.ai/webhook/invoice-generate"
+  }
+}

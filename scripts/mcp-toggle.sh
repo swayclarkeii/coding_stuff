@@ -13,7 +13,7 @@ NC='\033[0m' # No Color
 
 # Config file path
 CONFIG_FILE="$HOME/.claude.json"
-PROJECT_PATH="/Users/swayclarke/coding_stuff"
+PROJECT_PATH="/Users/computer/coding_stuff"
 
 # Display usage
 usage() {
@@ -26,6 +26,7 @@ Commands:
   ${GREEN}status${NC}           Show current MCP server status
   ${GREEN}enable-all${NC}       Enable all MCP servers
   ${GREEN}core-mode${NC}        Enable core servers (n8n, playwriter, playwright, google-sheets, google-drive)
+  ${GREEN}google-mode${NC}      Enable Google workspace mode (n8n, google-sheets, google-drive, google-slides)
   ${GREEN}pa-mode${NC}          Enable PA mode (n8n, calendar, github, sheets, notion)
   ${GREEN}minimal${NC}          Enable minimal set (n8n only)
   ${GREEN}disable-all${NC}      Disable all MCP servers
@@ -154,6 +155,14 @@ OPTIONAL_SERVERS=(
     "google-docs"
 )
 
+# Google mode servers (Google workspace + n8n)
+GOOGLE_SERVERS=(
+    "n8n-mcp"
+    "google-sheets"
+    "google-drive"
+    "google-slides"
+)
+
 # Enable core mode
 enable_core() {
     print_status "Enabling core mode (n8n, playwriter, playwright, google-sheets, google-drive)..."
@@ -181,6 +190,21 @@ enable_pa_mode() {
     print_success "PA mode enabled"
     print_status "Includes: n8n-mcp + google-calendar + github + google-sheets + notion"
     print_status "Token cost: ~40,000-44,000 tokens per conversation"
+    echo ""
+    show_status
+}
+
+# Enable Google mode (Google workspace + n8n)
+enable_google_mode() {
+    print_status "Enabling Google mode (n8n, google-sheets, google-drive, google-slides)..."
+
+    # Disable: everything except Google servers + n8n
+    DISABLED='["playwriter","playwright","notion","google-calendar","fathom","github-mcp","google-docs"]'
+
+    update_disabled_servers "$DISABLED"
+
+    print_success "Google mode enabled"
+    print_status "Includes: n8n-mcp + google-sheets + google-drive + google-slides"
     echo ""
     show_status
 }
@@ -257,6 +281,9 @@ main() {
             ;;
         pa-mode)
             enable_pa_mode
+            ;;
+        google-mode)
+            enable_google_mode
             ;;
         minimal)
             enable_minimal
