@@ -296,17 +296,10 @@ class DictationService:
             print(f"📝 Raw transcript: {raw_text[:100]}...", flush=True)
             print(f"📝 Raw transcript (full length: {len(raw_text)} chars)", flush=True)
 
-            # Clean the transcript
+            # Clean the transcript using OpenAI (more reliable than Groq/Llama)
             self.menu_app.update_status("Cleaning...")
-            self.show_notification("✨ Cleaning", "Refining your text...", sound=False)
-
             cleaned_text = self.clean_transcript(raw_text)
             print(f"✨ Cleaned: {cleaned_text[:100]}...", flush=True)
-
-            # If cleaned text is just "[unclear phrase]" or empty, use raw text instead
-            if cleaned_text.strip() in ["[unclear phrase]", "[unclear phrase].", ""] or len(cleaned_text.strip()) < 3:
-                print("⚠️  Cleaned text unclear, using raw transcript instead", flush=True)
-                cleaned_text = raw_text
 
             # Paste the cleaned text
             self.menu_app.update_status("Pasting...")
@@ -326,61 +319,24 @@ class DictationService:
             self.show_notification("❌ Error", f"Processing failed: {str(e)[:50]}", sound=False)
 
     def clean_transcript(self, raw_text):
-        """Clean transcript using Groq (ultra-fast inference)"""
+        """Clean transcript using OpenAI GPT-4o-mini (much more reliable than Groq/Llama)"""
         try:
-            print("✨ Cleaning transcript with Groq...", flush=True)
+            print("✨ Cleaning transcript with OpenAI GPT-4o-mini...", flush=True)
 
-            # Wrap input with explicit markers so model knows it's a transcript
-            wrapped_input = f"[TRANSCRIPT TO CLEAN]\n{raw_text}\n[END TRANSCRIPT]\n\nClean the above transcript. Output ONLY the cleaned text, nothing else."
-
-            response = self.groq_client.chat.completions.create(
-                model="llama-3.1-8b-instant",
+            response = self.openai_client.chat.completions.create(
+                model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": CLEANING_PROMPT},
-                    {"role": "user", "content": wrapped_input}
+                    {"role": "user", "content": raw_text}
                 ],
-                temperature=0.1,  # Lower temperature for more consistent output
+                temperature=0,
                 max_tokens=2000
             )
 
             cleaned = response.choices[0].message.content.strip()
 
-            # Remove any wrapper artifacts the model might add
-            # Remove common prefixes the model might add
-            prefixes_to_remove = [
-                "Here is the cleaned transcript:",
-                "Here's the cleaned transcript:",
-                "Cleaned transcript:",
-                "Here is the cleaned text:",
-                "Here's the cleaned text:",
-                "Cleaned text:",
-                "Clean Transcript:",
-                "### Clean Transcript",
-            ]
-            for prefix in prefixes_to_remove:
-                if cleaned.lower().startswith(prefix.lower()):
-                    cleaned = cleaned[len(prefix):].strip()
-
-            # Remove "[No input provided.]" artifact
-            cleaned = cleaned.replace("[No input provided.]", "").strip()
-
             # Ensure single paragraph - remove all line breaks
             cleaned = " ".join(cleaned.split())
-
-            # If the model still tried to respond conversationally, return raw text
-            conversational_indicators = [
-                "I don't understand",
-                "I'm not sure what you",
-                "Could you please",
-                "I'd be happy to",
-                "As an AI",
-                "I cannot",
-                "I'm here to help",
-            ]
-            for indicator in conversational_indicators:
-                if indicator.lower() in cleaned.lower():
-                    print("⚠️ Model responded conversationally, using raw transcript", flush=True)
-                    return raw_text
 
             return cleaned
 

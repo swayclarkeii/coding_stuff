@@ -1,0 +1,74 @@
+{
+  "rules": {
+    "values": [
+      {
+        "conditions": {
+          "options": {
+            "combinator": "and",
+            "conditions": [
+              {
+                "leftValue": "={{ $json.clientFound }}",
+                "rightValue": false,
+                "operator": {
+                  "type": "boolean",
+                  "operation": "equals"
+                }
+              }
+            ]
+          }
+        },
+        "renameOutput": true,
+        "outputKey": "error"
+      },
+      {
+        "conditions": {
+          "options": {
+            "combinator": "or",
+            "conditions": [
+              {
+                "leftValue": "={{ $json.actionType }}",
+                "rightValue": "CORE",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              },
+              {
+                "leftValue": "={{ $json.actionType }}",
+                "rightValue": "SECONDARY",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ]
+          }
+        },
+        "renameOutput": true,
+        "outputKey": "update_tracker"
+      },
+      {
+        "conditions": {
+          "options": {
+            "combinator": "and",
+            "conditions": [
+              {
+                "leftValue": "={{ $json.actionType }}",
+                "rightValue": "LOW_CONFIDENCE",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ]
+          }
+        },
+        "renameOutput": true,
+        "outputKey": "skip_tracker"
+      }
+    ]
+  },
+  "options": {
+    "fallbackOutput": "extra"
+  }
+}
