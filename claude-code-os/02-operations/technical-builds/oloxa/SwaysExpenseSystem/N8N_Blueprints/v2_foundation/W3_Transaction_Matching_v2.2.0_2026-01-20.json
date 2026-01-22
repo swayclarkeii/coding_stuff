@@ -1,0 +1,104 @@
+{
+  "id": "CJtdqMreZ17esJAW",
+  "name": "Expense System - Workflow 3 v2.1: Transaction-Receipt-Invoice Matching",
+  "active": false,
+  "createdAt": "2026-01-05T21:08:23.061Z",
+  "updatedAt": "2026-01-11T09:34:59.290Z",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "node-1",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 336]
+    },
+    {
+      "parameters": {
+        "documentId": {"mode": "id", "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"},
+        "sheetName": {"mode": "name", "value": "Receipts"},
+        "options": {}
+      },
+      "id": "node-2",
+      "name": "Read Unmatched Receipts",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [464, 240],
+      "credentials": {"googleSheetsOAuth2Api": {"id": "H7ewI1sOrDYabelt", "name": "Google Sheets account"}}
+    },
+    {
+      "parameters": {
+        "jsCode": "const receipts = $input.all();\n\n// Filter for unmatched receipts (Matched = FALSE or empty transaction_id)\nconst unmatchedReceipts = receipts.filter(item => {\n  const matched = item.json.Matched;\n  const transactionId = item.json.transaction_id;\n  \n  // Include if Matched is FALSE or empty, OR transaction_id is empty\n  return (!matched || matched === 'FALSE' || matched === false || !transactionId || transactionId === '');\n});\n\n// Return unmatched receipts, or empty array if none\nif (unmatchedReceipts.length === 0) {\n  return [{ json: { message: 'No unmatched receipts found', count: 0 } }];\n}\n\nreturn unmatchedReceipts;"
+      },
+      "id": "node-3",
+      "name": "Filter Unmatched Receipts Only",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [688, 144]
+    },
+    {
+      "parameters": {
+        "documentId": {"mode": "id", "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"},
+        "sheetName": {"mode": "name", "value": "Transactions"},
+        "options": {}
+      },
+      "id": "node-4",
+      "name": "Read All Transactions",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [464, 528],
+      "credentials": {"googleSheetsOAuth2Api": {"id": "H7ewI1sOrDYabelt", "name": "Google Sheets account"}}
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get transactions from Read All Transactions node\nconst transactions = $input.all();\n\n// Filter for Type = 'expense' transactions only\nconst expenseTransactions = transactions.filter(item => {\n  const type = item.json.Type;\n  return type && type.toLowerCase() === 'expense';\n});\n\n// Return expense transactions\nif (expenseTransactions.length === 0) {\n  return [{ json: { message: 'No expense transactions found', count: 0 } }];\n}\n\nreturn expenseTransactions;"
+      },
+      "id": "node-filter-expense",
+      "name": "Filter Expense Transactions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [688, 432]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get transactions from Read All Transactions node\nconst transactions = $input.all();\n\n// Filter for Type = 'income' transactions only\nconst incomeTransactions = transactions.filter(item => {\n  const type = item.json.Type;\n  return type && type.toLowerCase() === 'income';\n});\n\n// Return income transactions\nif (incomeTransactions.length === 0) {\n  return [{ json: { message: 'No income transactions found', count: 0 } }];\n}\n\nreturn incomeTransactions;"
+      },
+      "id": "node-filter-income",
+      "name": "Filter Income Transactions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [688, 624]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {"node": "Read Unmatched Receipts", "type": "main", "index": 0},
+          {"node": "Read All Transactions", "type": "main", "index": 0}
+        ]
+      ]
+    },
+    "Read Unmatched Receipts": {
+      "main": [[{"node": "Filter Unmatched Receipts Only", "type": "main", "index": 0}]]
+    },
+    "Read All Transactions": {
+      "main": [
+        [
+          {"node": "Filter Expense Transactions", "type": "main", "index": 0},
+          {"node": "Filter Income Transactions", "type": "main", "index": 0},
+          {"node": "Read Invoices Database", "type": "main", "index": 0}
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "backupInfo": {
+    "backupDate": "2026-01-20",
+    "backupVersion": "v2.2.0",
+    "nodeCount": 24,
+    "note": "Simplified backup - full workflow has 24 nodes for receipt/invoice matching"
+  }
+}

@@ -1,0 +1,2470 @@
+{
+  "updatedAt": "2026-01-11T23:25:52.460Z",
+  "createdAt": "2026-01-02T10:22:06.084Z",
+  "id": "dHbwemg7hEB4vDmC",
+  "name": "Expense System - Workflow 2: Gmail Receipt Monitor",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      },
+      "id": "2b4cc263-7031-4e45-9d58-33a42e0c4a7c",
+      "name": "Daily Receipt Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const vendors = [\n  { name: 'Anthropic', email: 'invoice+statements@mail.anthropic.com' },\n  { name: 'OpenAI', email: 'noreply@tm.openai.com' },\n  { name: 'AWS', email: 'no-reply@tax-and-invoicing.us-east-1.amazonaws.com' },\n  { name: 'Apple', email: 'no_reply@email.apple.com' },\n  { name: 'Expensify', email: 'concierge@expensify.com' },\n  { name: 'Deutsche Bahn', email: 'noreply@deutschebahn.com' },\n  { name: 'Wolt', email: 'info@wolt.com' },\n  { name: 'flaschenpost', email: 'auftrag@flaschenpost.de' },\n  { name: 'BVG', email: 'appsupport@bvg.de' },\n  { name: 'MILES Mobility', email: 'hello@miles-mobility.com' },\n  { name: 'Stripe', email: 'invoice+statements+acct_1HOrSwC6h1nxGoI3@stripe.com' },\n  { name: 'PayPal', email: 'service@paypal.de' },\n  { name: 'Systeme.io', email: 'noreply@systeme.io' }\n];\n\n// Fixed date: October 1, 2025\nconst afterDate = '2025/10/01';\n\nreturn vendors.map(vendor => ({\n  json: {\n    vendorName: vendor.name,\n    searchQuery: `from:${vendor.email} has:attachment after:${afterDate}`\n  }\n}));"
+      },
+      "id": "41759e97-c754-418d-ba2e-44866596c0d9",
+      "name": "Load Vendor Patterns",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        -112
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "simple": false,
+        "filters": {
+          "q": "={{$json.searchQuery}}"
+        },
+        "options": {}
+      },
+      "id": "575481db-dafd-49a3-8b32-7a331f018d99",
+      "name": "Search Gmail for Receipts",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        448,
+        -208
+      ],
+      "webhookId": "787818a0-6c88-4cb5-8818-99a08522f368",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aYzk7sZF8ZVyfOan",
+          "name": "Gmail account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconsole.log(`Processing ${items.length} email items with binary attachments`);\n\nconst results = [];\n\nfor (const item of items) {\n  const email = item.json;\n  const vendorName = email.vendorName || 'Unknown';\n  \n  // UPDATED: Skip Apple emails here - they're handled separately\n  const fromEmail = email.fromEmail || '';\n  if (fromEmail.toLowerCase().includes('apple.com')) {\n    console.log(`Skipping Apple email - handled by Apple email path`);\n    continue;\n  }\n  \n  // Get binary data - Gmail node stores attachments as attachment_0, attachment_1, etc.\n  const binaryData = item.binary || {};\n  \n  // Gmail node with simple=false provides these at top level\n  const emailDate = email.date ? new Date(email.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];\n  const subject = email.subject || 'No Subject';\n  \n  // Process each binary attachment\n  for (const [key, attachment] of Object.entries(binaryData)) {\n    // Only process attachment_* keys (not other binary data)\n    if (key.startsWith('attachment_')) {\n      // Filter for PDF and image files\n      const mimeType = attachment.mimeType || '';\n      const filename = attachment.fileName || '';\n      \n      if (/\\.(pdf|png|jpg|jpeg)$/i.test(filename) || \n          mimeType.includes('pdf') || \n          mimeType.includes('image')) {\n        \n        // Each attachment from Gmail is already a complete binary object\n        // Format: {mimeType, fileName, data: base64string, fileSize}\n        // We pass it directly as binary.data for the Upload node\n        results.push({\n          json: {\n            messageId: email.id,\n            vendorName: vendorName,\n            emailDate: emailDate,\n            emailSubject: subject,\n            filename: filename,\n            mimeType: mimeType\n          },\n          binary: {\n            data: attachment\n          }\n        });\n      }\n    }\n  }\n}\n\nconsole.log(`Total attachments extracted: ${results.length}`);\nreturn results.length > 0 ? results : [];"
+      },
+      "id": "2023d6e8-3aa5-4e95-be7b-82ee8d99b42c",
+      "name": "Extract Attachment Info",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        -208
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1NP5y-HvPfAv28wz2It6BtNZXD7Xfe5D4"
+        },
+        "options": {}
+      },
+      "id": "065ac5f7-11d7-4406-afac-ae483a7003ed",
+      "name": "Upload to Receipt Pool",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2016,
+        -208
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Access the Parse Amount node output (current item)\nconst ocrResult = $json;\n\n// UPDATED: Try to get metadata from Extract Attachment Info OR Add PDF Metadata (Apple path)\nlet attachmentInfo;\ntry {\n  attachmentInfo = $('Extract Attachment Info').item.json;\n} catch (e) {\n  // If Extract Attachment Info doesn't exist, try Add PDF Metadata (Apple email path)\n  try {\n    attachmentInfo = $('Add PDF Metadata').item.json;\n  } catch (e2) {\n    console.log('ERROR: Could not find attachment metadata from either path');\n    attachmentInfo = {};\n  }\n}\n\n// Generate receipt ID\nconst timestamp = Date.now();\nconst vendor = (attachmentInfo.vendorName || 'UNKNOWN').replace(/\\s+/g, '-').toUpperCase();\nconst receiptId = `RCPT-${vendor}-${timestamp}`;\n\n// Get current timestamp in ISO format\nconst currentTimestamp = new Date().toISOString();\n\n// Determine transaction type: \"Income\" for Stripe/PayPal, \"Expense\" for everything else\nconst incomeVendors = ['Stripe', 'PayPal'];\nconst transactionType = incomeVendors.includes(attachmentInfo.vendorName) ? 'Income' : 'Expense';\n\n// Use extracted amount from OCR, or from Apple email parsing\nconst amount = ocrResult.extractedAmount || attachmentInfo.extractedAmount || '';\n\n// Add note about OCR processing or Apple email conversion\nlet notes = `Auto-downloaded from Gmail message ${attachmentInfo.messageId || 'UNKNOWN'}`;\nif (amount) {\n  notes += ` | Amount extracted: ${amount}`;\n} else {\n  notes += ` | No amount detected`;\n}\n\nif (attachmentInfo.vendorName === 'Apple') {\n  notes += ` | Converted from Apple email HTML`;\n}\n\nreturn {\n  json: {\n    ReceiptID: receiptId,\n    FileName: ocrResult.name,\n    Vendor: attachmentInfo.vendorName || 'Unknown',\n    Amount: amount,\n    TransactionType: transactionType,\n    Date: attachmentInfo.emailDate || new Date().toISOString().split('T')[0],\n    FileID: ocrResult.id,\n    DownloadDate: new Date().toISOString().split('T')[0],\n    DownloadTimestamp: currentTimestamp,\n    SourceEmail: attachmentInfo.emailSubject || 'No Subject',\n    Matched: 'FALSE',\n    Notes: notes\n  }\n};"
+      },
+      "id": "87200023-4908-40bf-a3b8-926e1cc29932",
+      "name": "Prepare Receipt Record",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3136,
+        -112
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Receipts"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ReceiptID": "={{ $json.ReceiptID }}",
+            "FileName": "={{ $json.FileName }}",
+            "Vendor": "={{ $json.Vendor }}",
+            "Amount": "={{ $json.Amount }}",
+            "TransactionType": "={{ $json.TransactionType }}",
+            "Date": "={{ $json.Date }}",
+            "FileID": "={{ $json.FileID }}",
+            "DownloadDate": "={{ $json.DownloadDate }}",
+            "DownloadTimestamp": "={{ $json.DownloadTimestamp }}",
+            "SourceEmail": "={{ $json.SourceEmail }}",
+            "Matched": "={{ $json.Matched }}",
+            "Notes": "={{ $json.Notes }}"
+          }
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED"
+        }
+      },
+      "id": "b4b064b5-b883-48de-8277-c0ad6e9f077a",
+      "name": "Log Receipt in Database",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3360,
+        -112
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "test-expense-w2",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "a8f36052-9949-470f-8e9f-cdda9efda4cf",
+      "name": "Test Trigger - Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        -208
+      ],
+      "webhookId": "f96dee54-d223-40ce-b17d-97b2b71a651c"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "simple": false,
+        "filters": {
+          "q": "={{$json.searchQuery}}"
+        },
+        "options": {}
+      },
+      "id": "new-search-gmail-account2",
+      "name": "Search Gmail for Receipts (Account 2)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        448,
+        -16
+      ],
+      "webhookId": "a62a7756-9819-4b7b-9ed4-0fddfad4ce40",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "g2ksaYkLXWtfDWAh",
+          "name": "Gmail (swayfromthehook)"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get vendor patterns to match against\nconst vendors = [\n  { name: 'Anthropic', email: 'invoice+statements@mail.anthropic.com' },\n  { name: 'OpenAI', email: 'noreply@tm.openai.com' },\n  { name: 'AWS', email: 'no-reply@tax-and-invoicing.us-east-1.amazonaws.com' },\n  { name: 'Apple', email: 'no_reply@email.apple.com' },\n  { name: 'Expensify', email: 'concierge@expensify.com' },\n  { name: 'Deutsche Bahn', email: 'noreply@deutschebahn.com' },\n  { name: 'Wolt', email: 'info@wolt.com' },\n  { name: 'flaschenpost', email: 'auftrag@flaschenpost.de' },\n  { name: 'BVG', email: 'appsupport@bvg.de' },\n  { name: 'MILES Mobility', email: 'hello@miles-mobility.com' },\n  { name: 'Stripe', email: 'invoice+statements+acct_1HOrSwC6h1nxGoI3@stripe.com' },\n  { name: 'PayPal', email: 'service@paypal.de' },\n  { name: 'Systeme.io', email: 'noreply@systeme.io' }\n];\n\n// Get all email items from both accounts\nconst allItems = $input.all();\n\nconsole.log(`Total email items from both accounts: ${allItems.length}`);\n\n// Enrich each email with vendor info by matching the \"from\" address\nconst enrichedItems = allItems.map(item => {\n  const email = item.json;\n  \n  // Gmail API returns sender info in email.from.value array\n  // Format: { value: [{ address: \"email@domain.com\", name: \"Display Name\" }] }\n  let fromEmail = '';\n  \n  if (email.from && email.from.value && email.from.value.length > 0) {\n    fromEmail = email.from.value[0].address || '';\n  }\n  \n  console.log(`Email from: ${fromEmail}`);\n  \n  // Find matching vendor\n  const vendor = vendors.find(v => v.email.toLowerCase() === fromEmail.toLowerCase());\n  \n  if (vendor) {\n    console.log(`Matched vendor: ${vendor.name}`);\n  } else {\n    console.log(`No vendor match for: ${fromEmail}`);\n  }\n  \n  // FIXED: Explicitly preserve binary data from input item\n  // This ensures attachments from both Gmail accounts are carried forward\n  const result = {\n    json: {\n      ...email,\n      vendorName: vendor ? vendor.name : 'Unknown Vendor',\n      fromEmail: fromEmail\n    }\n  };\n  \n  // Only add binary property if it exists and has content\n  if (item.binary && Object.keys(item.binary).length > 0) {\n    result.binary = item.binary;\n  }\n  \n  return result;\n});\n\nconsole.log(`Enriched ${enrichedItems.length} emails with vendor information`);\n\nreturn enrichedItems;"
+      },
+      "id": "combine-both-gmail-accounts",
+      "name": "Combine Both Gmail Accounts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $json.id }}",
+        "simple": false,
+        "options": {
+          "dataPropertyAttachmentsPrefixName": "attachment_",
+          "downloadAttachments": true
+        }
+      },
+      "id": "new-gmail-get-account1",
+      "name": "Get Email Details",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        672,
+        -208
+      ],
+      "webhookId": "a5f4f37f-d515-407d-9e2d-1c0ea3ebead6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aYzk7sZF8ZVyfOan",
+          "name": "Gmail account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $json.id }}",
+        "simple": false,
+        "options": {
+          "dataPropertyAttachmentsPrefixName": "attachment_",
+          "downloadAttachments": true
+        }
+      },
+      "id": "new-gmail-get-account2",
+      "name": "Get Email Details (Account 2)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        672,
+        -16
+      ],
+      "webhookId": "46e8f383-d5dd-4b00-be99-ec9b29e9389b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "g2ksaYkLXWtfDWAh",
+          "name": "Gmail (swayfromthehook)"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "1NP5y-HvPfAv28wz2It6BtNZXD7Xfe5D4"
+          },
+          "whatToSearch": "files"
+        },
+        "options": {}
+      },
+      "id": "search-files-in-gmail-folder",
+      "name": "Search Files in Gmail Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1568,
+        -208
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const existingHashes = new Set();\nconst uniqueItems = [];\n\nfor (const item of $input.all()) {\n  const hash = item.json.md5Hash;\n  if (!existingHashes.has(hash)) {\n    existingHashes.add(hash);\n    uniqueItems.push(item);\n  }\n}\n\nreturn uniqueItems.map(item => ({ json: item.json }));"
+      },
+      "id": "filter-duplicates-new",
+      "name": "Filter Duplicates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Get the uploaded file info and binary data\nconst uploadedFile = $json;\nconst fileId = uploadedFile.id;\n\n// Get original binary data from Filter Duplicates node\n// Binary data should have been preserved through the chain\nconst binaryData = $('Filter Duplicates').item.binary;\n\nif (!binaryData || !binaryData.data) {\n  console.log('WARNING: No binary data available for OCR');\n  return {\n    json: {\n      ...uploadedFile,\n      visionApiRequestBody: null,\n      skipOCR: true\n    }\n  };\n}\n\n// Convert binary to base64 for Vision API\nconst base64Content = binaryData.data.toBase64();\n\n// Build Google Cloud Vision API request for document text detection\nconst requestBody = {\n  \"requests\": [\n    {\n      \"image\": {\n        \"content\": base64Content\n      },\n      \"features\": [\n        {\n          \"type\": \"DOCUMENT_TEXT_DETECTION\",\n          \"maxResults\": 1\n        }\n      ]\n    }\n  ]\n};\n\nreturn {\n  json: {\n    ...uploadedFile,\n    visionApiRequestBody: requestBody,\n    skipOCR: false\n  }\n};"
+      },
+      "id": "build-vision-api-request",
+      "name": "Build Vision API Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2464,
+        -112
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vision.googleapis.com/v1/images:annotate",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.visionApiRequestBody }}",
+        "options": {}
+      },
+      "id": "ocr-vision-api-node",
+      "name": "Extract Text with Vision API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2688,
+        -112
+      ],
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "NFtHVH4EO3SVdLAG",
+          "name": "Google Vision API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $json.text || '';\nconst amountRegex = /\\$?([0-9]{1,3}(?:,?[0-9]{3})*(?:\\.[0-9]{2})?)/g;\nconst matches = text.match(amountRegex);\n\nlet amount = null;\nif (matches && matches.length > 0) {\n  const cleanAmount = matches[0].replace(/[$,]/g, '');\n  amount = parseFloat(cleanAmount);\n}\n\nreturn { json: { amount: amount, rawText: text } };"
+      },
+      "id": "parse-amount-from-ocr",
+      "name": "Parse Amount from OCR Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2912,
+        -112
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "apple-email-check",
+              "leftValue": "={{ $json.fromEmail }}",
+              "rightValue": "apple.com",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "has-no-attachments",
+              "leftValue": "={{ Object.keys($binary || {}).length }}",
+              "rightValue": "0",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "detect-apple-emails-if",
+      "name": "Detect Apple Emails (IF)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconsole.log(`Processing ${items.length} Apple email(s) for HTML-to-PDF conversion`);\n\nconst results = [];\n\nfor (const item of items) {\n  const email = item.json;\n  const vendorName = email.vendorName || 'Apple';\n  \n  // Gmail API returns email body in email.payload.body or parts\n  let htmlBody = '';\n  \n  // Try to extract HTML body from email payload\n  if (email.payload && email.payload.parts) {\n    // Multi-part email - find text/html part\n    for (const part of email.payload.parts) {\n      if (part.mimeType === 'text/html' && part.body && part.body.data) {\n        // Gmail stores body data as base64-encoded\n        htmlBody = Buffer.from(part.body.data, 'base64').toString('utf-8');\n        break;\n      }\n    }\n  } else if (email.payload && email.payload.body && email.payload.body.data) {\n    // Single-part email\n    htmlBody = Buffer.from(email.payload.body.data, 'base64').toString('utf-8');\n  }\n  \n  if (!htmlBody) {\n    console.log(`WARNING: No HTML body found for email ${email.id}`);\n    continue;\n  }\n  \n  // Extract date and subject for filename\n  const emailDate = email.date ? new Date(email.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];\n  const subject = email.subject || 'Apple_Receipt';\n  \n  // Parse amount from email HTML if possible (simple regex)\n  let amount = '';\n  const amountMatch = htmlBody.match(/(?:total|amount|sum)[:\\s]*\\$?([0-9]+[.,][0-9]{2})/i);\n  if (amountMatch) {\n    amount = amountMatch[1].replace(',', '.');\n  }\n  \n  // Generate filename: Apple_Store_Receipt_2026-01-09_$25.99.pdf\n  const amountPart = amount ? `_$${amount}` : '';\n  const filename = `Apple_Receipt_${emailDate}${amountPart}.pdf`;\n  \n  results.push({\n    json: {\n      messageId: email.id,\n      vendorName: vendorName,\n      emailDate: emailDate,\n      emailSubject: subject,\n      filename: filename,\n      mimeType: 'application/pdf',\n      htmlBody: htmlBody,\n      extractedAmount: amount\n    }\n  });\n}\n\nconsole.log(`Total Apple emails to convert: ${results.length}`);\nreturn results.length > 0 ? results : [];"
+      },
+      "id": "extract-apple-email-html",
+      "name": "Extract Apple Email HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1NP5y-HvPfAv28wz2It6BtNZXD7Xfe5D4"
+        },
+        "options": {}
+      },
+      "id": "upload-apple-pdf-to-drive",
+      "name": "Upload Apple Receipt PDF",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1792,
+        16
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "options": {}
+      },
+      "id": "merge-apple-with-regular",
+      "name": "Merge Apple & Regular Receipts",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        2240,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Updated approach: Save HTML to binary for Google Drive upload\n// Then use Google Docs to convert to PDF\n\nconst item = $input.first();\nconst htmlContent = item.json.htmlBody;\nconst filename = item.json.filename;\n\n// Wrap HTML in proper document structure for better rendering\nconst wrappedHtml = `\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Apple Receipt</title>\n  <style>\n    body { \n      font-family: Arial, sans-serif; \n      margin: 20px; \n      max-width: 800px;\n    }\n    img { max-width: 100%; height: auto; }\n    table { width: 100%; border-collapse: collapse; }\n    td, th { padding: 8px; text-align: left; }\n  </style>\n</head>\n<body>\n  ${htmlContent}\n</body>\n</html>\n`;\n\n// Convert HTML to base64 for binary storage\nconst buffer = Buffer.from(wrappedHtml, 'utf-8');\n\nreturn {\n  json: {\n    messageId: item.json.messageId,\n    vendorName: item.json.vendorName,\n    emailDate: item.json.emailDate,\n    emailSubject: item.json.emailSubject,\n    filename: filename,\n    mimeType: 'application/pdf',  // We want PDF output\n    extractedAmount: item.json.extractedAmount\n  },\n  binary: {\n    data: {\n      data: buffer.toString('base64'),\n      mimeType: 'text/html',  // Input is HTML\n      fileName: filename.replace('.pdf', '.html'),\n      fileSize: buffer.length\n    }\n  }\n};"
+      },
+      "id": "prepare-pdf-conversion-request",
+      "name": "Prepare PDF Conversion Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Add metadata for uploaded Apple receipt PDF\nconst uploadedFile = $json;\n\n// Get metadata from Prepare PDF Conversion Request node\nconst originalItem = $('Prepare PDF Conversion Request').item;\nconst metadata = originalItem.json;\n\nreturn {\n  json: {\n    id: uploadedFile.id,\n    name: uploadedFile.name,\n    mimeType: uploadedFile.mimeType,\n    // Pass through original metadata for receipt record\n    messageId: metadata.messageId,\n    vendorName: metadata.vendorName,\n    emailDate: metadata.emailDate,\n    emailSubject: metadata.emailSubject,\n    extractedAmount: metadata.extractedAmount || ''\n  }\n};"
+      },
+      "id": "add-pdf-metadata",
+      "name": "Add PDF Metadata",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "or",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.subject ? $json.subject.toLowerCase() : '' }}",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "rightValue": "invoice,rechnung,faktura",
+              "id": "condition-1768090865801-vbgt3hsm8"
+            },
+            {
+              "leftValue": "={{ $json.attachments && $json.attachments[0] ? $json.attachments[0].filename.toLowerCase() : '' }}",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "rightValue": "supreme music,massive voices,boxhouse,zweisekundenstille",
+              "id": "condition-1768090865801-0g97ti6xw"
+            }
+          ],
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          }
+        },
+        "options": {}
+      },
+      "id": "detect-invoice-or-receipt",
+      "name": "Detect Invoice or Receipt",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1120,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = [];\n\nfor (const item of $input.all()) {\n  const attachments = item.json.attachments || [];\n  \n  for (const attachment of attachments) {\n    // Extract binary data\n    const binaryData = item.binary && item.binary[attachment.id];\n    \n    if (binaryData) {\n      items.push({\n        json: {\n          messageId: item.json.id,\n          subject: item.json.subject,\n          from: item.json.from,\n          date: item.json.date,\n          filename: attachment.filename,\n          mimeType: attachment.mimeType,\n          attachmentId: attachment.id\n        },\n        binary: {\n          data: binaryData\n        }\n      });\n    }\n  }\n}\n\nreturn items;"
+      },
+      "id": "extract-invoice-attachments",
+      "name": "Extract Invoice Attachments",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        -400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "search"
+      },
+      "id": "search-invoices-in-folder",
+      "name": "Search Files in Invoice Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1568,
+        -400
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const existingFiles = $input.first().json.files || [];\nconst existingNames = new Set(existingFiles.map(f => f.name));\n\nconst invoices = $input.all().slice(1);\nconst newInvoices = invoices.filter(item => {\n  const filename = item.json.filename;\n  return !existingNames.has(filename);\n});\n\nreturn newInvoices;"
+      },
+      "id": "filter-invoice-duplicates",
+      "name": "Filter Invoice Duplicates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        -400
+      ]
+    },
+    {
+      "parameters": {
+        "name": "={{ $json.filename }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1V7UmNvDP3a2t6IIbJJI7y8YXz6_X7F6l"
+        },
+        "options": {
+          "keepRevisionForever": false
+        }
+      },
+      "id": "upload-to-invoice-pool",
+      "name": "Upload to Invoice Pool",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2016,
+        -400
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const fileId = $json.id;\nconst filename = $json.name || $json.filename;\nconst mimeType = $json.mimeType;\n\n// Get binary data from previous step\nconst binaryData = $binary.data;\n\nif (!binaryData) {\n  throw new Error('No binary data found for file: ' + filename);\n}\n\n// Convert binary to base64\nconst base64Data = binaryData.data;\nconst mediaType = mimeType.startsWith('image/') ? mimeType : 'image/jpeg';\n\nreturn {\n  json: {\n    fileId: fileId,\n    filename: filename,\n    messageId: $json.messageId,\n    subject: $json.subject,\n    from: $json.from,\n    date: $json.date,\n    base64Data: base64Data,\n    mediaType: mediaType\n  },\n  binary: {\n    data: binaryData\n  }\n};"
+      },
+      "id": "build-invoice-vision-request",
+      "name": "Build Invoice Vision Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        -400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-5-20250514\",\n  \"max_tokens\": 1024,\n  \"temperature\": 0.1,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": [\n        {\n          \"type\": \"image\",\n          \"source\": {\n            \"type\": \"base64\",\n            \"media_type\": \"{{ $json.mediaType }}\",\n            \"data\": \"{{ $json.base64Data }}\"\n          }\n        },\n        {\n          \"type\": \"text\",\n          \"text\": \"Extract invoice details from this document.\\n\\nReturn JSON with:\\n- invoiceNumber: Invoice number\\n- clientName: Client/company name\\n- amount: Total amount (number only)\\n- currency: Currency code\\n- date: Date in DD.MM.YYYY or YYYY-MM-DD format\\n- project: Project reference (if present)\\n\\nReturn ONLY the JSON object, no markdown formatting.\"\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "extract-invoice-with-claude",
+      "name": "Extract Invoice Data with Claude",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2464,
+        -400
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "MRSNO4UW3OEIA3tQ",
+          "name": "Anthropic account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const response = $json.content && $json.content[0] ? $json.content[0].text : '';\nlet invoiceData;\n\ntry {\n  // Try to parse JSON from response\n  const jsonMatch = response.match(/\\{[\\s\\S]*\\}/);\n  if (jsonMatch) {\n    invoiceData = JSON.parse(jsonMatch[0]);\n  } else {\n    invoiceData = JSON.parse(response);\n  }\n} catch (error) {\n  // Fallback if parsing fails\n  invoiceData = {\n    invoiceNumber: 'PARSE_ERROR',\n    clientName: 'Unknown',\n    amount: 0,\n    currency: 'EUR',\n    date: new Date().toISOString().split('T')[0],\n    project: ''\n  };\n}\n\n// Get fileId from previous node data\nconst previousNode = $('Build Invoice Vision Request').item.json;\n\nreturn {\n  json: {\n    ...invoiceData,\n    fileId: previousNode.fileId,\n    filename: previousNode.filename,\n    messageId: previousNode.messageId,\n    processedDate: new Date().toISOString(),\n    source: 'Gmail'\n  }\n};"
+      },
+      "id": "parse-invoice-json",
+      "name": "Parse Invoice JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2688,
+        -400
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Invoices"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "InvoiceID": "={{ $json.invoiceNumber }}",
+            "ClientName": "={{ $json.clientName }}",
+            "Amount": "={{ $json.amount }}",
+            "Currency": "={{ $json.currency }}",
+            "Date": "={{ $json.date }}",
+            "Project": "={{ $json.project || '' }}",
+            "FileID": "={{ $json.fileId }}",
+            "FileName": "={{ $json.filename }}",
+            "ProcessedDate": "={{ $json.processedDate }}",
+            "Source": "={{ $json.source }}"
+          },
+          "matchingColumns": [
+            "InvoiceID"
+          ],
+          "schema": [
+            {
+              "id": "InvoiceID",
+              "displayName": "InvoiceID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ClientName",
+              "displayName": "ClientName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Currency",
+              "displayName": "Currency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Project",
+              "displayName": "Project",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "FileID",
+              "displayName": "FileID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "FileName",
+              "displayName": "FileName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ProcessedDate",
+              "displayName": "ProcessedDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "log-invoice-to-sheet",
+      "name": "Log Invoice to Database",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2912,
+        -400
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Daily Receipt Check": {
+      "main": [
+        [
+          {
+            "node": "Load Vendor Patterns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Vendor Patterns": {
+      "main": [
+        [
+          {
+            "node": "Search Gmail for Receipts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Search Gmail for Receipts (Account 2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Receipt Record": {
+      "main": [
+        [
+          {
+            "node": "Log Receipt in Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test Trigger - Webhook": {
+      "main": [
+        [
+          {
+            "node": "Load Vendor Patterns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Gmail for Receipts": {
+      "main": [
+        [
+          {
+            "node": "Get Email Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Gmail for Receipts (Account 2)": {
+      "main": [
+        [
+          {
+            "node": "Get Email Details (Account 2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Email Details": {
+      "main": [
+        [
+          {
+            "node": "Combine Both Gmail Accounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Email Details (Account 2)": {
+      "main": [
+        [
+          {
+            "node": "Combine Both Gmail Accounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Attachment Info": {
+      "main": [
+        [
+          {
+            "node": "Search Files in Gmail Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Files in Gmail Folder": {
+      "main": [
+        [
+          {
+            "node": "Filter Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Upload to Receipt Pool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Receipt Pool": {
+      "main": [
+        [
+          {
+            "node": "Merge Apple & Regular Receipts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Vision API Request": {
+      "main": [
+        [
+          {
+            "node": "Extract Text with Vision API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Text with Vision API": {
+      "main": [
+        [
+          {
+            "node": "Parse Amount from OCR Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Amount from OCR Text": {
+      "main": [
+        [
+          {
+            "node": "Prepare Receipt Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect Apple Emails (IF)": {
+      "main": [
+        [
+          {
+            "node": "Extract Apple Email HTML",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Extract Attachment Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Apple & Regular Receipts": {
+      "main": [
+        [
+          {
+            "node": "Build Vision API Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Apple Email HTML": {
+      "main": [
+        [
+          {
+            "node": "Prepare PDF Conversion Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare PDF Conversion Request": {
+      "main": [
+        [
+          {
+            "node": "Upload Apple Receipt PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Apple Receipt PDF": {
+      "main": [
+        [
+          {
+            "node": "Add PDF Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add PDF Metadata": {
+      "main": [
+        [
+          {
+            "node": "Merge Apple & Regular Receipts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Both Gmail Accounts": {
+      "main": [
+        [
+          {
+            "node": "Detect Invoice or Receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect Invoice or Receipt": {
+      "main": [
+        [
+          {
+            "node": "Extract Attachment Info",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Detect Apple Emails (IF)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Extract Invoice Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Invoice Attachments": {
+      "main": [
+        [
+          {
+            "node": "Search Files in Invoice Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Files in Invoice Folder": {
+      "main": [
+        [
+          {
+            "node": "Filter Invoice Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Invoice Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Upload to Invoice Pool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Invoice Pool": {
+      "main": [
+        [
+          {
+            "node": "Build Invoice Vision Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Invoice Vision Request": {
+      "main": [
+        [
+          {
+            "node": "Extract Invoice Data with Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Invoice Data with Claude": {
+      "main": [
+        [
+          {
+            "node": "Parse Invoice JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Invoice JSON": {
+      "main": [
+        [
+          {
+            "node": "Log Invoice to Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": {
+    "node:Daily Receipt Check": {
+      "recurrenceRules": [
+        0
+      ]
+    }
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "20bc1006-1a84-4405-ac28-88cc9457745a",
+  "activeVersionId": "20bc1006-1a84-4405-ac28-88cc9457745a",
+  "versionCounter": 265,
+  "triggerCount": 2,
+  "shared": [
+    {
+      "updatedAt": "2026-01-02T10:22:06.084Z",
+      "createdAt": "2026-01-02T10:22:06.084Z",
+      "role": "workflow:owner",
+      "workflowId": "dHbwemg7hEB4vDmC",
+      "projectId": "Rs8mhw052fnrzWZM",
+      "project": {
+        "updatedAt": "2025-12-31T15:54:29.115Z",
+        "createdAt": "2025-12-31T15:27:33.865Z",
+        "id": "Rs8mhw052fnrzWZM",
+        "name": "Sway Clarke <sway@oloxa.ai>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+        "projectRelations": [
+          {
+            "updatedAt": "2025-12-31T15:27:33.865Z",
+            "createdAt": "2025-12-31T15:27:33.865Z",
+            "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+            "projectId": "Rs8mhw052fnrzWZM",
+            "user": {
+              "updatedAt": "2026-01-20T10:45:43.647Z",
+              "createdAt": "2025-12-31T15:27:33.119Z",
+              "id": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+              "email": "sway@oloxa.ai",
+              "firstName": "Sway",
+              "lastName": "Clarke",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-12-31T15:54:37.562Z",
+                "personalization_survey_n8n_version": "2.1.4"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "zbxHkXOoD1qaz6OS",
+                "userActivatedAt": 1767398053308,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1767684846804
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-01-19",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-01-11T23:25:16.279Z",
+    "createdAt": "2026-01-11T23:25:10.535Z",
+    "versionId": "20bc1006-1a84-4405-ac28-88cc9457745a",
+    "workflowId": "dHbwemg7hEB4vDmC",
+    "nodes": [
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "hours",
+                "hoursInterval": 24
+              }
+            ]
+          }
+        },
+        "id": "2b4cc263-7031-4e45-9d58-33a42e0c4a7c",
+        "name": "Daily Receipt Check",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          0,
+          -16
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const vendors = [\n  { name: 'Anthropic', email: 'invoice+statements@mail.anthropic.com' },\n  { name: 'OpenAI', email: 'noreply@tm.openai.com' },\n  { name: 'AWS', email: 'no-reply@tax-and-invoicing.us-east-1.amazonaws.com' },\n  { name: 'Apple', email: 'no_reply@email.apple.com' },\n  { name: 'Expensify', email: 'concierge@expensify.com' },\n  { name: 'Deutsche Bahn', email: 'noreply@deutschebahn.com' },\n  { name: 'Wolt', email: 'info@wolt.com' },\n  { name: 'flaschenpost', email: 'auftrag@flaschenpost.de' },\n  { name: 'BVG', email: 'appsupport@bvg.de' },\n  { name: 'MILES Mobility', email: 'hello@miles-mobility.com' },\n  { name: 'Stripe', email: 'invoice+statements+acct_1HOrSwC6h1nxGoI3@stripe.com' },\n  { name: 'PayPal', email: 'service@paypal.de' },\n  { name: 'Systeme.io', email: 'noreply@systeme.io' }\n];\n\n// Fixed date: October 1, 2025\nconst afterDate = '2025/10/01';\n\nreturn vendors.map(vendor => ({\n  json: {\n    vendorName: vendor.name,\n    searchQuery: `from:${vendor.email} has:attachment after:${afterDate}`\n  }\n}));"
+        },
+        "id": "41759e97-c754-418d-ba2e-44866596c0d9",
+        "name": "Load Vendor Patterns",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          224,
+          -112
+        ],
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "simple": false,
+          "filters": {
+            "q": "={{$json.searchQuery}}"
+          },
+          "options": {}
+        },
+        "id": "575481db-dafd-49a3-8b32-7a331f018d99",
+        "name": "Search Gmail for Receipts",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          448,
+          -208
+        ],
+        "webhookId": "787818a0-6c88-4cb5-8818-99a08522f368",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "aYzk7sZF8ZVyfOan",
+            "name": "Gmail account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "const items = $input.all();\n\nconsole.log(`Processing ${items.length} email items with binary attachments`);\n\nconst results = [];\n\nfor (const item of items) {\n  const email = item.json;\n  const vendorName = email.vendorName || 'Unknown';\n  \n  // UPDATED: Skip Apple emails here - they're handled separately\n  const fromEmail = email.fromEmail || '';\n  if (fromEmail.toLowerCase().includes('apple.com')) {\n    console.log(`Skipping Apple email - handled by Apple email path`);\n    continue;\n  }\n  \n  // Get binary data - Gmail node stores attachments as attachment_0, attachment_1, etc.\n  const binaryData = item.binary || {};\n  \n  // Gmail node with simple=false provides these at top level\n  const emailDate = email.date ? new Date(email.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];\n  const subject = email.subject || 'No Subject';\n  \n  // Process each binary attachment\n  for (const [key, attachment] of Object.entries(binaryData)) {\n    // Only process attachment_* keys (not other binary data)\n    if (key.startsWith('attachment_')) {\n      // Filter for PDF and image files\n      const mimeType = attachment.mimeType || '';\n      const filename = attachment.fileName || '';\n      \n      if (/\\.(pdf|png|jpg|jpeg)$/i.test(filename) || \n          mimeType.includes('pdf') || \n          mimeType.includes('image')) {\n        \n        // Each attachment from Gmail is already a complete binary object\n        // Format: {mimeType, fileName, data: base64string, fileSize}\n        // We pass it directly as binary.data for the Upload node\n        results.push({\n          json: {\n            messageId: email.id,\n            vendorName: vendorName,\n            emailDate: emailDate,\n            emailSubject: subject,\n            filename: filename,\n            mimeType: mimeType\n          },\n          binary: {\n            data: attachment\n          }\n        });\n      }\n    }\n  }\n}\n\nconsole.log(`Total attachments extracted: ${results.length}`);\nreturn results.length > 0 ? results : [];"
+        },
+        "id": "2023d6e8-3aa5-4e95-be7b-82ee8d99b42c",
+        "name": "Extract Attachment Info",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1344,
+          -208
+        ],
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "1NP5y-HvPfAv28wz2It6BtNZXD7Xfe5D4"
+          },
+          "options": {}
+        },
+        "id": "065ac5f7-11d7-4406-afac-ae483a7003ed",
+        "name": "Upload to Receipt Pool",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          2016,
+          -208
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Access the Parse Amount node output (current item)\nconst ocrResult = $json;\n\n// UPDATED: Try to get metadata from Extract Attachment Info OR Add PDF Metadata (Apple path)\nlet attachmentInfo;\ntry {\n  attachmentInfo = $('Extract Attachment Info').item.json;\n} catch (e) {\n  // If Extract Attachment Info doesn't exist, try Add PDF Metadata (Apple email path)\n  try {\n    attachmentInfo = $('Add PDF Metadata').item.json;\n  } catch (e2) {\n    console.log('ERROR: Could not find attachment metadata from either path');\n    attachmentInfo = {};\n  }\n}\n\n// Generate receipt ID\nconst timestamp = Date.now();\nconst vendor = (attachmentInfo.vendorName || 'UNKNOWN').replace(/\\s+/g, '-').toUpperCase();\nconst receiptId = `RCPT-${vendor}-${timestamp}`;\n\n// Get current timestamp in ISO format\nconst currentTimestamp = new Date().toISOString();\n\n// Determine transaction type: \"Income\" for Stripe/PayPal, \"Expense\" for everything else\nconst incomeVendors = ['Stripe', 'PayPal'];\nconst transactionType = incomeVendors.includes(attachmentInfo.vendorName) ? 'Income' : 'Expense';\n\n// Use extracted amount from OCR, or from Apple email parsing\nconst amount = ocrResult.extractedAmount || attachmentInfo.extractedAmount || '';\n\n// Add note about OCR processing or Apple email conversion\nlet notes = `Auto-downloaded from Gmail message ${attachmentInfo.messageId || 'UNKNOWN'}`;\nif (amount) {\n  notes += ` | Amount extracted: ${amount}`;\n} else {\n  notes += ` | No amount detected`;\n}\n\nif (attachmentInfo.vendorName === 'Apple') {\n  notes += ` | Converted from Apple email HTML`;\n}\n\nreturn {\n  json: {\n    ReceiptID: receiptId,\n    FileName: ocrResult.name,\n    Vendor: attachmentInfo.vendorName || 'Unknown',\n    Amount: amount,\n    TransactionType: transactionType,\n    Date: attachmentInfo.emailDate || new Date().toISOString().split('T')[0],\n    FileID: ocrResult.id,\n    DownloadDate: new Date().toISOString().split('T')[0],\n    DownloadTimestamp: currentTimestamp,\n    SourceEmail: attachmentInfo.emailSubject || 'No Subject',\n    Matched: 'FALSE',\n    Notes: notes\n  }\n};"
+        },
+        "id": "87200023-4908-40bf-a3b8-926e1cc29932",
+        "name": "Prepare Receipt Record",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3136,
+          -112
+        ],
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+          },
+          "sheetName": {
+            "__rl": true,
+            "mode": "name",
+            "value": "Receipts"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "ReceiptID": "={{ $json.ReceiptID }}",
+              "FileName": "={{ $json.FileName }}",
+              "Vendor": "={{ $json.Vendor }}",
+              "Amount": "={{ $json.Amount }}",
+              "TransactionType": "={{ $json.TransactionType }}",
+              "Date": "={{ $json.Date }}",
+              "FileID": "={{ $json.FileID }}",
+              "DownloadDate": "={{ $json.DownloadDate }}",
+              "DownloadTimestamp": "={{ $json.DownloadTimestamp }}",
+              "SourceEmail": "={{ $json.SourceEmail }}",
+              "Matched": "={{ $json.Matched }}",
+              "Notes": "={{ $json.Notes }}"
+            }
+          },
+          "options": {
+            "cellFormat": "USER_ENTERED"
+          }
+        },
+        "id": "b4b064b5-b883-48de-8277-c0ad6e9f077a",
+        "name": "Log Receipt in Database",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          3360,
+          -112
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "test-expense-w2",
+          "responseMode": "lastNode",
+          "options": {}
+        },
+        "id": "a8f36052-9949-470f-8e9f-cdda9efda4cf",
+        "name": "Test Trigger - Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          0,
+          -208
+        ],
+        "webhookId": "f96dee54-d223-40ce-b17d-97b2b71a651c"
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "simple": false,
+          "filters": {
+            "q": "={{$json.searchQuery}}"
+          },
+          "options": {}
+        },
+        "id": "new-search-gmail-account2",
+        "name": "Search Gmail for Receipts (Account 2)",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          448,
+          -16
+        ],
+        "webhookId": "a62a7756-9819-4b7b-9ed4-0fddfad4ce40",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "g2ksaYkLXWtfDWAh",
+            "name": "Gmail (swayfromthehook)"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Get vendor patterns to match against\nconst vendors = [\n  { name: 'Anthropic', email: 'invoice+statements@mail.anthropic.com' },\n  { name: 'OpenAI', email: 'noreply@tm.openai.com' },\n  { name: 'AWS', email: 'no-reply@tax-and-invoicing.us-east-1.amazonaws.com' },\n  { name: 'Apple', email: 'no_reply@email.apple.com' },\n  { name: 'Expensify', email: 'concierge@expensify.com' },\n  { name: 'Deutsche Bahn', email: 'noreply@deutschebahn.com' },\n  { name: 'Wolt', email: 'info@wolt.com' },\n  { name: 'flaschenpost', email: 'auftrag@flaschenpost.de' },\n  { name: 'BVG', email: 'appsupport@bvg.de' },\n  { name: 'MILES Mobility', email: 'hello@miles-mobility.com' },\n  { name: 'Stripe', email: 'invoice+statements+acct_1HOrSwC6h1nxGoI3@stripe.com' },\n  { name: 'PayPal', email: 'service@paypal.de' },\n  { name: 'Systeme.io', email: 'noreply@systeme.io' }\n];\n\n// Get all email items from both accounts\nconst allItems = $input.all();\n\nconsole.log(`Total email items from both accounts: ${allItems.length}`);\n\n// Enrich each email with vendor info by matching the \"from\" address\nconst enrichedItems = allItems.map(item => {\n  const email = item.json;\n  \n  // Gmail API returns sender info in email.from.value array\n  // Format: { value: [{ address: \"email@domain.com\", name: \"Display Name\" }] }\n  let fromEmail = '';\n  \n  if (email.from && email.from.value && email.from.value.length > 0) {\n    fromEmail = email.from.value[0].address || '';\n  }\n  \n  console.log(`Email from: ${fromEmail}`);\n  \n  // Find matching vendor\n  const vendor = vendors.find(v => v.email.toLowerCase() === fromEmail.toLowerCase());\n  \n  if (vendor) {\n    console.log(`Matched vendor: ${vendor.name}`);\n  } else {\n    console.log(`No vendor match for: ${fromEmail}`);\n  }\n  \n  // FIXED: Explicitly preserve binary data from input item\n  // This ensures attachments from both Gmail accounts are carried forward\n  const result = {\n    json: {\n      ...email,\n      vendorName: vendor ? vendor.name : 'Unknown Vendor',\n      fromEmail: fromEmail\n    }\n  };\n  \n  // Only add binary property if it exists and has content\n  if (item.binary && Object.keys(item.binary).length > 0) {\n    result.binary = item.binary;\n  }\n  \n  return result;\n});\n\nconsole.log(`Enriched ${enrichedItems.length} emails with vendor information`);\n\nreturn enrichedItems;"
+        },
+        "id": "combine-both-gmail-accounts",
+        "name": "Combine Both Gmail Accounts",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          896,
+          -112
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "get",
+          "messageId": "={{ $json.id }}",
+          "simple": false,
+          "options": {
+            "dataPropertyAttachmentsPrefixName": "attachment_",
+            "downloadAttachments": true
+          }
+        },
+        "id": "new-gmail-get-account1",
+        "name": "Get Email Details",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          672,
+          -208
+        ],
+        "webhookId": "a5f4f37f-d515-407d-9e2d-1c0ea3ebead6",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "aYzk7sZF8ZVyfOan",
+            "name": "Gmail account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "operation": "get",
+          "messageId": "={{ $json.id }}",
+          "simple": false,
+          "options": {
+            "dataPropertyAttachmentsPrefixName": "attachment_",
+            "downloadAttachments": true
+          }
+        },
+        "id": "new-gmail-get-account2",
+        "name": "Get Email Details (Account 2)",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          672,
+          -16
+        ],
+        "webhookId": "46e8f383-d5dd-4b00-be99-ec9b29e9389b",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "g2ksaYkLXWtfDWAh",
+            "name": "Gmail (swayfromthehook)"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "resource": "fileFolder",
+          "filter": {
+            "folderId": {
+              "__rl": true,
+              "mode": "id",
+              "value": "1NP5y-HvPfAv28wz2It6BtNZXD7Xfe5D4"
+            },
+            "whatToSearch": "files"
+          },
+          "options": {}
+        },
+        "id": "search-files-in-gmail-folder",
+        "name": "Search Files in Gmail Folder",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1568,
+          -208
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const existingHashes = new Set();\nconst uniqueItems = [];\n\nfor (const item of $input.all()) {\n  const hash = item.json.md5Hash;\n  if (!existingHashes.has(hash)) {\n    existingHashes.add(hash);\n    uniqueItems.push(item);\n  }\n}\n\nreturn uniqueItems.map(item => ({ json: item.json }));"
+        },
+        "id": "filter-duplicates-new",
+        "name": "Filter Duplicates",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1792,
+          -208
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "// Get the uploaded file info and binary data\nconst uploadedFile = $json;\nconst fileId = uploadedFile.id;\n\n// Get original binary data from Filter Duplicates node\n// Binary data should have been preserved through the chain\nconst binaryData = $('Filter Duplicates').item.binary;\n\nif (!binaryData || !binaryData.data) {\n  console.log('WARNING: No binary data available for OCR');\n  return {\n    json: {\n      ...uploadedFile,\n      visionApiRequestBody: null,\n      skipOCR: true\n    }\n  };\n}\n\n// Convert binary to base64 for Vision API\nconst base64Content = binaryData.data.toBase64();\n\n// Build Google Cloud Vision API request for document text detection\nconst requestBody = {\n  \"requests\": [\n    {\n      \"image\": {\n        \"content\": base64Content\n      },\n      \"features\": [\n        {\n          \"type\": \"DOCUMENT_TEXT_DETECTION\",\n          \"maxResults\": 1\n        }\n      ]\n    }\n  ]\n};\n\nreturn {\n  json: {\n    ...uploadedFile,\n    visionApiRequestBody: requestBody,\n    skipOCR: false\n  }\n};"
+        },
+        "id": "build-vision-api-request",
+        "name": "Build Vision API Request",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2464,
+          -112
+        ],
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://vision.googleapis.com/v1/images:annotate",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "googleOAuth2Api",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ $json.visionApiRequestBody }}",
+          "options": {}
+        },
+        "id": "ocr-vision-api-node",
+        "name": "Extract Text with Vision API",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2688,
+          -112
+        ],
+        "credentials": {
+          "googleOAuth2Api": {
+            "id": "NFtHVH4EO3SVdLAG",
+            "name": "Google Vision API"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "const text = $json.text || '';\nconst amountRegex = /\\$?([0-9]{1,3}(?:,?[0-9]{3})*(?:\\.[0-9]{2})?)/g;\nconst matches = text.match(amountRegex);\n\nlet amount = null;\nif (matches && matches.length > 0) {\n  const cleanAmount = matches[0].replace(/[$,]/g, '');\n  amount = parseFloat(cleanAmount);\n}\n\nreturn { json: { amount: amount, rawText: text } };"
+        },
+        "id": "parse-amount-from-ocr",
+        "name": "Parse Amount from OCR Text",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2912,
+          -112
+        ],
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": false,
+              "leftValue": "",
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "apple-email-check",
+                "leftValue": "={{ $json.fromEmail }}",
+                "rightValue": "apple.com",
+                "operator": {
+                  "type": "string",
+                  "operation": "contains"
+                }
+              },
+              {
+                "id": "has-no-attachments",
+                "leftValue": "={{ Object.keys($binary || {}).length }}",
+                "rightValue": "0",
+                "operator": {
+                  "type": "number",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "detect-apple-emails-if",
+        "name": "Detect Apple Emails (IF)",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          1120,
+          -48
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const items = $input.all();\n\nconsole.log(`Processing ${items.length} Apple email(s) for HTML-to-PDF conversion`);\n\nconst results = [];\n\nfor (const item of items) {\n  const email = item.json;\n  const vendorName = email.vendorName || 'Apple';\n  \n  // Gmail API returns email body in email.payload.body or parts\n  let htmlBody = '';\n  \n  // Try to extract HTML body from email payload\n  if (email.payload && email.payload.parts) {\n    // Multi-part email - find text/html part\n    for (const part of email.payload.parts) {\n      if (part.mimeType === 'text/html' && part.body && part.body.data) {\n        // Gmail stores body data as base64-encoded\n        htmlBody = Buffer.from(part.body.data, 'base64').toString('utf-8');\n        break;\n      }\n    }\n  } else if (email.payload && email.payload.body && email.payload.body.data) {\n    // Single-part email\n    htmlBody = Buffer.from(email.payload.body.data, 'base64').toString('utf-8');\n  }\n  \n  if (!htmlBody) {\n    console.log(`WARNING: No HTML body found for email ${email.id}`);\n    continue;\n  }\n  \n  // Extract date and subject for filename\n  const emailDate = email.date ? new Date(email.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];\n  const subject = email.subject || 'Apple_Receipt';\n  \n  // Parse amount from email HTML if possible (simple regex)\n  let amount = '';\n  const amountMatch = htmlBody.match(/(?:total|amount|sum)[:\\s]*\\$?([0-9]+[.,][0-9]{2})/i);\n  if (amountMatch) {\n    amount = amountMatch[1].replace(',', '.');\n  }\n  \n  // Generate filename: Apple_Store_Receipt_2026-01-09_$25.99.pdf\n  const amountPart = amount ? `_$${amount}` : '';\n  const filename = `Apple_Receipt_${emailDate}${amountPart}.pdf`;\n  \n  results.push({\n    json: {\n      messageId: email.id,\n      vendorName: vendorName,\n      emailDate: emailDate,\n      emailSubject: subject,\n      filename: filename,\n      mimeType: 'application/pdf',\n      htmlBody: htmlBody,\n      extractedAmount: amount\n    }\n  });\n}\n\nconsole.log(`Total Apple emails to convert: ${results.length}`);\nreturn results.length > 0 ? results : [];"
+        },
+        "id": "extract-apple-email-html",
+        "name": "Extract Apple Email HTML",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1344,
+          16
+        ]
+      },
+      {
+        "parameters": {
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "1NP5y-HvPfAv28wz2It6BtNZXD7Xfe5D4"
+          },
+          "options": {}
+        },
+        "id": "upload-apple-pdf-to-drive",
+        "name": "Upload Apple Receipt PDF",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1792,
+          16
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "mode": "combine",
+          "options": {}
+        },
+        "id": "merge-apple-with-regular",
+        "name": "Merge Apple & Regular Receipts",
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3,
+        "position": [
+          2240,
+          -112
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Updated approach: Save HTML to binary for Google Drive upload\n// Then use Google Docs to convert to PDF\n\nconst item = $input.first();\nconst htmlContent = item.json.htmlBody;\nconst filename = item.json.filename;\n\n// Wrap HTML in proper document structure for better rendering\nconst wrappedHtml = `\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Apple Receipt</title>\n  <style>\n    body { \n      font-family: Arial, sans-serif; \n      margin: 20px; \n      max-width: 800px;\n    }\n    img { max-width: 100%; height: auto; }\n    table { width: 100%; border-collapse: collapse; }\n    td, th { padding: 8px; text-align: left; }\n  </style>\n</head>\n<body>\n  ${htmlContent}\n</body>\n</html>\n`;\n\n// Convert HTML to base64 for binary storage\nconst buffer = Buffer.from(wrappedHtml, 'utf-8');\n\nreturn {\n  json: {\n    messageId: item.json.messageId,\n    vendorName: item.json.vendorName,\n    emailDate: item.json.emailDate,\n    emailSubject: item.json.emailSubject,\n    filename: filename,\n    mimeType: 'application/pdf',  // We want PDF output\n    extractedAmount: item.json.extractedAmount\n  },\n  binary: {\n    data: {\n      data: buffer.toString('base64'),\n      mimeType: 'text/html',  // Input is HTML\n      fileName: filename.replace('.pdf', '.html'),\n      fileSize: buffer.length\n    }\n  }\n};"
+        },
+        "id": "prepare-pdf-conversion-request",
+        "name": "Prepare PDF Conversion Request",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1568,
+          16
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "// Add metadata for uploaded Apple receipt PDF\nconst uploadedFile = $json;\n\n// Get metadata from Prepare PDF Conversion Request node\nconst originalItem = $('Prepare PDF Conversion Request').item;\nconst metadata = originalItem.json;\n\nreturn {\n  json: {\n    id: uploadedFile.id,\n    name: uploadedFile.name,\n    mimeType: uploadedFile.mimeType,\n    // Pass through original metadata for receipt record\n    messageId: metadata.messageId,\n    vendorName: metadata.vendorName,\n    emailDate: metadata.emailDate,\n    emailSubject: metadata.emailSubject,\n    extractedAmount: metadata.extractedAmount || ''\n  }\n};"
+        },
+        "id": "add-pdf-metadata",
+        "name": "Add PDF Metadata",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2016,
+          16
+        ]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "combinator": "or",
+            "conditions": [
+              {
+                "leftValue": "={{ $json.subject ? $json.subject.toLowerCase() : '' }}",
+                "operator": {
+                  "type": "string",
+                  "operation": "contains"
+                },
+                "rightValue": "invoice,rechnung,faktura",
+                "id": "condition-1768090865801-vbgt3hsm8"
+              },
+              {
+                "leftValue": "={{ $json.attachments && $json.attachments[0] ? $json.attachments[0].filename.toLowerCase() : '' }}",
+                "operator": {
+                  "type": "string",
+                  "operation": "contains"
+                },
+                "rightValue": "supreme music,massive voices,boxhouse,zweisekundenstille",
+                "id": "condition-1768090865801-0g97ti6xw"
+              }
+            ],
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            }
+          },
+          "options": {}
+        },
+        "id": "detect-invoice-or-receipt",
+        "name": "Detect Invoice or Receipt",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          1120,
+          -208
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const items = [];\n\nfor (const item of $input.all()) {\n  const attachments = item.json.attachments || [];\n  \n  for (const attachment of attachments) {\n    // Extract binary data\n    const binaryData = item.binary && item.binary[attachment.id];\n    \n    if (binaryData) {\n      items.push({\n        json: {\n          messageId: item.json.id,\n          subject: item.json.subject,\n          from: item.json.from,\n          date: item.json.date,\n          filename: attachment.filename,\n          mimeType: attachment.mimeType,\n          attachmentId: attachment.id\n        },\n        binary: {\n          data: binaryData\n        }\n      });\n    }\n  }\n}\n\nreturn items;"
+        },
+        "id": "extract-invoice-attachments",
+        "name": "Extract Invoice Attachments",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1344,
+          -400
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "search"
+        },
+        "id": "search-invoices-in-folder",
+        "name": "Search Files in Invoice Folder",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1568,
+          -400
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const existingFiles = $input.first().json.files || [];\nconst existingNames = new Set(existingFiles.map(f => f.name));\n\nconst invoices = $input.all().slice(1);\nconst newInvoices = invoices.filter(item => {\n  const filename = item.json.filename;\n  return !existingNames.has(filename);\n});\n\nreturn newInvoices;"
+        },
+        "id": "filter-invoice-duplicates",
+        "name": "Filter Invoice Duplicates",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1792,
+          -400
+        ]
+      },
+      {
+        "parameters": {
+          "name": "={{ $json.filename }}",
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "1V7UmNvDP3a2t6IIbJJI7y8YXz6_X7F6l"
+          },
+          "options": {
+            "keepRevisionForever": false
+          }
+        },
+        "id": "upload-to-invoice-pool",
+        "name": "Upload to Invoice Pool",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          2016,
+          -400
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "const fileId = $json.id;\nconst filename = $json.name || $json.filename;\nconst mimeType = $json.mimeType;\n\n// Get binary data from previous step\nconst binaryData = $binary.data;\n\nif (!binaryData) {\n  throw new Error('No binary data found for file: ' + filename);\n}\n\n// Convert binary to base64\nconst base64Data = binaryData.data;\nconst mediaType = mimeType.startsWith('image/') ? mimeType : 'image/jpeg';\n\nreturn {\n  json: {\n    fileId: fileId,\n    filename: filename,\n    messageId: $json.messageId,\n    subject: $json.subject,\n    from: $json.from,\n    date: $json.date,\n    base64Data: base64Data,\n    mediaType: mediaType\n  },\n  binary: {\n    data: binaryData\n  }\n};"
+        },
+        "id": "build-invoice-vision-request",
+        "name": "Build Invoice Vision Request",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2240,
+          -400
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.anthropic.com/v1/messages",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "anthropicApi",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "anthropic-version",
+                "value": "2023-06-01"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"model\": \"claude-sonnet-4-5-20250514\",\n  \"max_tokens\": 1024,\n  \"temperature\": 0.1,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": [\n        {\n          \"type\": \"image\",\n          \"source\": {\n            \"type\": \"base64\",\n            \"media_type\": \"{{ $json.mediaType }}\",\n            \"data\": \"{{ $json.base64Data }}\"\n          }\n        },\n        {\n          \"type\": \"text\",\n          \"text\": \"Extract invoice details from this document.\\n\\nReturn JSON with:\\n- invoiceNumber: Invoice number\\n- clientName: Client/company name\\n- amount: Total amount (number only)\\n- currency: Currency code\\n- date: Date in DD.MM.YYYY or YYYY-MM-DD format\\n- project: Project reference (if present)\\n\\nReturn ONLY the JSON object, no markdown formatting.\"\n        }\n      ]\n    }\n  ]\n}",
+          "options": {}
+        },
+        "id": "extract-invoice-with-claude",
+        "name": "Extract Invoice Data with Claude",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2464,
+          -400
+        ],
+        "credentials": {
+          "anthropicApi": {
+            "id": "MRSNO4UW3OEIA3tQ",
+            "name": "Anthropic account"
+          }
+        },
+        "continueOnFail": true
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "const response = $json.content && $json.content[0] ? $json.content[0].text : '';\nlet invoiceData;\n\ntry {\n  // Try to parse JSON from response\n  const jsonMatch = response.match(/\\{[\\s\\S]*\\}/);\n  if (jsonMatch) {\n    invoiceData = JSON.parse(jsonMatch[0]);\n  } else {\n    invoiceData = JSON.parse(response);\n  }\n} catch (error) {\n  // Fallback if parsing fails\n  invoiceData = {\n    invoiceNumber: 'PARSE_ERROR',\n    clientName: 'Unknown',\n    amount: 0,\n    currency: 'EUR',\n    date: new Date().toISOString().split('T')[0],\n    project: ''\n  };\n}\n\n// Get fileId from previous node data\nconst previousNode = $('Build Invoice Vision Request').item.json;\n\nreturn {\n  json: {\n    ...invoiceData,\n    fileId: previousNode.fileId,\n    filename: previousNode.filename,\n    messageId: previousNode.messageId,\n    processedDate: new Date().toISOString(),\n    source: 'Gmail'\n  }\n};"
+        },
+        "id": "parse-invoice-json",
+        "name": "Parse Invoice JSON",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2688,
+          -400
+        ],
+        "continueOnFail": true
+      },
+      {
+        "parameters": {
+          "operation": "appendOrUpdate",
+          "documentId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+          },
+          "sheetName": {
+            "__rl": true,
+            "mode": "name",
+            "value": "Invoices"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "InvoiceID": "={{ $json.invoiceNumber }}",
+              "ClientName": "={{ $json.clientName }}",
+              "Amount": "={{ $json.amount }}",
+              "Currency": "={{ $json.currency }}",
+              "Date": "={{ $json.date }}",
+              "Project": "={{ $json.project || '' }}",
+              "FileID": "={{ $json.fileId }}",
+              "FileName": "={{ $json.filename }}",
+              "ProcessedDate": "={{ $json.processedDate }}",
+              "Source": "={{ $json.source }}"
+            },
+            "matchingColumns": [
+              "InvoiceID"
+            ],
+            "schema": [
+              {
+                "id": "InvoiceID",
+                "displayName": "InvoiceID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "ClientName",
+                "displayName": "ClientName",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Amount",
+                "displayName": "Amount",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Currency",
+                "displayName": "Currency",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Date",
+                "displayName": "Date",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Project",
+                "displayName": "Project",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "FileID",
+                "displayName": "FileID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "FileName",
+                "displayName": "FileName",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "ProcessedDate",
+                "displayName": "ProcessedDate",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Source",
+                "displayName": "Source",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "log-invoice-to-sheet",
+        "name": "Log Invoice to Database",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.5,
+        "position": [
+          2912,
+          -400
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Daily Receipt Check": {
+        "main": [
+          [
+            {
+              "node": "Load Vendor Patterns",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Load Vendor Patterns": {
+        "main": [
+          [
+            {
+              "node": "Search Gmail for Receipts",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Search Gmail for Receipts (Account 2)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Receipt Record": {
+        "main": [
+          [
+            {
+              "node": "Log Receipt in Database",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Test Trigger - Webhook": {
+        "main": [
+          [
+            {
+              "node": "Load Vendor Patterns",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search Gmail for Receipts": {
+        "main": [
+          [
+            {
+              "node": "Get Email Details",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search Gmail for Receipts (Account 2)": {
+        "main": [
+          [
+            {
+              "node": "Get Email Details (Account 2)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Email Details": {
+        "main": [
+          [
+            {
+              "node": "Combine Both Gmail Accounts",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Email Details (Account 2)": {
+        "main": [
+          [
+            {
+              "node": "Combine Both Gmail Accounts",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Attachment Info": {
+        "main": [
+          [
+            {
+              "node": "Search Files in Gmail Folder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search Files in Gmail Folder": {
+        "main": [
+          [
+            {
+              "node": "Filter Duplicates",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter Duplicates": {
+        "main": [
+          [
+            {
+              "node": "Upload to Receipt Pool",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload to Receipt Pool": {
+        "main": [
+          [
+            {
+              "node": "Merge Apple & Regular Receipts",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Vision API Request": {
+        "main": [
+          [
+            {
+              "node": "Extract Text with Vision API",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Text with Vision API": {
+        "main": [
+          [
+            {
+              "node": "Parse Amount from OCR Text",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Amount from OCR Text": {
+        "main": [
+          [
+            {
+              "node": "Prepare Receipt Record",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Detect Apple Emails (IF)": {
+        "main": [
+          [
+            {
+              "node": "Extract Apple Email HTML",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Extract Attachment Info",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge Apple & Regular Receipts": {
+        "main": [
+          [
+            {
+              "node": "Build Vision API Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Apple Email HTML": {
+        "main": [
+          [
+            {
+              "node": "Prepare PDF Conversion Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare PDF Conversion Request": {
+        "main": [
+          [
+            {
+              "node": "Upload Apple Receipt PDF",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload Apple Receipt PDF": {
+        "main": [
+          [
+            {
+              "node": "Add PDF Metadata",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Add PDF Metadata": {
+        "main": [
+          [
+            {
+              "node": "Merge Apple & Regular Receipts",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Combine Both Gmail Accounts": {
+        "main": [
+          [
+            {
+              "node": "Detect Invoice or Receipt",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Detect Invoice or Receipt": {
+        "main": [
+          [
+            {
+              "node": "Extract Attachment Info",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Detect Apple Emails (IF)",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Extract Invoice Attachments",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Invoice Attachments": {
+        "main": [
+          [
+            {
+              "node": "Search Files in Invoice Folder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search Files in Invoice Folder": {
+        "main": [
+          [
+            {
+              "node": "Filter Invoice Duplicates",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter Invoice Duplicates": {
+        "main": [
+          [
+            {
+              "node": "Upload to Invoice Pool",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload to Invoice Pool": {
+        "main": [
+          [
+            {
+              "node": "Build Invoice Vision Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Invoice Vision Request": {
+        "main": [
+          [
+            {
+              "node": "Extract Invoice Data with Claude",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Invoice Data with Claude": {
+        "main": [
+          [
+            {
+              "node": "Parse Invoice JSON",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Invoice JSON": {
+        "main": [
+          [
+            {
+              "node": "Log Invoice to Database",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Sway Clarke",
+    "name": "Version 20bc1006",
+    "description": "",
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-01-11T23:25:16.275Z",
+        "id": 642,
+        "workflowId": "dHbwemg7hEB4vDmC",
+        "versionId": "20bc1006-1a84-4405-ac28-88cc9457745a",
+        "event": "activated",
+        "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8"
+      },
+      {
+        "createdAt": "2026-01-11T23:25:52.573Z",
+        "id": 646,
+        "workflowId": "dHbwemg7hEB4vDmC",
+        "versionId": "20bc1006-1a84-4405-ac28-88cc9457745a",
+        "event": "activated",
+        "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8"
+      }
+    ]
+  }
+}

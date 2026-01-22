@@ -1,0 +1,145 @@
+{
+  "id": "l5fcp4Qnjn4Hzc8w",
+  "name": "Expense System - Workflow 6: Expensify PDF Parser v1.1",
+  "active": true,
+  "createdAt": "2026-01-09T10:28:05.713Z",
+  "updatedAt": "2026-01-11T22:52:00.853Z",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {"item": [{"mode": "everyMinute"}]},
+        "triggerOn": "specificFolder",
+        "folderToWatch": {"__rl": true, "value": "1g8WVSZqfq6JB34M79a1JpZGWV1nCYYYx", "mode": "id"},
+        "event": "fileUpdated",
+        "options": {}
+      },
+      "id": "expensify-folder-trigger",
+      "name": "Watch Expensify PDFs Folder",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [340, 460],
+      "credentials": {"googleDriveOAuth2Api": {"id": "a4m50EefR3DJoU0R", "name": "Google Drive account"}},
+      "notes": "Monitors designated 'Expensify PDFs' folder for new uploads"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {"__rl": true, "mode": "id", "value": "={{$json.id}}"},
+        "options": {}
+      },
+      "id": "download-expensify-pdf",
+      "name": "Download Expensify PDF",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [580, 460],
+      "credentials": {"googleDriveOAuth2Api": {"id": "a4m50EefR3DJoU0R", "name": "Google Drive account"}}
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract metadata and preserve binary for Anthropic Vision API call\nconst item = $input.first();\nconst fileName = item.json.name;\nconst fileId = item.json.id;\n\n// Parse report date from Expensify filename\nconst dateMatch = fileName.match(/([A-Z][a-z]{2})ExpenseReport(\\d{8})/);\nconst reportMonth = dateMatch ? dateMatch[1] : 'Unknown';\nconst reportDate = dateMatch ? dateMatch[2] : new Date().toISOString().split('T')[0].replace(/-/g, '');\n\n// Generate unique report ID\nconst reportId = `EXPENSIFY-${reportDate}-${Date.now()}`;\n\nreturn {\n  json: {\n    fileName,\n    fileId,\n    reportMonth,\n    reportDate,\n    reportId,\n    processedAt: new Date().toISOString()\n  },\n  binary: item.binary\n};"
+      },
+      "id": "extract-expensify-metadata",
+      "name": "Extract Report Metadata",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [820, 460],
+      "notes": "Parses Expensify filename to extract report month and date. Preserves binary for Vision API."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {"parameters": [{"name": "anthropic-version", "value": "2023-06-01"}]},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.requestBody }}",
+        "options": {}
+      },
+      "id": "call-anthropic-table-extraction",
+      "name": "Call Anthropic Table Extraction",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1300, 460],
+      "credentials": {"anthropicApi": {"id": "MRSNO4UW3OEIA3tQ", "name": "Anthropic account"}},
+      "notes": "Calls Anthropic Claude Sonnet 4.5 Vision API to extract transaction table"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {"__rl": true, "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM", "mode": "id"},
+        "sheetName": {"__rl": true, "value": "Transactions", "mode": "name"},
+        "dataMode": "autoMapInputData",
+        "columnToMatchOn": "TransactionID",
+        "options": {}
+      },
+      "id": "write-transactions-to-sheet",
+      "name": "Write Transactions to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [1780, 460],
+      "credentials": {"googleSheetsOAuth2Api": {"id": "H7ewI1sOrDYabelt", "name": "Google Sheets account"}},
+      "notes": "Writes transactions to Transactions sheet. Auto-maps fields. Uses TransactionID as unique key."
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {"__rl": true, "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM", "mode": "id"},
+        "sheetName": {"__rl": true, "value": "Receipts", "mode": "name"},
+        "dataMode": "autoMapInputData",
+        "columnToMatchOn": "ReceiptID",
+        "options": {}
+      },
+      "id": "write-receipts-to-sheet",
+      "name": "Write Receipts to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [2500, 680],
+      "credentials": {"googleSheetsOAuth2Api": {"id": "H7ewI1sOrDYabelt", "name": "Google Sheets account"}},
+      "notes": "Writes receipt metadata to Receipts sheet. Auto-maps fields."
+    },
+    {
+      "parameters": {"mode": "append", "options": {}},
+      "id": "wait-for-receipts-and-transactions",
+      "name": "Wait for Receipts and Transactions",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [2260, 570],
+      "notes": "FIX v1.1: Merge node prevents race condition"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {"__rl": true, "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM", "mode": "id"},
+        "sheetName": {"__rl": true, "value": "Transactions", "mode": "name"},
+        "dataMode": "autoMapInputData",
+        "columnToMatchOn": "TransactionID",
+        "options": {}
+      },
+      "id": "update-transactions-with-receipts",
+      "name": "Update Transactions with ReceiptIDs",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [2740, 570],
+      "credentials": {"googleSheetsOAuth2Api": {"id": "H7ewI1sOrDYabelt", "name": "Google Sheets account"}},
+      "notes": "Updates Transactions sheet with ReceiptID and MatchStatus after matching."
+    }
+  ],
+  "connections": {
+    "Watch Expensify PDFs Folder": {"main": [[{"node": "Download Expensify PDF", "type": "main", "index": 0}]]},
+    "Download Expensify PDF": {"main": [[{"node": "Extract Report Metadata", "type": "main", "index": 0}]]},
+    "Wait for Receipts and Transactions": {"main": [[{"node": "Match Receipts to Transactions", "type": "main", "index": 0}]]},
+    "Match Receipts to Transactions": {"main": [[{"node": "Update Transactions with ReceiptIDs", "type": "main", "index": 0}]]}
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "backupInfo": {
+    "backupDate": "2026-01-20",
+    "backupVersion": "v2.2.0",
+    "nodeCount": 14,
+    "note": "Simplified backup - full workflow has 14 nodes for Expensify PDF processing"
+  }
+}
