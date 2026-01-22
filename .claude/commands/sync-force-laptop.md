@@ -8,7 +8,7 @@ This command:
 Execute the following git commands:
 
 ```bash
-cd ~/coding_stuff && git stash push -m "Auto-stash before sync $(date '+%Y-%m-%d %H:%M')" && git pull && git stash pop
+cd ~/coding_stuff && git stash push -u -m "Auto-stash before sync $(date '+%Y-%m-%d %H:%M')" && git pull && git stash pop
 ```
 
 **After running, explain what happened:**
