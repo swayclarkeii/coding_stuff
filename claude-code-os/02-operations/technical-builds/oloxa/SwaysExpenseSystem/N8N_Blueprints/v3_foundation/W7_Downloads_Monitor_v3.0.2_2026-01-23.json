@@ -1,0 +1,2457 @@
+{
+  "updatedAt": "2026-01-23T20:46:14.564Z",
+  "createdAt": "2026-01-11T00:06:56.215Z",
+  "id": "6x1sVuv4XKN0002B",
+  "name": "Expense System - Workflow 7: Downloads Folder Monitor",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "const validExtensions = ['.pdf', '.jpg', '.jpeg', '.png'];\nconst skipExtensions = ['.csv', '.xlsx', '.exe', '.zip', '.dmg', '.pkg'];\nconst maxSizeMB = 25;\n// TEMPORARILY DISABLED FOR TESTING - RESTORE AFTER TESTING COMPLETE\n// const daysThreshold = 30;\n\nconst now = new Date();\nconst items = $input.all();\nconst validItems = [];\n\nfor (const item of items) {\n  const fileName = item.json.name || '';\n  const fileSize = item.json.size || 0;\n  // const modifiedTime = new Date(item.json.modifiedTime);\n  \n  // Get file extension\n  const ext = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();\n  \n  // Skip invalid extensions\n  if (skipExtensions.includes(ext)) {\n    continue;\n  }\n  \n  // Check valid extensions\n  if (!validExtensions.includes(ext)) {\n    continue;\n  }\n  \n  // Check file size (convert to MB)\n  const fileSizeMB = fileSize / (1024 * 1024);\n  if (fileSizeMB > maxSizeMB) {\n    continue;\n  }\n  \n  // TEMPORARILY DISABLED - Check modification date (last 30 days)\n  // const daysDiff = (now - modifiedTime) / (1000 * 60 * 60 * 24);\n  // if (daysDiff > daysThreshold) {\n  //   continue;\n  // }\n  \n  // Valid file - pass through\n  validItems.push(item);\n}\n\nreturn validItems;"
+      },
+      "id": "2",
+      "name": "Filter Valid Files",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const fileName = $input.item.json.name || '';\nlet category = 'unknown';\nlet invoiceNumber = null;\n\n// Check for Sway's invoice pattern: \"SC - SUPREME MUSIC GmbH - 122025 #540.pdf\"\nif (fileName.startsWith('SC - ')) {\n  category = 'sway_invoice';\n  const match = fileName.match(/#(\\d+)\\.pdf$/);\n  if (match) {\n    invoiceNumber = match[1];\n  }\n} \n// Check for Voxhaus/agency invoice patterns (VH = Voxhaus agency)\nelse if (fileName.match(/Voxhaus|VH_RE_/i)) {\n  category = 'agency_invoice';\n  // Try to extract invoice number from Voxhaus patterns\n  const match = fileName.match(/(\\d{5}-\\d{2})/);\n  if (match) {\n    invoiceNumber = match[1];\n  }\n}\n// Check for client name patterns\nelse if (fileName.match(/SUPREME MUSIC|Massive Voices|BOXHOUSE/i)) {\n  category = 'client_invoice';\n} \n// Check for generic invoice keywords\nelse if (fileName.match(/invoice|rechnung/i)) {\n  category = 'invoice';\n} \n// Check for receipt keywords\nelse if (fileName.match(/receipt|beleg|quittung/i)) {\n  category = 'receipt';\n}\n\nreturn {\n  json: {\n    ...($input.item.json),\n    category: category,\n    invoiceNumber: invoiceNumber,\n    originalFileName: fileName\n  }\n};"
+      },
+      "id": "3",
+      "name": "Categorize by Filename",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ $json.category }}",
+              "rightValue": "unknown",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4",
+      "name": "Skip Unknown Files",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        912,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {}
+      },
+      "id": "5",
+      "name": "Download File",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1360,
+        0
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const category = $input.item.json.category;\nconst fileName = $input.item.json.name;\n\n// Get binary data - USE $itemIndex instead of hardcoded 0!\nconst binaryPropertyName = 'data';\nconst binaryData = $input.item.binary[binaryPropertyName];\nconst buffer = await this.helpers.getBinaryDataBuffer($itemIndex, binaryPropertyName);\nconst base64String = buffer.toString('base64');\n\n// Determine MIME type and content type\nlet mimeType = 'application/pdf';\nlet contentType = 'document';\n\nif (fileName.match(/\\.jpe?g$/i)) {\n  mimeType = 'image/jpeg';\n  contentType = 'image';\n} else if (fileName.match(/\\.png$/i)) {\n  mimeType = 'image/png';\n  contentType = 'image';\n} else if (fileName.match(/\\.gif$/i)) {\n  mimeType = 'image/gif';\n  contentType = 'image';\n} else if (fileName.match(/\\.webp$/i)) {\n  mimeType = 'image/webp';\n  contentType = 'image';\n}\n\n// Build prompt based on category\nlet prompt = '';\nif (category === 'receipt') {\n  prompt = 'Extract receipt details from this image/document. Return ONLY valid JSON with these exact fields: {\"vendor\": \"string\", \"amount\": \"number\", \"currency\": \"string (3-letter code)\", \"date\": \"string (DD.MM.YYYY format)\", \"direction\": \"EXPENSE\", \"directionReason\": \"Receipt - expense by definition\"}. If a field cannot be determined, use null.';\n} else {\n  // Enhanced invoice prompt with INCOME/EXPENSE/UNKNOWN classification\n  prompt = `Analyze this German financial document to classify its direction and extract details.\n\n## STEP 1: CLASSIFY DIRECTION\n\nDetermine if this is:\n- **INCOME** = Money Sway Clarke RECEIVES\n- **EXPENSE** = Money Sway Clarke PAYS/OWES\n- **UNKNOWN** = Cannot determine with confidence (needs manual review)\n\n### INCOME indicators (Sway RECEIVES money):\n- Document is FROM \"Sway Clarke\" or \"Steve Sway Clarke\" (Sway sending invoice to a client)\n- Contains \"RECHNUNG AN:\" with a client company name (Sway billing someone)\n- Contains \"Auftraggeber:\" field (agency like Voxhaus, Massive Voices, Cast a Voice billing ON BEHALF of Sway)\n- Document type is \"Gutschrift\" or \"Kontoauszug\" (credit note or statement - royalties)\n- GEMA letterhead (royalty statements)\n- Reference number contains \"_SC\" (agency billing for Sway's voice work)\n- Sway's bank details (IBAN) shown for RECEIVING payment\n- Any document where Sway is clearly the SERVICE PROVIDER being paid\n\n### EXPENSE indicators (Sway PAYS money):\n- Document addressed TO \"Sway Clarke\" or \"Herrn Steve Sway Clarke\" as the BILLED party\n- Standard RECHNUNG where Sway is clearly the CUSTOMER being invoiced\n- NO \"Auftraggeber:\" field present (direct billing TO Sway, not on his behalf)\n- Sway's name/address in recipient block as the one who must PAY\n- Invoices from Voxhaus, Cast a Voice, or other agencies where Sway OWES them money (their cut)\n- Vendor invoices for services/products Sway purchased\n\n### UNKNOWN indicators (needs manual review):\n- Document is damaged, blurry, or partially unreadable\n- Cannot determine who is billing whom\n- Unusual document format not matching standard patterns\n- Conflicting indicators (some suggest INCOME, some suggest EXPENSE)\n- Foreign language document (not German/English)\n- Not clearly a financial document\n\n## STEP 2: EXTRACT DETAILS\n\nReturn ONLY valid JSON (no markdown, no explanation):\n\n{\n  \"direction\": \"INCOME\" or \"EXPENSE\" or \"UNKNOWN\",\n  \"documentType\": \"invoice\" | \"credit_note\" | \"statement\" | \"unknown\",\n  \"invoiceNumber\": \"string or null\",\n  \"date\": \"DD.MM.YYYY format or null\",\n  \"amount\": number (without currency symbol) or null,\n  \"currency\": \"EUR\" or 3-letter code,\n  \"vendor\": \"company/person issuing the document\",\n  \"clientName\": \"company being billed (for INCOME) or null (for EXPENSE/UNKNOWN)\",\n  \"directionReason\": \"brief 5-15 word explanation of classification\"\n}\n\nCRITICAL RULES:\n1. If CONFIDENT it's income -> \"INCOME\"\n2. If CONFIDENT it's expense -> \"EXPENSE\"  \n3. If UNCERTAIN or document is unreadable -> \"UNKNOWN\" (for manual review)\n4. Do NOT guess - use UNKNOWN when unsure`;\n}\n\nconst requestBody = {\n  model: 'claude-sonnet-4-5',\n  max_tokens: 2048,\n  messages: [\n    {\n      role: 'user',\n      content: [\n        {\n          type: 'text',\n          text: prompt\n        },\n        {\n          type: contentType,\n          source: {\n            type: 'base64',\n            media_type: mimeType,\n            data: base64String\n          }\n        }\n      ]\n    }\n  ]\n};\n\nreturn {\n  json: {\n    ...($input.item.json),\n    requestBody: requestBody\n  },\n  binary: $input.item.binary\n};"
+      },
+      "id": "6",
+      "name": "Build Anthropic Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1584,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.requestBody }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "7",
+      "name": "Call Anthropic API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1808,
+        0
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "MRSNO4UW3OEIA3tQ",
+          "name": "Anthropic account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Parse the Claude API response and attach extracted data\nconst categorizeData = $('Categorize by Filename').item.json;\nconst response = $input.item.json;\n\n// Parse the extraction result from Claude's response\nlet extractedData = {};\nlet parseSuccess = false;\n\ntry {\n  // Claude returns structured data in the response\n  let content = response.content?.[0]?.text || '';\n  \n  // Strip markdown code block wrapper if present (Claude often wraps JSON in ```json ... ```)\n  if (content.startsWith('```')) {\n    // Remove opening ```json or ``` and closing ```\n    content = content.replace(/^```(?:json)?\\n?/, '').replace(/\\n?```$/, '').trim();\n  }\n  \n  // Try to parse as JSON\n  try {\n    extractedData = JSON.parse(content);\n    parseSuccess = true;\n  } catch (e) {\n    // If not valid JSON, return the raw text\n    extractedData = { rawText: content, parseError: e.message };\n    parseSuccess = false;\n  }\n} catch (error) {\n  extractedData = { error: error.message };\n  parseSuccess = false;\n}\n\n// Return item with categorization data, extraction data, AND binary from Download File node\nreturn {\n  json: {\n    ...categorizeData,\n    extractedData: extractedData,\n    extractionSuccess: parseSuccess\n  },\n  binary: $('Download File').item.binary  // Reference Download node directly\n};"
+      },
+      "id": "8",
+      "name": "Parse Extraction Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2032,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "direction_expense",
+              "leftValue": "={{ $json.extractedData.direction }}",
+              "rightValue": "EXPENSE",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "9",
+      "name": "Route EXPENSE vs UNKNOWN",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2480,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition1",
+              "leftValue": "={{ $('Check Invoice IS There').all().length === 0 }}",
+              "rightValue": true,
+              "operation": {
+                "type": "boolean",
+                "operation": "equals",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "11",
+      "name": "Skip if Exists",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2928,
+        192
+      ],
+      "disabled": false
+    },
+    {
+      "parameters": {
+        "name": "={{ $json.originalFileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "mode": "id",
+          "value": "1V7UmNvDP3a2t6IIbJJI7y8YXz6_X7F6l"
+        },
+        "options": {}
+      },
+      "id": "12",
+      "name": "Upload to Invoice Pool",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3152,
+        192
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Get extracted data from Parse Extraction Results node\nconst parseResults = $('Parse Extraction Results').item.json;\nconst extracted = parseResults.extractedData || {};\nconst uploadResult = $input.item.json;\nconst fileId = uploadResult.id;\nconst filePath = uploadResult.webViewLink || '';\n\nreturn {\n  json: {\n    InvoiceID: extracted.invoiceNumber || 'N/A',\n    Direction: extracted.direction || 'EXPENSE',\n    ClientName: extracted.clientName || extracted.vendor || 'Unknown',\n    Amount: extracted.amount || 0,\n    Currency: extracted.currency || 'EUR',\n    Date: extracted.date || new Date().toLocaleDateString('de-DE'),\n    DocumentType: extracted.documentType || 'invoice',\n    DirectionReason: extracted.directionReason || '',\n    FileID: fileId,\n    FilePath: filePath,\n    ProcessedDate: new Date().toISOString(),\n    Source: 'Downloads'\n  }\n};"
+      },
+      "id": "13",
+      "name": "Prepare Invoice Sheet Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3376,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1542914058,
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "14",
+      "name": "Log to Invoices Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3600,
+        192
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition1",
+              "leftValue": "={{ $('Check Receipt IS There').all().length === 0 }}",
+              "rightValue": true,
+              "operation": {
+                "type": "boolean",
+                "operation": "equals",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "16",
+      "name": "Skip if Exists Receipt",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2928,
+        384
+      ],
+      "disabled": false
+    },
+    {
+      "parameters": {
+        "name": "={{ $json.originalFileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "mode": "id",
+          "value": "1Qbqx9uiGiODsLE9TVEFG5NRysRJCFMnY"
+        },
+        "options": {}
+      },
+      "id": "17",
+      "name": "Upload to Receipt Pool",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3152,
+        384
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Get extracted data from Parse Extraction Results node\nconst parseResults = $('Parse Extraction Results').item.json;\nconst extracted = parseResults.extractedData || {};\nconst uploadResult = $input.item.json;\nconst fileId = uploadResult.id;\nconst filePath = uploadResult.webViewLink || '';\n\nreturn {\n  json: {\n    Vendor: extracted.vendor || 'Unknown',\n    Direction: 'EXPENSE',\n    Amount: extracted.amount || 0,\n    Currency: extracted.currency || 'EUR',\n    Date: extracted.date || new Date().toLocaleDateString('de-DE'),\n    FileID: fileId,\n    FilePath: filePath,\n    ProcessedDate: new Date().toISOString(),\n    Source: 'Downloads'\n  }\n};"
+      },
+      "id": "18",
+      "name": "Prepare Receipt Sheet Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3376,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1935486957,
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "19",
+      "name": "Log to Receipts Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3600,
+        384
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Downloads Folder Monitor\n\n**Trigger:** Watches Downloads folder (synced via G Drive Desktop)\n**Poll interval:** Every 5 minutes\n\n**Filter criteria:**\n- Extensions: .pdf, .jpg, .jpeg, .png\n- Max size: 25MB\n- Modified: Last 30 days\n- Skip: .csv, .xlsx, .exe, .zip, .dmg, .pkg",
+        "height": 300,
+        "width": 340
+      },
+      "id": "20",
+      "name": "Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        240,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Categorization Logic\n\n**sway_invoice:** Filename starts with \"SC - \"\n**client_invoice:** Contains SUPREME MUSIC, Massive Voices, or BOXHOUSE\n**invoice:** Contains 'invoice' or 'rechnung'\n**receipt:** Contains 'receipt', 'beleg', or 'quittung'\n**unknown:** Skip (no processing)",
+        "height": 260,
+        "width": 360
+      },
+      "id": "21",
+      "name": "Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Claude Vision Extraction\n\n**Credential:** Anthropic API (MRSNO4UW3OEIA3tQ)\n**Model:** claude-sonnet-4-5\n\n**Invoice extraction:** invoiceNumber, clientName, amount, currency, date\n**Receipt extraction:** vendor, amount, currency, date",
+        "height": 220,
+        "width": 420
+      },
+      "id": "22",
+      "name": "Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1312,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Invoice Pool\n\n**Folder ID:** 1V7UmNvDP3a2t6IIbJJI7y8YXz6_X7F6l\n**Sheet:** Invoices\n**Duplicate check:** Filename match",
+        "height": 180,
+        "width": 260
+      },
+      "id": "23",
+      "name": "Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2416,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Receipt Pool\n\n**Folder ID:** 1NP5y-HvPfAv28wz2It6BtNZXD7Xfe5D4\n**Sheet:** Receipts\n**Duplicate check:** Filename match",
+        "height": 180,
+        "width": 260
+      },
+      "id": "24",
+      "name": "Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2224,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "mode": "id",
+          "value": "10RgkUGDzB5s9BvUht1DhpJcgwy3nRMVV"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "id": "google_drive_trigger_monitor",
+      "name": "Monitor Downloads Folder",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        0
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "direction_income",
+              "leftValue": "={{ $json.extractedData.direction }}",
+              "rightValue": "INCOME",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "route_direction",
+      "name": "Route by Direction",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2256,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "name": {
+          "__rl": true,
+          "value": "={{ $json.originalFileName }}",
+          "mode": "expression"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1axSjBldOGjMVGau9lQXkzODfuXWp8Ga1",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "upload_unknown",
+      "name": "Upload to Unknown Pool",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2480,
+        0
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Get extracted data from Parse Extraction Results node\nconst parseResults = $('Parse Extraction Results').item.json;\nconst extracted = parseResults.extractedData || {};\nconst uploadResult = $input.item.json;\nconst fileId = uploadResult.id;\nconst filePath = uploadResult.webViewLink || '';\n\nreturn {\n  json: {\n    FileName: parseResults.originalFileName || 'Unknown',\n    OriginalCategory: parseResults.category || 'unknown',\n    Direction: extracted.direction || 'UNKNOWN',\n    DirectionReason: extracted.directionReason || 'Could not determine',\n    DocumentType: extracted.documentType || 'unknown',\n    Vendor: extracted.vendor || '',\n    Amount: extracted.amount || 0,\n    Currency: extracted.currency || 'EUR',\n    Date: extracted.date || '',\n    FileID: fileId,\n    FilePath: filePath,\n    ProcessedDate: new Date().toISOString(),\n    Source: 'Downloads',\n    RawExtraction: JSON.stringify(extracted)\n  }\n};"
+      },
+      "id": "prepare_unknown",
+      "name": "Prepare Unknown Sheet Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2704,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 284306066,
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "log_unknown",
+      "name": "Log to Unknown Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        2928,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {}
+      },
+      "id": "download_unknown",
+      "name": "Download Unknown File",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1136,
+        208
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const fileName = $input.item.json.name;\n\n// Get binary data - USE $itemIndex instead of hardcoded 0!\nconst binaryPropertyName = 'data';\nconst buffer = await this.helpers.getBinaryDataBuffer($itemIndex, binaryPropertyName);\nconst base64String = buffer.toString('base64');\n\n// Determine MIME type and content type\nlet mimeType = 'application/pdf';\nlet contentType = 'document';\n\nif (fileName.match(/\\.jpe?g$/i)) {\n  mimeType = 'image/jpeg';\n  contentType = 'image';\n} else if (fileName.match(/\\.png$/i)) {\n  mimeType = 'image/png';\n  contentType = 'image';\n} else if (fileName.match(/\\.gif$/i)) {\n  mimeType = 'image/gif';\n  contentType = 'image';\n} else if (fileName.match(/\\.webp$/i)) {\n  mimeType = 'image/webp';\n  contentType = 'image';\n}\n\n// Enhanced prompt to classify BOTH document type AND direction\nconst prompt = `Analyze this financial document to classify both its TYPE and DIRECTION.\n\n## STEP 1: CLASSIFY DOCUMENT TYPE\n\nDetermine if this is:\n- **invoice** = Invoice/bill (Rechnung)\n- **receipt** = Receipt/proof of purchase (Beleg/Quittung)\n- **unknown** = Cannot determine or not a financial document\n\n### Invoice indicators:\n- Contains invoice number\n- Shows \"RECHNUNG\", \"Invoice\", \"Gutschrift\"\n- Lists line items/services provided\n- Shows payment terms or due date\n- Professional business format\n\n### Receipt indicators:\n- Simple proof of purchase\n- Shows \"BELEG\", \"QUITTUNG\", \"Receipt\"\n- Usually from retail/restaurant\n- Minimal itemization\n- Cash register format\n\n### Unknown indicators:\n- Damaged, blurry, or unreadable\n- Not a financial document (email, random image, etc.)\n- Foreign language (not German/English)\n- Unclear format\n\n## STEP 2: CLASSIFY DIRECTION\n\nDetermine if this is:\n- **INCOME** = Money Sway Clarke RECEIVES\n- **EXPENSE** = Money Sway Clarke PAYS/OWES\n- **UNKNOWN** = Cannot determine with confidence\n\n### INCOME indicators (Sway RECEIVES money):\n- Document FROM \"Sway Clarke\" or \"Steve Sway Clarke\" (Sway sending invoice to client)\n- Contains \"RECHNUNG AN:\" with client company name (Sway billing someone)\n- Contains \"Auftraggeber:\" field (agency billing ON BEHALF of Sway)\n- Document type \"Gutschrift\" or \"Kontoauszug\" (royalties)\n- GEMA letterhead (royalty statements)\n- Sway's bank details for RECEIVING payment\n- Sway is the SERVICE PROVIDER being paid\n\n### EXPENSE indicators (Sway PAYS money):\n- Document addressed TO \"Sway Clarke\" as the BILLED party\n- Standard RECHNUNG where Sway is the CUSTOMER\n- NO \"Auftraggeber:\" field present\n- Sway's name in recipient block as payer\n- Vendor invoices for services/products Sway purchased\n\n## STEP 3: EXTRACT DETAILS\n\nReturn ONLY valid JSON (no markdown, no explanation):\n\n{\n  \"documentType\": \"invoice\" or \"receipt\" or \"unknown\",\n  \"direction\": \"INCOME\" or \"EXPENSE\" or \"UNKNOWN\",\n  \"invoiceNumber\": \"string or null\",\n  \"date\": \"DD.MM.YYYY format or null\",\n  \"amount\": number (without currency symbol) or null,\n  \"currency\": \"EUR\" or 3-letter code,\n  \"vendor\": \"company/person issuing the document\",\n  \"clientName\": \"company being billed (for INCOME) or null\",\n  \"directionReason\": \"brief 5-15 word explanation of classification\"\n}\n\nCRITICAL RULES:\n1. Set documentType to \"invoice\", \"receipt\", or \"unknown\"\n2. Set direction to \"INCOME\", \"EXPENSE\", or \"UNKNOWN\"\n3. Use \"unknown\" for documentType if document is unreadable/unclear\n4. Use \"UNKNOWN\" for direction if uncertain about who pays whom\n5. Do NOT guess - be conservative with classifications`;\n\nconst requestBody = {\n  model: 'claude-sonnet-4-5',\n  max_tokens: 2048,\n  messages: [\n    {\n      role: 'user',\n      content: [\n        {\n          type: 'text',\n          text: prompt\n        },\n        {\n          type: contentType,\n          source: {\n            type: 'base64',\n            media_type: mimeType,\n            data: base64String\n          }\n        }\n      ]\n    }\n  ]\n};\n\nreturn {\n  json: {\n    ...($input.item.json),\n    requestBody: requestBody\n  },\n  binary: $input.item.binary\n};"
+      },
+      "id": "build_request_unknown",
+      "name": "Build Anthropic Request (Unknown)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.requestBody }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "call_anthropic_unknown",
+      "name": "Call Anthropic API (Unknown)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1584,
+        208
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "MRSNO4UW3OEIA3tQ",
+          "name": "Anthropic account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Parse the Claude API response for unknown files\nconst categorizeData = $('Categorize by Filename').item.json;\nconst response = $input.item.json;\n\n// Parse the extraction result from Claude's response\nlet extractedData = {};\nlet parseSuccess = false;\n\ntry {\n  let content = response.content?.[0]?.text || '';\n  \n  // Strip markdown code block wrapper if present\n  if (content.startsWith('```')) {\n    content = content.replace(/^```(?:json)?\\n?/, '').replace(/\\n?```$/, '').trim();\n  }\n  \n  // Try to parse as JSON\n  try {\n    extractedData = JSON.parse(content);\n    parseSuccess = true;\n  } catch (e) {\n    extractedData = { rawText: content, parseError: e.message };\n    parseSuccess = false;\n  }\n} catch (error) {\n  extractedData = { error: error.message };\n  parseSuccess = false;\n}\n\n// Return item with categorization data, extraction data, AND binary from Download node\nreturn {\n  json: {\n    ...categorizeData,\n    extractedData: extractedData,\n    extractionSuccess: parseSuccess\n  },\n  binary: $('Download Unknown File').item.binary\n};"
+      },
+      "id": "parse_unknown",
+      "name": "Parse Unknown Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1808,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "expression",
+        "numberOutputs": 3,
+        "output": "=={{ $json.extractedData.documentType === 'invoice' ? 0 : $json.extractedData.documentType === 'receipt' ? 1 : 2 }}"
+      },
+      "id": "route_doc_type",
+      "name": "Route by Claude DocumentType",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        2032,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1542914058,
+          "mode": "list",
+          "cachedResultName": "Invoices",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM/edit#gid=1542914058"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "FileID",
+              "lookupValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "detectAutomatically"
+            }
+          }
+        },
+        "operation": "read",
+        "range": "A:Z"
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2720,
+        192
+      ],
+      "id": "76f4877a-8507-4419-98a5-d4d655c60c1d",
+      "name": "Check Invoice IS There",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": false
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1935486957,
+          "mode": "list",
+          "cachedResultName": "Receipts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM/edit#gid=1935486957"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "FileID",
+              "lookupValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "detectAutomatically"
+            }
+          }
+        },
+        "operation": "read",
+        "range": "A:Z"
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2720,
+        384
+      ],
+      "id": "e51416c3-f00e-4ad1-8d0e-b1994ee07743",
+      "name": "Check Receipt IS There",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": false
+    }
+  ],
+  "connections": {
+    "Categorize by Filename": {
+      "main": [
+        [
+          {
+            "node": "Skip Unknown Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download File": {
+      "main": [
+        [
+          {
+            "node": "Build Anthropic Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Anthropic Request": {
+      "main": [
+        [
+          {
+            "node": "Call Anthropic API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Anthropic API": {
+      "main": [
+        [
+          {
+            "node": "Parse Extraction Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Extraction Results": {
+      "main": [
+        [
+          {
+            "node": "Route by Direction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip if Exists": {
+      "main": [
+        [
+          {
+            "node": "Upload to Invoice Pool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Invoice Pool": {
+      "main": [
+        [
+          {
+            "node": "Prepare Invoice Sheet Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Invoice Sheet Data": {
+      "main": [
+        [
+          {
+            "node": "Log to Invoices Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip if Exists Receipt": {
+      "main": [
+        [
+          {
+            "node": "Upload to Receipt Pool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Receipt Pool": {
+      "main": [
+        [
+          {
+            "node": "Prepare Receipt Sheet Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Receipt Sheet Data": {
+      "main": [
+        [
+          {
+            "node": "Log to Receipts Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Monitor Downloads Folder": {
+      "main": [
+        [
+          {
+            "node": "Filter Valid Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Valid Files": {
+      "main": [
+        [
+          {
+            "node": "Categorize by Filename",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Direction": {
+      "0": [
+        [
+          {
+            "node": "Upload to Unknown Pool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ],
+      "1": [
+        [
+          {
+            "node": "Route EXPENSE vs UNKNOWN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ],
+      "main": [
+        [
+          {
+            "node": "Check Invoice IS There",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Route EXPENSE vs UNKNOWN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Unknown Pool": {
+      "main": [
+        [
+          {
+            "node": "Prepare Unknown Sheet Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Unknown Sheet Data": {
+      "main": [
+        [
+          {
+            "node": "Log to Unknown Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Unknown File": {
+      "main": [
+        [
+          {
+            "node": "Build Anthropic Request (Unknown)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Anthropic Request (Unknown)": {
+      "main": [
+        [
+          {
+            "node": "Call Anthropic API (Unknown)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Anthropic API (Unknown)": {
+      "main": [
+        [
+          {
+            "node": "Parse Unknown Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Unknown Results": {
+      "main": [
+        [
+          {
+            "node": "Route by Claude DocumentType",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip Unknown Files": {
+      "main": [
+        [
+          {
+            "node": "Download File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download Unknown File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Claude DocumentType": {
+      "main": [
+        [
+          {
+            "node": "Route by Direction",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Route by Direction",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upload to Unknown Pool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Invoice IS There": {
+      "main": [
+        [
+          {
+            "node": "Skip if Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Receipt IS There": {
+      "main": [
+        [
+          {
+            "node": "Skip if Exists Receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route EXPENSE vs UNKNOWN": {
+      "main": [
+        [
+          {
+            "node": "Check Receipt IS There",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upload to Unknown Pool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Berlin",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": {
+    "node:Google Drive Trigger": {
+      "lastTimeChecked": "2026-01-16T20:27:56Z"
+    },
+    "node:Monitor Downloads Folder": {
+      "lastTimeChecked": "2026-01-23T20:46:14Z"
+    }
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "294aa678-0137-4ba7-9af4-273b17c7c826",
+  "activeVersionId": "294aa678-0137-4ba7-9af4-273b17c7c826",
+  "versionCounter": 647,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-01-11T00:06:56.215Z",
+      "createdAt": "2026-01-11T00:06:56.215Z",
+      "role": "workflow:owner",
+      "workflowId": "6x1sVuv4XKN0002B",
+      "projectId": "Rs8mhw052fnrzWZM",
+      "project": {
+        "updatedAt": "2025-12-31T15:54:29.115Z",
+        "createdAt": "2025-12-31T15:27:33.865Z",
+        "id": "Rs8mhw052fnrzWZM",
+        "name": "Sway Clarke <sway@oloxa.ai>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+        "projectRelations": [
+          {
+            "updatedAt": "2025-12-31T15:27:33.865Z",
+            "createdAt": "2025-12-31T15:27:33.865Z",
+            "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+            "projectId": "Rs8mhw052fnrzWZM",
+            "user": {
+              "updatedAt": "2026-01-23T17:51:16.890Z",
+              "createdAt": "2025-12-31T15:27:33.119Z",
+              "id": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+              "email": "sway@oloxa.ai",
+              "firstName": "Sway",
+              "lastName": "Clarke",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-12-31T15:54:37.562Z",
+                "personalization_survey_n8n_version": "2.1.4"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "zbxHkXOoD1qaz6OS",
+                "userActivatedAt": 1767398053308,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1767684846804
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-01-22",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-01-23T20:46:14.571Z",
+    "createdAt": "2026-01-23T20:46:14.571Z",
+    "versionId": "294aa678-0137-4ba7-9af4-273b17c7c826",
+    "workflowId": "6x1sVuv4XKN0002B",
+    "nodes": [
+      {
+        "parameters": {
+          "jsCode": "const validExtensions = ['.pdf', '.jpg', '.jpeg', '.png'];\nconst skipExtensions = ['.csv', '.xlsx', '.exe', '.zip', '.dmg', '.pkg'];\nconst maxSizeMB = 25;\n// TEMPORARILY DISABLED FOR TESTING - RESTORE AFTER TESTING COMPLETE\n// const daysThreshold = 30;\n\nconst now = new Date();\nconst items = $input.all();\nconst validItems = [];\n\nfor (const item of items) {\n  const fileName = item.json.name || '';\n  const fileSize = item.json.size || 0;\n  // const modifiedTime = new Date(item.json.modifiedTime);\n  \n  // Get file extension\n  const ext = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();\n  \n  // Skip invalid extensions\n  if (skipExtensions.includes(ext)) {\n    continue;\n  }\n  \n  // Check valid extensions\n  if (!validExtensions.includes(ext)) {\n    continue;\n  }\n  \n  // Check file size (convert to MB)\n  const fileSizeMB = fileSize / (1024 * 1024);\n  if (fileSizeMB > maxSizeMB) {\n    continue;\n  }\n  \n  // TEMPORARILY DISABLED - Check modification date (last 30 days)\n  // const daysDiff = (now - modifiedTime) / (1000 * 60 * 60 * 24);\n  // if (daysDiff > daysThreshold) {\n  //   continue;\n  // }\n  \n  // Valid file - pass through\n  validItems.push(item);\n}\n\nreturn validItems;"
+        },
+        "id": "2",
+        "name": "Filter Valid Files",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          464,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "const fileName = $input.item.json.name || '';\nlet category = 'unknown';\nlet invoiceNumber = null;\n\n// Check for Sway's invoice pattern: \"SC - SUPREME MUSIC GmbH - 122025 #540.pdf\"\nif (fileName.startsWith('SC - ')) {\n  category = 'sway_invoice';\n  const match = fileName.match(/#(\\d+)\\.pdf$/);\n  if (match) {\n    invoiceNumber = match[1];\n  }\n} \n// Check for Voxhaus/agency invoice patterns (VH = Voxhaus agency)\nelse if (fileName.match(/Voxhaus|VH_RE_/i)) {\n  category = 'agency_invoice';\n  // Try to extract invoice number from Voxhaus patterns\n  const match = fileName.match(/(\\d{5}-\\d{2})/);\n  if (match) {\n    invoiceNumber = match[1];\n  }\n}\n// Check for client name patterns\nelse if (fileName.match(/SUPREME MUSIC|Massive Voices|BOXHOUSE/i)) {\n  category = 'client_invoice';\n} \n// Check for generic invoice keywords\nelse if (fileName.match(/invoice|rechnung/i)) {\n  category = 'invoice';\n} \n// Check for receipt keywords\nelse if (fileName.match(/receipt|beleg|quittung/i)) {\n  category = 'receipt';\n}\n\nreturn {\n  json: {\n    ...($input.item.json),\n    category: category,\n    invoiceNumber: invoiceNumber,\n    originalFileName: fileName\n  }\n};"
+        },
+        "id": "3",
+        "name": "Categorize by Filename",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          688,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "1",
+                "leftValue": "={{ $json.category }}",
+                "rightValue": "unknown",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                }
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "4",
+        "name": "Skip Unknown Files",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          912,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "download",
+          "fileId": {
+            "mode": "id",
+            "value": "={{ $json.id }}"
+          },
+          "options": {}
+        },
+        "id": "5",
+        "name": "Download File",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1360,
+          0
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        },
+        "continueOnFail": true
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "const category = $input.item.json.category;\nconst fileName = $input.item.json.name;\n\n// Get binary data - USE $itemIndex instead of hardcoded 0!\nconst binaryPropertyName = 'data';\nconst binaryData = $input.item.binary[binaryPropertyName];\nconst buffer = await this.helpers.getBinaryDataBuffer($itemIndex, binaryPropertyName);\nconst base64String = buffer.toString('base64');\n\n// Determine MIME type and content type\nlet mimeType = 'application/pdf';\nlet contentType = 'document';\n\nif (fileName.match(/\\.jpe?g$/i)) {\n  mimeType = 'image/jpeg';\n  contentType = 'image';\n} else if (fileName.match(/\\.png$/i)) {\n  mimeType = 'image/png';\n  contentType = 'image';\n} else if (fileName.match(/\\.gif$/i)) {\n  mimeType = 'image/gif';\n  contentType = 'image';\n} else if (fileName.match(/\\.webp$/i)) {\n  mimeType = 'image/webp';\n  contentType = 'image';\n}\n\n// Build prompt based on category\nlet prompt = '';\nif (category === 'receipt') {\n  prompt = 'Extract receipt details from this image/document. Return ONLY valid JSON with these exact fields: {\"vendor\": \"string\", \"amount\": \"number\", \"currency\": \"string (3-letter code)\", \"date\": \"string (DD.MM.YYYY format)\", \"direction\": \"EXPENSE\", \"directionReason\": \"Receipt - expense by definition\"}. If a field cannot be determined, use null.';\n} else {\n  // Enhanced invoice prompt with INCOME/EXPENSE/UNKNOWN classification\n  prompt = `Analyze this German financial document to classify its direction and extract details.\n\n## STEP 1: CLASSIFY DIRECTION\n\nDetermine if this is:\n- **INCOME** = Money Sway Clarke RECEIVES\n- **EXPENSE** = Money Sway Clarke PAYS/OWES\n- **UNKNOWN** = Cannot determine with confidence (needs manual review)\n\n### INCOME indicators (Sway RECEIVES money):\n- Document is FROM \"Sway Clarke\" or \"Steve Sway Clarke\" (Sway sending invoice to a client)\n- Contains \"RECHNUNG AN:\" with a client company name (Sway billing someone)\n- Contains \"Auftraggeber:\" field (agency like Voxhaus, Massive Voices, Cast a Voice billing ON BEHALF of Sway)\n- Document type is \"Gutschrift\" or \"Kontoauszug\" (credit note or statement - royalties)\n- GEMA letterhead (royalty statements)\n- Reference number contains \"_SC\" (agency billing for Sway's voice work)\n- Sway's bank details (IBAN) shown for RECEIVING payment\n- Any document where Sway is clearly the SERVICE PROVIDER being paid\n\n### EXPENSE indicators (Sway PAYS money):\n- Document addressed TO \"Sway Clarke\" or \"Herrn Steve Sway Clarke\" as the BILLED party\n- Standard RECHNUNG where Sway is clearly the CUSTOMER being invoiced\n- NO \"Auftraggeber:\" field present (direct billing TO Sway, not on his behalf)\n- Sway's name/address in recipient block as the one who must PAY\n- Invoices from Voxhaus, Cast a Voice, or other agencies where Sway OWES them money (their cut)\n- Vendor invoices for services/products Sway purchased\n\n### UNKNOWN indicators (needs manual review):\n- Document is damaged, blurry, or partially unreadable\n- Cannot determine who is billing whom\n- Unusual document format not matching standard patterns\n- Conflicting indicators (some suggest INCOME, some suggest EXPENSE)\n- Foreign language document (not German/English)\n- Not clearly a financial document\n\n## STEP 2: EXTRACT DETAILS\n\nReturn ONLY valid JSON (no markdown, no explanation):\n\n{\n  \"direction\": \"INCOME\" or \"EXPENSE\" or \"UNKNOWN\",\n  \"documentType\": \"invoice\" | \"credit_note\" | \"statement\" | \"unknown\",\n  \"invoiceNumber\": \"string or null\",\n  \"date\": \"DD.MM.YYYY format or null\",\n  \"amount\": number (without currency symbol) or null,\n  \"currency\": \"EUR\" or 3-letter code,\n  \"vendor\": \"company/person issuing the document\",\n  \"clientName\": \"company being billed (for INCOME) or null (for EXPENSE/UNKNOWN)\",\n  \"directionReason\": \"brief 5-15 word explanation of classification\"\n}\n\nCRITICAL RULES:\n1. If CONFIDENT it's income -> \"INCOME\"\n2. If CONFIDENT it's expense -> \"EXPENSE\"  \n3. If UNCERTAIN or document is unreadable -> \"UNKNOWN\" (for manual review)\n4. Do NOT guess - use UNKNOWN when unsure`;\n}\n\nconst requestBody = {\n  model: 'claude-sonnet-4-5',\n  max_tokens: 2048,\n  messages: [\n    {\n      role: 'user',\n      content: [\n        {\n          type: 'text',\n          text: prompt\n        },\n        {\n          type: contentType,\n          source: {\n            type: 'base64',\n            media_type: mimeType,\n            data: base64String\n          }\n        }\n      ]\n    }\n  ]\n};\n\nreturn {\n  json: {\n    ...($input.item.json),\n    requestBody: requestBody\n  },\n  binary: $input.item.binary\n};"
+        },
+        "id": "6",
+        "name": "Build Anthropic Request",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1584,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.anthropic.com/v1/messages",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "anthropicApi",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "anthropic-version",
+                "value": "2023-06-01"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ $json.requestBody }}",
+          "options": {
+            "timeout": 60000
+          }
+        },
+        "id": "7",
+        "name": "Call Anthropic API",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1808,
+          0
+        ],
+        "credentials": {
+          "anthropicApi": {
+            "id": "MRSNO4UW3OEIA3tQ",
+            "name": "Anthropic account"
+          }
+        },
+        "continueOnFail": true
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "// Parse the Claude API response and attach extracted data\nconst categorizeData = $('Categorize by Filename').item.json;\nconst response = $input.item.json;\n\n// Parse the extraction result from Claude's response\nlet extractedData = {};\nlet parseSuccess = false;\n\ntry {\n  // Claude returns structured data in the response\n  let content = response.content?.[0]?.text || '';\n  \n  // Strip markdown code block wrapper if present (Claude often wraps JSON in ```json ... ```)\n  if (content.startsWith('```')) {\n    // Remove opening ```json or ``` and closing ```\n    content = content.replace(/^```(?:json)?\\n?/, '').replace(/\\n?```$/, '').trim();\n  }\n  \n  // Try to parse as JSON\n  try {\n    extractedData = JSON.parse(content);\n    parseSuccess = true;\n  } catch (e) {\n    // If not valid JSON, return the raw text\n    extractedData = { rawText: content, parseError: e.message };\n    parseSuccess = false;\n  }\n} catch (error) {\n  extractedData = { error: error.message };\n  parseSuccess = false;\n}\n\n// Return item with categorization data, extraction data, AND binary from Download File node\nreturn {\n  json: {\n    ...categorizeData,\n    extractedData: extractedData,\n    extractionSuccess: parseSuccess\n  },\n  binary: $('Download File').item.binary  // Reference Download node directly\n};"
+        },
+        "id": "8",
+        "name": "Parse Extraction Results",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2032,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "direction_expense",
+                "leftValue": "={{ $json.extractedData.direction }}",
+                "rightValue": "EXPENSE",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "9",
+        "name": "Route EXPENSE vs UNKNOWN",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          2480,
+          224
+        ]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "condition1",
+                "leftValue": "={{ $('Check Invoice IS There').all().length === 0 }}",
+                "rightValue": true,
+                "operation": {
+                  "type": "boolean",
+                  "operation": "equals",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "11",
+        "name": "Skip if Exists",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          2928,
+          192
+        ],
+        "disabled": false
+      },
+      {
+        "parameters": {
+          "name": "={{ $json.originalFileName }}",
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "mode": "id",
+            "value": "1V7UmNvDP3a2t6IIbJJI7y8YXz6_X7F6l"
+          },
+          "options": {}
+        },
+        "id": "12",
+        "name": "Upload to Invoice Pool",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          3152,
+          192
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        },
+        "continueOnFail": true
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "// Get extracted data from Parse Extraction Results node\nconst parseResults = $('Parse Extraction Results').item.json;\nconst extracted = parseResults.extractedData || {};\nconst uploadResult = $input.item.json;\nconst fileId = uploadResult.id;\nconst filePath = uploadResult.webViewLink || '';\n\nreturn {\n  json: {\n    InvoiceID: extracted.invoiceNumber || 'N/A',\n    Direction: extracted.direction || 'EXPENSE',\n    ClientName: extracted.clientName || extracted.vendor || 'Unknown',\n    Amount: extracted.amount || 0,\n    Currency: extracted.currency || 'EUR',\n    Date: extracted.date || new Date().toLocaleDateString('de-DE'),\n    DocumentType: extracted.documentType || 'invoice',\n    DirectionReason: extracted.directionReason || '',\n    FileID: fileId,\n    FilePath: filePath,\n    ProcessedDate: new Date().toISOString(),\n    Source: 'Downloads'\n  }\n};"
+        },
+        "id": "13",
+        "name": "Prepare Invoice Sheet Data",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3376,
+          192
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "appendOrUpdate",
+          "documentId": {
+            "__rl": true,
+            "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM",
+            "mode": "id"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1542914058,
+            "mode": "id"
+          },
+          "columns": {
+            "mappingMode": "autoMapInputData",
+            "value": {},
+            "matchingColumns": [],
+            "schema": [],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "14",
+        "name": "Log to Invoices Sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.5,
+        "position": [
+          3600,
+          192
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "condition1",
+                "leftValue": "={{ $('Check Receipt IS There').all().length === 0 }}",
+                "rightValue": true,
+                "operation": {
+                  "type": "boolean",
+                  "operation": "equals",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "16",
+        "name": "Skip if Exists Receipt",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          2928,
+          384
+        ],
+        "disabled": false
+      },
+      {
+        "parameters": {
+          "name": "={{ $json.originalFileName }}",
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "mode": "id",
+            "value": "1Qbqx9uiGiODsLE9TVEFG5NRysRJCFMnY"
+          },
+          "options": {}
+        },
+        "id": "17",
+        "name": "Upload to Receipt Pool",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          3152,
+          384
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        },
+        "continueOnFail": true
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "// Get extracted data from Parse Extraction Results node\nconst parseResults = $('Parse Extraction Results').item.json;\nconst extracted = parseResults.extractedData || {};\nconst uploadResult = $input.item.json;\nconst fileId = uploadResult.id;\nconst filePath = uploadResult.webViewLink || '';\n\nreturn {\n  json: {\n    Vendor: extracted.vendor || 'Unknown',\n    Direction: 'EXPENSE',\n    Amount: extracted.amount || 0,\n    Currency: extracted.currency || 'EUR',\n    Date: extracted.date || new Date().toLocaleDateString('de-DE'),\n    FileID: fileId,\n    FilePath: filePath,\n    ProcessedDate: new Date().toISOString(),\n    Source: 'Downloads'\n  }\n};"
+        },
+        "id": "18",
+        "name": "Prepare Receipt Sheet Data",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3376,
+          384
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "appendOrUpdate",
+          "documentId": {
+            "__rl": true,
+            "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM",
+            "mode": "id"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1935486957,
+            "mode": "id"
+          },
+          "columns": {
+            "mappingMode": "autoMapInputData",
+            "value": {},
+            "matchingColumns": [],
+            "schema": [],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "19",
+        "name": "Log to Receipts Sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.5,
+        "position": [
+          3600,
+          384
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "## Downloads Folder Monitor\n\n**Trigger:** Watches Downloads folder (synced via G Drive Desktop)\n**Poll interval:** Every 5 minutes\n\n**Filter criteria:**\n- Extensions: .pdf, .jpg, .jpeg, .png\n- Max size: 25MB\n- Modified: Last 30 days\n- Skip: .csv, .xlsx, .exe, .zip, .dmg, .pkg",
+          "height": 300,
+          "width": 340
+        },
+        "id": "20",
+        "name": "Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          240,
+          -144
+        ]
+      },
+      {
+        "parameters": {
+          "content": "## Categorization Logic\n\n**sway_invoice:** Filename starts with \"SC - \"\n**client_invoice:** Contains SUPREME MUSIC, Massive Voices, or BOXHOUSE\n**invoice:** Contains 'invoice' or 'rechnung'\n**receipt:** Contains 'receipt', 'beleg', or 'quittung'\n**unknown:** Skip (no processing)",
+          "height": 260,
+          "width": 360
+        },
+        "id": "21",
+        "name": "Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          560,
+          -96
+        ]
+      },
+      {
+        "parameters": {
+          "content": "## Claude Vision Extraction\n\n**Credential:** Anthropic API (MRSNO4UW3OEIA3tQ)\n**Model:** claude-sonnet-4-5\n\n**Invoice extraction:** invoiceNumber, clientName, amount, currency, date\n**Receipt extraction:** vendor, amount, currency, date",
+          "height": 220,
+          "width": 420
+        },
+        "id": "22",
+        "name": "Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          1312,
+          48
+        ]
+      },
+      {
+        "parameters": {
+          "content": "## Invoice Pool\n\n**Folder ID:** 1V7UmNvDP3a2t6IIbJJI7y8YXz6_X7F6l\n**Sheet:** Invoices\n**Duplicate check:** Filename match",
+          "height": 180,
+          "width": 260
+        },
+        "id": "23",
+        "name": "Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          2416,
+          -208
+        ]
+      },
+      {
+        "parameters": {
+          "content": "## Receipt Pool\n\n**Folder ID:** 1NP5y-HvPfAv28wz2It6BtNZXD7Xfe5D4\n**Sheet:** Receipts\n**Duplicate check:** Filename match",
+          "height": 180,
+          "width": 260
+        },
+        "id": "24",
+        "name": "Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          2224,
+          368
+        ]
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "triggerOn": "specificFolder",
+          "folderToWatch": {
+            "mode": "id",
+            "value": "10RgkUGDzB5s9BvUht1DhpJcgwy3nRMVV"
+          },
+          "event": "fileCreated",
+          "options": {}
+        },
+        "id": "google_drive_trigger_monitor",
+        "name": "Monitor Downloads Folder",
+        "type": "n8n-nodes-base.googleDriveTrigger",
+        "typeVersion": 1,
+        "position": [
+          240,
+          0
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "direction_income",
+                "leftValue": "={{ $json.extractedData.direction }}",
+                "rightValue": "INCOME",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "route_direction",
+        "name": "Route by Direction",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          2256,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "name": {
+            "__rl": true,
+            "value": "={{ $json.originalFileName }}",
+            "mode": "expression"
+          },
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "1axSjBldOGjMVGau9lQXkzODfuXWp8Ga1",
+            "mode": "id"
+          },
+          "options": {}
+        },
+        "id": "upload_unknown",
+        "name": "Upload to Unknown Pool",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          2480,
+          0
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "// Get extracted data from Parse Extraction Results node\nconst parseResults = $('Parse Extraction Results').item.json;\nconst extracted = parseResults.extractedData || {};\nconst uploadResult = $input.item.json;\nconst fileId = uploadResult.id;\nconst filePath = uploadResult.webViewLink || '';\n\nreturn {\n  json: {\n    FileName: parseResults.originalFileName || 'Unknown',\n    OriginalCategory: parseResults.category || 'unknown',\n    Direction: extracted.direction || 'UNKNOWN',\n    DirectionReason: extracted.directionReason || 'Could not determine',\n    DocumentType: extracted.documentType || 'unknown',\n    Vendor: extracted.vendor || '',\n    Amount: extracted.amount || 0,\n    Currency: extracted.currency || 'EUR',\n    Date: extracted.date || '',\n    FileID: fileId,\n    FilePath: filePath,\n    ProcessedDate: new Date().toISOString(),\n    Source: 'Downloads',\n    RawExtraction: JSON.stringify(extracted)\n  }\n};"
+        },
+        "id": "prepare_unknown",
+        "name": "Prepare Unknown Sheet Data",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2704,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "appendOrUpdate",
+          "documentId": {
+            "__rl": true,
+            "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM",
+            "mode": "id"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 284306066,
+            "mode": "id"
+          },
+          "columns": {
+            "mappingMode": "autoMapInputData",
+            "value": {},
+            "matchingColumns": [],
+            "schema": [],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "log_unknown",
+        "name": "Log to Unknown Sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4,
+        "position": [
+          2928,
+          0
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "download",
+          "fileId": {
+            "mode": "id",
+            "value": "={{ $json.id }}"
+          },
+          "options": {}
+        },
+        "id": "download_unknown",
+        "name": "Download Unknown File",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1136,
+          208
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        },
+        "continueOnFail": true
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "const fileName = $input.item.json.name;\n\n// Get binary data - USE $itemIndex instead of hardcoded 0!\nconst binaryPropertyName = 'data';\nconst buffer = await this.helpers.getBinaryDataBuffer($itemIndex, binaryPropertyName);\nconst base64String = buffer.toString('base64');\n\n// Determine MIME type and content type\nlet mimeType = 'application/pdf';\nlet contentType = 'document';\n\nif (fileName.match(/\\.jpe?g$/i)) {\n  mimeType = 'image/jpeg';\n  contentType = 'image';\n} else if (fileName.match(/\\.png$/i)) {\n  mimeType = 'image/png';\n  contentType = 'image';\n} else if (fileName.match(/\\.gif$/i)) {\n  mimeType = 'image/gif';\n  contentType = 'image';\n} else if (fileName.match(/\\.webp$/i)) {\n  mimeType = 'image/webp';\n  contentType = 'image';\n}\n\n// Enhanced prompt to classify BOTH document type AND direction\nconst prompt = `Analyze this financial document to classify both its TYPE and DIRECTION.\n\n## STEP 1: CLASSIFY DOCUMENT TYPE\n\nDetermine if this is:\n- **invoice** = Invoice/bill (Rechnung)\n- **receipt** = Receipt/proof of purchase (Beleg/Quittung)\n- **unknown** = Cannot determine or not a financial document\n\n### Invoice indicators:\n- Contains invoice number\n- Shows \"RECHNUNG\", \"Invoice\", \"Gutschrift\"\n- Lists line items/services provided\n- Shows payment terms or due date\n- Professional business format\n\n### Receipt indicators:\n- Simple proof of purchase\n- Shows \"BELEG\", \"QUITTUNG\", \"Receipt\"\n- Usually from retail/restaurant\n- Minimal itemization\n- Cash register format\n\n### Unknown indicators:\n- Damaged, blurry, or unreadable\n- Not a financial document (email, random image, etc.)\n- Foreign language (not German/English)\n- Unclear format\n\n## STEP 2: CLASSIFY DIRECTION\n\nDetermine if this is:\n- **INCOME** = Money Sway Clarke RECEIVES\n- **EXPENSE** = Money Sway Clarke PAYS/OWES\n- **UNKNOWN** = Cannot determine with confidence\n\n### INCOME indicators (Sway RECEIVES money):\n- Document FROM \"Sway Clarke\" or \"Steve Sway Clarke\" (Sway sending invoice to client)\n- Contains \"RECHNUNG AN:\" with client company name (Sway billing someone)\n- Contains \"Auftraggeber:\" field (agency billing ON BEHALF of Sway)\n- Document type \"Gutschrift\" or \"Kontoauszug\" (royalties)\n- GEMA letterhead (royalty statements)\n- Sway's bank details for RECEIVING payment\n- Sway is the SERVICE PROVIDER being paid\n\n### EXPENSE indicators (Sway PAYS money):\n- Document addressed TO \"Sway Clarke\" as the BILLED party\n- Standard RECHNUNG where Sway is the CUSTOMER\n- NO \"Auftraggeber:\" field present\n- Sway's name in recipient block as payer\n- Vendor invoices for services/products Sway purchased\n\n## STEP 3: EXTRACT DETAILS\n\nReturn ONLY valid JSON (no markdown, no explanation):\n\n{\n  \"documentType\": \"invoice\" or \"receipt\" or \"unknown\",\n  \"direction\": \"INCOME\" or \"EXPENSE\" or \"UNKNOWN\",\n  \"invoiceNumber\": \"string or null\",\n  \"date\": \"DD.MM.YYYY format or null\",\n  \"amount\": number (without currency symbol) or null,\n  \"currency\": \"EUR\" or 3-letter code,\n  \"vendor\": \"company/person issuing the document\",\n  \"clientName\": \"company being billed (for INCOME) or null\",\n  \"directionReason\": \"brief 5-15 word explanation of classification\"\n}\n\nCRITICAL RULES:\n1. Set documentType to \"invoice\", \"receipt\", or \"unknown\"\n2. Set direction to \"INCOME\", \"EXPENSE\", or \"UNKNOWN\"\n3. Use \"unknown\" for documentType if document is unreadable/unclear\n4. Use \"UNKNOWN\" for direction if uncertain about who pays whom\n5. Do NOT guess - be conservative with classifications`;\n\nconst requestBody = {\n  model: 'claude-sonnet-4-5',\n  max_tokens: 2048,\n  messages: [\n    {\n      role: 'user',\n      content: [\n        {\n          type: 'text',\n          text: prompt\n        },\n        {\n          type: contentType,\n          source: {\n            type: 'base64',\n            media_type: mimeType,\n            data: base64String\n          }\n        }\n      ]\n    }\n  ]\n};\n\nreturn {\n  json: {\n    ...($input.item.json),\n    requestBody: requestBody\n  },\n  binary: $input.item.binary\n};"
+        },
+        "id": "build_request_unknown",
+        "name": "Build Anthropic Request (Unknown)",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1360,
+          208
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.anthropic.com/v1/messages",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "anthropicApi",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "anthropic-version",
+                "value": "2023-06-01"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ $json.requestBody }}",
+          "options": {
+            "timeout": 60000
+          }
+        },
+        "id": "call_anthropic_unknown",
+        "name": "Call Anthropic API (Unknown)",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1584,
+          208
+        ],
+        "credentials": {
+          "anthropicApi": {
+            "id": "MRSNO4UW3OEIA3tQ",
+            "name": "Anthropic account"
+          }
+        },
+        "continueOnFail": true
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "// Parse the Claude API response for unknown files\nconst categorizeData = $('Categorize by Filename').item.json;\nconst response = $input.item.json;\n\n// Parse the extraction result from Claude's response\nlet extractedData = {};\nlet parseSuccess = false;\n\ntry {\n  let content = response.content?.[0]?.text || '';\n  \n  // Strip markdown code block wrapper if present\n  if (content.startsWith('```')) {\n    content = content.replace(/^```(?:json)?\\n?/, '').replace(/\\n?```$/, '').trim();\n  }\n  \n  // Try to parse as JSON\n  try {\n    extractedData = JSON.parse(content);\n    parseSuccess = true;\n  } catch (e) {\n    extractedData = { rawText: content, parseError: e.message };\n    parseSuccess = false;\n  }\n} catch (error) {\n  extractedData = { error: error.message };\n  parseSuccess = false;\n}\n\n// Return item with categorization data, extraction data, AND binary from Download node\nreturn {\n  json: {\n    ...categorizeData,\n    extractedData: extractedData,\n    extractionSuccess: parseSuccess\n  },\n  binary: $('Download Unknown File').item.binary\n};"
+        },
+        "id": "parse_unknown",
+        "name": "Parse Unknown Results",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1808,
+          208
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "expression",
+          "numberOutputs": 3,
+          "output": "=={{ $json.extractedData.documentType === 'invoice' ? 0 : $json.extractedData.documentType === 'receipt' ? 1 : 2 }}"
+        },
+        "id": "route_doc_type",
+        "name": "Route by Claude DocumentType",
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3,
+        "position": [
+          2032,
+          192
+        ]
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM",
+            "mode": "id"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1542914058,
+            "mode": "list",
+            "cachedResultName": "Invoices",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM/edit#gid=1542914058"
+          },
+          "filtersUI": {
+            "values": [
+              {
+                "lookupColumn": "FileID",
+                "lookupValue": "={{ $json.id }}"
+              }
+            ]
+          },
+          "options": {
+            "dataLocationOnSheet": {
+              "values": {
+                "rangeDefinition": "detectAutomatically"
+              }
+            }
+          },
+          "operation": "read",
+          "range": "A:Z"
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.5,
+        "position": [
+          2720,
+          192
+        ],
+        "id": "76f4877a-8507-4419-98a5-d4d655c60c1d",
+        "name": "Check Invoice IS There",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        },
+        "disabled": false
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM",
+            "mode": "id"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1935486957,
+            "mode": "list",
+            "cachedResultName": "Receipts",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM/edit#gid=1935486957"
+          },
+          "filtersUI": {
+            "values": [
+              {
+                "lookupColumn": "FileID",
+                "lookupValue": "={{ $json.id }}"
+              }
+            ]
+          },
+          "options": {
+            "dataLocationOnSheet": {
+              "values": {
+                "rangeDefinition": "detectAutomatically"
+              }
+            }
+          },
+          "operation": "read",
+          "range": "A:Z"
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.5,
+        "position": [
+          2720,
+          384
+        ],
+        "id": "e51416c3-f00e-4ad1-8d0e-b1994ee07743",
+        "name": "Check Receipt IS There",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        },
+        "disabled": false
+      }
+    ],
+    "connections": {
+      "Categorize by Filename": {
+        "main": [
+          [
+            {
+              "node": "Skip Unknown Files",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Download File": {
+        "main": [
+          [
+            {
+              "node": "Build Anthropic Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Anthropic Request": {
+        "main": [
+          [
+            {
+              "node": "Call Anthropic API",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Call Anthropic API": {
+        "main": [
+          [
+            {
+              "node": "Parse Extraction Results",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Extraction Results": {
+        "main": [
+          [
+            {
+              "node": "Route by Direction",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Skip if Exists": {
+        "main": [
+          [
+            {
+              "node": "Upload to Invoice Pool",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload to Invoice Pool": {
+        "main": [
+          [
+            {
+              "node": "Prepare Invoice Sheet Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Invoice Sheet Data": {
+        "main": [
+          [
+            {
+              "node": "Log to Invoices Sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Skip if Exists Receipt": {
+        "main": [
+          [
+            {
+              "node": "Upload to Receipt Pool",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload to Receipt Pool": {
+        "main": [
+          [
+            {
+              "node": "Prepare Receipt Sheet Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Receipt Sheet Data": {
+        "main": [
+          [
+            {
+              "node": "Log to Receipts Sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Monitor Downloads Folder": {
+        "main": [
+          [
+            {
+              "node": "Filter Valid Files",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter Valid Files": {
+        "main": [
+          [
+            {
+              "node": "Categorize by Filename",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Route by Direction": {
+        "0": [
+          [
+            {
+              "node": "Upload to Unknown Pool",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ],
+        "1": [
+          [
+            {
+              "node": "Route EXPENSE vs UNKNOWN",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ],
+        "main": [
+          [
+            {
+              "node": "Check Invoice IS There",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Route EXPENSE vs UNKNOWN",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload to Unknown Pool": {
+        "main": [
+          [
+            {
+              "node": "Prepare Unknown Sheet Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Unknown Sheet Data": {
+        "main": [
+          [
+            {
+              "node": "Log to Unknown Sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Download Unknown File": {
+        "main": [
+          [
+            {
+              "node": "Build Anthropic Request (Unknown)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Anthropic Request (Unknown)": {
+        "main": [
+          [
+            {
+              "node": "Call Anthropic API (Unknown)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Call Anthropic API (Unknown)": {
+        "main": [
+          [
+            {
+              "node": "Parse Unknown Results",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Unknown Results": {
+        "main": [
+          [
+            {
+              "node": "Route by Claude DocumentType",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Skip Unknown Files": {
+        "main": [
+          [
+            {
+              "node": "Download File",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Download Unknown File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Route by Claude DocumentType": {
+        "main": [
+          [
+            {
+              "node": "Route by Direction",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Route by Direction",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Upload to Unknown Pool",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Invoice IS There": {
+        "main": [
+          [
+            {
+              "node": "Skip if Exists",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Receipt IS There": {
+        "main": [
+          [
+            {
+              "node": "Skip if Exists Receipt",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Route EXPENSE vs UNKNOWN": {
+        "main": [
+          [
+            {
+              "node": "Check Receipt IS There",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Upload to Unknown Pool",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Sway Clarke",
+    "name": null,
+    "description": null,
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-01-23T20:46:14.968Z",
+        "id": 1206,
+        "workflowId": "6x1sVuv4XKN0002B",
+        "versionId": "294aa678-0137-4ba7-9af4-273b17c7c826",
+        "event": "activated",
+        "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8"
+      }
+    ]
+  }
+}

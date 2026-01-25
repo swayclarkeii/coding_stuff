@@ -441,6 +441,45 @@ mcp__n8n-mcp__tools_documentation(
 
 ---
 
+## Audio Transcription Process
+
+**When Sway asks to transcribe audio files (m4a, mp3, wav, etc.):**
+
+### Process
+
+1. **Use Whisper** (OpenAI's speech-to-text model):
+   ```bash
+   /Library/Frameworks/Python.framework/Versions/3.12/bin/whisper "filename.m4a" --model base --language en --output_format txt --output_dir .
+   ```
+
+2. **Output location**: Transcripts go in the same folder as the source audio files
+
+3. **Naming convention** (Fathom format):
+   ```
+   [Meeting Name] - YYYY-MM-DD HHH-MMm.txt
+   ```
+   Example: `Meeting with Güven - 2026-01-22 00H-00m.txt`
+
+### In-Person Transcripts Folder
+
+**Location:** `/Users/swayclarke/coding_stuff/claude-code-os/In-Person Transcripts/`
+
+**Purpose:** Store transcripts from in-person meetings (not Fathom/Zoom calls)
+
+**Process:**
+1. Place m4a audio files in this folder
+2. Run Whisper transcription
+3. Rename output to Fathom format: `[Meeting Name] - YYYY-MM-DD HHH-MMm.txt`
+4. Keep original audio files alongside transcripts
+
+### Notes
+
+- **Model**: Use `base` model for balance of speed/accuracy (larger files can take 30-60+ mins on CPU)
+- **Language**: Default to `en` (English), adjust if needed
+- **Run in background**: Large files should use `run_in_background: true` to avoid timeout
+
+---
+
 ## Additional References
 
 **Project-specific information:**
