@@ -105,6 +105,20 @@ Probes:
 
 ## Phase 4: Quantification (10 min)
 
+### The 4 C's Framework
+
+**For every pain point, get these four things:**
+
+| C | Question for CEOs | What You Get |
+|---|-------------------|--------------|
+| **Count** | "How often does this happen?" | Frequency |
+| **Clock** | "How much time does this take?" | Duration |
+| **Consequence** | "What does it cost when it goes wrong?" | Error impact |
+| **Chain** | "Who else is affected by this?" | Ripple effect |
+
+**Count × Clock = Time Spent**
+**Consequence + Chain = Business Impact**
+
 ### Time Value
 > "You mentioned [X hours/week] on this. If that time was freed up, what's that worth to you?"
 

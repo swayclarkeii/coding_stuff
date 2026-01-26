@@ -76,19 +76,41 @@
 
 ---
 
-## 6. Tracker Column Verification
+## 6. Tracker Column Structure - ✅ RESOLVED
 
-**Current Status columns (for checkmarks):**
-- Status_Expose (column D)
-- Status_Grundbuch (column E)
-- Status_Calculation (column F)
-- Status_Exit_Strategy (column G)
-- Last_Updated (column H)
+**Previous Issue:** The tracker had TWO sets of document columns (70+ total) that duplicated each other.
+
+**Resolution:** Created new streamlined sheet "Dokumenten_Tracker" with:
+- 35 columns (down from 70+)
+- All German document names
+- Clean numbering (01-33)
+- Core 4 first (columns C-F)
+
+**New Structure:**
+| Column | Document Type |
+|--------|---------------|
+| A | Mandant (Client Name) |
+| B | Letzte_Aktualisierung (Timestamp) |
+| C | 01_Exposé (Core 4) |
+| D | 02_Grundbuchauszug (Core 4) |
+| E | 03_Bautraegerkalkulation_DIN276 (Core 4) |
+| F | 04_Exit_Strategie (Core 4) |
+| G-AI | Other document types (05-33) |
+
+**Old sheet "Client_Tracker" can be deleted.**
+
+---
+
+## 6b. Calculation Types - NEEDS CLARIFICATION
+
+**Issue:** We're tracking "03_Bautraegerkalkulation_DIN276" specifically, but there may be other calculation types.
 
 **Questions:**
-- Are these column positions correct? (D, E, F, G, H)
-- Should we add more Status columns for other document types?
-- Or should we use the document columns (01_Expose, 02_Grundbuch, etc.) differently?
+- What types of calculations come in? Is it always DIN276 format?
+- Should we track just "Kalkulation" (any calculation) or specifically "Bautraegerkalkulation"?
+- Are there investor calculations, construction cost estimates, or other calculation types?
+
+**Current behavior:** Only documents classified as "Bautraegerkalkulation_DIN276" get a checkmark in column E.
 
 ---
 

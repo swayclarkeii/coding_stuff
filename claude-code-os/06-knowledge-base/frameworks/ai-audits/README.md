@@ -5,6 +5,24 @@
 
 ---
 
+## The 4 C's (Core Quantification Framework)
+
+**For every pain point, capture these four data points:**
+
+| C | Question | What You Get |
+|---|----------|--------------|
+| **Count** | How many times per week? | Frequency |
+| **Clock** | How long does each one take? | Duration |
+| **Consequence** | What happens when it goes wrong? | Error impact |
+| **Chain** | Who else is affected? | Ripple effect |
+
+**Count × Clock = Time Spent**
+**Consequence + Chain = Business Impact**
+
+*This framework applies to both CEO and Staff interviews.*
+
+---
+
 ## Core Distinction: CEO vs Staff Interviews
 
 | Aspect | CEO/Owner | Staff |
@@ -23,8 +41,9 @@
 
 | File | Purpose | Audience |
 |------|---------|----------|
-| `ceo-interview-framework.md` | Business owner discovery | You (interviewer) |
-| `staff-interview-framework.md` | Employee process mapping | You (interviewer) |
+| `staff-interview-sheet.md` | **PRINT THIS** - Actual questions to use during staff calls | You (during call) |
+| `ceo-interview-framework.md` | Business owner discovery framework | You (interviewer) |
+| `staff-interview-framework.md` | Detailed methodology for staff interviews | You (reference) |
 | `pre-interview-ceo.md` | Send before CEO calls | CEO/Owner |
 | `pre-interview-staff.md` | Send before staff calls | Staff |
 | `quantification-tactics.md` | Getting numbers when people resist | You (reference) |

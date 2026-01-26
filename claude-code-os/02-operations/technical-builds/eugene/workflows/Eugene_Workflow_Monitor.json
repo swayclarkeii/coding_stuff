@@ -1,0 +1,169 @@
+{
+  "id": "EKAOWgdA5FMZaQdW",
+  "name": "Eugene Workflow Monitor",
+  "description": "Monitors Pre-Chunk 0 and Chunk 2.5 workflows for errors, fast completions, stuck executions, and missing triggers. Sends email alerts to swayfromthehook@gmail.com.",
+  "active": false,
+  "nodes": [
+    {
+      "id": "schedule-trigger",
+      "name": "Every Hour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [240, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "fetch-executions",
+      "name": "Fetch Recent Executions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Fetch executions from n8n internal API\nconst workflows = [\n  { id: 'p0X9PrpCShIgxxMP', name: 'Pre-Chunk 0 - REBUILT v1' },\n  { id: 'okg8wTqLtPUwjQ18', name: 'Chunk 2.5 - Client Document Tracking' }\n];\n\nconst twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();\n\nconst results = [];\n\nfor (const workflow of workflows) {\n  try {\n    const response = await fetch(`http://localhost:5678/api/v1/executions?workflowId=${workflow.id}&status=all&limit=50`, {\n      method: 'GET',\n      headers: {\n        'Content-Type': 'application/json'\n      }\n    });\n    \n    if (!response.ok) {\n      console.log(`Failed to fetch executions for ${workflow.name}: ${response.status}`);\n      continue;\n    }\n    \n    const data = await response.json();\n    \n    const recentExecutions = data.data.filter(exec => {\n      return new Date(exec.startedAt) >= new Date(twoHoursAgo);\n    });\n    \n    results.push({\n      workflowId: workflow.id,\n      workflowName: workflow.name,\n      executions: recentExecutions\n    });\n  } catch (error) {\n    console.log(`Error fetching executions for ${workflow.name}: ${error.message}`);\n  }\n}\n\nreturn results.map(r => ({ json: r }));"
+      }
+    },
+    {
+      "id": "analyze-executions",
+      "name": "Analyze for Issues",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Analyze executions for alert conditions\nconst alerts = [];\n\nfor (const item of $input.all()) {\n  const { workflowId, workflowName, executions } = item.json;\n  \n  for (const exec of executions) {\n    // Alert Condition 1: Execution with error status\n    if (exec.status === 'error') {\n      alerts.push({\n        type: 'Error',\n        workflowName,\n        workflowId,\n        executionId: exec.id,\n        message: `Execution failed with error status`,\n        startedAt: exec.startedAt,\n        stoppedAt: exec.stoppedAt,\n        link: `http://localhost:5678/execution/${exec.id}`\n      });\n    }\n    \n    // Alert Condition 2: Chunk 2.5 execution completed too fast\n    if (workflowName === 'Chunk 2.5 - Client Document Tracking' && exec.status === 'success') {\n      const startTime = new Date(exec.startedAt);\n      const stopTime = new Date(exec.stoppedAt);\n      const duration = stopTime - startTime;\n      \n      if (duration < 60000 && exec.data?.resultData?.runData) {\n        const runData = exec.data.resultData.runData;\n        const firstNodeKey = Object.keys(runData)[0];\n        const firstNodeData = runData[firstNodeKey];\n        \n        if (firstNodeData && firstNodeData[0]?.data?.main?.[0]?.length > 0) {\n          alerts.push({\n            type: 'Fast Completion',\n            workflowName,\n            workflowId,\n            executionId: exec.id,\n            message: `Execution completed in ${Math.round(duration/1000)}s with items received (expected 20+ minutes)`,\n            startedAt: exec.startedAt,\n            stoppedAt: exec.stoppedAt,\n            link: `http://localhost:5678/execution/${exec.id}`\n          });\n        }\n      }\n    }\n    \n    // Alert Condition 3: Execution still running for > 45 minutes\n    if (exec.status === 'running') {\n      const startTime = new Date(exec.startedAt);\n      const now = new Date();\n      const duration = now - startTime;\n      \n      if (duration > 45 * 60 * 1000) {\n        alerts.push({\n          type: 'Stuck Execution',\n          workflowName,\n          workflowId,\n          executionId: exec.id,\n          message: `Execution has been running for ${Math.round(duration/(60*1000))} minutes (may be stuck)`,\n          startedAt: exec.startedAt,\n          stoppedAt: null,\n          link: `http://localhost:5678/execution/${exec.id}`\n        });\n      }\n    }\n  }\n}\n\n// Alert Condition 4: Pre-Chunk 0 triggered Chunk 2.5 but Chunk 2.5 never started\nconst preChunk0 = $input.all().find(i => i.json.workflowName === 'Pre-Chunk 0 - REBUILT v1');\nconst chunk25 = $input.all().find(i => i.json.workflowName === 'Chunk 2.5 - Client Document Tracking');\n\nif (preChunk0 && chunk25) {\n  for (const exec of preChunk0.json.executions) {\n    if (exec.status === 'success') {\n      const preChunkStopTime = new Date(exec.stoppedAt);\n      const fiveMinutesLater = new Date(preChunkStopTime.getTime() + 5 * 60 * 1000);\n      \n      const chunk25Started = chunk25.json.executions.some(c25Exec => {\n        const c25StartTime = new Date(c25Exec.startedAt);\n        return c25StartTime >= preChunkStopTime && c25StartTime <= fiveMinutesLater;\n      });\n      \n      if (!chunk25Started) {\n        alerts.push({\n          type: 'Missing Trigger',\n          workflowName: 'Chunk 2.5 - Client Document Tracking',\n          workflowId: chunk25.json.workflowId,\n          executionId: null,\n          message: `Pre-Chunk 0 (exec ${exec.id}) completed but Chunk 2.5 did not start within 5 minutes`,\n          startedAt: exec.stoppedAt,\n          stoppedAt: null,\n          link: `http://localhost:5678/execution/${exec.id}`\n        });\n      }\n    }\n  }\n}\n\nreturn [{ json: { alerts, totalAlerts: alerts.length } }];"
+      }
+    },
+    {
+      "id": "check-alerts",
+      "name": "Any Alerts?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [900, 300],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "alert-check",
+              "leftValue": "={{ $json.totalAlerts }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt",
+                "name": "filter.operator.largerThan"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "generate-html",
+      "name": "Generate HTML Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 200],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const { alerts, totalAlerts } = $input.first().json;\n\nlet alertsHtml = '';\nfor (const alert of alerts) {\n  alertsHtml += `\n<div style=\"background: #f5f5f5; padding: 15px; margin: 10px 0; border-left: 4px solid #ff6b6b;\">\n  <h3>🚨 ${alert.type}</h3>\n  <p><strong>Workflow:</strong> ${alert.workflowName}</p>\n  <p><strong>Workflow ID:</strong> ${alert.workflowId}</p>\n  ${alert.executionId ? `<p><strong>Execution ID:</strong> ${alert.executionId}</p>` : ''}\n  <p><strong>Issue:</strong> ${alert.message}</p>\n  <p><strong>Started:</strong> ${alert.startedAt}</p>\n  ${alert.stoppedAt ? `<p><strong>Stopped:</strong> ${alert.stoppedAt}</p>` : ''}\n  ${alert.link ? `<p><a href=\"${alert.link}\" style=\"color: #0066cc;\">View Execution →</a></p>` : ''}\n</div>\n`;\n}\n\nconst htmlMessage = `<h2>Eugene Workflow Monitoring Alert</h2>\n<p><strong>${totalAlerts}</strong> issue(s) detected in the last 2 hours:</p>\n<hr>\n${alertsHtml}\n<hr>\n<p style=\"color: #666; font-size: 12px;\">This alert was generated by Eugene Workflow Monitor</p>`;\n\nreturn [{\n  json: {\n    alerts,\n    totalAlerts,\n    htmlMessage,\n    subject: `⚠️ Eugene Workflow Alert - ${alerts[0].type}`\n  }\n}];"
+      }
+    },
+    {
+      "id": "send-alert",
+      "name": "Send Alert Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [1220, 200],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "swayfromthehook@gmail.com",
+        "subject": "={{ $json.subject }}",
+        "emailType": "html",
+        "message": "={{ $json.htmlMessage }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aYzk7sZF8ZVyfOan",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Every Hour": {
+      "main": [
+        [
+          {
+            "node": "Fetch Recent Executions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Recent Executions": {
+      "main": [
+        [
+          {
+            "node": "Analyze for Issues",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze for Issues": {
+      "main": [
+        [
+          {
+            "node": "Any Alerts?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Any Alerts?": {
+      "main": [
+        [
+          {
+            "node": "Generate HTML Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate HTML Email": {
+      "main": [
+        [
+          {
+            "node": "Send Alert Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -4,6 +4,24 @@
 
 ---
 
+## The 4 C's (Core Framework)
+
+**For every pain point, get these four things:**
+
+| C | Question | What You Get |
+|---|----------|--------------|
+| **Count** | How many times per week? | Frequency |
+| **Clock** | How long does each one take? | Duration |
+| **Consequence** | What happens when it goes wrong? | Error impact |
+| **Chain** | Who else is affected? | Ripple effect |
+
+**Count × Clock = Time Spent**
+**Consequence + Chain = Business Impact**
+
+*Every tactic below helps you get one of these four data points.*
+
+---
+
 ## Why Quantification Matters
 
 | Without Numbers | With Numbers |
