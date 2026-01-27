@@ -1,0 +1,3295 @@
+{
+  "success": true,
+  "data": {
+    "updatedAt": "2026-01-26T21:44:43.208Z",
+    "createdAt": "2026-01-08T21:33:22.263Z",
+    "id": "okg8wTqLtPUwjQ18",
+    "name": "Chunk 2.5 - Client Document Tracking (Eugene Document Organizer)",
+    "description": null,
+    "active": true,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "inputSource": "passthrough"
+        },
+        "id": "trigger-1",
+        "name": "Execute Workflow Trigger (Refreshed)",
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          80,
+          464
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Build Tier 1 Classification Prompt\n// Classify document into 1 of 4 broad categories\n\n// === Process ALL items, not just first ===\nconst items = $input.all();\nconst outputItems = [];\n\nfor (const item of items) {\n  // === CRITICAL: Extract and preserve ALL file metadata fields ===\n  const fileId = item.json.fileId || item.json.body?.fileId || null;\n  const filename = item.json.fileName || item.json.filename || item.json.body?.fileName || item.json.body?.filename || 'unknown_file.pdf';\n  const fileUrl = item.json.fileUrl || item.json.body?.fileUrl || null;\n  \n  // FIX: Use actual emailFrom instead of hardcoded test email\n  const clientEmail = item.json.emailFrom || item.json.senderEmail || item.json.clientEmail || item.json.body?.emailFrom || item.json.body?.clientEmail || 'unknown@example.com';\n\n  // Tier 1 Prompt: Classify into 4 broad categories\n  const tier1Prompt = `You are a German real estate document classifier for AMA Capital.\n\nTASK: Classify this document into ONE of 4 broad categories based on the filename.\n\nFILENAME: ${filename}\nCLIENT: ${clientEmail}\n\nCATEGORIES:\n\n1. OBJEKTUNTERLAGEN (Property/Object Documents)\n   Keywords: Projekt, Beschreibung, Expose, Grundbuch, Kaufvertrag, Bau, Lageplan, Zeichnungen, Genehmigung, DIN276, DIN277, Werkvertrag, Flaeche\n   Examples: Project descriptions, land register, purchase agreements, building permits, construction drawings, calculations\n\n2. WIRTSCHAFTLICHE_UNTERLAGEN (Financial/Economic Documents)\n   Keywords: Verkauf, Preis, Bauzeitenplan, Liquiditaet, Vertrieb, Ausstattung, Teilung, Versicherung, Umsatzsteuer, BWA, Jahresabschluss, Finanzierung, Darlehen\n   Examples: Sales prices, construction schedules, insurance, VAT returns, financial statements, loan agreements\n\n3. RECHTLICHE_UNTERLAGEN (Legal/Compliance Documents)\n   Keywords: Gesellschaft, Vertrag, Handelsregister, Gewerbe, Steuer, ID, Freistellung, Vollmacht\n   Examples: Partnership agreements, commercial register, business registration, tax ID, powers of attorney\n\n4. SONSTIGES (Miscellaneous)\n   Keywords: Gutachter, Korrespondenz, Sonstiges, Others\n   Examples: Expert assignments, correspondence, general miscellaneous\n\nINSTRUCTIONS:\n1. Analyze the filename for German keywords\n2. Match to the most appropriate category\n3. Provide confidence score (0-100)\n4. Explain your reasoning in 1-2 sentences\n\nRESPONSE FORMAT (JSON only, no markdown):\n{\n  \"tier1Category\": \"OBJEKTUNTERLAGEN | WIRTSCHAFTLICHE_UNTERLAGEN | RECHTLICHE_UNTERLAGEN | SONSTIGES\",\n  \"tier1Confidence\": 85,\n  \"reasoning\": \"Brief explanation of why this category was chosen\"\n}\n\nSTRICT RULES:\n- Response must be valid JSON only\n- tier1Confidence must be 0-100 number\n- tier1Category must be exactly one of the 4 options above\n- No markdown formatting\n- No code blocks\n- No explanatory text outside JSON`;\n\n  outputItems.push({\n    json: {\n      tier1Prompt,\n      // === EXPLICITLY PRESERVE ALL FILE METADATA (CRITICAL) ===\n      fileId,\n      fileName: filename,\n      fileUrl,\n      clientEmail,\n      // === CRITICAL: Preserve client_name and client_normalized ===\n      client_name: item.json.client_name,\n      client_normalized: item.json.client_normalized,\n      // Pass through all input data for additional fields\n      ...item.json\n    }\n  });\n}\n\nreturn outputItems;"
+        },
+        "id": "code-1",
+        "name": "Build AI Classification Prompt",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          976,
+          160
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Parse Tier 1 Classification Result + Build Dynamic Tier 2 Prompt\n// FIX: Process ALL items, not just first\n\nconst items = $input.all();\nconst outputItems = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  \n  // Get corresponding items from previous nodes\n  const promptData = $('Build AI Classification Prompt').all()[i].json;\n  const tier1Result = $('Parse Claude Tier 1 Response').all()[i].json;\n  \n  const fileId = promptData.fileId;\n  const fileName = promptData.fileName;\n  const fileUrl = promptData.fileUrl;\n  const clientEmail = promptData.clientEmail;\n  const client_name = promptData.client_name;\n  const client_normalized = promptData.client_normalized;\n\n  if (!tier1Result || !tier1Result.tier1Category) {\n    outputItems.push({\n      json: {\n        error: 'Failed to parse Tier 1 classification',\n        tier1Category: 'UNKNOWN',\n        tier1Confidence: 0,\n        tier2Prompt: 'ERROR: Failed to parse Tier 1 classification',\n        fileId, fileName, fileUrl, clientEmail, client_name, client_normalized,\n        ...item.json\n      }\n    });\n    continue;\n  }\n\n  const { tier1Category, tier1Confidence, tier1Reasoning } = tier1Result;\n  const reasoning = tier1Reasoning || '';\n\n  let tier2Prompt = '';\n\n  if (tier1Category === 'OBJEKTUNTERLAGEN') {\n    tier2Prompt = `You are a German real estate document classifier for AMA Capital.\\n\\nTIER 1 RESULT: This document was classified as OBJEKTUNTERLAGEN (Property/Object Documents) with ${tier1Confidence}% confidence.\\n\\nTASK: Now classify into the SPECIFIC document type from the list below.\\n\\nFILENAME: ${fileName}\\nCLIENT: ${clientEmail}\\n\\nSPECIFIC TYPES (choose ONE):\\n\\n01_Projektbeschreibung (Exposé/Project Description) ⭐ CORE\\n   Keywords: Projekt, Beschreibung, Expose, Overview, Proposal\\n   Description: Project overview, property description, investment proposal\\n\\n02_Kaufvertrag (Purchase Agreement)\\n   Keywords: Kauf, Vertrag, Purchase, Agreement\\n   Description: Property purchase contract\\n\\n03_Grundbuchauszug (Land Register Extract) ⭐ CORE\\n   Keywords: Grundbuch, Land, Register, Auszug\\n   Description: Official land registry extract\\n\\n04_Eintragungsbewilligungen (Entry Permits)\\n   Keywords: Eintragung, Bewilligung, Entry, Permit\\n   Description: Permits for land register entries\\n\\n05_Bodenrichtwert (Land Value)\\n   Keywords: Boden, Richtwert, Land, Value\\n   Description: Official land value assessment\\n\\n06_Baulastenverzeichnis (Building Encumbrance Register)\\n   Keywords: Baulast, Verzeichnis, Encumbrance\\n   Description: Register of building encumbrances\\n\\n07_Altlastenkataster (Contaminated Sites Register)\\n   Keywords: Altlast, Kataster, Contaminated\\n   Description: Register of contaminated sites\\n\\n08_Baugrundgutachten (Soil Survey)\\n   Keywords: Baugrund, Gutachten, Soil, Survey\\n   Description: Soil conditions assessment\\n\\n09_Lageplan (Site Plan)\\n   Keywords: Lage, Plan, Site\\n   Description: Site location plan\\n\\n10_Bautraegerkalkulation_DIN276 (Developer Calculation) ⭐ CORE\\n   Keywords: Bautraeger, Kalkulation, DIN276, Calculation\\n   Description: Developer cost calculation per DIN276 standard\\n\\n15_Flaechenberechnung_DIN277 (Area Calculation DIN277)\\n   Keywords: Flaeche, Berechnung, DIN277, Area\\n   Description: Area calculation per DIN277 standard\\n\\n16_GU_Werkvertraege (General Contractor Agreements)\\n   Keywords: GU, Werkvertrag, Contractor, Agreement\\n   Description: General contractor work agreements\\n\\n17_Bauzeichnungen (Construction Drawings)\\n   Keywords: Bau, Zeichnung, Construction, Drawing\\n   Description: Construction and architectural drawings\\n\\n18_Baugenehmigung (Building Permit)\\n   Keywords: Bau, Genehmigung, Building, Permit\\n   Description: Official building permit\\n\\nINSTRUCTIONS:\\n1. Analyze filename for specific German keywords\\n2. Choose the MOST SPECIFIC type that matches\\n3. Provide confidence score (0-100)\\n4. Explain your reasoning\\n\\nRESPONSE FORMAT (JSON only):\\n{\\n  \\\"documentType\\\": \\\"01_Projektbeschreibung\\\",\\n  \\\"tier2Confidence\\\": 88,\\n  \\\"germanName\\\": \\\"Projektbeschreibung\\\",\\n  \\\"englishName\\\": \\\"Exposé/Project Description\\\",\\n  \\\"isCoreType\\\": true,\\n  \\\"reasoning\\\": \\\"Brief explanation\\\"\\n}\\n\\nSTRICT RULES:\\n- documentType must EXACTLY match one of the codes above (e.g., \\\"01_Projektbeschreibung\\\")\\n- isCoreType: true for ⭐ CORE types, false for others\\n- Valid JSON only, no markdown`;\n  } else if (tier1Category === 'WIRTSCHAFTLICHE_UNTERLAGEN') {\n    tier2Prompt = `You are a German real estate document classifier for AMA Capital.\\n\\nTIER 1 RESULT: This document was classified as WIRTSCHAFTLICHE_UNTERLAGEN (Financial/Economic Documents) with ${tier1Confidence}% confidence.\\n\\nTASK: Now classify into the SPECIFIC document type from the list below.\\n\\nFILENAME: ${fileName}\\nCLIENT: ${clientEmail}\\n\\nSPECIFIC TYPES (choose ONE):\\n\\n11_Verkaufspreise (Sales Prices)\\n   Keywords: Verkauf, Preis, Sales, Price\\n   Description: Sales price lists and calculations\\n\\n12_Bauzeitenplan_Liquiditaet (Construction Schedule & Liquidity)\\n   Keywords: Bauzeit, Plan, Liquiditaet, Schedule\\n   Description: Construction timeline and liquidity planning\\n\\n13_Vertriebsweg (Distribution Channel)\\n   Keywords: Vertrieb, Weg, Distribution, Channel\\n   Description: Sales and distribution strategy\\n\\n14_Bau_Ausstattungsbeschreibung (Construction & Equipment Description)\\n   Keywords: Bau, Ausstattung, Beschreibung, Baubeschreibung, Equipment\\n   Description: Construction specifications and equipment details\\n\\n19_Teilungserklaerung (Declaration of Division)\\n   Keywords: Teilung, Erklaerung, Division, Declaration\\n   Description: Property division declaration\\n\\n20_Versicherungen (Insurance)\\n   Keywords: Versicherung, Insurance\\n   Description: Insurance policies and documentation\\n\\n21_Muster_Verkaufsvertrag (Sample Sales Contract)\\n   Keywords: Muster, Verkauf, Vertrag, Sample, Sales\\n   Description: Template sales contract\\n\\n23_Umsatzsteuervoranmeldung (VAT Advance Return)\\n   Keywords: Umsatz, Steuer, Voranmeldung, VAT\\n   Description: VAT advance return filings\\n\\n24_BWA (Business Evaluation)\\n   Keywords: BWA, Business, Evaluation\\n   Description: Business evaluation report\\n\\n25_Jahresabschluss (Annual Financial Statement)\\n   Keywords: Jahres, Abschluss, Annual, Financial\\n   Description: Annual financial statement\\n\\n26_Finanzierungsbestaetigung (Financing Confirmation)\\n   Keywords: Finanzierung, Bestaetigung, Financing, Confirmation\\n   Description: Financing approval or confirmation\\n\\n27_Darlehensvertrag (Loan Agreement)\\n   Keywords: Darlehen, Vertrag, Loan, Agreement\\n   Description: Loan contract\\n\\nINSTRUCTIONS:\\n1. Analyze filename for specific German keywords\\n2. Choose the MOST SPECIFIC type that matches\\n3. Provide confidence score (0-100)\\n4. Explain your reasoning\\n\\nRESPONSE FORMAT (JSON only):\\n{\\n  \\\"documentType\\\": \\\"11_Verkaufspreise\\\",\\n  \\\"tier2Confidence\\\": 92,\\n  \\\"germanName\\\": \\\"Verkaufspreise\\\",\\n  \\\"englishName\\\": \\\"Sales Prices\\\",\\n  \\\"isCoreType\\\": false,\\n  \\\"reasoning\\\": \\\"Brief explanation\\\"\\n}\\n\\nSTRICT RULES:\\n- documentType must EXACTLY match one of the codes above\\n- isCoreType: false for all WIRTSCHAFTLICHE types (none are CORE)\\n- Valid JSON only, no markdown`;\n  } else if (tier1Category === 'RECHTLICHE_UNTERLAGEN') {\n    tier2Prompt = `You are a German real estate document classifier for AMA Capital.\\n\\nTIER 1 RESULT: This document was classified as RECHTLICHE_UNTERLAGEN (Legal/Compliance Documents) with ${tier1Confidence}% confidence.\\n\\nTASK: Now classify into the SPECIFIC document type from the list below.\\n\\nFILENAME: ${fileName}\\nCLIENT: ${clientEmail}\\n\\nSPECIFIC TYPES (choose ONE):\\n\\n28_Gesellschaftsvertrag (Partnership Agreement)\\n   Keywords: Gesellschaft, Vertrag, Partnership, Agreement\\n   Description: Company partnership or shareholder agreement\\n\\n29_Handelsregisterauszug (Commercial Register Extract)\\n   Keywords: Handelsregister, Auszug, Commercial, Register\\n   Description: Commercial register extract\\n\\n30_Gewerbeanmeldung (Business Registration)\\n   Keywords: Gewerbe, Anmeldung, Business, Registration\\n   Description: Business registration documentation\\n\\n31_Steuer_ID (Tax ID)\\n   Keywords: Steuer, ID, Tax\\n   Description: Tax identification number\\n\\n32_Freistellungsbescheinigung (Exemption Certificate)\\n   Keywords: Freistellung, Bescheinigung, Exemption, Certificate\\n   Description: Tax exemption certificate\\n\\n33_Vollmachten (Powers of Attorney)\\n   Keywords: Vollmacht, Power, Attorney\\n   Description: Power of attorney documents\\n\\nINSTRUCTIONS:\\n1. Analyze filename for specific German keywords\\n2. Choose the MOST SPECIFIC type that matches\\n3. Provide confidence score (0-100)\\n4. Explain your reasoning\\n\\nRESPONSE FORMAT (JSON only):\\n{\\n  \\\"documentType\\\": \\\"28_Gesellschaftsvertrag\\\",\\n  \\\"tier2Confidence\\\": 85,\\n  \\\"germanName\\\": \\\"Gesellschaftsvertrag\\\",\\n  \\\"englishName\\\": \\\"Partnership Agreement\\\",\\n  \\\"isCoreType\\\": false,\\n  \\\"reasoning\\\": \\\"Brief explanation\\\"\\n}\\n\\nSTRICT RULES:\\n- documentType must EXACTLY match one of the codes above\\n- isCoreType: false for all RECHTLICHE types (none are CORE)\\n- Valid JSON only, no markdown`;\n  } else if (tier1Category === 'SONSTIGES') {\n    tier2Prompt = `You are a German real estate document classifier for AMA Capital.\\n\\nTIER 1 RESULT: This document was classified as SONSTIGES (Miscellaneous) with ${tier1Confidence}% confidence.\\n\\nTASK: Now classify into the SPECIFIC document type from the list below.\\n\\nFILENAME: ${fileName}\\nCLIENT: ${clientEmail}\\n\\nSPECIFIC TYPES (choose ONE):\\n\\n22_Gutachterauftrag (Expert Assignment)\\n   Keywords: Gutachter, Auftrag, Expert, Assignment\\n   Description: Expert assessment assignment\\n\\n34_Korrespondenz (Correspondence)\\n   Keywords: Korrespondenz, Email, Brief, Letter, Correspondence\\n   Description: Email correspondence and letters\\n\\n35_Sonstiges_Allgemein (General Miscellaneous)\\n   Keywords: Sonstiges, Misc, General\\n   Description: General miscellaneous documents\\n\\n36_Exit_Strategie (Exit Strategy) ⭐ CORE\\n   Keywords: Exit, Strategie, Strategy\\n   Description: Investment exit strategy\\n\\n37_Others (Others)\\n   Keywords: Other, Andere\\n   Description: Other unclassified documents\\n\\n38_Unknowns (Unknowns)\\n   Keywords: Unknown, Unbekannt\\n   Description: Unknown document type\\n\\nINSTRUCTIONS:\\n1. Analyze filename for specific German keywords\\n2. Choose the MOST SPECIFIC type that matches\\n3. Provide confidence score (0-100)\\n4. Explain your reasoning\\n5. Use 38_Unknowns ONLY if truly unclear\\n\\nRESPONSE FORMAT (JSON only):\\n{\\n  \\\"documentType\\\": \\\"36_Exit_Strategie\\\",\\n  \\\"tier2Confidence\\\": 95,\\n  \\\"germanName\\\": \\\"Exit Strategie\\\",\\n  \\\"englishName\\\": \\\"Exit Strategy\\\",\\n  \\\"isCoreType\\\": true,\\n  \\\"reasoning\\\": \\\"Brief explanation\\\"\\n}\\n\\nSTRICT RULES:\\n- documentType must EXACTLY match one of the codes above\\n- isCoreType: true ONLY for 36_Exit_Strategie\\n- Valid JSON only, no markdown`;\n  } else {\n    tier2Prompt = `You are a German real estate document classifier for AMA Capital.\\n\\nERROR: Unknown category \\\"${tier1Category}\\\". Please classify as SONSTIGES > 38_Unknowns.\\n\\nFILENAME: ${fileName}\\nCLIENT: ${clientEmail}\\n\\nRESPONSE FORMAT (JSON only):\\n{\\n  \\\"documentType\\\": \\\"38_Unknowns\\\",\\n  \\\"tier2Confidence\\\": 0,\\n  \\\"germanName\\\": \\\"Unknowns\\\",\\n  \\\"englishName\\\": \\\"Unknown\\\",\\n  \\\"isCoreType\\\": false,\\n  \\\"reasoning\\\": \\\"Unknown Tier 1 category: ${tier1Category}\\\"\\n}`;\n  }\n\n  if (tier1Confidence < 60) {\n    outputItems.push({\n      json: {\n        tier1Category, tier1Confidence, tier1Reasoning: reasoning, tier2Prompt,\n        fileId, fileName, fileUrl, clientEmail, client_name, client_normalized,\n        lowConfidence: true, confidenceFailureStage: 'tier1',\n        ...item.json\n      }\n    });\n  } else {\n    outputItems.push({\n      json: {\n        tier1Category, tier1Confidence, tier1Reasoning: reasoning, tier2Prompt,\n        fileId, fileName, fileUrl, clientEmail, client_name, client_normalized,\n        ...item.json\n      }\n    });\n  }\n}\n\nreturn outputItems;"
+        },
+        "id": "code-2",
+        "name": "Parse Classification Result",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2320,
+          160
+        ]
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "12N2C8iWeHkxJQ2qz7m3aTyZw3X1gXbyyyFa-rP0tD7I",
+            "mode": "id"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "Dokumenten_Tracker",
+            "mode": "name"
+          },
+          "filtersUI": {
+            "values": [
+              {
+                "lookupColumn": "Mandant",
+                "lookupValue": "={{ $json.client_normalized }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "sheets-1",
+        "name": "Lookup Client in Dokumenten_Tracker",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          4112,
+          160
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// FIX: Reference classification data from upstream node directly\n// The Sheets lookup output overwrites $input, so we must reference Determine Action Type\n// UPDATED: Compare raw Mandant values directly (no normalization needed)\n\nconst items = $input.all();\nconst outputItems = [];\n\n// Get classification data from upstream (preserved across Sheets lookup)\nconst classificationData = $('Determine Action Type').first().json;\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  const trackerData = $('Lookup Client in Dokumenten_Tracker').all();\n  \n  // Get client info from classification data\n  const clientNormalized = classificationData.client_normalized || classificationData.clientNormalized || '';\n  const documentType = classificationData.documentType || '';\n  const confidence = classificationData.combinedConfidence || classificationData.tier2Confidence || 0;\n  const fileId = classificationData.fileId || '';\n  const fileName = classificationData.fileName || '';\n\n  // Check if confidence is too low\n  if (confidence < 70) {\n    outputItems.push({\n      json: {\n        ...classificationData,\n        ...item.json,\n        chunk2_5_status: 'error_unclear_type',\n        errorMessage: `Low confidence (${confidence}%) - document type unclear`\n      }\n    });\n    continue;\n  }\n\n  // Check if any data was returned from tracker\n  if (!trackerData || trackerData.length === 0) {\n    outputItems.push({\n      json: {\n        ...classificationData,\n        chunk2_5_status: 'error_client_not_found',\n        errorMessage: 'No data returned from Dokumenten_Tracker lookup'\n      }\n    });\n    continue;\n  }\n\n  // Find matching client row - compare directly (case-insensitive)\n  let rowIndex = -1;\n  const clientRow = trackerData.find((row, idx) => {\n    const sheetClientName = (row.json.Mandant || '').trim().toLowerCase();\n    const inputClientName = clientNormalized.trim().toLowerCase();\n    \n    if (sheetClientName === inputClientName) {\n      rowIndex = row.json.row_number || (idx + 2);\n      return true;\n    }\n    return false;\n  });\n\n  if (!clientRow || !clientRow.json.Mandant) {\n    outputItems.push({\n      json: {\n        ...classificationData,\n        chunk2_5_status: 'error_client_not_found',\n        errorMessage: `Client not found in tracker: \"${clientNormalized}\"`\n      }\n    });\n    continue;\n  }\n\n  // Client found and validated - prepare for success path\n  outputItems.push({\n    json: {\n      ...classificationData,\n      ...clientRow.json,\n      clientFound: true,\n      trackerRowIndex: rowIndex,\n      trackerClientName: clientRow.json.Mandant,\n      chunk2_5_status: 'success'\n    }\n  });\n}\n\nreturn outputItems;"
+        },
+        "id": "code-3",
+        "name": "Find Client Row and Validate",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          4336,
+          160
+        ]
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "mode": "id",
+            "value": "1-CPnCr3locAORVX5tUEoh6r0i-x3tQ_ROTN0VXatOAU"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "AMA_Folder_IDs",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-CPnCr3locAORVX5tUEoh6r0i-x3tQ_ROTN0VXatOAU/edit#gid=0"
+          },
+          "options": {}
+        },
+        "id": "sheets-3",
+        "name": "Lookup Client in AMA_Folder_IDs",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          5680,
+          64
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Get Destination Folder ID - V14 Simplified Routing\n// SIMPLIFIED LOGIC:\n// - Core 4 documents -> Specific folders (01, 03, 10, 36)\n// - ALL OTHER documents -> 37_Others folder\n// - Tracker still gets updated with whatever was classified\n\nconst classificationData = $('Find Client Row and Validate').first().json;\n\n// Get fileId from classification data (passed through from trigger)\nconst fileId = classificationData.fileId;\nconst fileName = classificationData.fileName;\n\n// Get classification info\nconst documentType = classificationData.documentType;\nconst tier1Category = classificationData.tier1Category;\nconst client_name = classificationData.client_name;\nconst client_normalized = classificationData.client_normalized;\n\n// Build lookup from ALL folder rows\nconst allFolderRows = $input.all();\nconst folderLookup = {};\nfor (const row of allFolderRows) {\n  folderLookup[row.json.Variable_Name] = row.json.Folder_ID;\n}\n\nlet finalFolderId;\nlet destinationFolderName;\nlet variableNameSearched;\n\n// Define Core 4 document types\nconst CORE_4_TYPES = [\n  '01_Projektbeschreibung',\n  '03_Grundbuchauszug',\n  '10_Bautraegerkalkulation_DIN276',\n  '36_Exit_Strategie'\n];\n\n// Check if this is a Core 4 document\nif (CORE_4_TYPES.includes(documentType)) {\n  // CORE 4 DOCUMENTS -> Route to specific folders\n  const coreMapping = {\n    '01_Projektbeschreibung': { varName: 'FOLDER_01_PROJEKTBESCHREIBUNG', displayName: '01_Projektbeschreibung' },\n    '03_Grundbuchauszug': { varName: 'FOLDER_03_GRUNDBUCHAUSZUG', displayName: '03_Grundbuchauszug' },\n    '10_Bautraegerkalkulation_DIN276': { varName: 'FOLDER_10_BAUTRAEGERKALKULATION', displayName: '10_Bautraegerkalkulation' },\n    '36_Exit_Strategie': { varName: 'FOLDER_36_EXIT_STRATEGIE', displayName: '36_Exit_Strategie' }\n  };\n\n  const mapping = coreMapping[documentType];\n  if (mapping) {\n    variableNameSearched = mapping.varName;\n    destinationFolderName = mapping.displayName;\n  } else {\n    // Fallback to 37_Others if mapping not found (shouldn't happen)\n    variableNameSearched = 'FOLDER_37_OTHERS';\n    destinationFolderName = '37_Others';\n  }\n} else {\n  // ALL OTHER DOCUMENTS -> Route to 37_Others\n  variableNameSearched = 'FOLDER_37_OTHERS';\n  destinationFolderName = '37_Others';\n}\n\n// Get folder ID from lookup\nfinalFolderId = folderLookup[variableNameSearched];\n\nreturn [{\n  json: {\n    fileId: fileId,\n    fileName: fileName,\n    finalFolderId: finalFolderId,\n    destinationFolderName: destinationFolderName,\n    documentType: documentType,\n    tier1Category: tier1Category,\n    client_name: client_name,\n    client_normalized: client_normalized,\n    debug_variableNameSearched: variableNameSearched,\n    debug_folderLookupSize: Object.keys(folderLookup).length,\n    debug_isCore4: CORE_4_TYPES.includes(documentType)\n  }\n}];"
+        },
+        "id": "code-4",
+        "name": "Get Destination Folder ID",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          5904,
+          64
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "move",
+          "fileId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $json.fileId }}"
+          },
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $json.finalFolderId }}"
+          }
+        },
+        "id": "drive-1",
+        "name": "Move File to Final Location",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          6128,
+          64
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// FIX: Process ALL items\nconst items = $input.all();\nconst outputItems = [];\n\nfor (const item of items) {\n  outputItems.push({\n    json: {\n      ...item.json,\n      trackerUpdated: true,\n      chunk2_5_status: 'success',\n      processedAt: new Date().toISOString()\n    }\n  });\n}\n\nreturn outputItems;"
+        },
+        "id": "code-5",
+        "name": "Prepare Success Output",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          6352,
+          240
+        ]
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "mode": "id",
+            "value": "1-CPnCr3locAORVX5tUEoh6r0i-x3tQ_ROTN0VXatOAU"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "AMA_Folder_IDs",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-CPnCr3locAORVX5tUEoh6r0i-x3tQ_ROTN0VXatOAU/edit#gid=0"
+          },
+          "options": {}
+        },
+        "id": "sheets-4",
+        "name": "Lookup 38_Unknowns Folder",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          4784,
+          304
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// FIX: Process ALL items from main data\nconst folderData = $input.all();\nconst mainDataItems = $('Find Client Row and Validate').all();\nconst outputItems = [];\n\n// Skip header row from folder data\nconst dataRows = folderData.slice(1);\n\n// Look for 38_Unknowns folder ID (should be same for all items)\nlet unknownsFolderId = null;\nif (dataRows.length > 0) {\n  for (const row of dataRows) {\n    const rowData = row.json;\n    for (const key in rowData) {\n      if (key.includes('38_Unknowns')) {\n        unknownsFolderId = rowData[key];\n        break;\n      }\n    }\n    if (unknownsFolderId) break;\n  }\n\n  if (!unknownsFolderId) {\n    // Try to get from first row (assuming it might be a global folder)\n    unknownsFolderId = dataRows[0].json['38_Unknowns'] || null;\n  }\n}\n\n// Return one output item per main data item\nfor (const mainData of mainDataItems) {\n  outputItems.push({\n    json: {\n      ...mainData.json,\n      unknownsFolderId: unknownsFolderId,\n      errorFallbackUsed: !unknownsFolderId\n    }\n  });\n}\n\nreturn outputItems;"
+        },
+        "id": "code-6",
+        "name": "Get 38_Unknowns Folder ID",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          5008,
+          304
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "move",
+          "fileId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $json.fileId }}"
+          },
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $json.unknownsFolderId }}"
+          }
+        },
+        "id": "drive-2",
+        "name": "Move File to 38_Unknowns",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          5232,
+          304
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// FIX: Process ALL items\nconst items = $input.all();\nconst outputItems = [];\n\nfor (const item of items) {\n  const mainData = item.json;\n\n  // FIX: Use client_normalized (snake_case) to match what's being passed\n  const clientName = mainData.client_normalized || mainData.clientNormalized || 'Unknown';\n  const fileName = mainData.fileName || 'Unknown';\n  const fileId = mainData.fileId || '';\n  const errorStatus = mainData.chunk2_5_status || 'unknown_error';\n  const errorMessage = mainData.errorMessage || 'No error details provided';\n  const documentType = mainData.documentType || 'Unknown';\n  const confidence = mainData.documentClassificationConfidence || 0;\n\n  let issueDescription = '';\n  if (errorStatus === 'error_client_not_found') {\n    issueDescription = `Client \\\"${clientName}\\\" was not found in the Client_Tracker sheet.`;\n  } else if (errorStatus === 'error_unclear_type') {\n    issueDescription = `Document type classification had low confidence (${confidence}%). Classified as: ${documentType}.`;\n  } else if (errorStatus === 'error_folder_not_found') {\n    issueDescription = `Destination folder for document type \\\"${documentType}\\\" was not found in AMA_Folder_IDs.`;\n  } else {\n    issueDescription = errorMessage;\n  }\n\n  const fileLink = `https://drive.google.com/file/d/${fileId}/view`;\n\n  const emailSubject = `Eugene: Document Classification Issue - ${clientName}`;\n  const emailBody = `<html>\n<body>\n<h2>Document Classification Issue</h2>\n<p>A document could not be automatically classified and has been moved to the 38_Unknowns folder.</p>\n\n<h3>Details:</h3>\n<ul>\n  <li><strong>Client:</strong> ${clientName}</li>\n  <li><strong>Filename:</strong> ${fileName}</li>\n  <li><strong>Issue:</strong> ${issueDescription}</li>\n  <li><strong>Classified Type:</strong> ${documentType} (${confidence}% confidence)</li>\n  <li><strong>Error Status:</strong> ${errorStatus}</li>\n</ul>\n\n<h3>File Location:</h3>\n<p><a href=\\\"${fileLink}\\\">View file in Google Drive</a></p>\n\n<p>Please review this document and manually classify it.</p>\n</body>\n</html>`;\n\n  outputItems.push({\n    json: {\n      ...mainData,\n      emailSubject: emailSubject,\n      emailBody: emailBody,\n      trackerUpdated: false,\n      chunk2_5_status: errorStatus,\n      processedAt: new Date().toISOString()\n    }\n  });\n}\n\nreturn outputItems;"
+        },
+        "id": "code-7",
+        "name": "Prepare Error Email Body",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          5456,
+          304
+        ]
+      },
+      {
+        "parameters": {
+          "sendTo": "={{ $json.emailRecipient || 'sway@oloxa.ai' }}"
+        },
+        "id": "gmail-1",
+        "name": "Send Error Notification Email",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          5680,
+          304
+        ],
+        "webhookId": "d50e78b4-8ae0-4171-b62f-c2afdafc7e58",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "g2ksaYkLXWtfDWAh",
+            "name": "Gmail (swayfromthehook)"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Prepare data for Dokumenten_Tracker update\n// Combines client row info with document classification results\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const json = item.json;\n  \n  // Get classification results from previous nodes\n  const documentType = json.documentType || json.document_type;\n  const tier1Category = json.tier1Category || json.tier_1_category;\n  const tier2Category = json.tier2Category || json.tier_2_category;\n  const confidence = json.confidence || 'medium';\n  \n  // Get client info\n  const clientNormalized = json.client_normalized;\n  const rowNumber = json.rowNumber || json.row_number;\n  \n  if (!rowNumber) {\n    throw new Error(`Cannot update tracker: missing rowNumber for client ${clientNormalized}`);\n  }\n  \n  // Pass through all data needed for the API update\n  results.push({\n    json: {\n      ...json,\n      // Ensure these fields are present for downstream nodes\n      documentType: tier2Category || documentType,  // Prefer tier2 for specificity\n      tier2Category: tier2Category,\n      tier1Category: tier1Category,\n      confidence: confidence,\n      rowNumber: rowNumber,\n      client_normalized: clientNormalized,\n      // Add timestamp for tracking\n      tracker_update_timestamp: new Date().toISOString()\n    },\n    binary: item.binary\n  });\n}\n\nreturn results;"
+        },
+        "id": "code-8",
+        "name": "Prepare Tracker Update Data",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          4784,
+          64
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.openai.com/v1/chat/completions",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "openAiApi",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ ({ \"model\": \"gpt-4\", \"messages\": [{\"role\": \"user\", \"content\": $json.tier1Prompt}], \"temperature\": 0 }) }}",
+          "options": {}
+        },
+        "id": "http-openai-1",
+        "name": "Classify Document with GPT-4",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2096,
+          704
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "xmJ7t6kaKgMwA1ce",
+            "name": "OpenAi account"
+          }
+        },
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.openai.com/v1/chat/completions",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "openAiApi",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ ({ \"model\": \"gpt-4\", \"messages\": [{\"role\": \"user\", \"content\": $json.tier2Prompt}], \"temperature\": 0 }) }}",
+          "options": {}
+        },
+        "id": "3732e080-c0d3-4763-957d-d4d90761ddd8",
+        "name": "Tier 2 GPT-4 API Call",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          3440,
+          704
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "xmJ7t6kaKgMwA1ce",
+            "name": "OpenAi account"
+          }
+        },
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "jsCode": "// Parse Tier 2 Classification Result from Claude Vision\n// FIX: Process ALL items, not just first\n\nconst items = $input.all();\nconst outputItems = [];\n\nfor (let i = 0; i < items.length; i++) {\n  // Get corresponding Tier 2 result\n  const tier2Result = $('Parse Claude Tier 2 Response').all()[i].json;\n\n  if (!tier2Result || !tier2Result.documentType) {\n    // Parsing failed - route to LOW_CONFIDENCE\n    outputItems.push({\n      json: {\n        error: 'Failed to parse Tier 2 classification',\n        lowConfidence: true,\n        confidenceFailureStage: 'tier2_parse_error',\n        ...tier2Result\n      }\n    });\n    continue;\n  }\n\n  const {\n    documentType, tier2Confidence, germanName, englishName, isCoreType, tier2Reasoning,\n    fileId, fileName, fileUrl, clientEmail,\n    client_name, client_normalized,  // FIX: Preserve client data\n    tier1Category, tier1Confidence, tier1Reasoning\n  } = tier2Result;\n\n  // THRESHOLD CHECK: Tier 2 confidence must be >= 70%\n  if (tier2Confidence < 70) {\n    outputItems.push({\n      json: {\n        documentType, tier2Confidence, lowConfidence: true, confidenceFailureStage: 'tier2',\n        fileId, fileName, fileUrl, clientEmail, client_name, client_normalized,\n        tier1Category, tier1Confidence, tier1Reasoning\n      }\n    });\n  } else {\n    // Calculate combined confidence\n    const combinedConfidence = Math.round((tier1Confidence + tier2Confidence) / 2);\n\n    outputItems.push({\n      json: {\n        fileId, fileName, fileUrl, clientEmail, client_name, client_normalized,\n        tier1Category, tier1Confidence, tier1Reasoning,\n        documentType, tier2Confidence, combinedConfidence,\n        germanName, englishName, isCoreType, tier2Reasoning\n      }\n    });\n  }\n}\n\nreturn outputItems;"
+        },
+        "id": "86d8d160-de91-464d-92d0-7db05b7c3f4f",
+        "name": "Parse Tier 2 Result",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3664,
+          160
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Action Mapper: Determine routing based on classification results\n\nconst data = $input.first().json;\n\n// Check for low confidence flags\nif (data.lowConfidence === true) {\n  return [{\n    json: {\n      ...data,  // ← CRITICAL: Preserve ALL incoming fields (fileId, fileName, etc.)\n      actionType: 'LOW_CONFIDENCE',\n      destinationFolder: '38_Unknowns',\n      trackerUpdate: false,\n      sendNotification: true\n    }\n  }];\n}\n\n// Check if CORE type\nif (data.isCoreType === true) {\n  // CORE types: Specific folder + tracker update\n  return [{\n    json: {\n      ...data,  // ← CRITICAL: Preserve ALL incoming fields (fileId, fileName, etc.)\n      actionType: 'CORE',\n      trackerUpdate: true,\n      sendNotification: false\n    }\n  }];\n}\n\n// SECONDARY types: 37_Other folder + tracker update (so Eugene can see what they are)\nreturn [{\n  json: {\n    ...data,  // ← CRITICAL: Preserve ALL incoming fields (fileId, fileName, etc.)\n    actionType: 'SECONDARY',\n    destinationFolder: '37_Other',\n    trackerUpdate: true,\n    sendNotification: false\n  }\n}];"
+        },
+        "id": "89b7324c-80e6-4902-9ab5-3f26be09e92a",
+        "name": "Determine Action Type",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3888,
+          160
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "download",
+          "fileId": "={{ $json.fileId }}",
+          "options": {}
+        },
+        "id": "drive-download-1",
+        "name": "Download PDF for Classification",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          528,
+          160
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Convert PDF to Base64\n// Processing one file at a time (via Split In Batches upstream)\n// Rate limiting handled by Wait nodes between Claude Vision calls\n\nconst items = $input.all();\nconst outputItems = [];\n\nfor (const item of items) {\n  try {\n    const binaryKey = Object.keys(item.binary || {})[0];\n    \n    if (!binaryKey) {\n      // No binary data, pass through\n      outputItems.push({\n        json: {\n          ...item.json,\n          pdfError: 'No binary data found'\n        }\n      });\n      continue;\n    }\n    \n    const buffer = await this.helpers.getBinaryDataBuffer(items.indexOf(item), binaryKey);\n    const base64Content = buffer.toString('base64');\n    const mimeType = item.json.mimeType || 'application/pdf';\n    const fileSizeKB = Math.round(buffer.length / 1024);\n    \n    outputItems.push({\n      json: {\n        ...item.json,\n        imageData: {\n          type: 'base64',\n          media_type: mimeType,\n          data: base64Content\n        },\n        pdfMetadata: {\n          fileSizeKB: fileSizeKB,\n          note: 'Full PDF sent - rate limiting via Wait nodes'\n        }\n      },\n      binary: item.binary\n    });\n  } catch (error) {\n    outputItems.push({\n      json: {\n        ...item.json,\n        pdfError: error.message\n      }\n    });\n  }\n}\n\nreturn outputItems;"
+        },
+        "id": "code-convert-pdf",
+        "name": "Convert PDF to Base64",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          752,
+          160
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// RATE LIMIT PROTECTION: Wait 30 seconds before each Claude API call\nawait new Promise(resolve => setTimeout(resolve, 30000));\n\nconst items = $input.all();\nconst outputItems = [];\n\nfor (const item of items) {\n  // FIX: Get tier1Prompt from the SAME item, not always from first()\n  const tier1Prompt = item.json.tier1Prompt;\n  const imageData = item.json.imageData;\n\n  if (!imageData || !imageData.data) {\n    throw new Error('No image data found in item');\n  }\n\n  const requestBody = {\n    model: 'claude-sonnet-4-20250514',\n    max_tokens: 200,\n    messages: [\n      {\n        role: 'user',\n        content: [\n          {\n            type: 'document',\n            source: {\n              type: 'base64',\n              media_type: imageData.media_type,\n              data: imageData.data\n            }\n          },\n          {\n            type: 'text',\n            text: tier1Prompt\n          }\n        ]\n      }\n    ]\n  };\n\n  outputItems.push({\n    json: {\n      ...item.json,\n      claudeRequestBody: requestBody\n    },\n    binary: item.binary\n  });\n}\n\nreturn outputItems;"
+        },
+        "id": "code-build-claude-tier1",
+        "name": "Build Claude Tier 1 Request Body",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1200,
+          160
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.anthropic.com/v1/messages",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "anthropic-version",
+                "value": "2023-06-01"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ $json.claudeRequestBody }}",
+          "options": {}
+        },
+        "id": "http-claude-tier1",
+        "name": "Claude Vision Tier 1 Classification",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1648,
+          160
+        ],
+        "retryOnFail": true,
+        "maxTries": 5,
+        "waitBetweenTries": 120000,
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "vfoYopBRX35Znmq6",
+            "name": "Anthropic API key"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const items = $input.all();\nconst outputItems = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  const response = item.json;\n\n  if (!response.content || !response.content[0] || !response.content[0].text) {\n    throw new Error('Invalid Claude API response structure');\n  }\n\n  let textContent = response.content[0].text.trim();\n\n  // Strip markdown code fences if present\n  if (textContent.startsWith('```json')) {\n    textContent = textContent\n      .replace(/^```json\\s*\\n/, '')\n      .replace(/\\n```\\s*$/, '');\n  } else if (textContent.startsWith('```')) {\n    textContent = textContent\n      .replace(/^```\\s*\\n/, '')\n      .replace(/\\n```\\s*$/, '');\n  }\n\n  const parsedResult = JSON.parse(textContent);\n  \n  // FIX CRITICAL: Get metadata from the corresponding item in previous node\n  const previousData = $('Build Claude Tier 1 Request Body').all()[i].json;\n\n  outputItems.push({\n    json: {\n      ...previousData,  // PRESERVE ALL INCOMING DATA including client_name, client_normalized\n      tier1Category: parsedResult.tier1Category,\n      tier1Confidence: parsedResult.tier1Confidence,\n      tier1Reasoning: parsedResult.reasoning || ''\n    }\n  });\n}\n\nreturn outputItems;"
+        },
+        "id": "code-parse-claude-tier1",
+        "name": "Parse Claude Tier 1 Response",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2096,
+          160
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// RATE LIMIT PROTECTION: Wait 30 seconds before each Claude API call\nawait new Promise(resolve => setTimeout(resolve, 30000));\n\nconst items = $input.all();\nconst outputItems = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  const tier2Prompt = item.json.tier2Prompt;\n  \n  // FIX: Get imageData from the corresponding item, not always first()\n  const imageData = $('Convert PDF to Base64').all()[i].json.imageData;\n\n  if (!imageData || !imageData.data) {\n    throw new Error('No image data found for Tier 2 classification');\n  }\n\n  const requestBody = {\n    model: 'claude-sonnet-4-20250514',\n    max_tokens: 300,\n    messages: [\n      {\n        role: 'user',\n        content: [\n          {\n            type: 'document',\n            source: {\n              type: 'base64',\n              media_type: imageData.media_type,\n              data: imageData.data\n            }\n          },\n          {\n            type: 'text',\n            text: tier2Prompt\n          }\n        ]\n      }\n    ]\n  };\n\n  outputItems.push({\n    json: {\n      ...item.json,\n      claudeTier2RequestBody: requestBody\n    }\n  });\n}\n\nreturn outputItems;"
+        },
+        "id": "code-build-claude-tier2",
+        "name": "Build Claude Tier 2 Request Body",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2544,
+          160
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.anthropic.com/v1/messages",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "anthropic-version",
+                "value": "2023-06-01"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ $json.claudeTier2RequestBody }}",
+          "options": {}
+        },
+        "id": "http-claude-tier2",
+        "name": "Claude Vision Tier 2 Classification",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2992,
+          160
+        ],
+        "retryOnFail": true,
+        "maxTries": 5,
+        "waitBetweenTries": 120000,
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "vfoYopBRX35Znmq6",
+            "name": "Anthropic API key"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const items = $input.all();\nconst outputItems = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  const response = item.json;\n\n  if (!response.content || !response.content[0] || !response.content[0].text) {\n    throw new Error('Invalid Claude API Tier 2 response structure');\n  }\n\n  let textContent = response.content[0].text.trim();\n\n  // Strip markdown code fences if present\n  if (textContent.startsWith('```json')) {\n    textContent = textContent\n      .replace(/^```json\\s*\\n/, '')\n      .replace(/\\n```\\s*$/, '');\n  } else if (textContent.startsWith('```')) {\n    textContent = textContent\n      .replace(/^```\\s*\\n/, '')\n      .replace(/\\n```\\s*$/, '');\n  }\n\n  // ROBUST JSON EXTRACTION: Handle prose text wrapping JSON\n  let parsedResult;\n  \n  // Try direct parse first\n  try {\n    parsedResult = JSON.parse(textContent);\n  } catch (directParseError) {\n    // If direct parse fails, try to extract JSON from the text\n    \n    // Method 1: Find JSON object in the text (starts with { ends with })\n    const jsonMatch = textContent.match(/\\{[\\s\\S]*\\}/g);\n    if (jsonMatch && jsonMatch.length > 0) {\n      // Try the last match (most likely the full JSON object)\n      for (let j = jsonMatch.length - 1; j >= 0; j--) {\n        try {\n          parsedResult = JSON.parse(jsonMatch[j]);\n          break; // Success! Exit loop\n        } catch (e) {\n          continue; // Try next match\n        }\n      }\n    }\n    \n    // Method 2: Look for JSON inside markdown code block in the middle of text\n    if (!parsedResult) {\n      const codeBlockMatch = textContent.match(/```(?:json)?\\s*([\\s\\S]*?)```/);\n      if (codeBlockMatch && codeBlockMatch[1]) {\n        try {\n          parsedResult = JSON.parse(codeBlockMatch[1].trim());\n        } catch (e) {\n          // Still failed\n        }\n      }\n    }\n    \n    // If all extraction methods failed, throw with helpful message\n    if (!parsedResult) {\n      throw new Error(`Could not extract JSON from Claude response. First 200 chars: ${textContent.substring(0, 200)}...`);\n    }\n  }\n\n  // FIX: Get metadata from the corresponding item in previous node\n  const previousData = $('Parse Classification Result').all()[i].json;\n\n  outputItems.push({\n    json: {\n      ...previousData,  // This preserves client_name, client_normalized, etc.\n      documentType: parsedResult.documentType,\n      tier2Confidence: parsedResult.tier2Confidence,\n      germanName: parsedResult.germanName,\n      englishName: parsedResult.englishName,\n      isCoreType: parsedResult.isCoreType,\n      tier2Reasoning: parsedResult.reasoning || ''\n    }\n  });\n}\n\nreturn outputItems;"
+        },
+        "id": "code-parse-claude-tier2",
+        "name": "Parse Claude Tier 2 Response",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3440,
+          160
+        ]
+      },
+      {
+        "parameters": {
+          "amount": 60
+        },
+        "id": "wait-after-tier1",
+        "name": "Wait After Tier 1",
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          1872,
+          160
+        ],
+        "webhookId": "09d67e4e-d872-45b3-8421-4639ada494f7"
+      },
+      {
+        "parameters": {
+          "amount": 60
+        },
+        "id": "wait-after-tier2",
+        "name": "Wait After Tier 2",
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          3216,
+          160
+        ],
+        "webhookId": "2ebc9318-2e89-4007-9cdc-f38f3121d489"
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "85b5d5c7-cb7b-43fb-a47a-7def8098a29b",
+                      "leftValue": "={{ $json.chunk2_5_status }}",
+                      "rightValue": "error_unclear_type",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals",
+                        "name": "filter.operator.equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "error"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "bc10ada4-798c-4d82-9b0b-062f7679e1c2",
+                      "leftValue": "={{ $json.chunk2_5_status }}",
+                      "rightValue": "success",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals",
+                        "name": "filter.operator.equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "update_tracker"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "032787ac-b6d7-417a-8011-f68246aed0e6",
+                      "leftValue": "={{ $json.chunk2_5_status }}",
+                      "rightValue": "error_client_not_found",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals",
+                        "name": "filter.operator.equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "skip_tracker"
+              }
+            ]
+          },
+          "options": {
+            "fallbackOutput": "extra"
+          }
+        },
+        "id": "d4336ded-fbdb-4dff-9518-4523471dc798",
+        "name": "Route Based on Document Type1",
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.4,
+        "position": [
+          4560,
+          128
+        ]
+      },
+      {
+        "parameters": {
+          "amount": 20
+        },
+        "id": "wait-before-tier1",
+        "name": "Wait Before Tier 1",
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          1424,
+          160
+        ],
+        "webhookId": "dcfb75d4-4b31-4f3d-8d62-6a7d74a8cb4d"
+      },
+      {
+        "parameters": {
+          "amount": 20
+        },
+        "id": "wait-before-tier2",
+        "name": "Wait Before Tier 2",
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          2768,
+          160
+        ],
+        "webhookId": "9bef8db0-18fb-4e3a-ae5b-1e8bcde21d96"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Build Google Sheets API update request for Dokumenten_Tracker\n// Updates German-named document columns based on AI classification\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const json = item.json;\n  \n  // Get the row number and document type from previous nodes\n  const rowNumber = json.rowNumber || json.row_number;\n  const documentType = json.documentType || json.document_type;\n  const tier2Category = json.tier2Category || json.tier_2_category;\n  \n  if (!rowNumber) {\n    throw new Error('Missing rowNumber for Sheets API update');\n  }\n  \n  // Map document types to German column names (01_Exposé through 99_Sonstiges)\n  // Column letters: C=01_Exposé, D=02_Grundriss, E=03_Lageplan, etc.\n  const columnMap = {\n    '01_Exposé': 'C',\n    '02_Grundriss': 'D',\n    '03_Lageplan': 'E',\n    '04_Wohnflächenberechnung': 'F',\n    '05_Baubeschreibung': 'G',\n    '06_Energieausweis': 'H',\n    '07_Teilungserklärung': 'I',\n    '08_Kaufvertrag': 'J',\n    '09_Mietvertrag': 'K',\n    '10_Nebenkostenabrechnung': 'L',\n    '11_Grundbuchauszug': 'M',\n    '12_Flurkarte': 'N',\n    '13_Denkmalschutz': 'O',\n    '14_Altlastengutachten': 'P',\n    '15_Bodengutachten': 'Q',\n    '16_Erschließungsplan': 'R',\n    '17_Baugenehmigung': 'S',\n    '18_Statik': 'T',\n    '19_Brandschutznachweis': 'U',\n    '20_Versicherungsnachweis': 'V',\n    '21_WEG_Protokolle': 'W',\n    '22_Hausgeldabrechnung': 'X',\n    '23_Instandhaltungsrücklage': 'Y',\n    '24_Modernisierungsplan': 'Z',\n    '25_Sanierungsplan': 'AA',\n    '26_Denkmalschutzauflagen': 'AB',\n    '27_Nutzungsänderung': 'AC',\n    '28_Teilungserklärung_Änderung': 'AD',\n    '29_Sondernutzungsrechte': 'AE',\n    '30_Gebrauchsanweisung': 'AF',\n    '31_Wartungsverträge': 'AG',\n    '32_Versicherungspolice': 'AH',\n    '33_Mieterliste': 'AI',\n    '34_Betriebskostenabrechnung': 'AJ',\n    '35_Nebenkostenabrechnungen': 'AK',\n    '99_Sonstiges': 'AL'\n  };\n  \n  // Determine which column to update\n  let columnLetter = null;\n  let updateValue = 'X';  // Mark with X to indicate document exists\n  \n  if (tier2Category && columnMap[tier2Category]) {\n    columnLetter = columnMap[tier2Category];\n  } else if (documentType && columnMap[documentType]) {\n    columnLetter = columnMap[documentType];\n  }\n  \n  if (!columnLetter) {\n    // Default to 99_Sonstiges if no match\n    columnLetter = 'AL';\n  }\n  \n  // Build the range (e.g., \"Dokumenten_Tracker!C2\" for row 2, column C)\n  const range = `${columnLetter}${rowNumber}`;\n  \n  // Build the request body\n  const requestBody = {\n    values: [[updateValue]]\n  };\n  \n  results.push({\n    json: {\n      ...json,\n      range: range,\n      requestBody: requestBody,\n      columnLetter: columnLetter,\n      updateValue: updateValue,\n      spreadsheetId: '12N2C8iWeHkxJQ2qz7m3aTyZw3X1gXbyyyFa-rP0tD7I',\n      sheetName: 'Dokumenten_Tracker'\n    },\n    binary: item.binary\n  });\n}\n\nreturn results;"
+        },
+        "id": "code-build-sheets-api-update",
+        "name": "Build Google Sheets API Update Request",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          5008,
+          64
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "12N2C8iWeHkxJQ2qz7m3aTyZw3X1gXbyyyFa-rP0tD7I",
+            "mode": "id"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 644586395,
+            "mode": "list",
+            "cachedResultName": "Dokumenten_Tracker",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12N2C8iWeHkxJQ2qz7m3aTyZw3X1gXbyyyFa-rP0tD7I/edit#gid=644586395"
+          },
+          "columns": {
+            "mappingMode": "autoMapInputData",
+            "value": {},
+            "matchingColumns": [
+              "Mandant"
+            ],
+            "schema": [
+              {
+                "id": "Mandant",
+                "displayName": "Mandant",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Letzte_Aktualisierung",
+                "displayName": "Letzte_Aktualisierung",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "01_Exposé",
+                "displayName": "01_Exposé",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "02_Grundbuchauszug",
+                "displayName": "02_Grundbuchauszug",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "03_Bautraegerkalkulation_DIN276",
+                "displayName": "03_Bautraegerkalkulation_DIN276",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "04_Exit_Strategie",
+                "displayName": "04_Exit_Strategie",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "05_Altlastenkataster",
+                "displayName": "05_Altlastenkataster",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "06_Baugrundgutachten",
+                "displayName": "06_Baugrundgutachten",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "07_Lageplan",
+                "displayName": "07_Lageplan",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "08_Flaechenberechnung",
+                "displayName": "08_Flaechenberechnung",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "09_GU_Werkvertraege",
+                "displayName": "09_GU_Werkvertraege",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "10_Bauzeichnungen",
+                "displayName": "10_Bauzeichnungen",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "11_Baugenehmigung",
+                "displayName": "11_Baugenehmigung",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "12_Gutachterauftrag",
+                "displayName": "12_Gutachterauftrag",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "13_Verkaufspreise",
+                "displayName": "13_Verkaufspreise",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "14_Bauzeitenplan",
+                "displayName": "14_Bauzeitenplan",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "15_Vertriebsweg",
+                "displayName": "15_Vertriebsweg",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "16_Ausstattungsbeschreibung",
+                "displayName": "16_Ausstattungsbeschreibung",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "17_Teilungserklaerung",
+                "displayName": "17_Teilungserklaerung",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "18_Versicherungen",
+                "displayName": "18_Versicherungen",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "19_Muster_Verkaufsvertrag",
+                "displayName": "19_Muster_Verkaufsvertrag",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "20_Umsatzsteuervoranmeldung",
+                "displayName": "20_Umsatzsteuervoranmeldung",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "21_BWA",
+                "displayName": "21_BWA",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "22_Jahresabschluss",
+                "displayName": "22_Jahresabschluss",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "23_Finanzierungsbestaetigung",
+                "displayName": "23_Finanzierungsbestaetigung",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "24_Darlehensvertrag",
+                "displayName": "24_Darlehensvertrag",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "25_Gesellschaftsvertrag",
+                "displayName": "25_Gesellschaftsvertrag",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "26_Handelsregisterauszug",
+                "displayName": "26_Handelsregisterauszug",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "27_Gewerbeanmeldung",
+                "displayName": "27_Gewerbeanmeldung",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "28_Steuer_ID",
+                "displayName": "28_Steuer_ID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "29_Freistellungsbescheinigung",
+                "displayName": "29_Freistellungsbescheinigung",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "30_Vollmachten",
+                "displayName": "30_Vollmachten",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "31_Korrespondenz",
+                "displayName": "31_Korrespondenz",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "32_Sonstiges",
+                "displayName": "32_Sonstiges",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "33_Unbekannt",
+                "displayName": "33_Unbekannt",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "http-update-tracker",
+        "name": "Update Dokumenten_Tracker Row",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.5,
+        "position": [
+          5456,
+          -16
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "skip-check",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "false",
+                  "singleValue": true
+                },
+                "leftValue": "={{ $json.skipTrackerUpdate }}",
+                "rightValue": ""
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "if-skip-tracker",
+        "name": "Should Update Tracker?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          5232,
+          64
+        ]
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "78741d17-6f03-429f-84ff-23a601d3081c",
+        "name": "Process One File at a Time1",
+        "type": "n8n-nodes-base.splitInBatches",
+        "typeVersion": 3,
+        "position": [
+          304,
+          464
+        ]
+      }
+    ],
+    "connections": {
+      "Lookup Client in Dokumenten_Tracker": {
+        "main": [
+          [
+            {
+              "node": "Find Client Row and Validate",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Lookup Client in AMA_Folder_IDs": {
+        "main": [
+          [
+            {
+              "node": "Get Destination Folder ID",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Destination Folder ID": {
+        "main": [
+          [
+            {
+              "node": "Move File to Final Location",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Move File to Final Location": {
+        "main": [
+          [
+            {
+              "node": "Prepare Success Output",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Lookup 38_Unknowns Folder": {
+        "main": [
+          [
+            {
+              "node": "Get 38_Unknowns Folder ID",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get 38_Unknowns Folder ID": {
+        "main": [
+          [
+            {
+              "node": "Move File to 38_Unknowns",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Move File to 38_Unknowns": {
+        "main": [
+          [
+            {
+              "node": "Prepare Error Email Body",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Error Email Body": {
+        "main": [
+          [
+            {
+              "node": "Send Error Notification Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Classify Document with GPT-4": {
+        "main": [
+          [
+            {
+              "node": "Parse Classification Result",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Tier 2 GPT-4 API Call": {
+        "main": [
+          [
+            {
+              "node": "Parse Tier 2 Result",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Tier 2 Result": {
+        "main": [
+          [
+            {
+              "node": "Determine Action Type",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Determine Action Type": {
+        "main": [
+          [
+            {
+              "node": "Lookup Client in Dokumenten_Tracker",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Find Client Row and Validate": {
+        "main": [
+          [
+            {
+              "node": "Route Based on Document Type1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Download PDF for Classification": {
+        "main": [
+          [
+            {
+              "node": "Convert PDF to Base64",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Convert PDF to Base64": {
+        "main": [
+          [
+            {
+              "node": "Build AI Classification Prompt",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build AI Classification Prompt": {
+        "main": [
+          [
+            {
+              "node": "Build Claude Tier 1 Request Body",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Claude Tier 1 Response": {
+        "main": [
+          [
+            {
+              "node": "Parse Classification Result",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Classification Result": {
+        "main": [
+          [
+            {
+              "node": "Build Claude Tier 2 Request Body",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Claude Tier 2 Response": {
+        "main": [
+          [
+            {
+              "node": "Parse Tier 2 Result",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Claude Vision Tier 1 Classification": {
+        "main": [
+          [
+            {
+              "node": "Wait After Tier 1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait After Tier 1": {
+        "main": [
+          [
+            {
+              "node": "Parse Claude Tier 1 Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Claude Vision Tier 2 Classification": {
+        "main": [
+          [
+            {
+              "node": "Wait After Tier 2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait After Tier 2": {
+        "main": [
+          [
+            {
+              "node": "Parse Claude Tier 2 Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Execute Workflow Trigger (Refreshed)": {
+        "main": [
+          [
+            {
+              "node": "Process One File at a Time1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Success Output": {
+        "main": [
+          [
+            {
+              "node": "Process One File at a Time1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send Error Notification Email": {
+        "main": [
+          [
+            {
+              "node": "Process One File at a Time1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Route Based on Document Type1": {
+        "main": [
+          [
+            {
+              "node": "Lookup 38_Unknowns Folder",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Prepare Tracker Update Data",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Lookup 38_Unknowns Folder",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Lookup 38_Unknowns Folder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Claude Tier 1 Request Body": {
+        "main": [
+          [
+            {
+              "node": "Wait Before Tier 1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait Before Tier 1": {
+        "main": [
+          [
+            {
+              "node": "Claude Vision Tier 1 Classification",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Claude Tier 2 Request Body": {
+        "main": [
+          [
+            {
+              "node": "Wait Before Tier 2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait Before Tier 2": {
+        "main": [
+          [
+            {
+              "node": "Claude Vision Tier 2 Classification",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Tracker Update Data": {
+        "main": [
+          [
+            {
+              "node": "Build Google Sheets API Update Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update Dokumenten_Tracker Row": {
+        "main": [
+          [
+            {
+              "node": "Lookup Client in AMA_Folder_IDs",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Google Sheets API Update Request": {
+        "0": [
+          [
+            {
+              "node": "Should Update Tracker?",
+              "type": "0",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Should Update Tracker?": {
+        "0": [
+          [
+            {
+              "node": "Update Dokumenten_Tracker Row",
+              "type": "0",
+              "index": 0
+            }
+          ]
+        ],
+        "1": [
+          [
+            {
+              "node": "Lookup Client in AMA_Folder_IDs",
+              "type": "0",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Process One File at a Time1": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Download PDF for Classification",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "callerPolicy": "workflowsFromSameOwner",
+      "availableInMCP": false
+    },
+    "staticData": null,
+    "meta": {
+      "templateCredsSetupCompleted": true
+    },
+    "pinData": {},
+    "versionId": "c533dd2d-705b-4379-b1a7-f48d54b5f12a",
+    "activeVersionId": "c533dd2d-705b-4379-b1a7-f48d54b5f12a",
+    "versionCounter": 597,
+    "triggerCount": 0,
+    "shared": [
+      {
+        "updatedAt": "2026-01-08T21:33:22.263Z",
+        "createdAt": "2026-01-08T21:33:22.263Z",
+        "role": "workflow:owner",
+        "workflowId": "okg8wTqLtPUwjQ18",
+        "projectId": "Rs8mhw052fnrzWZM",
+        "project": {
+          "updatedAt": "2025-12-31T15:54:29.115Z",
+          "createdAt": "2025-12-31T15:27:33.865Z",
+          "id": "Rs8mhw052fnrzWZM",
+          "name": "Sway Clarke <sway@oloxa.ai>",
+          "type": "personal",
+          "icon": null,
+          "description": null,
+          "creatorId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+          "projectRelations": [
+            {
+              "updatedAt": "2025-12-31T15:27:33.865Z",
+              "createdAt": "2025-12-31T15:27:33.865Z",
+              "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+              "projectId": "Rs8mhw052fnrzWZM",
+              "user": {
+                "updatedAt": "2026-01-26T15:44:30.599Z",
+                "createdAt": "2025-12-31T15:27:33.119Z",
+                "id": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+                "email": "sway@oloxa.ai",
+                "firstName": "Sway",
+                "lastName": "Clarke",
+                "personalizationAnswers": {
+                  "version": "v4",
+                  "personalization_survey_submitted_at": "2025-12-31T15:54:37.562Z",
+                  "personalization_survey_n8n_version": "2.1.4"
+                },
+                "settings": {
+                  "userActivated": true,
+                  "easyAIWorkflowOnboarded": true,
+                  "firstSuccessfulWorkflowId": "zbxHkXOoD1qaz6OS",
+                  "userActivatedAt": 1767398053308,
+                  "npsSurvey": {
+                    "responded": true,
+                    "lastShownAt": 1767684846804
+                  }
+                },
+                "disabled": false,
+                "mfaEnabled": false,
+                "lastActiveAt": "2026-01-25",
+                "isPending": false
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "tags": [],
+    "activeVersion": {
+      "updatedAt": "2026-01-26T21:44:43.211Z",
+      "createdAt": "2026-01-26T21:44:43.211Z",
+      "versionId": "c533dd2d-705b-4379-b1a7-f48d54b5f12a",
+      "workflowId": "okg8wTqLtPUwjQ18",
+      "nodes": [
+        {
+          "parameters": {
+            "inputSource": "passthrough"
+          },
+          "id": "trigger-1",
+          "name": "Execute Workflow Trigger (Refreshed)",
+          "type": "n8n-nodes-base.executeWorkflowTrigger",
+          "typeVersion": 1.1,
+          "position": [
+            80,
+            464
+          ]
+        },
+        {
+          "parameters": {
+            "jsCode": "// Build Tier 1 Classification Prompt\n// Classify document into 1 of 4 broad categories\n\n// === Process ALL items, not just first ===\nconst items = $input.all();\nconst outputItems = [];\n\nfor (const item of items) {\n  // === CRITICAL: Extract and preserve ALL file metadata fields ===\n  const fileId = item.json.fileId || item.json.body?.fileId || null;\n  const filename = item.json.fileName || item.json.filename || item.json.body?.fileName || item.json.body?.filename || 'unknown_file.pdf';\n  const fileUrl = item.json.fileUrl || item.json.body?.fileUrl || null;\n  \n  // FIX: Use actual emailFrom instead of hardcoded test email\n  const clientEmail = item.json.emailFrom || item.json.senderEmail || item.json.clientEmail || item.json.body?.emailFrom || item.json.body?.clientEmail || 'unknown@example.com';\n\n  // Tier 1 Prompt: Classify into 4 broad categories\n  const tier1Prompt = `You are a German real estate document classifier for AMA Capital.\n\nTASK: Classify this document into ONE of 4 broad categories based on the filename.\n\nFILENAME: ${filename}\nCLIENT: ${clientEmail}\n\nCATEGORIES:\n\n1. OBJEKTUNTERLAGEN (Property/Object Documents)\n   Keywords: Projekt, Beschreibung, Expose, Grundbuch, Kaufvertrag, Bau, Lageplan, Zeichnungen, Genehmigung, DIN276, DIN277, Werkvertrag, Flaeche\n   Examples: Project descriptions, land register, purchase agreements, building permits, construction drawings, calculations\n\n2. WIRTSCHAFTLICHE_UNTERLAGEN (Financial/Economic Documents)\n   Keywords: Verkauf, Preis, Bauzeitenplan, Liquiditaet, Vertrieb, Ausstattung, Teilung, Versicherung, Umsatzsteuer, BWA, Jahresabschluss, Finanzierung, Darlehen\n   Examples: Sales prices, construction schedules, insurance, VAT returns, financial statements, loan agreements\n\n3. RECHTLICHE_UNTERLAGEN (Legal/Compliance Documents)\n   Keywords: Gesellschaft, Vertrag, Handelsregister, Gewerbe, Steuer, ID, Freistellung, Vollmacht\n   Examples: Partnership agreements, commercial register, business registration, tax ID, powers of attorney\n\n4. SONSTIGES (Miscellaneous)\n   Keywords: Gutachter, Korrespondenz, Sonstiges, Others\n   Examples: Expert assignments, correspondence, general miscellaneous\n\nINSTRUCTIONS:\n1. Analyze the filename for German keywords\n2. Match to the most appropriate category\n3. Provide confidence score (0-100)\n4. Explain your reasoning in 1-2 sentences\n\nRESPONSE FORMAT (JSON only, no markdown):\n{\n  \"tier1Category\": \"OBJEKTUNTERLAGEN | WIRTSCHAFTLICHE_UNTERLAGEN | RECHTLICHE_UNTERLAGEN | SONSTIGES\",\n  \"tier1Confidence\": 85,\n  \"reasoning\": \"Brief explanation of why this category was chosen\"\n}\n\nSTRICT RULES:\n- Response must be valid JSON only\n- tier1Confidence must be 0-100 number\n- tier1Category must be exactly one of the 4 options above\n- No markdown formatting\n- No code blocks\n- No explanatory text outside JSON`;\n\n  outputItems.push({\n    json: {\n      tier1Prompt,\n      // === EXPLICITLY PRESERVE ALL FILE METADATA (CRITICAL) ===\n      fileId,\n      fileName: filename,\n      fileUrl,\n      clientEmail,\n      // === CRITICAL: Preserve client_name and client_normalized ===\n      client_name: item.json.client_name,\n      client_normalized: item.json.client_normalized,\n      // Pass through all input data for additional fields\n      ...item.json\n    }\n  });\n}\n\nreturn outputItems;"
+          },
+          "id": "code-1",
+          "name": "Build AI Classification Prompt",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            976,
+            160
+          ]
+        },
+        {
+          "parameters": {
+            "jsCode": "// Parse Tier 1 Classification Result + Build Dynamic Tier 2 Prompt\n// FIX: Process ALL items, not just first\n\nconst items = $input.all();\nconst outputItems = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  \n  // Get corresponding items from previous nodes\n  const promptData = $('Build AI Classification Prompt').all()[i].json;\n  const tier1Result = $('Parse Claude Tier 1 Response').all()[i].json;\n  \n  const fileId = promptData.fileId;\n  const fileName = promptData.fileName;\n  const fileUrl = promptData.fileUrl;\n  const clientEmail = promptData.clientEmail;\n  const client_name = promptData.client_name;\n  const client_normalized = promptData.client_normalized;\n\n  if (!tier1Result || !tier1Result.tier1Category) {\n    outputItems.push({\n      json: {\n        error: 'Failed to parse Tier 1 classification',\n        tier1Category: 'UNKNOWN',\n        tier1Confidence: 0,\n        tier2Prompt: 'ERROR: Failed to parse Tier 1 classification',\n        fileId, fileName, fileUrl, clientEmail, client_name, client_normalized,\n        ...item.json\n      }\n    });\n    continue;\n  }\n\n  const { tier1Category, tier1Confidence, tier1Reasoning } = tier1Result;\n  const reasoning = tier1Reasoning || '';\n\n  let tier2Prompt = '';\n\n  if (tier1Category === 'OBJEKTUNTERLAGEN') {\n    tier2Prompt = `You are a German real estate document classifier for AMA Capital.\\n\\nTIER 1 RESULT: This document was classified as OBJEKTUNTERLAGEN (Property/Object Documents) with ${tier1Confidence}% confidence.\\n\\nTASK: Now classify into the SPECIFIC document type from the list below.\\n\\nFILENAME: ${fileName}\\nCLIENT: ${clientEmail}\\n\\nSPECIFIC TYPES (choose ONE):\\n\\n01_Projektbeschreibung (Exposé/Project Description) ⭐ CORE\\n   Keywords: Projekt, Beschreibung, Expose, Overview, Proposal\\n   Description: Project overview, property description, investment proposal\\n\\n02_Kaufvertrag (Purchase Agreement)\\n   Keywords: Kauf, Vertrag, Purchase, Agreement\\n   Description: Property purchase contract\\n\\n03_Grundbuchauszug (Land Register Extract) ⭐ CORE\\n   Keywords: Grundbuch, Land, Register, Auszug\\n   Description: Official land registry extract\\n\\n04_Eintragungsbewilligungen (Entry Permits)\\n   Keywords: Eintragung, Bewilligung, Entry, Permit\\n   Description: Permits for land register entries\\n\\n05_Bodenrichtwert (Land Value)\\n   Keywords: Boden, Richtwert, Land, Value\\n   Description: Official land value assessment\\n\\n06_Baulastenverzeichnis (Building Encumbrance Register)\\n   Keywords: Baulast, Verzeichnis, Encumbrance\\n   Description: Register of building encumbrances\\n\\n07_Altlastenkataster (Contaminated Sites Register)\\n   Keywords: Altlast, Kataster, Contaminated\\n   Description: Register of contaminated sites\\n\\n08_Baugrundgutachten (Soil Survey)\\n   Keywords: Baugrund, Gutachten, Soil, Survey\\n   Description: Soil conditions assessment\\n\\n09_Lageplan (Site Plan)\\n   Keywords: Lage, Plan, Site\\n   Description: Site location plan\\n\\n10_Bautraegerkalkulation_DIN276 (Developer Calculation) ⭐ CORE\\n   Keywords: Bautraeger, Kalkulation, DIN276, Calculation\\n   Description: Developer cost calculation per DIN276 standard\\n\\n15_Flaechenberechnung_DIN277 (Area Calculation DIN277)\\n   Keywords: Flaeche, Berechnung, DIN277, Area\\n   Description: Area calculation per DIN277 standard\\n\\n16_GU_Werkvertraege (General Contractor Agreements)\\n   Keywords: GU, Werkvertrag, Contractor, Agreement\\n   Description: General contractor work agreements\\n\\n17_Bauzeichnungen (Construction Drawings)\\n   Keywords: Bau, Zeichnung, Construction, Drawing\\n   Description: Construction and architectural drawings\\n\\n18_Baugenehmigung (Building Permit)\\n   Keywords: Bau, Genehmigung, Building, Permit\\n   Description: Official building permit\\n\\nINSTRUCTIONS:\\n1. Analyze filename for specific German keywords\\n2. Choose the MOST SPECIFIC type that matches\\n3. Provide confidence score (0-100)\\n4. Explain your reasoning\\n\\nRESPONSE FORMAT (JSON only):\\n{\\n  \\\"documentType\\\": \\\"01_Projektbeschreibung\\\",\\n  \\\"tier2Confidence\\\": 88,\\n  \\\"germanName\\\": \\\"Projektbeschreibung\\\",\\n  \\\"englishName\\\": \\\"Exposé/Project Description\\\",\\n  \\\"isCoreType\\\": true,\\n  \\\"reasoning\\\": \\\"Brief explanation\\\"\\n}\\n\\nSTRICT RULES:\\n- documentType must EXACTLY match one of the codes above (e.g., \\\"01_Projektbeschreibung\\\")\\n- isCoreType: true for ⭐ CORE types, false for others\\n- Valid JSON only, no markdown`;\n  } else if (tier1Category === 'WIRTSCHAFTLICHE_UNTERLAGEN') {\n    tier2Prompt = `You are a German real estate document classifier for AMA Capital.\\n\\nTIER 1 RESULT: This document was classified as WIRTSCHAFTLICHE_UNTERLAGEN (Financial/Economic Documents) with ${tier1Confidence}% confidence.\\n\\nTASK: Now classify into the SPECIFIC document type from the list below.\\n\\nFILENAME: ${fileName}\\nCLIENT: ${clientEmail}\\n\\nSPECIFIC TYPES (choose ONE):\\n\\n11_Verkaufspreise (Sales Prices)\\n   Keywords: Verkauf, Preis, Sales, Price\\n   Description: Sales price lists and calculations\\n\\n12_Bauzeitenplan_Liquiditaet (Construction Schedule & Liquidity)\\n   Keywords: Bauzeit, Plan, Liquiditaet, Schedule\\n   Description: Construction timeline and liquidity planning\\n\\n13_Vertriebsweg (Distribution Channel)\\n   Keywords: Vertrieb, Weg, Distribution, Channel\\n   Description: Sales and distribution strategy\\n\\n14_Bau_Ausstattungsbeschreibung (Construction & Equipment Description)\\n   Keywords: Bau, Ausstattung, Beschreibung, Baubeschreibung, Equipment\\n   Description: Construction specifications and equipment details\\n\\n19_Teilungserklaerung (Declaration of Division)\\n   Keywords: Teilung, Erklaerung, Division, Declaration\\n   Description: Property division declaration\\n\\n20_Versicherungen (Insurance)\\n   Keywords: Versicherung, Insurance\\n   Description: Insurance policies and documentation\\n\\n21_Muster_Verkaufsvertrag (Sample Sales Contract)\\n   Keywords: Muster, Verkauf, Vertrag, Sample, Sales\\n   Description: Template sales contract\\n\\n23_Umsatzsteuervoranmeldung (VAT Advance Return)\\n   Keywords: Umsatz, Steuer, Voranmeldung, VAT\\n   Description: VAT advance return filings\\n\\n24_BWA (Business Evaluation)\\n   Keywords: BWA, Business, Evaluation\\n   Description: Business evaluation report\\n\\n25_Jahresabschluss (Annual Financial Statement)\\n   Keywords: Jahres, Abschluss, Annual, Financial\\n   Description: Annual financial statement\\n\\n26_Finanzierungsbestaetigung (Financing Confirmation)\\n   Keywords: Finanzierung, Bestaetigung, Financing, Confirmation\\n   Description: Financing approval or confirmation\\n\\n27_Darlehensvertrag (Loan Agreement)\\n   Keywords: Darlehen, Vertrag, Loan, Agreement\\n   Description: Loan contract\\n\\nINSTRUCTIONS:\\n1. Analyze filename for specific German keywords\\n2. Choose the MOST SPECIFIC type that matches\\n3. Provide confidence score (0-100)\\n4. Explain your reasoning\\n\\nRESPONSE FORMAT (JSON only):\\n{\\n  \\\"documentType\\\": \\\"11_Verkaufspreise\\\",\\n  \\\"tier2Confidence\\\": 92,\\n  \\\"germanName\\\": \\\"Verkaufspreise\\\",\\n  \\\"englishName\\\": \\\"Sales Prices\\\",\\n  \\\"isCoreType\\\": false,\\n  \\\"reasoning\\\": \\\"Brief explanation\\\"\\n}\\n\\nSTRICT RULES:\\n- documentType must EXACTLY match one of the codes above\\n- isCoreType: false for all WIRTSCHAFTLICHE types (none are CORE)\\n- Valid JSON only, no markdown`;\n  } else if (tier1Category === 'RECHTLICHE_UNTERLAGEN') {\n    tier2Prompt = `You are a German real estate document classifier for AMA Capital.\\n\\nTIER 1 RESULT: This document was classified as RECHTLICHE_UNTERLAGEN (Legal/Compliance Documents) with ${tier1Confidence}% confidence.\\n\\nTASK: Now classify into the SPECIFIC document type from the list below.\\n\\nFILENAME: ${fileName}\\nCLIENT: ${clientEmail}\\n\\nSPECIFIC TYPES (choose ONE):\\n\\n28_Gesellschaftsvertrag (Partnership Agreement)\\n   Keywords: Gesellschaft, Vertrag, Partnership, Agreement\\n   Description: Company partnership or shareholder agreement\\n\\n29_Handelsregisterauszug (Commercial Register Extract)\\n   Keywords: Handelsregister, Auszug, Commercial, Register\\n   Description: Commercial register extract\\n\\n30_Gewerbeanmeldung (Business Registration)\\n   Keywords: Gewerbe, Anmeldung, Business, Registration\\n   Description: Business registration documentation\\n\\n31_Steuer_ID (Tax ID)\\n   Keywords: Steuer, ID, Tax\\n   Description: Tax identification number\\n\\n32_Freistellungsbescheinigung (Exemption Certificate)\\n   Keywords: Freistellung, Bescheinigung, Exemption, Certificate\\n   Description: Tax exemption certificate\\n\\n33_Vollmachten (Powers of Attorney)\\n   Keywords: Vollmacht, Power, Attorney\\n   Description: Power of attorney documents\\n\\nINSTRUCTIONS:\\n1. Analyze filename for specific German keywords\\n2. Choose the MOST SPECIFIC type that matches\\n3. Provide confidence score (0-100)\\n4. Explain your reasoning\\n\\nRESPONSE FORMAT (JSON only):\\n{\\n  \\\"documentType\\\": \\\"28_Gesellschaftsvertrag\\\",\\n  \\\"tier2Confidence\\\": 85,\\n  \\\"germanName\\\": \\\"Gesellschaftsvertrag\\\",\\n  \\\"englishName\\\": \\\"Partnership Agreement\\\",\\n  \\\"isCoreType\\\": false,\\n  \\\"reasoning\\\": \\\"Brief explanation\\\"\\n}\\n\\nSTRICT RULES:\\n- documentType must EXACTLY match one of the codes above\\n- isCoreType: false for all RECHTLICHE types (none are CORE)\\n- Valid JSON only, no markdown`;\n  } else if (tier1Category === 'SONSTIGES') {\n    tier2Prompt = `You are a German real estate document classifier for AMA Capital.\\n\\nTIER 1 RESULT: This document was classified as SONSTIGES (Miscellaneous) with ${tier1Confidence}% confidence.\\n\\nTASK: Now classify into the SPECIFIC document type from the list below.\\n\\nFILENAME: ${fileName}\\nCLIENT: ${clientEmail}\\n\\nSPECIFIC TYPES (choose ONE):\\n\\n22_Gutachterauftrag (Expert Assignment)\\n   Keywords: Gutachter, Auftrag, Expert, Assignment\\n   Description: Expert assessment assignment\\n\\n34_Korrespondenz (Correspondence)\\n   Keywords: Korrespondenz, Email, Brief, Letter, Correspondence\\n   Description: Email correspondence and letters\\n\\n35_Sonstiges_Allgemein (General Miscellaneous)\\n   Keywords: Sonstiges, Misc, General\\n   Description: General miscellaneous documents\\n\\n36_Exit_Strategie (Exit Strategy) ⭐ CORE\\n   Keywords: Exit, Strategie, Strategy\\n   Description: Investment exit strategy\\n\\n37_Others (Others)\\n   Keywords: Other, Andere\\n   Description: Other unclassified documents\\n\\n38_Unknowns (Unknowns)\\n   Keywords: Unknown, Unbekannt\\n   Description: Unknown document type\\n\\nINSTRUCTIONS:\\n1. Analyze filename for specific German keywords\\n2. Choose the MOST SPECIFIC type that matches\\n3. Provide confidence score (0-100)\\n4. Explain your reasoning\\n5. Use 38_Unknowns ONLY if truly unclear\\n\\nRESPONSE FORMAT (JSON only):\\n{\\n  \\\"documentType\\\": \\\"36_Exit_Strategie\\\",\\n  \\\"tier2Confidence\\\": 95,\\n  \\\"germanName\\\": \\\"Exit Strategie\\\",\\n  \\\"englishName\\\": \\\"Exit Strategy\\\",\\n  \\\"isCoreType\\\": true,\\n  \\\"reasoning\\\": \\\"Brief explanation\\\"\\n}\\n\\nSTRICT RULES:\\n- documentType must EXACTLY match one of the codes above\\n- isCoreType: true ONLY for 36_Exit_Strategie\\n- Valid JSON only, no markdown`;\n  } else {\n    tier2Prompt = `You are a German real estate document classifier for AMA Capital.\\n\\nERROR: Unknown category \\\"${tier1Category}\\\". Please classify as SONSTIGES > 38_Unknowns.\\n\\nFILENAME: ${fileName}\\nCLIENT: ${clientEmail}\\n\\nRESPONSE FORMAT (JSON only):\\n{\\n  \\\"documentType\\\": \\\"38_Unknowns\\\",\\n  \\\"tier2Confidence\\\": 0,\\n  \\\"germanName\\\": \\\"Unknowns\\\",\\n  \\\"englishName\\\": \\\"Unknown\\\",\\n  \\\"isCoreType\\\": false,\\n  \\\"reasoning\\\": \\\"Unknown Tier 1 category: ${tier1Category}\\\"\\n}`;\n  }\n\n  if (tier1Confidence < 60) {\n    outputItems.push({\n      json: {\n        tier1Category, tier1Confidence, tier1Reasoning: reasoning, tier2Prompt,\n        fileId, fileName, fileUrl, clientEmail, client_name, client_normalized,\n        lowConfidence: true, confidenceFailureStage: 'tier1',\n        ...item.json\n      }\n    });\n  } else {\n    outputItems.push({\n      json: {\n        tier1Category, tier1Confidence, tier1Reasoning: reasoning, tier2Prompt,\n        fileId, fileName, fileUrl, clientEmail, client_name, client_normalized,\n        ...item.json\n      }\n    });\n  }\n}\n\nreturn outputItems;"
+          },
+          "id": "code-2",
+          "name": "Parse Classification Result",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            2320,
+            160
+          ]
+        },
+        {
+          "parameters": {
+            "documentId": {
+              "__rl": true,
+              "value": "12N2C8iWeHkxJQ2qz7m3aTyZw3X1gXbyyyFa-rP0tD7I",
+              "mode": "id"
+            },
+            "sheetName": {
+              "__rl": true,
+              "value": "Dokumenten_Tracker",
+              "mode": "name"
+            },
+            "filtersUI": {
+              "values": [
+                {
+                  "lookupColumn": "Mandant",
+                  "lookupValue": "={{ $json.client_normalized }}"
+                }
+              ]
+            },
+            "options": {}
+          },
+          "id": "sheets-1",
+          "name": "Lookup Client in Dokumenten_Tracker",
+          "type": "n8n-nodes-base.googleSheets",
+          "typeVersion": 4.7,
+          "position": [
+            4112,
+            160
+          ],
+          "credentials": {
+            "googleSheetsOAuth2Api": {
+              "id": "H7ewI1sOrDYabelt",
+              "name": "Google Sheets account"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "jsCode": "// FIX: Reference classification data from upstream node directly\n// The Sheets lookup output overwrites $input, so we must reference Determine Action Type\n// UPDATED: Compare raw Mandant values directly (no normalization needed)\n\nconst items = $input.all();\nconst outputItems = [];\n\n// Get classification data from upstream (preserved across Sheets lookup)\nconst classificationData = $('Determine Action Type').first().json;\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  const trackerData = $('Lookup Client in Dokumenten_Tracker').all();\n  \n  // Get client info from classification data\n  const clientNormalized = classificationData.client_normalized || classificationData.clientNormalized || '';\n  const documentType = classificationData.documentType || '';\n  const confidence = classificationData.combinedConfidence || classificationData.tier2Confidence || 0;\n  const fileId = classificationData.fileId || '';\n  const fileName = classificationData.fileName || '';\n\n  // Check if confidence is too low\n  if (confidence < 70) {\n    outputItems.push({\n      json: {\n        ...classificationData,\n        ...item.json,\n        chunk2_5_status: 'error_unclear_type',\n        errorMessage: `Low confidence (${confidence}%) - document type unclear`\n      }\n    });\n    continue;\n  }\n\n  // Check if any data was returned from tracker\n  if (!trackerData || trackerData.length === 0) {\n    outputItems.push({\n      json: {\n        ...classificationData,\n        chunk2_5_status: 'error_client_not_found',\n        errorMessage: 'No data returned from Dokumenten_Tracker lookup'\n      }\n    });\n    continue;\n  }\n\n  // Find matching client row - compare directly (case-insensitive)\n  let rowIndex = -1;\n  const clientRow = trackerData.find((row, idx) => {\n    const sheetClientName = (row.json.Mandant || '').trim().toLowerCase();\n    const inputClientName = clientNormalized.trim().toLowerCase();\n    \n    if (sheetClientName === inputClientName) {\n      rowIndex = row.json.row_number || (idx + 2);\n      return true;\n    }\n    return false;\n  });\n\n  if (!clientRow || !clientRow.json.Mandant) {\n    outputItems.push({\n      json: {\n        ...classificationData,\n        chunk2_5_status: 'error_client_not_found',\n        errorMessage: `Client not found in tracker: \"${clientNormalized}\"`\n      }\n    });\n    continue;\n  }\n\n  // Client found and validated - prepare for success path\n  outputItems.push({\n    json: {\n      ...classificationData,\n      ...clientRow.json,\n      clientFound: true,\n      trackerRowIndex: rowIndex,\n      trackerClientName: clientRow.json.Mandant,\n      chunk2_5_status: 'success'\n    }\n  });\n}\n\nreturn outputItems;"
+          },
+          "id": "code-3",
+          "name": "Find Client Row and Validate",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            4336,
+            160
+          ]
+        },
+        {
+          "parameters": {
+            "documentId": {
+              "mode": "id",
+              "value": "1-CPnCr3locAORVX5tUEoh6r0i-x3tQ_ROTN0VXatOAU"
+            },
+            "sheetName": {
+              "__rl": true,
+              "value": "gid=0",
+              "mode": "list",
+              "cachedResultName": "AMA_Folder_IDs",
+              "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-CPnCr3locAORVX5tUEoh6r0i-x3tQ_ROTN0VXatOAU/edit#gid=0"
+            },
+            "options": {}
+          },
+          "id": "sheets-3",
+          "name": "Lookup Client in AMA_Folder_IDs",
+          "type": "n8n-nodes-base.googleSheets",
+          "typeVersion": 4.7,
+          "position": [
+            5680,
+            64
+          ],
+          "credentials": {
+            "googleSheetsOAuth2Api": {
+              "id": "H7ewI1sOrDYabelt",
+              "name": "Google Sheets account"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "jsCode": "// Get Destination Folder ID - V14 Simplified Routing\n// SIMPLIFIED LOGIC:\n// - Core 4 documents -> Specific folders (01, 03, 10, 36)\n// - ALL OTHER documents -> 37_Others folder\n// - Tracker still gets updated with whatever was classified\n\nconst classificationData = $('Find Client Row and Validate').first().json;\n\n// Get fileId from classification data (passed through from trigger)\nconst fileId = classificationData.fileId;\nconst fileName = classificationData.fileName;\n\n// Get classification info\nconst documentType = classificationData.documentType;\nconst tier1Category = classificationData.tier1Category;\nconst client_name = classificationData.client_name;\nconst client_normalized = classificationData.client_normalized;\n\n// Build lookup from ALL folder rows\nconst allFolderRows = $input.all();\nconst folderLookup = {};\nfor (const row of allFolderRows) {\n  folderLookup[row.json.Variable_Name] = row.json.Folder_ID;\n}\n\nlet finalFolderId;\nlet destinationFolderName;\nlet variableNameSearched;\n\n// Define Core 4 document types\nconst CORE_4_TYPES = [\n  '01_Projektbeschreibung',\n  '03_Grundbuchauszug',\n  '10_Bautraegerkalkulation_DIN276',\n  '36_Exit_Strategie'\n];\n\n// Check if this is a Core 4 document\nif (CORE_4_TYPES.includes(documentType)) {\n  // CORE 4 DOCUMENTS -> Route to specific folders\n  const coreMapping = {\n    '01_Projektbeschreibung': { varName: 'FOLDER_01_PROJEKTBESCHREIBUNG', displayName: '01_Projektbeschreibung' },\n    '03_Grundbuchauszug': { varName: 'FOLDER_03_GRUNDBUCHAUSZUG', displayName: '03_Grundbuchauszug' },\n    '10_Bautraegerkalkulation_DIN276': { varName: 'FOLDER_10_BAUTRAEGERKALKULATION', displayName: '10_Bautraegerkalkulation' },\n    '36_Exit_Strategie': { varName: 'FOLDER_36_EXIT_STRATEGIE', displayName: '36_Exit_Strategie' }\n  };\n\n  const mapping = coreMapping[documentType];\n  if (mapping) {\n    variableNameSearched = mapping.varName;\n    destinationFolderName = mapping.displayName;\n  } else {\n    // Fallback to 37_Others if mapping not found (shouldn't happen)\n    variableNameSearched = 'FOLDER_37_OTHERS';\n    destinationFolderName = '37_Others';\n  }\n} else {\n  // ALL OTHER DOCUMENTS -> Route to 37_Others\n  variableNameSearched = 'FOLDER_37_OTHERS';\n  destinationFolderName = '37_Others';\n}\n\n// Get folder ID from lookup\nfinalFolderId = folderLookup[variableNameSearched];\n\nreturn [{\n  json: {\n    fileId: fileId,\n    fileName: fileName,\n    finalFolderId: finalFolderId,\n    destinationFolderName: destinationFolderName,\n    documentType: documentType,\n    tier1Category: tier1Category,\n    client_name: client_name,\n    client_normalized: client_normalized,\n    debug_variableNameSearched: variableNameSearched,\n    debug_folderLookupSize: Object.keys(folderLookup).length,\n    debug_isCore4: CORE_4_TYPES.includes(documentType)\n  }\n}];"
+          },
+          "id": "code-4",
+          "name": "Get Destination Folder ID",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            5904,
+            64
+          ]
+        },
+        {
+          "parameters": {
+            "operation": "move",
+            "fileId": {
+              "__rl": true,
+              "mode": "id",
+              "value": "={{ $json.fileId }}"
+            },
+            "driveId": {
+              "__rl": true,
+              "mode": "list",
+              "value": "My Drive"
+            },
+            "folderId": {
+              "__rl": true,
+              "mode": "id",
+              "value": "={{ $json.finalFolderId }}"
+            }
+          },
+          "id": "drive-1",
+          "name": "Move File to Final Location",
+          "type": "n8n-nodes-base.googleDrive",
+          "typeVersion": 3,
+          "position": [
+            6128,
+            64
+          ],
+          "credentials": {
+            "googleDriveOAuth2Api": {
+              "id": "a4m50EefR3DJoU0R",
+              "name": "Google Drive account"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "jsCode": "// FIX: Process ALL items\nconst items = $input.all();\nconst outputItems = [];\n\nfor (const item of items) {\n  outputItems.push({\n    json: {\n      ...item.json,\n      trackerUpdated: true,\n      chunk2_5_status: 'success',\n      processedAt: new Date().toISOString()\n    }\n  });\n}\n\nreturn outputItems;"
+          },
+          "id": "code-5",
+          "name": "Prepare Success Output",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            6352,
+            240
+          ]
+        },
+        {
+          "parameters": {
+            "documentId": {
+              "mode": "id",
+              "value": "1-CPnCr3locAORVX5tUEoh6r0i-x3tQ_ROTN0VXatOAU"
+            },
+            "sheetName": {
+              "__rl": true,
+              "value": "gid=0",
+              "mode": "list",
+              "cachedResultName": "AMA_Folder_IDs",
+              "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-CPnCr3locAORVX5tUEoh6r0i-x3tQ_ROTN0VXatOAU/edit#gid=0"
+            },
+            "options": {}
+          },
+          "id": "sheets-4",
+          "name": "Lookup 38_Unknowns Folder",
+          "type": "n8n-nodes-base.googleSheets",
+          "typeVersion": 4.7,
+          "position": [
+            4784,
+            304
+          ],
+          "credentials": {
+            "googleSheetsOAuth2Api": {
+              "id": "H7ewI1sOrDYabelt",
+              "name": "Google Sheets account"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "jsCode": "// FIX: Process ALL items from main data\nconst folderData = $input.all();\nconst mainDataItems = $('Find Client Row and Validate').all();\nconst outputItems = [];\n\n// Skip header row from folder data\nconst dataRows = folderData.slice(1);\n\n// Look for 38_Unknowns folder ID (should be same for all items)\nlet unknownsFolderId = null;\nif (dataRows.length > 0) {\n  for (const row of dataRows) {\n    const rowData = row.json;\n    for (const key in rowData) {\n      if (key.includes('38_Unknowns')) {\n        unknownsFolderId = rowData[key];\n        break;\n      }\n    }\n    if (unknownsFolderId) break;\n  }\n\n  if (!unknownsFolderId) {\n    // Try to get from first row (assuming it might be a global folder)\n    unknownsFolderId = dataRows[0].json['38_Unknowns'] || null;\n  }\n}\n\n// Return one output item per main data item\nfor (const mainData of mainDataItems) {\n  outputItems.push({\n    json: {\n      ...mainData.json,\n      unknownsFolderId: unknownsFolderId,\n      errorFallbackUsed: !unknownsFolderId\n    }\n  });\n}\n\nreturn outputItems;"
+          },
+          "id": "code-6",
+          "name": "Get 38_Unknowns Folder ID",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            5008,
+            304
+          ]
+        },
+        {
+          "parameters": {
+            "operation": "move",
+            "fileId": {
+              "__rl": true,
+              "mode": "id",
+              "value": "={{ $json.fileId }}"
+            },
+            "driveId": {
+              "__rl": true,
+              "mode": "list",
+              "value": "My Drive"
+            },
+            "folderId": {
+              "__rl": true,
+              "mode": "id",
+              "value": "={{ $json.unknownsFolderId }}"
+            }
+          },
+          "id": "drive-2",
+          "name": "Move File to 38_Unknowns",
+          "type": "n8n-nodes-base.googleDrive",
+          "typeVersion": 3,
+          "position": [
+            5232,
+            304
+          ],
+          "credentials": {
+            "googleDriveOAuth2Api": {
+              "id": "a4m50EefR3DJoU0R",
+              "name": "Google Drive account"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "jsCode": "// FIX: Process ALL items\nconst items = $input.all();\nconst outputItems = [];\n\nfor (const item of items) {\n  const mainData = item.json;\n\n  // FIX: Use client_normalized (snake_case) to match what's being passed\n  const clientName = mainData.client_normalized || mainData.clientNormalized || 'Unknown';\n  const fileName = mainData.fileName || 'Unknown';\n  const fileId = mainData.fileId || '';\n  const errorStatus = mainData.chunk2_5_status || 'unknown_error';\n  const errorMessage = mainData.errorMessage || 'No error details provided';\n  const documentType = mainData.documentType || 'Unknown';\n  const confidence = mainData.documentClassificationConfidence || 0;\n\n  let issueDescription = '';\n  if (errorStatus === 'error_client_not_found') {\n    issueDescription = `Client \\\"${clientName}\\\" was not found in the Client_Tracker sheet.`;\n  } else if (errorStatus === 'error_unclear_type') {\n    issueDescription = `Document type classification had low confidence (${confidence}%). Classified as: ${documentType}.`;\n  } else if (errorStatus === 'error_folder_not_found') {\n    issueDescription = `Destination folder for document type \\\"${documentType}\\\" was not found in AMA_Folder_IDs.`;\n  } else {\n    issueDescription = errorMessage;\n  }\n\n  const fileLink = `https://drive.google.com/file/d/${fileId}/view`;\n\n  const emailSubject = `Eugene: Document Classification Issue - ${clientName}`;\n  const emailBody = `<html>\n<body>\n<h2>Document Classification Issue</h2>\n<p>A document could not be automatically classified and has been moved to the 38_Unknowns folder.</p>\n\n<h3>Details:</h3>\n<ul>\n  <li><strong>Client:</strong> ${clientName}</li>\n  <li><strong>Filename:</strong> ${fileName}</li>\n  <li><strong>Issue:</strong> ${issueDescription}</li>\n  <li><strong>Classified Type:</strong> ${documentType} (${confidence}% confidence)</li>\n  <li><strong>Error Status:</strong> ${errorStatus}</li>\n</ul>\n\n<h3>File Location:</h3>\n<p><a href=\\\"${fileLink}\\\">View file in Google Drive</a></p>\n\n<p>Please review this document and manually classify it.</p>\n</body>\n</html>`;\n\n  outputItems.push({\n    json: {\n      ...mainData,\n      emailSubject: emailSubject,\n      emailBody: emailBody,\n      trackerUpdated: false,\n      chunk2_5_status: errorStatus,\n      processedAt: new Date().toISOString()\n    }\n  });\n}\n\nreturn outputItems;"
+          },
+          "id": "code-7",
+          "name": "Prepare Error Email Body",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            5456,
+            304
+          ]
+        },
+        {
+          "parameters": {
+            "sendTo": "={{ $json.emailRecipient || 'sway@oloxa.ai' }}"
+          },
+          "id": "gmail-1",
+          "name": "Send Error Notification Email",
+          "type": "n8n-nodes-base.gmail",
+          "typeVersion": 2.1,
+          "position": [
+            5680,
+            304
+          ],
+          "webhookId": "d50e78b4-8ae0-4171-b62f-c2afdafc7e58",
+          "credentials": {
+            "gmailOAuth2": {
+              "id": "g2ksaYkLXWtfDWAh",
+              "name": "Gmail (swayfromthehook)"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "jsCode": "// Prepare data for Dokumenten_Tracker update\n// Combines client row info with document classification results\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const json = item.json;\n  \n  // Get classification results from previous nodes\n  const documentType = json.documentType || json.document_type;\n  const tier1Category = json.tier1Category || json.tier_1_category;\n  const tier2Category = json.tier2Category || json.tier_2_category;\n  const confidence = json.confidence || 'medium';\n  \n  // Get client info\n  const clientNormalized = json.client_normalized;\n  const rowNumber = json.rowNumber || json.row_number;\n  \n  if (!rowNumber) {\n    throw new Error(`Cannot update tracker: missing rowNumber for client ${clientNormalized}`);\n  }\n  \n  // Pass through all data needed for the API update\n  results.push({\n    json: {\n      ...json,\n      // Ensure these fields are present for downstream nodes\n      documentType: tier2Category || documentType,  // Prefer tier2 for specificity\n      tier2Category: tier2Category,\n      tier1Category: tier1Category,\n      confidence: confidence,\n      rowNumber: rowNumber,\n      client_normalized: clientNormalized,\n      // Add timestamp for tracking\n      tracker_update_timestamp: new Date().toISOString()\n    },\n    binary: item.binary\n  });\n}\n\nreturn results;"
+          },
+          "id": "code-8",
+          "name": "Prepare Tracker Update Data",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            4784,
+            64
+          ]
+        },
+        {
+          "parameters": {
+            "method": "POST",
+            "url": "https://api.openai.com/v1/chat/completions",
+            "authentication": "predefinedCredentialType",
+            "nodeCredentialType": "openAiApi",
+            "sendBody": true,
+            "specifyBody": "json",
+            "jsonBody": "={{ ({ \"model\": \"gpt-4\", \"messages\": [{\"role\": \"user\", \"content\": $json.tier1Prompt}], \"temperature\": 0 }) }}",
+            "options": {}
+          },
+          "id": "http-openai-1",
+          "name": "Classify Document with GPT-4",
+          "type": "n8n-nodes-base.httpRequest",
+          "typeVersion": 4.2,
+          "position": [
+            2096,
+            704
+          ],
+          "credentials": {
+            "openAiApi": {
+              "id": "xmJ7t6kaKgMwA1ce",
+              "name": "OpenAi account"
+            }
+          },
+          "disabled": true
+        },
+        {
+          "parameters": {
+            "method": "POST",
+            "url": "https://api.openai.com/v1/chat/completions",
+            "authentication": "predefinedCredentialType",
+            "nodeCredentialType": "openAiApi",
+            "sendBody": true,
+            "specifyBody": "json",
+            "jsonBody": "={{ ({ \"model\": \"gpt-4\", \"messages\": [{\"role\": \"user\", \"content\": $json.tier2Prompt}], \"temperature\": 0 }) }}",
+            "options": {}
+          },
+          "id": "3732e080-c0d3-4763-957d-d4d90761ddd8",
+          "name": "Tier 2 GPT-4 API Call",
+          "type": "n8n-nodes-base.httpRequest",
+          "typeVersion": 4.2,
+          "position": [
+            3440,
+            704
+          ],
+          "credentials": {
+            "openAiApi": {
+              "id": "xmJ7t6kaKgMwA1ce",
+              "name": "OpenAi account"
+            }
+          },
+          "disabled": true
+        },
+        {
+          "parameters": {
+            "jsCode": "// Parse Tier 2 Classification Result from Claude Vision\n// FIX: Process ALL items, not just first\n\nconst items = $input.all();\nconst outputItems = [];\n\nfor (let i = 0; i < items.length; i++) {\n  // Get corresponding Tier 2 result\n  const tier2Result = $('Parse Claude Tier 2 Response').all()[i].json;\n\n  if (!tier2Result || !tier2Result.documentType) {\n    // Parsing failed - route to LOW_CONFIDENCE\n    outputItems.push({\n      json: {\n        error: 'Failed to parse Tier 2 classification',\n        lowConfidence: true,\n        confidenceFailureStage: 'tier2_parse_error',\n        ...tier2Result\n      }\n    });\n    continue;\n  }\n\n  const {\n    documentType, tier2Confidence, germanName, englishName, isCoreType, tier2Reasoning,\n    fileId, fileName, fileUrl, clientEmail,\n    client_name, client_normalized,  // FIX: Preserve client data\n    tier1Category, tier1Confidence, tier1Reasoning\n  } = tier2Result;\n\n  // THRESHOLD CHECK: Tier 2 confidence must be >= 70%\n  if (tier2Confidence < 70) {\n    outputItems.push({\n      json: {\n        documentType, tier2Confidence, lowConfidence: true, confidenceFailureStage: 'tier2',\n        fileId, fileName, fileUrl, clientEmail, client_name, client_normalized,\n        tier1Category, tier1Confidence, tier1Reasoning\n      }\n    });\n  } else {\n    // Calculate combined confidence\n    const combinedConfidence = Math.round((tier1Confidence + tier2Confidence) / 2);\n\n    outputItems.push({\n      json: {\n        fileId, fileName, fileUrl, clientEmail, client_name, client_normalized,\n        tier1Category, tier1Confidence, tier1Reasoning,\n        documentType, tier2Confidence, combinedConfidence,\n        germanName, englishName, isCoreType, tier2Reasoning\n      }\n    });\n  }\n}\n\nreturn outputItems;"
+          },
+          "id": "86d8d160-de91-464d-92d0-7db05b7c3f4f",
+          "name": "Parse Tier 2 Result",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            3664,
+            160
+          ]
+        },
+        {
+          "parameters": {
+            "jsCode": "// Action Mapper: Determine routing based on classification results\n\nconst data = $input.first().json;\n\n// Check for low confidence flags\nif (data.lowConfidence === true) {\n  return [{\n    json: {\n      ...data,  // ← CRITICAL: Preserve ALL incoming fields (fileId, fileName, etc.)\n      actionType: 'LOW_CONFIDENCE',\n      destinationFolder: '38_Unknowns',\n      trackerUpdate: false,\n      sendNotification: true\n    }\n  }];\n}\n\n// Check if CORE type\nif (data.isCoreType === true) {\n  // CORE types: Specific folder + tracker update\n  return [{\n    json: {\n      ...data,  // ← CRITICAL: Preserve ALL incoming fields (fileId, fileName, etc.)\n      actionType: 'CORE',\n      trackerUpdate: true,\n      sendNotification: false\n    }\n  }];\n}\n\n// SECONDARY types: 37_Other folder + tracker update (so Eugene can see what they are)\nreturn [{\n  json: {\n    ...data,  // ← CRITICAL: Preserve ALL incoming fields (fileId, fileName, etc.)\n    actionType: 'SECONDARY',\n    destinationFolder: '37_Other',\n    trackerUpdate: true,\n    sendNotification: false\n  }\n}];"
+          },
+          "id": "89b7324c-80e6-4902-9ab5-3f26be09e92a",
+          "name": "Determine Action Type",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            3888,
+            160
+          ]
+        },
+        {
+          "parameters": {
+            "operation": "download",
+            "fileId": "={{ $json.fileId }}",
+            "options": {}
+          },
+          "id": "drive-download-1",
+          "name": "Download PDF for Classification",
+          "type": "n8n-nodes-base.googleDrive",
+          "typeVersion": 3,
+          "position": [
+            528,
+            160
+          ],
+          "credentials": {
+            "googleDriveOAuth2Api": {
+              "id": "a4m50EefR3DJoU0R",
+              "name": "Google Drive account"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "jsCode": "// Convert PDF to Base64\n// Processing one file at a time (via Split In Batches upstream)\n// Rate limiting handled by Wait nodes between Claude Vision calls\n\nconst items = $input.all();\nconst outputItems = [];\n\nfor (const item of items) {\n  try {\n    const binaryKey = Object.keys(item.binary || {})[0];\n    \n    if (!binaryKey) {\n      // No binary data, pass through\n      outputItems.push({\n        json: {\n          ...item.json,\n          pdfError: 'No binary data found'\n        }\n      });\n      continue;\n    }\n    \n    const buffer = await this.helpers.getBinaryDataBuffer(items.indexOf(item), binaryKey);\n    const base64Content = buffer.toString('base64');\n    const mimeType = item.json.mimeType || 'application/pdf';\n    const fileSizeKB = Math.round(buffer.length / 1024);\n    \n    outputItems.push({\n      json: {\n        ...item.json,\n        imageData: {\n          type: 'base64',\n          media_type: mimeType,\n          data: base64Content\n        },\n        pdfMetadata: {\n          fileSizeKB: fileSizeKB,\n          note: 'Full PDF sent - rate limiting via Wait nodes'\n        }\n      },\n      binary: item.binary\n    });\n  } catch (error) {\n    outputItems.push({\n      json: {\n        ...item.json,\n        pdfError: error.message\n      }\n    });\n  }\n}\n\nreturn outputItems;"
+          },
+          "id": "code-convert-pdf",
+          "name": "Convert PDF to Base64",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            752,
+            160
+          ]
+        },
+        {
+          "parameters": {
+            "jsCode": "// RATE LIMIT PROTECTION: Wait 30 seconds before each Claude API call\nawait new Promise(resolve => setTimeout(resolve, 30000));\n\nconst items = $input.all();\nconst outputItems = [];\n\nfor (const item of items) {\n  // FIX: Get tier1Prompt from the SAME item, not always from first()\n  const tier1Prompt = item.json.tier1Prompt;\n  const imageData = item.json.imageData;\n\n  if (!imageData || !imageData.data) {\n    throw new Error('No image data found in item');\n  }\n\n  const requestBody = {\n    model: 'claude-sonnet-4-20250514',\n    max_tokens: 200,\n    messages: [\n      {\n        role: 'user',\n        content: [\n          {\n            type: 'document',\n            source: {\n              type: 'base64',\n              media_type: imageData.media_type,\n              data: imageData.data\n            }\n          },\n          {\n            type: 'text',\n            text: tier1Prompt\n          }\n        ]\n      }\n    ]\n  };\n\n  outputItems.push({\n    json: {\n      ...item.json,\n      claudeRequestBody: requestBody\n    },\n    binary: item.binary\n  });\n}\n\nreturn outputItems;"
+          },
+          "id": "code-build-claude-tier1",
+          "name": "Build Claude Tier 1 Request Body",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            1200,
+            160
+          ]
+        },
+        {
+          "parameters": {
+            "method": "POST",
+            "url": "https://api.anthropic.com/v1/messages",
+            "authentication": "genericCredentialType",
+            "genericAuthType": "httpHeaderAuth",
+            "sendHeaders": true,
+            "headerParameters": {
+              "parameters": [
+                {
+                  "name": "anthropic-version",
+                  "value": "2023-06-01"
+                },
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            },
+            "sendBody": true,
+            "specifyBody": "json",
+            "jsonBody": "={{ $json.claudeRequestBody }}",
+            "options": {}
+          },
+          "id": "http-claude-tier1",
+          "name": "Claude Vision Tier 1 Classification",
+          "type": "n8n-nodes-base.httpRequest",
+          "typeVersion": 4.2,
+          "position": [
+            1648,
+            160
+          ],
+          "retryOnFail": true,
+          "maxTries": 5,
+          "waitBetweenTries": 120000,
+          "credentials": {
+            "httpHeaderAuth": {
+              "id": "vfoYopBRX35Znmq6",
+              "name": "Anthropic API key"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "jsCode": "const items = $input.all();\nconst outputItems = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  const response = item.json;\n\n  if (!response.content || !response.content[0] || !response.content[0].text) {\n    throw new Error('Invalid Claude API response structure');\n  }\n\n  let textContent = response.content[0].text.trim();\n\n  // Strip markdown code fences if present\n  if (textContent.startsWith('```json')) {\n    textContent = textContent\n      .replace(/^```json\\s*\\n/, '')\n      .replace(/\\n```\\s*$/, '');\n  } else if (textContent.startsWith('```')) {\n    textContent = textContent\n      .replace(/^```\\s*\\n/, '')\n      .replace(/\\n```\\s*$/, '');\n  }\n\n  const parsedResult = JSON.parse(textContent);\n  \n  // FIX CRITICAL: Get metadata from the corresponding item in previous node\n  const previousData = $('Build Claude Tier 1 Request Body').all()[i].json;\n\n  outputItems.push({\n    json: {\n      ...previousData,  // PRESERVE ALL INCOMING DATA including client_name, client_normalized\n      tier1Category: parsedResult.tier1Category,\n      tier1Confidence: parsedResult.tier1Confidence,\n      tier1Reasoning: parsedResult.reasoning || ''\n    }\n  });\n}\n\nreturn outputItems;"
+          },
+          "id": "code-parse-claude-tier1",
+          "name": "Parse Claude Tier 1 Response",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            2096,
+            160
+          ]
+        },
+        {
+          "parameters": {
+            "jsCode": "// RATE LIMIT PROTECTION: Wait 30 seconds before each Claude API call\nawait new Promise(resolve => setTimeout(resolve, 30000));\n\nconst items = $input.all();\nconst outputItems = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  const tier2Prompt = item.json.tier2Prompt;\n  \n  // FIX: Get imageData from the corresponding item, not always first()\n  const imageData = $('Convert PDF to Base64').all()[i].json.imageData;\n\n  if (!imageData || !imageData.data) {\n    throw new Error('No image data found for Tier 2 classification');\n  }\n\n  const requestBody = {\n    model: 'claude-sonnet-4-20250514',\n    max_tokens: 300,\n    messages: [\n      {\n        role: 'user',\n        content: [\n          {\n            type: 'document',\n            source: {\n              type: 'base64',\n              media_type: imageData.media_type,\n              data: imageData.data\n            }\n          },\n          {\n            type: 'text',\n            text: tier2Prompt\n          }\n        ]\n      }\n    ]\n  };\n\n  outputItems.push({\n    json: {\n      ...item.json,\n      claudeTier2RequestBody: requestBody\n    }\n  });\n}\n\nreturn outputItems;"
+          },
+          "id": "code-build-claude-tier2",
+          "name": "Build Claude Tier 2 Request Body",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            2544,
+            160
+          ]
+        },
+        {
+          "parameters": {
+            "method": "POST",
+            "url": "https://api.anthropic.com/v1/messages",
+            "authentication": "genericCredentialType",
+            "genericAuthType": "httpHeaderAuth",
+            "sendHeaders": true,
+            "headerParameters": {
+              "parameters": [
+                {
+                  "name": "anthropic-version",
+                  "value": "2023-06-01"
+                },
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            },
+            "sendBody": true,
+            "specifyBody": "json",
+            "jsonBody": "={{ $json.claudeTier2RequestBody }}",
+            "options": {}
+          },
+          "id": "http-claude-tier2",
+          "name": "Claude Vision Tier 2 Classification",
+          "type": "n8n-nodes-base.httpRequest",
+          "typeVersion": 4.2,
+          "position": [
+            2992,
+            160
+          ],
+          "retryOnFail": true,
+          "maxTries": 5,
+          "waitBetweenTries": 120000,
+          "credentials": {
+            "httpHeaderAuth": {
+              "id": "vfoYopBRX35Znmq6",
+              "name": "Anthropic API key"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "jsCode": "const items = $input.all();\nconst outputItems = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  const response = item.json;\n\n  if (!response.content || !response.content[0] || !response.content[0].text) {\n    throw new Error('Invalid Claude API Tier 2 response structure');\n  }\n\n  let textContent = response.content[0].text.trim();\n\n  // Strip markdown code fences if present\n  if (textContent.startsWith('```json')) {\n    textContent = textContent\n      .replace(/^```json\\s*\\n/, '')\n      .replace(/\\n```\\s*$/, '');\n  } else if (textContent.startsWith('```')) {\n    textContent = textContent\n      .replace(/^```\\s*\\n/, '')\n      .replace(/\\n```\\s*$/, '');\n  }\n\n  // ROBUST JSON EXTRACTION: Handle prose text wrapping JSON\n  let parsedResult;\n  \n  // Try direct parse first\n  try {\n    parsedResult = JSON.parse(textContent);\n  } catch (directParseError) {\n    // If direct parse fails, try to extract JSON from the text\n    \n    // Method 1: Find JSON object in the text (starts with { ends with })\n    const jsonMatch = textContent.match(/\\{[\\s\\S]*\\}/g);\n    if (jsonMatch && jsonMatch.length > 0) {\n      // Try the last match (most likely the full JSON object)\n      for (let j = jsonMatch.length - 1; j >= 0; j--) {\n        try {\n          parsedResult = JSON.parse(jsonMatch[j]);\n          break; // Success! Exit loop\n        } catch (e) {\n          continue; // Try next match\n        }\n      }\n    }\n    \n    // Method 2: Look for JSON inside markdown code block in the middle of text\n    if (!parsedResult) {\n      const codeBlockMatch = textContent.match(/```(?:json)?\\s*([\\s\\S]*?)```/);\n      if (codeBlockMatch && codeBlockMatch[1]) {\n        try {\n          parsedResult = JSON.parse(codeBlockMatch[1].trim());\n        } catch (e) {\n          // Still failed\n        }\n      }\n    }\n    \n    // If all extraction methods failed, throw with helpful message\n    if (!parsedResult) {\n      throw new Error(`Could not extract JSON from Claude response. First 200 chars: ${textContent.substring(0, 200)}...`);\n    }\n  }\n\n  // FIX: Get metadata from the corresponding item in previous node\n  const previousData = $('Parse Classification Result').all()[i].json;\n\n  outputItems.push({\n    json: {\n      ...previousData,  // This preserves client_name, client_normalized, etc.\n      documentType: parsedResult.documentType,\n      tier2Confidence: parsedResult.tier2Confidence,\n      germanName: parsedResult.germanName,\n      englishName: parsedResult.englishName,\n      isCoreType: parsedResult.isCoreType,\n      tier2Reasoning: parsedResult.reasoning || ''\n    }\n  });\n}\n\nreturn outputItems;"
+          },
+          "id": "code-parse-claude-tier2",
+          "name": "Parse Claude Tier 2 Response",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            3440,
+            160
+          ]
+        },
+        {
+          "parameters": {
+            "amount": 60
+          },
+          "id": "wait-after-tier1",
+          "name": "Wait After Tier 1",
+          "type": "n8n-nodes-base.wait",
+          "typeVersion": 1.1,
+          "position": [
+            1872,
+            160
+          ],
+          "webhookId": "09d67e4e-d872-45b3-8421-4639ada494f7"
+        },
+        {
+          "parameters": {
+            "amount": 60
+          },
+          "id": "wait-after-tier2",
+          "name": "Wait After Tier 2",
+          "type": "n8n-nodes-base.wait",
+          "typeVersion": 1.1,
+          "position": [
+            3216,
+            160
+          ],
+          "webhookId": "2ebc9318-2e89-4007-9cdc-f38f3121d489"
+        },
+        {
+          "parameters": {
+            "rules": {
+              "values": [
+                {
+                  "conditions": {
+                    "options": {
+                      "caseSensitive": true,
+                      "leftValue": "",
+                      "typeValidation": "strict",
+                      "version": 3
+                    },
+                    "conditions": [
+                      {
+                        "id": "85b5d5c7-cb7b-43fb-a47a-7def8098a29b",
+                        "leftValue": "={{ $json.chunk2_5_status }}",
+                        "rightValue": "error_unclear_type",
+                        "operator": {
+                          "type": "string",
+                          "operation": "equals",
+                          "name": "filter.operator.equals"
+                        }
+                      }
+                    ],
+                    "combinator": "and"
+                  },
+                  "renameOutput": true,
+                  "outputKey": "error"
+                },
+                {
+                  "conditions": {
+                    "options": {
+                      "caseSensitive": true,
+                      "leftValue": "",
+                      "typeValidation": "strict",
+                      "version": 3
+                    },
+                    "conditions": [
+                      {
+                        "id": "bc10ada4-798c-4d82-9b0b-062f7679e1c2",
+                        "leftValue": "={{ $json.chunk2_5_status }}",
+                        "rightValue": "success",
+                        "operator": {
+                          "type": "string",
+                          "operation": "equals",
+                          "name": "filter.operator.equals"
+                        }
+                      }
+                    ],
+                    "combinator": "and"
+                  },
+                  "renameOutput": true,
+                  "outputKey": "update_tracker"
+                },
+                {
+                  "conditions": {
+                    "options": {
+                      "caseSensitive": true,
+                      "leftValue": "",
+                      "typeValidation": "strict",
+                      "version": 3
+                    },
+                    "conditions": [
+                      {
+                        "id": "032787ac-b6d7-417a-8011-f68246aed0e6",
+                        "leftValue": "={{ $json.chunk2_5_status }}",
+                        "rightValue": "error_client_not_found",
+                        "operator": {
+                          "type": "string",
+                          "operation": "equals",
+                          "name": "filter.operator.equals"
+                        }
+                      }
+                    ],
+                    "combinator": "and"
+                  },
+                  "renameOutput": true,
+                  "outputKey": "skip_tracker"
+                }
+              ]
+            },
+            "options": {
+              "fallbackOutput": "extra"
+            }
+          },
+          "id": "d4336ded-fbdb-4dff-9518-4523471dc798",
+          "name": "Route Based on Document Type1",
+          "type": "n8n-nodes-base.switch",
+          "typeVersion": 3.4,
+          "position": [
+            4560,
+            128
+          ]
+        },
+        {
+          "parameters": {
+            "amount": 20
+          },
+          "id": "wait-before-tier1",
+          "name": "Wait Before Tier 1",
+          "type": "n8n-nodes-base.wait",
+          "typeVersion": 1.1,
+          "position": [
+            1424,
+            160
+          ],
+          "webhookId": "dcfb75d4-4b31-4f3d-8d62-6a7d74a8cb4d"
+        },
+        {
+          "parameters": {
+            "amount": 20
+          },
+          "id": "wait-before-tier2",
+          "name": "Wait Before Tier 2",
+          "type": "n8n-nodes-base.wait",
+          "typeVersion": 1.1,
+          "position": [
+            2768,
+            160
+          ],
+          "webhookId": "9bef8db0-18fb-4e3a-ae5b-1e8bcde21d96"
+        },
+        {
+          "parameters": {
+            "jsCode": "// Build Google Sheets API update request for Dokumenten_Tracker\n// Updates German-named document columns based on AI classification\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const json = item.json;\n  \n  // Get the row number and document type from previous nodes\n  const rowNumber = json.rowNumber || json.row_number;\n  const documentType = json.documentType || json.document_type;\n  const tier2Category = json.tier2Category || json.tier_2_category;\n  \n  if (!rowNumber) {\n    throw new Error('Missing rowNumber for Sheets API update');\n  }\n  \n  // Map document types to German column names (01_Exposé through 99_Sonstiges)\n  // Column letters: C=01_Exposé, D=02_Grundriss, E=03_Lageplan, etc.\n  const columnMap = {\n    '01_Exposé': 'C',\n    '02_Grundriss': 'D',\n    '03_Lageplan': 'E',\n    '04_Wohnflächenberechnung': 'F',\n    '05_Baubeschreibung': 'G',\n    '06_Energieausweis': 'H',\n    '07_Teilungserklärung': 'I',\n    '08_Kaufvertrag': 'J',\n    '09_Mietvertrag': 'K',\n    '10_Nebenkostenabrechnung': 'L',\n    '11_Grundbuchauszug': 'M',\n    '12_Flurkarte': 'N',\n    '13_Denkmalschutz': 'O',\n    '14_Altlastengutachten': 'P',\n    '15_Bodengutachten': 'Q',\n    '16_Erschließungsplan': 'R',\n    '17_Baugenehmigung': 'S',\n    '18_Statik': 'T',\n    '19_Brandschutznachweis': 'U',\n    '20_Versicherungsnachweis': 'V',\n    '21_WEG_Protokolle': 'W',\n    '22_Hausgeldabrechnung': 'X',\n    '23_Instandhaltungsrücklage': 'Y',\n    '24_Modernisierungsplan': 'Z',\n    '25_Sanierungsplan': 'AA',\n    '26_Denkmalschutzauflagen': 'AB',\n    '27_Nutzungsänderung': 'AC',\n    '28_Teilungserklärung_Änderung': 'AD',\n    '29_Sondernutzungsrechte': 'AE',\n    '30_Gebrauchsanweisung': 'AF',\n    '31_Wartungsverträge': 'AG',\n    '32_Versicherungspolice': 'AH',\n    '33_Mieterliste': 'AI',\n    '34_Betriebskostenabrechnung': 'AJ',\n    '35_Nebenkostenabrechnungen': 'AK',\n    '99_Sonstiges': 'AL'\n  };\n  \n  // Determine which column to update\n  let columnLetter = null;\n  let updateValue = 'X';  // Mark with X to indicate document exists\n  \n  if (tier2Category && columnMap[tier2Category]) {\n    columnLetter = columnMap[tier2Category];\n  } else if (documentType && columnMap[documentType]) {\n    columnLetter = columnMap[documentType];\n  }\n  \n  if (!columnLetter) {\n    // Default to 99_Sonstiges if no match\n    columnLetter = 'AL';\n  }\n  \n  // Build the range (e.g., \"Dokumenten_Tracker!C2\" for row 2, column C)\n  const range = `${columnLetter}${rowNumber}`;\n  \n  // Build the request body\n  const requestBody = {\n    values: [[updateValue]]\n  };\n  \n  results.push({\n    json: {\n      ...json,\n      range: range,\n      requestBody: requestBody,\n      columnLetter: columnLetter,\n      updateValue: updateValue,\n      spreadsheetId: '12N2C8iWeHkxJQ2qz7m3aTyZw3X1gXbyyyFa-rP0tD7I',\n      sheetName: 'Dokumenten_Tracker'\n    },\n    binary: item.binary\n  });\n}\n\nreturn results;"
+          },
+          "id": "code-build-sheets-api-update",
+          "name": "Build Google Sheets API Update Request",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            5008,
+            64
+          ]
+        },
+        {
+          "parameters": {
+            "operation": "update",
+            "documentId": {
+              "__rl": true,
+              "value": "12N2C8iWeHkxJQ2qz7m3aTyZw3X1gXbyyyFa-rP0tD7I",
+              "mode": "id"
+            },
+            "sheetName": {
+              "__rl": true,
+              "value": 644586395,
+              "mode": "list",
+              "cachedResultName": "Dokumenten_Tracker",
+              "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12N2C8iWeHkxJQ2qz7m3aTyZw3X1gXbyyyFa-rP0tD7I/edit#gid=644586395"
+            },
+            "columns": {
+              "mappingMode": "autoMapInputData",
+              "value": {},
+              "matchingColumns": [
+                "Mandant"
+              ],
+              "schema": [
+                {
+                  "id": "Mandant",
+                  "displayName": "Mandant",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "Letzte_Aktualisierung",
+                  "displayName": "Letzte_Aktualisierung",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "01_Exposé",
+                  "displayName": "01_Exposé",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "02_Grundbuchauszug",
+                  "displayName": "02_Grundbuchauszug",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "03_Bautraegerkalkulation_DIN276",
+                  "displayName": "03_Bautraegerkalkulation_DIN276",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "04_Exit_Strategie",
+                  "displayName": "04_Exit_Strategie",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "05_Altlastenkataster",
+                  "displayName": "05_Altlastenkataster",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "06_Baugrundgutachten",
+                  "displayName": "06_Baugrundgutachten",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "07_Lageplan",
+                  "displayName": "07_Lageplan",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "08_Flaechenberechnung",
+                  "displayName": "08_Flaechenberechnung",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "09_GU_Werkvertraege",
+                  "displayName": "09_GU_Werkvertraege",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "10_Bauzeichnungen",
+                  "displayName": "10_Bauzeichnungen",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "11_Baugenehmigung",
+                  "displayName": "11_Baugenehmigung",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "12_Gutachterauftrag",
+                  "displayName": "12_Gutachterauftrag",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "13_Verkaufspreise",
+                  "displayName": "13_Verkaufspreise",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "14_Bauzeitenplan",
+                  "displayName": "14_Bauzeitenplan",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "15_Vertriebsweg",
+                  "displayName": "15_Vertriebsweg",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "16_Ausstattungsbeschreibung",
+                  "displayName": "16_Ausstattungsbeschreibung",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "17_Teilungserklaerung",
+                  "displayName": "17_Teilungserklaerung",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "18_Versicherungen",
+                  "displayName": "18_Versicherungen",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "19_Muster_Verkaufsvertrag",
+                  "displayName": "19_Muster_Verkaufsvertrag",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "20_Umsatzsteuervoranmeldung",
+                  "displayName": "20_Umsatzsteuervoranmeldung",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "21_BWA",
+                  "displayName": "21_BWA",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "22_Jahresabschluss",
+                  "displayName": "22_Jahresabschluss",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "23_Finanzierungsbestaetigung",
+                  "displayName": "23_Finanzierungsbestaetigung",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "24_Darlehensvertrag",
+                  "displayName": "24_Darlehensvertrag",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "25_Gesellschaftsvertrag",
+                  "displayName": "25_Gesellschaftsvertrag",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "26_Handelsregisterauszug",
+                  "displayName": "26_Handelsregisterauszug",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "27_Gewerbeanmeldung",
+                  "displayName": "27_Gewerbeanmeldung",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "28_Steuer_ID",
+                  "displayName": "28_Steuer_ID",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "29_Freistellungsbescheinigung",
+                  "displayName": "29_Freistellungsbescheinigung",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "30_Vollmachten",
+                  "displayName": "30_Vollmachten",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "31_Korrespondenz",
+                  "displayName": "31_Korrespondenz",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "32_Sonstiges",
+                  "displayName": "32_Sonstiges",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "33_Unbekannt",
+                  "displayName": "33_Unbekannt",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "string",
+                  "canBeUsedToMatch": true,
+                  "removed": false
+                },
+                {
+                  "id": "row_number",
+                  "displayName": "row_number",
+                  "required": false,
+                  "defaultMatch": false,
+                  "display": true,
+                  "type": "number",
+                  "canBeUsedToMatch": true,
+                  "readOnly": true,
+                  "removed": false
+                }
+              ],
+              "attemptToConvertTypes": false,
+              "convertFieldsToString": false
+            },
+            "options": {}
+          },
+          "id": "http-update-tracker",
+          "name": "Update Dokumenten_Tracker Row",
+          "type": "n8n-nodes-base.googleSheets",
+          "typeVersion": 4.5,
+          "position": [
+            5456,
+            -16
+          ],
+          "credentials": {
+            "googleSheetsOAuth2Api": {
+              "id": "H7ewI1sOrDYabelt",
+              "name": "Google Sheets account"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "conditions": {
+              "options": {
+                "version": 2,
+                "leftValue": "",
+                "caseSensitive": true,
+                "typeValidation": "strict"
+              },
+              "combinator": "and",
+              "conditions": [
+                {
+                  "id": "skip-check",
+                  "operator": {
+                    "type": "boolean",
+                    "operation": "false",
+                    "singleValue": true
+                  },
+                  "leftValue": "={{ $json.skipTrackerUpdate }}",
+                  "rightValue": ""
+                }
+              ]
+            },
+            "options": {}
+          },
+          "id": "if-skip-tracker",
+          "name": "Should Update Tracker?",
+          "type": "n8n-nodes-base.if",
+          "typeVersion": 2.2,
+          "position": [
+            5232,
+            64
+          ]
+        },
+        {
+          "parameters": {
+            "options": {}
+          },
+          "id": "78741d17-6f03-429f-84ff-23a601d3081c",
+          "name": "Process One File at a Time1",
+          "type": "n8n-nodes-base.splitInBatches",
+          "typeVersion": 3,
+          "position": [
+            304,
+            464
+          ]
+        }
+      ],
+      "connections": {
+        "Lookup Client in Dokumenten_Tracker": {
+          "main": [
+            [
+              {
+                "node": "Find Client Row and Validate",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Lookup Client in AMA_Folder_IDs": {
+          "main": [
+            [
+              {
+                "node": "Get Destination Folder ID",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Get Destination Folder ID": {
+          "main": [
+            [
+              {
+                "node": "Move File to Final Location",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Move File to Final Location": {
+          "main": [
+            [
+              {
+                "node": "Prepare Success Output",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Lookup 38_Unknowns Folder": {
+          "main": [
+            [
+              {
+                "node": "Get 38_Unknowns Folder ID",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Get 38_Unknowns Folder ID": {
+          "main": [
+            [
+              {
+                "node": "Move File to 38_Unknowns",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Move File to 38_Unknowns": {
+          "main": [
+            [
+              {
+                "node": "Prepare Error Email Body",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Prepare Error Email Body": {
+          "main": [
+            [
+              {
+                "node": "Send Error Notification Email",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Classify Document with GPT-4": {
+          "main": [
+            [
+              {
+                "node": "Parse Classification Result",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Tier 2 GPT-4 API Call": {
+          "main": [
+            [
+              {
+                "node": "Parse Tier 2 Result",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Parse Tier 2 Result": {
+          "main": [
+            [
+              {
+                "node": "Determine Action Type",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Determine Action Type": {
+          "main": [
+            [
+              {
+                "node": "Lookup Client in Dokumenten_Tracker",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Find Client Row and Validate": {
+          "main": [
+            [
+              {
+                "node": "Route Based on Document Type1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Download PDF for Classification": {
+          "main": [
+            [
+              {
+                "node": "Convert PDF to Base64",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Convert PDF to Base64": {
+          "main": [
+            [
+              {
+                "node": "Build AI Classification Prompt",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Build AI Classification Prompt": {
+          "main": [
+            [
+              {
+                "node": "Build Claude Tier 1 Request Body",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Parse Claude Tier 1 Response": {
+          "main": [
+            [
+              {
+                "node": "Parse Classification Result",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Parse Classification Result": {
+          "main": [
+            [
+              {
+                "node": "Build Claude Tier 2 Request Body",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Parse Claude Tier 2 Response": {
+          "main": [
+            [
+              {
+                "node": "Parse Tier 2 Result",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Claude Vision Tier 1 Classification": {
+          "main": [
+            [
+              {
+                "node": "Wait After Tier 1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Wait After Tier 1": {
+          "main": [
+            [
+              {
+                "node": "Parse Claude Tier 1 Response",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Claude Vision Tier 2 Classification": {
+          "main": [
+            [
+              {
+                "node": "Wait After Tier 2",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Wait After Tier 2": {
+          "main": [
+            [
+              {
+                "node": "Parse Claude Tier 2 Response",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Execute Workflow Trigger (Refreshed)": {
+          "main": [
+            [
+              {
+                "node": "Process One File at a Time1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Prepare Success Output": {
+          "main": [
+            [
+              {
+                "node": "Process One File at a Time1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Send Error Notification Email": {
+          "main": [
+            [
+              {
+                "node": "Process One File at a Time1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Route Based on Document Type1": {
+          "main": [
+            [
+              {
+                "node": "Lookup 38_Unknowns Folder",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "Prepare Tracker Update Data",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "Lookup 38_Unknowns Folder",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "Lookup 38_Unknowns Folder",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Build Claude Tier 1 Request Body": {
+          "main": [
+            [
+              {
+                "node": "Wait Before Tier 1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Wait Before Tier 1": {
+          "main": [
+            [
+              {
+                "node": "Claude Vision Tier 1 Classification",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Build Claude Tier 2 Request Body": {
+          "main": [
+            [
+              {
+                "node": "Wait Before Tier 2",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Wait Before Tier 2": {
+          "main": [
+            [
+              {
+                "node": "Claude Vision Tier 2 Classification",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Prepare Tracker Update Data": {
+          "main": [
+            [
+              {
+                "node": "Build Google Sheets API Update Request",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Update Dokumenten_Tracker Row": {
+          "main": [
+            [
+              {
+                "node": "Lookup Client in AMA_Folder_IDs",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Build Google Sheets API Update Request": {
+          "0": [
+            [
+              {
+                "node": "Should Update Tracker?",
+                "type": "0",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Should Update Tracker?": {
+          "0": [
+            [
+              {
+                "node": "Update Dokumenten_Tracker Row",
+                "type": "0",
+                "index": 0
+              }
+            ]
+          ],
+          "1": [
+            [
+              {
+                "node": "Lookup Client in AMA_Folder_IDs",
+                "type": "0",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Process One File at a Time1": {
+          "main": [
+            [],
+            [
+              {
+                "node": "Download PDF for Classification",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "authors": "Sway Clarke",
+      "name": null,
+      "description": null,
+      "autosaved": false,
+      "workflowPublishHistory": [
+        {
+          "createdAt": "2026-01-26T21:44:43.316Z",
+          "id": 1296,
+          "workflowId": "okg8wTqLtPUwjQ18",
+          "versionId": "c533dd2d-705b-4379-b1a7-f48d54b5f12a",
+          "event": "activated",
+          "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8"
+        }
+      ]
+    }
+  }
+}

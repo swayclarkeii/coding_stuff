@@ -1,0 +1,373 @@
+Sway Clarke: I don't want to keep it for too long, these things can go super long, and we didn't even get to the AI stuff, because I really wanted to talk to you about that, just kind of how that's working, but I think more so, is there anything else in terms of your workflow, your processes, the things that you're doing that you feel like you wanted to either tell me about, or that's just super annoying?
+James RG Neville: Well, the other thing is, The other thing that's really frustrating is that I would like to be able to spend more time on like, really top line business stuff.
+James RG Neville: And I do not have a single moment for any of this, like, we have discussions about how to expand the company, there's kind of a lot of, there's like redoing the website and stuff like this, these are all things that I would be willing and very excited to manage these projects.
+James RG Neville: Okay.
+James RG Neville: But I do not have the time.
+James RG Neville: There's a good sort of idea that Pierre came up with about another potential revenue stream, which I could 100% get involved in, but I needed something to do it, and I can't do it whilst doing my current job.
+James RG Neville: I have proposed them finding cover for me for four days, and Alexi and I putting our heads together and kind of sussing it out.
+James RG Neville: But sometimes I feel like there's a lot of talk in the company, and I could do it.
+James RG Neville: I feel I could do it.
+James RG Neville: I could do anything here, but I just don't have the time to do it.
+James RG Neville: Yeah.
+Sway Clarke: It sounds like everybody's quite maxed out.
+Sway Clarke: Yeah, maxed out.
+James RG Neville: I think there's also like a bit of, you know, we've got...
+James RG Neville: I like our management structure really good for like when it comes to dealing with the freelancers, but we do not have our management structure when it comes to the management team, like getting sort of internal management projects done is a real slog because like, you know, I feel like I could delegate the jobs to Madalena, Elise and Leonore, but I don't quite know their workload day to day.
+James RG Neville: And like, if I'm allowed to delegate jobs to them or not.
+Sway Clarke: Sorry, you mean internal like ambush projects, things that need to get done, things that need to get changed within the company, like?
+Sway Clarke: Well, need, maybe not.
+James RG Neville: Preferable, yes.
+James RG Neville: Stuff like updating the website.
+James RG Neville: That's the really classic one.
+James RG Neville: Yeah, the website's not being updated.
+James RG Neville: Just ages.
+James RG Neville: And being able to like sort of figure out how many, how much, what resources I have for that.
+James RG Neville: Yeah.
+James RG Neville: Yeah.
+James RG Neville: Who's project managing it?
+James RG Neville: Who can I delegate to do X, Y, and Z?
+James RG Neville: Because Sinbad and Pierre aren't doing it.
+James RG Neville: I would like to do it, but I don't have the time to do it.
+James RG Neville: If they want to give me the time to do it, then I would do it.
+James RG Neville: I need somebody to do what I'm doing.
+James RG Neville: Maybe I'm talking out of my , but I feel like it's pretty important that someone's doing my job.
+James RG Neville: Yeah, yeah, for sure.
+Sway Clarke: No, no, 100%.
+Sway Clarke: Well, that I still have you for a couple more minutes, I do want to ask you quickly about this AI situation, because I know that I've been talking with Sinbad and with Pierre about this, and one of the concerns is, not concerns, but like, you know, I also work a lot with AI, and it's this whole black box of like information coming in, credits going burning, like things are happening.
+Sway Clarke: And so I'm curious to know, because it sounds like there's no basic system that you're using right now in order to, like, quantify the time to count, you know, to charge for it.
+Sway Clarke: What is the system that you're doing right now?
+Sway Clarke: Like, because you're doing it, right?
+Sway Clarke: You're the one doing it.
+James RG Neville: I think every freelancer has their own system.
+Sway Clarke: Every freelancer has their own system.
+Sway Clarke: OK, so how does it work?
+Sway Clarke: Obviously.
+James RG Neville: We, when AI was first emerging, we did do some internal courses, which standardised how we all work with them.
+James RG Neville: But since then, as you know, AI updates so quickly that, like, the thing, the tool you're using last month isn't necessarily the tool you're using this month.
+James RG Neville: And it's kind of been a bit crazy.
+James RG Neville: I don't know who's paying for what, if they're paying for it out of their own pocket or if they're invoicing us, who has access.
+James RG Neville: Test to what, who has what skills, who's, yeah, it's all a bit of a jumble and a bit of a mess, which may be why I do a lot of it myself.
+Sway Clarke: What is the process before we even get into it?
+Sway Clarke: What is the current process?
+Sway Clarke: How does it work?
+Sway Clarke: Like, directors like, I want  oranges and Cinderella with Coca-Cola, you know, like, so then what happens?
+Sway Clarke: Like, how does it work?
+James RG Neville: So, yeah, you get the brief.
+James RG Neville: And there will be a scene with Cinderella holding some oranges, drinking Coca-Cola.
+James RG Neville: Yeah.
+James RG Neville: And you're like, we're never gonna find VR for this.
+James RG Neville: So let's tackle this with AI.
+James RG Neville: The, the old process was generating the image, uh, specific like fresh mid journey.
+James RG Neville: The new process, which is better is finding it's a in the the Bye.
+James RG Neville: Existing VR that covers some of the boxes and then AI editing it to match the other missing parts.
+James RG Neville: That's been a huge game changer.
+James RG Neville: There's one program called Reeve which is quite cheap and it produces good results in that.
+James RG Neville: I have one account I share with everybody.
+James RG Neville: Then there's Nano Banana which generally produces excellent results and this is the thing that's been the real cash sink.
+James RG Neville: What I'm finding now is that most people are not using the journey that much.
+James RG Neville: That old school way of just generating images fresh, it's not done so commonly.
+James RG Neville: Although it does get results.
+James RG Neville: You mean because it's too much work?
+James RG Neville: It is too much work and it's too chaotic.
+Sway Clarke: You're not.
+Sway Clarke: not.
+James RG Neville: getting those pinpoint situations that you need.
+James RG Neville: There are situations where it's still good, but I think it's been outclassed in many ways.
+Sway Clarke: So you're using Nanobanana or you're Grieve, you're generating these, you have an account and then all the free, how many freelancers roughly would you say are doing this?
+James RG Neville: Visual research is why there's like 25, maybe 30 visual researchers.
+James RG Neville: I don't know if I've given my login details to Reve for all of them, but if there's a job specific thing and there's a lot of it to do, then I'll be like, hey, here's a little tutorial about how use Reve.
+James RG Neville: It's super easy.
+James RG Neville: I'll have some fun.
+James RG Neville: Generally, generally AI specific requests are generally handled by me, Alexi or Gaetano and Alexi or Gaetano are the junior art director.
+James RG Neville: Zoe's starting to do some as well.
+James RG Neville: But because it's so, again, you've got to spend a bit of time acing each image.
+James RG Neville: Yeah, for sure.
+James RG Neville: For most of the visual researchers, they'd rather just do like general pulls, and then they don't do so much specific AI editing.
+James RG Neville: Although some of them do.
+James RG Neville: Some of them in the past were better with it as well.
+James RG Neville: You've got one guy, Grady, who covers me sometimes.
+James RG Neville: He's really good at AI as well.
+James RG Neville: It depends on their preference, but generally, they'll tag us and be like, hey, is this possible in AI?
+James RG Neville: And then we'll do it.
+Sway Clarke: Sorry, they meaning the producers?
+Sway Clarke: No.
+Sway Clarke: Visual researchers.
+Sway Clarke: Visual researchers.
+Sway Clarke: So the visual researcher on site or wherever they're doing, they get a request for an image.
+Sway Clarke: And then they put that image to you.
+Sway Clarke: Or somebody else to generate it, and then you or another freelancer that has the account is basically just going in, Wild West, let me just find this thing, and then at the end, but nobody knows who used what and how many credits from each person were used, it's just a general, like, free-for-all.
+James RG Neville: Yeah, so the, so one little problem with your analysis there, so the visual researchers on our team, they get the brief, 90% of it is visual research, traditional visual research, and then there's some specific scripts, beats, that would, we would only make an AI.
+James RG Neville: And generally, depending on the visual research, but generally they will ask Alexi, Gaetan, or I to tackle those images, which I don't mind too, I don't mind, it's fun, I quite enjoy it.
+James RG Neville: M-hm.
+James RG Neville: And then they go into the visual research batch and get sent off to the director and the director ultimately gives them a thumbs up or a thumbs down.
+Sway Clarke: Okay.
+James RG Neville: But yeah, in terms of like who's using what tool and how many credits it's using, yeah, there's no oversight on that.
+James RG Neville: And it differs from platform to platform.
+James RG Neville: So it's mainly, the main costly thing is nano banana, which is the most expensive one.
+Sway Clarke: Yeah.
+James RG Neville: Or at least the framework that it's in, it's in this program where we use Cree, CREO.
+James RG Neville: Yeah.
+James RG Neville: It has like a bunch of different tools in it.
+James RG Neville: And I generally only use it for nano banana.
+James RG Neville: Interesting.
+Sway Clarke: Okay.
+Sway Clarke: Yeah.
+Sway Clarke: Cause I think they were wondering like, I guess in the sense of how do you, how do you tab it?
+Sway Clarke: How do you can keep any kind of tab?
+Sway Clarke: Regulation or control or like just a general sense of like what's happening on this, right?
+Sway Clarke: Sorry, think my wife is calling me.
+Sway Clarke: Sorry, one second.
+Sway Clarke: Sorry, Sasha, one second.
+Sway Clarke: Oh, okay.
+Sway Clarke: Okay, ciao.
+Sway Clarke: Sorry, sorry, sorry.
+Sway Clarke: Okay.
+Sway Clarke: Yeah.
+Sway Clarke: So it's, I think why I wanted to understand, I just wanted to understand the platforms that you were using exactly.
+Sway Clarke: I wanted to understand, obviously, time.
+Sway Clarke: I mean, it does take a lot of time to kind of generate, which is not really the issue.
+Sway Clarke: But I think I was trying to understand what the current process is and how people are using it.
+Sway Clarke: Like, does everybody have the same login?
+Sway Clarke: Are people having their own logins and then just submitting their invoices at the end of the month or something?
+Sway Clarke: And so, but it seems like there isn't really a system yet.
+Sway Clarke: Kind of like just generate the images.
+Sway Clarke: And just offer the service right now, and then we'll figure it all out later.
+Sway Clarke: Yeah, pretty much.
+James RG Neville: We started off with a system which was like everybody was offered the basic mid-journey package, and they would add it to their invoice at the end of the month.
+James RG Neville: Now I think that's a bit redundant because we don't use mid-journey that much.
+James RG Neville: Yeah.
+James RG Neville: And what would I suggest using it to most people?
+James RG Neville: Well, what would be nice is if we had one big career singular account that we could all use and just use the credits up until they ran out and then somebody would top them up.
+James RG Neville: That would be ideal.
+James RG Neville: However, I don't know if we're ever going to get that out of here in Zimbad.
+James RG Neville: And then everyone uses my Reeve account, which I just pay monthly, and it's never run out of credits.
+James RG Neville: And everyone seems to be agreed.
+James RG Neville: use my account just fine.
+Sway Clarke: Okay, okay.
+James RG Neville: And then I'll charge Pierre and Simbad that.
+James RG Neville: But as to what other people are paying for, I don't know.
+James RG Neville: Leonor or maybe Elise would probably know because they deal with the invoices.
+James RG Neville: It would be nice to have a sort of a company-wide platform that works for everybody.
+James RG Neville: So we've done this before.
+James RG Neville: We did buy a company-wide platform for another tool a while back, but it didn't let you log in from multiple locations.
+James RG Neville: But so that was kind of like, it ended up being kind of useless.
+James RG Neville: So I know career does have like enterprise accounts where presumably let multiple logins happen.
+James RG Neville: And we have a situation, we have this one of the main
+James RG Neville: Visual Researching Tools, FLIM, which is like an online database of imagery, we have something like 20 different emails accounted to that, but we have more than 20 freelancers, so they kind of share them, but it is again like a little bit unclear about who's using what, and personally from my perspective, like if it's not broke, don't fix it.
+Sway Clarke: Yeah, I think the issue is not the organization, I think the issue is potential costs.
+Sway Clarke: I think it's just like how do you even know what the costs are going to be, right?
+Sway Clarke: And I think it's not really, I think the general concern is it's not really a good business model to not know at the end of the month what this mysterious cost could potentially be or not, right?
+Sway Clarke: Yes.
+Sway Clarke: I think that's where it's coming from, and that's why the question is.
+Sway Clarke: Thinking about it just to try and understand it to come up.
+Sway Clarke: Is there another solution, right?
+Sway Clarke: Is there a solution to mitigate the cost?
+Sway Clarke: I think that's essentially what the question is.
+James RG Neville: Well, I mean, the first one would probably tell everyone to stop paying for mid-journey because we don't use it that much.
+James RG Neville: Okay.
+James RG Neville: And then make sure that, I guess, like everyone's got access to my Reve account, making sure that there's kind of like a, at least basic information for anyone to use that.
+James RG Neville: It's very easy to pick up and give that to all the visual research.
+James RG Neville: I be like, we're taking away a mid-journey, but you've got Reve, which is kind of better.
+Sway Clarke: You mean like a tutorial or something or just hand over?
+Sway Clarke: Yeah.
+Sway Clarke: And then.
+James RG Neville: A company account for CREA would be great, even if it's just for a select few people, even if it's just for Alexei, Gaitanai, Grady, like a few select people, that would be great.
+Sway Clarke: What would these three things do for you?
+Sway Clarke: In your end, what would they accomplish?
+James RG Neville: The REAV one would be the best one for me, making sure everyone knows basic REAV usage, because then, hey, James, could you make this sign say,  heist, they can do that themselves.
+James RG Neville: Okay.
+Sway Clarke: So it sounds like things that other people could be doing, you end up doing them just because of ignorance, like a lack of information, lack of knowledge of how to do it.
+Sway Clarke: Yeah.
+James RG Neville: I think also I end up doing them because I know that I'm going to do them really well.
+James RG Neville: And I think there's a certain kind of quality control thing where like, AI used to kind of look a bit  and that was fine, but now it can look really good.
+James RG Neville: And I want to raise that bar.
+James RG Neville: And I think a lot of people still have that kind of like mentality where it's meant to just be illustrative.
+James RG Neville: I'm going to make sure that, you know, if they're putting AI in there, it's like the best AI.
+Sway Clarke: But would you say that if these other, like, let's say you had 10 other people that were just as good as you on Reeve, like, how much time would that free up of your time?
+James RG Neville: Probably in a month, it would free up quite a lot.
+Sway Clarke: I mean, what are we talking like an hour?
+Sway Clarke: we talking about 10 hours?
+Sway Clarke: What did you say?
+James RG Neville: I would still be happy to handle the more complex imagery because sometimes I think I've got a nice kind of crossover of thinking like a visual researcher and thinking like a designer so I can make images that work well with a design and I think that's kind of a unique perspective that only I can bring but I could kind of just focus on those and make sure that the low-hanging fruit AI image generations are done by the visual researchers.
+James RG Neville: That would save some time, yes.
+Sway Clarke: I mean it could be five hours a month that you work on strategic business.
+James RG Neville: It could be five hours a month that I used to wash the dishes and make a coffee.
+Sway Clarke: Get some sleep.
+Sway Clarke: No, no, it's interesting.
+Sway Clarke: Okay, that's an interesting one because Yeah, I think
+Sway Clarke: I that's an important one.
+Sway Clarke: You have a lot of people that could be doing, having more output.
+Sway Clarke: And why, right?
+Sway Clarke: Why not?
+Sway Clarke: Why are they not having that output?
+Sway Clarke: It's question.
+Sway Clarke: But I don't think that's impossible, right?
+Sway Clarke: I think a lot of times we, I know you like using AI.
+Sway Clarke: I do too.
+Sway Clarke: It's fun.
+Sway Clarke: Just sitting around banging stuff out.
+Sway Clarke: But a lot of times I think it's hard to just, you mentioned it before, letting go of things or like, just like not micromanaging it, not thinking like, I could do this myself.
+Sway Clarke: I got to do this thing.
+Sway Clarke: And if I don't, do it, it's not going to be good.
+Sway Clarke: But, you know, there may be an option to train people to do it.
+Sway Clarke: And, you know, that difference between what you do and what they do, and maybe it's a 5%, and maybe that's okay, you know, for example, correct there.
+James RG Neville: My only worry is that the speed of AI changes so much that by the time that you've got that kind of training in place, that it's redundant.
+James RG Neville: That's my only worry.
+James RG Neville: But if you're...
+Sway Clarke: If keeping up, then other people got to be able to keep up somehow too, right?
+Sway Clarke: Yeah, yeah, that's true.
+James RG Neville: There was this kind of idea that we had that, again, was one of those kind of long form internal ambush projects that we've talked about a ton, but it has yet to materialize and I don't also want to have the time to manage it.
+James RG Neville: It's like a sort of internal ambushed newsletter where part of it was keeping up to date with like AI tools that I've given my seal of approval or Alexei's given a seal of approval.
+James RG Neville: So it's kind of cutting through all the chatter and the visual researchers don't need to have like 15 AI image generation TikTok, TikTokers on their Instagram or whatever, that we could just be like, hey, this works, you know, like you're going to use this for the time being.
+Sway Clarke: Sounds a bit like you're talking.
+Sway Clarke: Thank
+Sway Clarke: We about generally standardizing the processes around AI, the tools that are being used, for not only a monetary sense, but also in a creative sense.
+Sway Clarke: If you can get people to focus on one tool and get really good at it, rather than doing a bunch of tools, it may be more beneficial for everybody on board.
+Sway Clarke: I mean, that's kind of what I'm hearing.
+Sway Clarke: Yeah, I'd agree with that.
+James RG Neville: But like, with the caveat that when  changes, we can pivot away from these things quickly.
+Sway Clarke: Yeah, yeah, yeah, yeah.
+Sway Clarke: Well, I think AI is one of those things that, I mean, I don't think it's AI, I think technology, we're just at a point where it's always going to change, right?
+Sway Clarke: Every  couple months is something going be something new.
+Sway Clarke: And I think businesses, you know, this is also what I help businesses do, like build programs and build structures and systems that are resilient enough to be able to do that, right?
+Sway Clarke: Because we're going to have to change.
+Sway Clarke: 12 months from now, something's going to change, you're to to change something else, right?
+Sway Clarke: So, it's the new game, right?
+Sway Clarke: It's just a world to win.
+Sway Clarke: Well, James, thank you, man.
+Sway Clarke: I mean, I know we had to talk about this, we had to talk about the AI stuff, we had to talk about your job and everything, and I really, really appreciate your time.
+Sway Clarke: Have you got another five minutes?
+Sway Clarke: Yeah, sure.
+Sway Clarke: If you've got something to get off your chest.
+James RG Neville: Yes, I've remembered something that would really make my life better and would save loads of time, actually.
+James RG Neville: So each of our projects has an individual Discord chatroom.
+James RG Neville: And it'd be nice to have some way that we have all the materials for the said project, in a way, pinned in a way that everybody knows how to update, because sometimes...
+Sway Clarke: Pinned?
+Sway Clarke: So you have a...
+Sway Clarke: So in Discord about a project, let's say it's, I don't know, a TikTok project, you're doing something for TikTok, and in that chat there's materials and there's conversations, but are you saying there are materials, like attachments that are in there?
+James RG Neville: Yeah, so you can pin messages, and it would be nice to have all the stuff that was sent by the production, so I'd be like, here's the agency deck, and here's a recording of the conversation they had with the agency, and here's the text document, and here's some preliminary research that the director has made, and here's a brand guidelines PDF and stuff like that.
+James RG Neville: It'd be, you know, rather than having all those things scattered in emails and various links that may or may not, we transfer links that go down and stuff, but having them all organized in one Google Drive folder, we use Google Drive, and then having all those
+James RG Neville: There's links to each file pinned in a message in Discord, so they're easy to access for everybody.
+James RG Neville: So you can just go into the project, click the pinned messages button, and there's all the documents that you'll need.
+James RG Neville: I've been hesitant about doing this before because it needs real discipline from all the freelancers to update it.
+James RG Neville: Maybe there's a way of automatically updating this, so it's not subject to human error.
+Sway Clarke: Well, I think the first question I have is, where are these documents coming from?
+James RG Neville: Often via the email, but not exclusively.
+Sway Clarke: Okay, so an email comes from the production company that says, here's this, here's this, here's that, here's blah, here's our script, here's our blah, here's a blah.
+Sway Clarke: And then now you or someone has to put those documents.
+Sway Clarke: friends.
+Sway Clarke: In Discord?
+Sway Clarke: In a Discord chat?
+Sway Clarke: Or in a Google Drive?
+Sway Clarke: Like, what's the process?
+James RG Neville: Google Drive would be better because we have a huge company, Google Drive.
+James RG Neville: And then hyperlink out the Google Drive into Discord.
+Sway Clarke: So what I need to connect is, let's say production company A is going to do a Coca-Cola job, you guys are going to take it on, and then before the job starts, they're going to send an email with a bunch of different attachments, right?
+Sway Clarke: And they're going to be like, hey, this is what we want here, this is that, this is that, I don't know, just information.
+Sway Clarke: And that information right now is then being downloaded by you or someone.
+Sway Clarke: Okay, so whoever that information is going to, like it might be going to Madalena, it might be going to Alice or wherever, right?
+Sway Clarke: Somebody at Ambush is getting this, and then either this, so maybe I should clarify.-bye.
+Sway Clarke: Either this process is not happening right now, or this is, okay, this is a process you'd like to implement.
+Sway Clarke: Okay, so there's my clarification.
+Sway Clarke: What you'd like to have is I want all the documents that are surrounding one particular project to be in a Google Drive and to be inaccessible in a Discord for that project.
+Sway Clarke: Okay, okay, okay, okay.
+Sway Clarke: So my question, so the questions that I have, you've got to point me in the right direction for this one is, who do these documents go to?
+Sway Clarke: Like who gets them?
+James RG Neville: Everybody involved in the project will be copied into a single email thread.
+James RG Neville: Yeah.
+James RG Neville: Which generally we call an OPS thread.
+James RG Neville: And myself, the general Ambush email account will be there, all the freelancers involved will be copied in.
+James RG Neville: People from the production team, the director.
+Sway Clarke: Ah.
+Sway Clarke: I see.
+Sway Clarke: See, one long group, over time, people are sending documents, blah, blah, blah, blah, blah, and then you got to go in, oh, , where is that document, what's that one that I'm looking for, no, it's not this one, but, okay, okay, okay, so there's one main source, which is an email thread, all the attachments that are in the email thread, you'd love them to be in a Google Drive, and you'd love them to be in that accord, that, not accord, the adjacent, or the project in Discord, for example.
+Sway Clarke: And what, my question is, what would that do, and how much time would that save you, like, what would, what would it do?
+James RG Neville: That would save me, personally, a bit of time, but it would save the freelancers a heck of a lot of the time, especially if they are coming into a project after two days, or the project comes back a week later for some edits, they don't, they know what document is the most updated text, they know what would the last link that we sent them is, you know,
+James RG Neville: They don't need to scroll through email threads that they weren't necessarily looped in on originally to find key information.
+Sway Clarke: Okay, so it would solve a problem that key information is getting lost after or during production, like key information to these documents is getting lost, or it's hard to find?
+James RG Neville: It's hard to find, and also from a personal level, I get a bit stressed that they know where all these things are, and they might ask me to find them, which is annoying.
+James RG Neville: Then it's more time.
+Sway Clarke: Okay, okay, okay, okay, I see what you're saying.
+Sway Clarke: And is this part of that, like, when you mentioned that third of your day, trying to find this document that they're asking you for you, hey, I need to do this thing, but I don't know what's the text that we need, and what's the last?
+James RG Neville: The dangerous one is with the text document, that it...
+James RG Neville: I can foresee a thing where the text document's sent in like a Word document or like sometimes it's just copied and pasted into the email, quite rare, but they don't get updated in the text document that we have and then they're like, oh, this is the text document in the project and it's not actually been updated since the last time and hilarity ensues.
+Sway Clarke: So you're building around text that's old text.
+Sway Clarke: Yes, exactly.
+James RG Neville: That's my worry.
+Sway Clarke: Okay, but in this stream, just to get very technical, in this whole stream you could have like four different Word documents, like an original one and then the latest revision because someone over there is like, no, we're going to change the text to some copywriter or something.
+Sway Clarke: And then you would have, you have to search for the right one within that.
+Sway Clarke: Yeah.
+James RG Neville: Okay.
+James RG Neville: Exactly.
+James RG Neville: The best scenario is people use Google Docs.
+James RG Neville: And color corrections.
+James RG Neville: Okay.
+James RG Neville: The really disciplined writers will do that, but that's only like 50% of the time.
+Sway Clarke: And then there's many other documents that are in there, right?
+Sway Clarke: Not just text documents, but it's visual cues or moods and ideas, anything that they wanted to communicate about the project.
+James RG Neville: And it would also be links that we send them as well.
+James RG Neville: It would be nice to have links to the batches of visuals that we've sent out and stuff.
+James RG Neville: So they're all just, yeah, it would shave off a few minutes per project.
+James RG Neville: But it's just nice to have them all there collated, easily accessible.
+Sway Clarke: Sorry, when you say a few minutes per project, you mean literally for out of your eight projects, it would say like two minutes per project.
+James RG Neville: See, and compounded that by all the different freelancers as well.
+James RG Neville: It'll save me time, it'll save them even more time.
+James RG Neville: Okay.
+Sway Clarke: So for example, example, if you have like...
+Sway Clarke: On these different projects for a week, you're talking like 20 different freelancers working, everybody's taking a couple minutes out of their day to do that same thing, then sending you the requests, then you've got to go in with them and look for the information.
+James RG Neville: Hey James, can you tell me if this is the latest text?
+James RG Neville: I get that question loads.
+James RG Neville: And then you're like, I don't  know.
+Sway Clarke: I got to go check myself.
+Sway Clarke: You got to go through the email stream.
+Sway Clarke: That's probably another five minutes here.
+Sway Clarke: OK, OK, OK.
+Sway Clarke: So this is part of that annoying work, annoying work that you've got to do managing, project management.
+Sway Clarke: OK, that's an interesting one.
+Sway Clarke: That's an interesting one.
+Sway Clarke: And would you say, I have to be definitive about this, but is this like a real problem for you or is this something that'd be like, that's OK, it's all right.
+Sway Clarke: Or is this like, yo, this would change the game if we had this, because, like, I'm just getting  tired of chasing this kind of information?
+James RG Neville: I think it wouldn't change.
+James RG Neville: And it'd be like such a nice peace of mind.
+James RG Neville: I think it'd be, if it works, it'd be loved by everyone.
+James RG Neville: Because it is a frustrating thing for like, everybody in the company.
+Sway Clarke: To find a source of truth for the information.
+Sway Clarke: Yeah.
+Sway Clarke: For turning to a project.
+Sway Clarke: Okay.
+Sway Clarke: That's interesting, man.
+Sway Clarke: And so, last question on it, but if you had to rate it out of like 10 being the most painful and one being like not painful at all, like, what would you say that would be?
+Sway Clarke: Like a six, a seven, an eight?
+James RG Neville: Ooh, it's like a three.
+James RG Neville: It's like definitely, but like, death by a thousand paper cuts.
+Sway Clarke: Okay.
+Sway Clarke: Okay.
+Sway Clarke: Okay.
+Sway Clarke: Okay.
+Sway Clarke: All right.
+Sway Clarke: Okay.
+Sway Clarke: Cool.
+Sway Clarke: All right.
+Sway Clarke: Thank you.
+Sway Clarke: Thank you.
+Sway Clarke: Unless there's another thing you got, you want to tell me.
+Sway Clarke: I think we're, I think you got to get back to work.
+Sway Clarke: Your eyes.
+Sway Clarke: It like you're like, oh, , something burning right now.
+James RG Neville: I can't spell.
+James RG Neville: All right, 10 minutes to my next call.
+Sway Clarke: All right, then.
+Sway Clarke: I think we're good.
+Sway Clarke: I mean, if there's any other questions, like details or things I have, I'll just email you and ask you.
+Sway Clarke: But I think I got a lot here.
+Sway Clarke: Cool.
+Sway Clarke: It was an absolute pleasure.
+Sway Clarke: Yeah, thank you, man.
+Sway Clarke: Thank you.
+Sway Clarke: Very nice to meet you.
+Sway Clarke: And you're holding a ship together, man.
+Sway Clarke: Keep it up, homie.
+James RG Neville: Appreciate it.
+James RG Neville: All right, man.
+Sway Clarke: you later.
+Sway Clarke: Bye.

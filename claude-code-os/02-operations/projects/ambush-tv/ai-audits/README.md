@@ -2,7 +2,7 @@
 
 **Project:** Ambush TV
 **Purpose:** Staff interviews for automation proposal
-**First Interview:** Monday (TBD)
+**First Interview:** 2026-01-26 (James RG Neville - Complete)
 
 ---
 
@@ -10,10 +10,9 @@
 
 | # | Name | Role | Date | Status | Key Pain |
 |---|------|------|------|--------|----------|
-| 1 | | | Monday | Scheduled | |
-| 2 | | | TBD | Scheduled | |
-| 3 | | | TBD | Scheduled | |
-| 4 | | | TBD | Scheduled | |
+| 1 | James RG Neville | Senior Art Director | 2026-01-26 | **COMPLETE** | PM overhead (1/3 day), 17hr days, mood board bottleneck |
+| 2 | Leonor | Admin/Rates | 2026-01-27 | Scheduled | Rate updates (3 sheets), invoicing |
+| 3 | Alice | Admin | 2026-01-27 | Scheduled | TBD |
 
 ---
 
