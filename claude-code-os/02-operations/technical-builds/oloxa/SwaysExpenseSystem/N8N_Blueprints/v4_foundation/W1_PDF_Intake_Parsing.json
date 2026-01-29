@@ -1,0 +1,92 @@
+{
+  "updatedAt": "2026-01-29T14:56:22.413Z",
+  "createdAt": "2026-01-02T10:12:47.693Z",
+  "id": "MPjDdVMI88158iFW",
+  "name": "Expense System - Workflow 1: PDF Intake & Parsing",
+  "description": "Automated bank statement processing with deduplication",
+  "active": true,
+  "isArchived": false,
+  "versionId": "2a7fa584-757b-45a2-80f0-8bba6048ca08",
+  "versionCounter": 376,
+  "triggerCount": 2,
+  "nodes": [
+    {
+      "id": "57e59b24-d291-4209-8a91-59a61c13fdb4",
+      "name": "Watch Bank Statements Folder",
+      "type": "n8n-nodes-base.googleDriveTrigger"
+    },
+    {
+      "id": "2ac5e2bf-bb6d-425c-8d5b-b74b8cc502db",
+      "name": "Download PDF",
+      "type": "n8n-nodes-base.googleDrive"
+    },
+    {
+      "id": "67fb890a-f117-461f-a8e6-b88be91270af",
+      "name": "Extract File Metadata",
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "id": "build-api-request-body",
+      "name": "Build Anthropic API Request",
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "id": "ac158557-c9bb-41bd-b782-4bdf4a21e359",
+      "name": "Parse PDF with Anthropic Vision",
+      "type": "n8n-nodes-base.httpRequest"
+    },
+    {
+      "id": "b7a79304-94aa-4a5f-b17d-b4724a3b4842",
+      "name": "Parse Anthropic Response",
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "id": "check-duplicates",
+      "name": "Check for Duplicates",
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "id": "read-existing-transactions",
+      "name": "Read Existing Transactions",
+      "type": "n8n-nodes-base.googleSheets"
+    },
+    {
+      "id": "filter-non-duplicates",
+      "name": "Filter Non-Duplicates",
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "id": "3c0e0cd8-934a-4c8e-9798-2363c1e1ac94",
+      "name": "Write Transactions to Database",
+      "type": "n8n-nodes-base.googleSheets"
+    },
+    {
+      "id": "prepare-statement-log",
+      "name": "Prepare Statement Log",
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "id": "ef9db69e-d93b-4da0-a2ba-4b256df8d9a8",
+      "name": "Log Statement Record",
+      "type": "n8n-nodes-base.googleSheets"
+    },
+    {
+      "id": "aa07e622-f2a6-4c1a-ae6a-779bc2ab0a05",
+      "name": "Move PDF to Archive",
+      "type": "n8n-nodes-base.googleDrive"
+    },
+    {
+      "id": "webhook-trigger-temp",
+      "name": "Webhook Trigger (Testing)",
+      "type": "n8n-nodes-base.webhook"
+    }
+  ],
+  "keyFeatures": [
+    "Automatic bank statement parsing with Anthropic Vision",
+    "Deduplication (3-node chain): Check \u2192 Read existing \u2192 Filter",
+    "Bank name identification from PDF branding",
+    "September 2025 filename format support (Bank - Month YYYY)",
+    "Statement logging to Statements sheet",
+    "PDF archival after processing"
+  ]
+}

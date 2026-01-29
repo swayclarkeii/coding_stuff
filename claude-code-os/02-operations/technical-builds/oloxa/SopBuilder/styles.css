@@ -70,8 +70,8 @@ body {
 }
 
 .logo {
-    height: 64px;
-    width: auto;
+    height: auto;
+    width: 180px;
     max-width: 240px;
     object-fit: contain;
 }
@@ -265,10 +265,12 @@ h2 {
 .process-steps {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     gap: 1.5rem;
     margin-bottom: 2.5rem;
     padding: 1.5rem 0;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .process-step {
@@ -277,6 +279,7 @@ h2 {
     align-items: center;
     gap: 0.75rem;
     text-align: center;
+    width: 140px;
 }
 
 .step-number {
@@ -309,6 +312,8 @@ h2 {
 .process-arrow {
     color: var(--color-accent);
     opacity: 0.7;
+    margin-top: 3rem;
+    flex-shrink: 0;
 }
 
 @media (max-width: 480px) {

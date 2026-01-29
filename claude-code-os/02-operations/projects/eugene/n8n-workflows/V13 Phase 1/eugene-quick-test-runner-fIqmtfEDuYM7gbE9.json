@@ -1,0 +1,511 @@
+{
+  "updatedAt": "2026-01-29T14:39:36.400Z",
+  "createdAt": "2026-01-26T17:28:40.133Z",
+  "id": "fIqmtfEDuYM7gbE9",
+  "name": "Eugene - Quick Test Runner",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "When clicking 'Test workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// EDIT THESE VALUES TO CONFIGURE YOUR TEST\n// ============================================\n\nconst testConfig = {\n  // Client normalized name - must be lowercase with underscores\n  // This must match what Pre-Chunk Zero would generate\n  // Example: \"Villa Martens\" -> \"villa_martens\"\n  client_normalized: 'villa_martens',\n  \n  // Google Drive folder ID containing test files\n  // Updated to use the correct test folder ID from Sway's request\n  testFolderId: '1GQcFD61eaWgHwXZGxfzY2h_-boyG6IHa',\n  \n  // Dummy client email for testing\n  clientEmail: 'sway@oloxa.ai',\n  \n  // Spreadsheet ID for Test_Results logging\n  spreadsheetId: '12N2C8iWeHkxJQ2qz7m3aTyZw3X1gXbyyyFa-rP0tD7I'\n};\n\n// ============================================\n// CHECK FOR WEBHOOK-PROVIDED FILE PARAMETERS\n// ============================================\n\nconst inputData = $input.first().json;\nconst webhookBody = inputData.body || {};\n\n// Check if fileId and fileName are provided via webhook\nconst providedFileId = webhookBody.fileId;\nconst providedFileName = webhookBody.fileName;\n\nif (providedFileId && providedFileName) {\n  // Use provided file parameters\n  console.log(`Using provided file: ${providedFileName} (${providedFileId})`);\n  return [{\n    json: {\n      ...testConfig,\n      useProvidedFile: true,\n      fileId: providedFileId,\n      fileName: providedFileName,\n      mimeType: 'application/pdf'\n    }\n  }];\n} else {\n  // No file provided, will pick random file\n  console.log('No file provided, will select random file from test folder');\n  \n  if (testConfig.testFolderId === 'PLACEHOLDER_TEST_FOLDER_ID') {\n    throw new Error('Please set testFolderId in the Set Test Config node!');\n  }\n  \n  return [{\n    json: {\n      ...testConfig,\n      useProvidedFile: false\n    }\n  }];\n}"
+      },
+      "id": "set-config",
+      "name": "Set Test Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "='{{ $json.testFolderId }}' in parents ",
+        "returnAll": true,
+        "filter": {},
+        "options": {}
+      },
+      "id": "list-files",
+      "name": "List Files in Test Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        368,
+        576
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get test config and file list\nconst config = $('Set Test Config').first().json;\nconst allFiles = $input.all();\n\n// Filter for PDF files only (skip Excel, Word, etc.)\nconst pdfFiles = allFiles.filter(f => {\n  const name = (f.json.name || '').toLowerCase();\n  return name.endsWith('.pdf');\n});\n\nif (pdfFiles.length === 0) {\n  throw new Error(`No PDF files found in test folder: ${config.testFolderId}\\n\\nFound ${allFiles.length} files but none are PDFs.\\nPlease upload test PDFs to the folder and try again.`);\n}\n\n// Pick a RANDOM PDF file\nconst randomIndex = Math.floor(Math.random() * pdfFiles.length);\nconst file = pdfFiles[randomIndex].json;\n\nconsole.log(`Selected random PDF ${randomIndex + 1} of ${pdfFiles.length}: ${file.name}`);\nconsole.log(`(Skipped ${allFiles.length - pdfFiles.length} non-PDF files)`);\n\nreturn [{\n  json: {\n    fileId: file.id,\n    fileName: file.name,\n    mimeType: file.mimeType,\n    testFolderId: config.testFolderId,\n    client_normalized: config.client_normalized,\n    clientEmail: config.clientEmail\n  }\n}];"
+      },
+      "id": "grab-first",
+      "name": "Pick Random File",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        592,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Check if we're using a provided file or random selection\nconst configData = $('Set Test Config').first().json;\n\nlet fileData;\n\nif (configData.useProvidedFile) {\n  // Use file data from Set Test Config (webhook-provided)\n  console.log('Using webhook-provided file');\n  fileData = {\n    fileId: configData.fileId,\n    fileName: configData.fileName,\n    mimeType: configData.mimeType,\n    client_normalized: configData.client_normalized,\n    clientEmail: configData.clientEmail\n  };\n} else {\n  // Use file data from Pick Random File node\n  console.log('Using randomly selected file');\n  const randomFileData = $input.first().json;\n  fileData = {\n    fileId: randomFileData.fileId,\n    fileName: randomFileData.fileName,\n    mimeType: randomFileData.mimeType,\n    client_normalized: randomFileData.client_normalized,\n    clientEmail: randomFileData.clientEmail\n  };\n}\n\nconsole.log('Calling Chunk 2.5 with input:', JSON.stringify(fileData, null, 2));\n\nreturn [{\n  json: fileData\n}];"
+      },
+      "id": "build-input",
+      "name": "Build Chunk 2.5 Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        816,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "okg8wTqLtPUwjQ18",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/okg8wTqLtPUwjQ18",
+          "cachedResultName": "Chunk 2.5 - Client Document Tracking (Eugene Document Organizer)"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "execute-chunk25",
+      "name": "Execute Chunk 2.5",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = $input.first().json;\nconst testInput = $(\"Build Chunk 2.5 Input\").first().json;\n\nconst summary = {\n  \"TEST COMPLETE\": true,\n  \"File Tested\": result.fileName || testInput.fileName,\n  \"Client\": result.client_normalized || testInput.client_normalized,\n  \"Tier 1 Category\": result.tier1Category || \"N/A\",\n  \"Tier 2 Document Type\": result.documentType || \"N/A\",\n  \"Confidence\": result.combinedConfidence || \"N/A\",\n  \"Tracker Column\": result.mappedColumnName || \"N/A\",\n  \"Tracker Updated\": result.trackerUpdated ? \"Yes\" : \"No\",\n  \"File Moved To\": result.destinationFolderName || \"N/A\",\n  \"Status\": result.chunk2_5_status || \"N/A\",\n  \"Full Result\": result\n};\n\nreturn [{ json: summary }];"
+      },
+      "id": "show-results",
+      "name": "Show Test Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1264,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = $(\"Execute Chunk 2.5\").first().json;\nconst testInput = $(\"Build Chunk 2.5 Input\").first().json;\n\nconst now = new Date();\nconst day = String(now.getDate()).padStart(2, \"0\");\nconst month = String(now.getMonth() + 1).padStart(2, \"0\");\nconst year = now.getFullYear();\nconst hours = String(now.getHours()).padStart(2, \"0\");\nconst minutes = String(now.getMinutes()).padStart(2, \"0\");\nconst timestamp = day + \".\" + month + \".\" + year + \" \" + hours + \":\" + minutes;\n\nreturn [{\n  json: {\n    Test_Date: timestamp,\n    File_Name: result.fileName || testInput.fileName || \"N/A\",\n    Client: result.client_normalized || testInput.client_normalized || \"N/A\",\n    Tier1_Category: result.tier1Category || \"N/A\",\n    Tier2_DocumentType: result.documentType || \"N/A\",\n    Confidence: result.combinedConfidence || \"N/A\",\n    Tracker_Column: result.mappedColumnName || \"N/A\",\n    Tracker_Updated: result.trackerUpdated ? \"yes\" : \"no\",\n    File_Moved: result.destinationFolderName ? \"yes\" : \"no\",\n    Final_Location: result.destinationFolderName || \"N/A\",\n    Status: result.chunk2_5_status || \"error\",\n    Error_Message: \"\",\n    Tier1_Reasoning: result.tier1Reasoning || \"N/A\",\n    Tier2_Reasoning: result.tier2Reasoning || \"N/A\"\n  }\n}];"
+      },
+      "id": "prepare-log-data",
+      "name": "Prepare Log Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1488,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "12N2C8iWeHkxJQ2qz7m3aTyZw3X1gXbyyyFa-rP0tD7I",
+          "mode": "list",
+          "cachedResultName": "AMA Client Document Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12N2C8iWeHkxJQ2qz7m3aTyZw3X1gXbyyyFa-rP0tD7I/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 597616325,
+          "mode": "list",
+          "cachedResultName": "Test_Results_Iteration4",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12N2C8iWeHkxJQ2qz7m3aTyZw3X1gXbyyyFa-rP0tD7I/edit#gid=597616325"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "File_Name"
+          ],
+          "schema": [
+            {
+              "id": "Test_Date",
+              "displayName": "Test_Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "File_Name",
+              "displayName": "File_Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Client",
+              "displayName": "Client",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tier1_Category",
+              "displayName": "Tier1_Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tier2_DocumentType",
+              "displayName": "Tier2_DocumentType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Confidence",
+              "displayName": "Confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tracker_Column",
+              "displayName": "Tracker_Column",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tracker_Updated",
+              "displayName": "Tracker_Updated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "File_Moved",
+              "displayName": "File_Moved",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Final_Location",
+              "displayName": "Final_Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Error_Message",
+              "displayName": "Error_Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tier1_Reasoning",
+              "displayName": "Tier1_Reasoning",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tier2_Reasoning",
+              "displayName": "Tier2_Reasoning",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Claude_Assessment",
+              "displayName": "Claude_Assessment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Human_Verified",
+              "displayName": "Human_Verified",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Duplicate_Check",
+              "displayName": "Duplicate_Check",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "log-to-sheet",
+      "name": "Append to Test_Results",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1712,
+        640
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "eugene-quick-test",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -304,
+        736
+      ],
+      "webhookId": "58027fa2-e1c5-4fd6-be52-35b41efb5cfa"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "318bdc88-4c7a-454d-b031-854ee161b578",
+              "leftValue": "={{ $json.useProvidedFile }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        144,
+        640
+      ],
+      "id": "36a643bf-fe62-4dfb-ae8d-cfc7109e1cd4",
+      "name": "Check File Source"
+    }
+  ],
+  "connections": {
+    "When clicking 'Test workflow'": {
+      "main": [
+        [
+          {
+            "node": "Set Test Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Files in Test Folder": {
+      "main": [
+        [
+          {
+            "node": "Pick Random File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick Random File": {
+      "main": [
+        [
+          {
+            "node": "Build Chunk 2.5 Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Chunk 2.5 Input": {
+      "main": [
+        [
+          {
+            "node": "Execute Chunk 2.5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Chunk 2.5": {
+      "main": [
+        [
+          {
+            "node": "Show Test Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Show Test Results": {
+      "main": [
+        [
+          {
+            "node": "Prepare Log Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Log Data": {
+      "main": [
+        [
+          {
+            "node": "Append to Test_Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Test Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Test Config": {
+      "main": [
+        [
+          {
+            "node": "Check File Source",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check File Source": {
+      "main": [
+        [
+          {
+            "node": "Build Chunk 2.5 Input",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "List Files in Test Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": true,
+    "timeSavedMode": "fixed"
+  }
+}

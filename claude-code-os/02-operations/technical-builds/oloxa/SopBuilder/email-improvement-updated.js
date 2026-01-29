@@ -58,7 +58,7 @@ var html = `<!DOCTYPE html>
   <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
     <!-- Updated logo section -->
     <div style="text-align:center;margin-bottom:40px;">
-      <img src="https://sopbuilder.oloxa.ai/logo.png" alt="OLOXA" style="height:40px;">
+      <img src="https://sopbuilder.oloxa.ai/logo.png" alt="OLOXA" style="height:40px;width:180px;">
     </div>
 
     <h1 style="color:#fff;font-size:28px;text-align:center;">Hey ${name}, here's your SOP analysis.</h1>
@@ -66,12 +66,14 @@ var html = `<!DOCTYPE html>
     ${progressBadge}
 
     <div style="font-size:64px;font-weight:bold;color:#F26B5D;text-align:center;margin:30px 0;">${score}%</div>
+    <p style="text-align:center;font-size:18px;color:#fff;margin:10px 0;">Your SOP Completeness Score</p>
+    <p style="text-align:center;font-size:16px;color:#ccc;font-style:italic;margin-bottom:30px;">Great start! With a few improvements, you'll be on your way.</p>
 
     <div style="margin:30px 0;padding:25px;background:#1a1a1a;border-left:4px solid #F26B5D;border-radius:4px;">
       <h2 style="color:#F26B5D;font-size:20px;margin-top:0;">Your Goal</h2>
-      <p><strong>Intention:</strong> ${data.goal||'Not specified'}</p>
-      <p><strong>Department:</strong> ${data.department||'General'}</p>
-      <p><strong>Who will use this:</strong> ${data.end_user||'Not specified'}</p>
+      <p><strong style="color:#F26B5D;">Intention:</strong> ${data.goal||'Not specified'}</p>
+      <p><strong style="color:#F26B5D;">Department:</strong> ${data.department||'General'}</p>
+      <p><strong style="color:#F26B5D;">Who will use this:</strong> ${data.end_user||'Not specified'}</p>
     </div>
 
     <div style="margin:30px 0;padding:25px;background:#1a1a1a;border-left:4px solid #F26B5D;border-radius:4px;">

@@ -17,7 +17,9 @@ System-wide voice dictation for macOS with automatic transcription and pasting.
 ## Features
 
 ✅ **Auto-paste** - Transcribed text pastes automatically at cursor
-✅ **Menu bar icon** - Shows status (🎙️ → 🔴 → ⚙️ → ✨ → 📋)
+✅ **Menu bar icon** - Shows status with live updates
+✅ **Recording timer** - See elapsed time while recording (e.g., "Recording... 1:23")
+✅ **Transcription progress** - See percentage while transcribing (e.g., "Transcribing... 60%")
 ✅ **Smart Cleaning toggle** - Turn on/off GPT cleaning via menu bar (ON by default)
 ✅ **GPT cleaning** - Removes filler words with minimal changes to preserve meaning
 ✅ **Single paragraph** - No line breaks (prevents accidental submit)
@@ -98,6 +100,23 @@ The service now preserves:
 3. **Transcribe** - Uses Whisper (local) to convert speech to text
 4. **Clean** - GPT-4o-mini removes filler words and fixes grammar
 5. **Paste** - Automatically pastes at cursor location
+
+## Live Progress Indicators
+
+**While Recording:**
+- Menu bar shows: **"Recording... 0:45"** (elapsed time updates every second)
+- Icon changes to 🔴
+- Press Control once to stop
+
+**While Transcribing:**
+- Menu bar shows: **"Transcribing... 60%"** (percentage of completion)
+- Short recordings: 0% → 50% → 100%
+- Long recordings (chunked): Updates based on chunk progress
+- Icon changes to 🔄
+
+**While Cleaning (if enabled):**
+- Menu bar shows: **"Cleaning..."**
+- Icon changes to ✨
 
 ## Smart Cleaning Toggle
 

@@ -12,7 +12,7 @@ const CONFIG = {
 
 // State
 let currentStep = 0;
-const totalSteps = 5;
+const totalSteps = 6;
 let selectedFile = null;
 let inputMethod = 'text';
 
@@ -58,45 +58,49 @@ function handleResubmitParams() {
         }
     }
 
-    // Replace Step 0 content with welcome-back summary
+    // Replace Step 0 content with dynamic improvement form
     const stepContent = document.querySelector('#step-0 .step-content');
 
-    // Build quick wins HTML
-    let quickWinsHtml = '';
-    for (let i = 0; i < Math.min(3, quickWins.length); i++) {
+    // Build improvement sections HTML
+    let improvementSectionsHtml = '';
+    for (let i = 0; i < quickWins.length; i++) {
         const win = quickWins[i];
-        quickWinsHtml += `
-            <div style="margin: 12px 0; padding: 12px; background: #2a2a2a; border-radius: 6px; display: flex;">
-                <div style="font-size: 24px; font-weight: bold; color: #d4af37; margin-right: 15px;">${i + 1}</div>
-                <div>
-                    <strong>${win.title || 'Quick Win'}</strong>
-                    <p style="margin: 4px 0 0; color: #ccc; font-size: 14px;">${win.action || 'Action needed'}</p>
-                </div>
+        improvementSectionsHtml += `
+            <div class="improvement-section" style="margin: 20px 0; padding: 20px; background: #1a1a1a; border-radius: 8px; border-left: 4px solid #d4af37;">
+                <h3 style="color: #d4af37; margin-top: 0; font-size: 18px;">${i + 1}. ${win.title || 'Quick Win'}</h3>
+                <p style="color: #ccc; font-size: 14px; margin: 10px 0;">${win.action || 'Action needed'}</p>
+                <textarea
+                    id="improvement-${i}"
+                    class="improvement-textarea"
+                    rows="4"
+                    placeholder="Type your improvement here... (e.g., for Purpose Section: 'This process ensures all clients receive consistent onboarding within 48 hours, reducing confusion and improving satisfaction.')"
+                    style="width: 100%; padding: 12px; margin-top: 10px; font-family: var(--font-primary); font-size: 14px; color: var(--color-text); background: #2a2a2a; border: 1px solid #333; border-radius: 6px; resize: vertical;"
+                ></textarea>
             </div>
         `;
     }
 
     stepContent.innerHTML = `
-        <h1>Welcome back, ${name || 'there'}! Here's where you're at:</h1>
+        <h1 style="text-align: center;">${name || 'there'}, you're a real dedicated business owner!</h1>
+        <div style="font-size:48px; font-weight:bold; color:#F26B5D; text-align:center; margin:20px 0;">${score || '0'}%</div>
+        <p style="text-align:center; font-size:18px; color:#ccc; margin-bottom:10px;">Let's go ahead and improve this SOP.</p>
+        <p style="text-align:center; font-size:18px; color:#ccc; margin-bottom:30px;">Just fill in each section below.</p>
 
-        <div style="font-size: 64px; font-weight: bold; color: #F26B5D; text-align: center; margin: 30px 0;">${score || '0'}%</div>
-
-        <div style="margin: 30px 0; padding: 25px; background: #1a1a1a; border-left: 4px solid #F26B5D; border-radius: 4px;">
-            <h2 style="color: #F26B5D; font-size: 20px; margin-top: 0;">3 Quick Wins to Improve Your Score</h2>
-            ${quickWinsHtml || '<p>Quick wins will be provided after analysis.</p>'}
+        <div style="margin: 30px 0; padding: 20px; background: rgba(212, 175, 55, 0.1); border: 1px solid #d4af37; border-radius: 8px;">
+            <h2 style="color: #d4af37; font-size: 20px; margin-top: 0;">📋 Improvements Needed</h2>
+            <p style="color: #ccc; font-size: 14px;">For each section below, add your improvements based on the feedback provided.</p>
         </div>
 
-        <div class="btn-center">
-            <button type="button" class="btn btn-primary btn-large" onclick="goToStep(3)">
-                Update My SOP
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
+        ${improvementSectionsHtml || '<p style="color: #ccc;">No improvements available. Please contact support.</p>'}
+
+        <div class="btn-center" style="margin-top: 30px;">
+            <button type="button" class="btn btn-primary btn-large" onclick="submitResubmission()" style="font-weight: 700; font-size: 1.125rem;">
+                Resubmit My SOP &#8594;
             </button>
         </div>
     `;
 
-    // Pre-fill email/name on step 4 when it loads
+    // Pre-fill email/name for resubmission
     if (email) {
         formData.email = email;
     }
@@ -104,22 +108,8 @@ function handleResubmitParams() {
         formData.name = name;
     }
 
-    // Set up pre-fill for when step 4 becomes active
-    const observer = new MutationObserver(() => {
-        const emailInput = document.getElementById('email');
-        const nameInput = document.getElementById('name');
-        if (emailInput && formData.email) {
-            emailInput.value = formData.email;
-            emailInput.readOnly = true;
-            emailInput.style.opacity = '0.7';
-        }
-        if (nameInput && formData.name) {
-            nameInput.value = formData.name;
-            nameInput.readOnly = true;
-            nameInput.style.opacity = '0.7';
-        }
-    });
-    observer.observe(document.querySelector('.form-container'), { childList: true, subtree: true, attributes: true });
+    // Store quick wins for later use
+    formData.quickWins = quickWins;
 }
 
 // Step Navigation
@@ -181,7 +171,7 @@ function validateCurrentStep() {
             }
             return true;
 
-        case 2: // Improvement type + department
+        case 2: // Improvement type only
             const selected = document.querySelector('input[name="improvement_type"]:checked');
             if (!selected) {
                 document.querySelector('.option-cards').classList.add('shake');
@@ -190,6 +180,9 @@ function validateCurrentStep() {
                 }, 500);
                 return false;
             }
+            return true;
+
+        case 3: // Department + end_user
             const department = document.getElementById('department').value;
             if (!department) {
                 shakeInput('department');
@@ -198,7 +191,7 @@ function validateCurrentStep() {
             }
             return true;
 
-        case 3: // Process steps
+        case 4: // Process steps
             if (inputMethod === 'text') {
                 const steps = document.getElementById('process_steps').value.trim();
                 if (!steps || steps.length < 50) {
@@ -217,7 +210,7 @@ function validateCurrentStep() {
             }
             return true;
 
-        case 4: // Email capture
+        case 5: // Email capture
             const email = document.getElementById('email').value.trim();
             const name = document.getElementById('name').value.trim();
 
@@ -259,15 +252,17 @@ function saveCurrentStepData() {
         case 2:
             const selected = document.querySelector('input[name="improvement_type"]:checked');
             formData.improvement_type = selected ? selected.value : '';
+            break;
+        case 3:
             formData.department = document.getElementById('department').value;
             formData.end_user = document.getElementById('end_user').value.trim();
             break;
-        case 3:
+        case 4:
             if (inputMethod === 'text') {
                 formData.process_steps = document.getElementById('process_steps').value.trim();
             }
             break;
-        case 4:
+        case 5:
             formData.email = document.getElementById('email').value.trim();
             formData.name = document.getElementById('name').value.trim();
             break;
@@ -406,6 +401,74 @@ async function submitForm() {
 
     } catch (error) {
         console.error('Submission error:', error);
+        showError(error.message);
+    } finally {
+        submitBtn.classList.remove('loading');
+        submitBtn.disabled = false;
+    }
+}
+
+// Resubmission Handler
+async function submitResubmission() {
+    const submitBtn = document.querySelector('.btn-primary');
+    if (!submitBtn) return;
+
+    // Validate that at least one improvement is filled
+    const quickWins = formData.quickWins || [];
+    let hasImprovements = false;
+    let combinedImprovements = '[Resubmission - Original improvements based on feedback]\n\n';
+
+    for (let i = 0; i < quickWins.length; i++) {
+        const textarea = document.getElementById(`improvement-${i}`);
+        if (textarea && textarea.value.trim()) {
+            hasImprovements = true;
+            const win = quickWins[i];
+            combinedImprovements += `${win.title || 'Improvement'}:\n${textarea.value.trim()}\n\n`;
+        }
+    }
+
+    if (!hasImprovements) {
+        alert('Please fill in at least one improvement section before resubmitting.');
+        return;
+    }
+
+    submitBtn.classList.add('loading');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner" style="display:inline-block;width:20px;height:20px;border:3px solid #000;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;"></span> Analyzing...';
+
+    try {
+        // Prepare form data for resubmission
+        const payload = new FormData();
+        payload.append('email', formData.email);
+        payload.append('name', formData.name);
+        payload.append('goal', 'Resubmission - improving existing SOP based on analysis feedback');
+        payload.append('improvement_type', 'quality');
+        payload.append('department', 'operations');
+        payload.append('end_user', '');
+        payload.append('process_steps', combinedImprovements);
+        payload.append('input_method', 'text');
+        payload.append('lead_id', formData.lead_id);
+
+        // Submit to n8n webhook
+        const response = await fetch(CONFIG.webhookUrl, {
+            method: 'POST',
+            body: payload
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+            showSuccess();
+        } else {
+            throw new Error(result.message || 'Something went wrong');
+        }
+
+    } catch (error) {
+        console.error('Resubmission error:', error);
         showError(error.message);
     } finally {
         submitBtn.classList.remove('loading');

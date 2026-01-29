@@ -29,6 +29,7 @@
                 <span class="step-dot" data-step="2"></span>
                 <span class="step-dot" data-step="3"></span>
                 <span class="step-dot" data-step="4"></span>
+                <span class="step-dot" data-step="5"></span>
             </div>
         </div>
 
@@ -37,8 +38,10 @@
             <!-- Step 0: Landing -->
             <div class="step active" id="step-0">
                 <div class="step-content">
-                    <h1>Welcome to OLOXA's<br>Free <span class="highlight">SOP</span> Builder</h1>
-                    <p class="subtitle">In just <strong><u>five minutes</u></strong>, <strong>upload a voice note or type it out</strong> and let us do the rest.</p>
+                    <h1 style="text-align: center; font-size: 2.5rem;">Your <u>FREE</u> <span class="highlight">SOP</span> Builder</h1>
+                    <p class="subtitle" style="text-align: center; font-size: 1rem;">In just 5 mins, I'm going to help you improve your existing "<span class="highlight" style="white-space: nowrap;">Standard Operating Procedure</span>", so you can increase <strong style="color: #fff;">revenue</strong>, <strong style="color: #fff;">quality</strong>, and <strong style="color: #fff;">cut costs</strong>.</p>
+
+                    <div style="background: var(--color-accent); color: #000; font-weight: 700; font-size: 0.9rem; padding: 6px 16px; border-radius: var(--radius-sm); margin: 35px auto 15px; text-align: center; width: fit-content;">Steps</div>
 
                     <div class="process-steps">
                         <div class="process-step">
@@ -83,12 +86,16 @@
                         </div>
                     </div>
 
+                    <div style="margin: 30px auto; max-width: 500px; text-align: center; padding: 20px;">
+                        <p style="font-size: 18px; color: #ccc; font-style: italic; line-height: 1.6;">
+                            "82% of businesses fail due to poor cash flow management and lack of operational systems."
+                        </p>
+                        <p style="font-size: 13px; color: #666; margin-top: 8px;">— U.S. Bank Study</p>
+                    </div>
+
                     <div class="btn-center">
-                        <button type="button" class="btn btn-primary btn-large" onclick="nextStep()">
-                            Build My SOP
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M5 12h14M12 5l7 7-7 7"/>
-                            </svg>
+                        <button type="button" class="btn btn-primary btn-large" onclick="nextStep()" style="font-weight: 700; font-size: 1.125rem;">
+                            Help Me Build My SOP &#8594;
                         </button>
                     </div>
                 </div>
@@ -173,6 +180,20 @@
                         </label>
                     </div>
 
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">Continue</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Department & End User -->
+            <div class="step" id="step-3">
+                <div class="step-content">
+                    <span class="step-label">Step 3 of 5</span>
+                    <h2>Tell me about your team</h2>
+                    <p class="helper-text">This helps us tailor the SOP to your department's needs.</p>
+
                     <div class="select-group">
                         <label for="department">Which department is this for?</label>
                         <select id="department" name="department">
@@ -202,10 +223,10 @@
                 </div>
             </div>
 
-            <!-- Step 3: Process Steps -->
-            <div class="step" id="step-3">
+            <!-- Step 4: Process Steps -->
+            <div class="step" id="step-4">
                 <div class="step-content">
-                    <span class="step-label">Step 3 of 4</span>
+                    <span class="step-label">Step 4 of 5</span>
                     <h2>Walk me through each step</h2>
                     <p class="helper-text">Describe every step of your process. <strong>You can't be too detailed</strong> - the more you share, the better your analysis will be.</p>
 
@@ -234,7 +255,9 @@ Step 3: Assign to appropriate team member based on...
 Step 4: Schedule initial discovery call within...
 Step 5: ..."></textarea>
                         </div>
-                        <p class="tip">Include who does what, when they do it, and any decisions or branches. The more detail, the better your SOP score.</p>
+                        <p style="color: #F26B5D; font-size: 14px; margin-top: 8px;">
+                            ⚠️ <strong>The more detailed, the better!</strong> Include who does what, when they do it, and any decisions or branches.
+                        </p>
                     </div>
 
                     <!-- Voice Upload -->
@@ -277,10 +300,10 @@ Step 5: ..."></textarea>
                 </div>
             </div>
 
-            <!-- Step 4: Email Capture + Submit -->
-            <div class="step" id="step-4">
+            <!-- Step 5: Email Capture + Submit -->
+            <div class="step" id="step-5">
                 <div class="step-content">
-                    <span class="step-label">Step 4 of 4</span>
+                    <span class="step-label">Step 5 of 5</span>
                     <h2>Where should we send your analysis?</h2>
                     <p class="helper-text">Enter your email and we'll send you a detailed SOP score, improvement tips, and quick wins.</p>
 
@@ -320,23 +343,7 @@ Step 5: ..."></textarea>
                         </svg>
                     </div>
                     <h2>Your SOP Analysis is on its way!</h2>
-                    <p class="success-message">Check your inbox in the next few minutes. We've sent you:</p>
-                    <ul class="success-list">
-                        <li>A completeness review identifying any gaps</li>
-                        <li>Automation opportunities to save time and money</li>
-                        <li>A PDF you can share with your team</li>
-                    </ul>
-                    <div class="cta-section">
-                        <p>Want help implementing these improvements?</p>
-                        <a href="https://calendly.com/sway-oloxa/discovery-call" class="btn btn-primary" target="_blank">
-                            Book a Free Strategy Call
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
-                                <polyline points="15 3 21 3 21 9"/>
-                                <line x1="10" y1="14" x2="21" y2="3"/>
-                            </svg>
-                        </a>
-                    </div>
+                    <p class="success-message">Check your inbox — in the next few minutes, we've sent you a complete review identifying any gaps and 3 quick wins you can use today.</p>
                 </div>
             </div>
 

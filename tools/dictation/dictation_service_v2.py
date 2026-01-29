@@ -153,14 +153,19 @@ class DictationMenuBarApp(rumps.App):
         self.status_item.title = f"Status: {status}"
         # Also show brief status in title when active
         if status != "Ready":
-            status_emoji = {
-                "Recording...": "🔴",
-                "Processing...": "⚙️",
-                "Transcribing...": "🔄",
-                "Cleaning...": "✨",
-                "Pasting...": "📋"
-            }
-            self.title = status_emoji.get(status, "🎙️")
+            # Check if status starts with any of these keywords
+            if status.startswith("Recording"):
+                self.title = "🔴"
+            elif status.startswith("Processing"):
+                self.title = "⚙️"
+            elif status.startswith("Transcribing"):
+                self.title = "🔄"
+            elif status.startswith("Cleaning"):
+                self.title = "✨"
+            elif status.startswith("Pasting"):
+                self.title = "📋"
+            else:
+                self.title = "🎙️"
         else:
             self.title = "🎙️"
 
@@ -180,6 +185,11 @@ class DictationService:
 
         # Smart cleaning toggle (default ON)
         self.smart_cleaning_enabled = True
+
+        # Recording timer
+        self.recording_start_time = None
+        self.recording_timer_thread = None
+        self.stop_timer = False
 
         # For detecting double Control press
         self.last_ctrl_press_time = 0
@@ -211,6 +221,17 @@ class DictationService:
             print(f"Audio status: {status}")
         self.audio_queue.put(indata.copy())
 
+    def update_recording_timer(self):
+        """Update recording status with elapsed time"""
+        while not self.stop_timer and self.is_recording:
+            if self.recording_start_time:
+                elapsed = time.time() - self.recording_start_time
+                minutes = int(elapsed // 60)
+                seconds = int(elapsed % 60)
+                time_str = f"{minutes}:{seconds:02d}"
+                self.menu_app.update_status(f"Recording... {time_str}")
+            time.sleep(1)
+
     def start_recording(self):
         """Start audio recording"""
         if self.is_recording:
@@ -218,11 +239,17 @@ class DictationService:
 
         self.is_recording = True
         self.audio_data = []
+        self.recording_start_time = time.time()
+        self.stop_timer = False
         print("🎙️  Recording started... (Press Control to stop)")
 
         # Update UI
-        self.menu_app.update_status("Recording...")
+        self.menu_app.update_status("Recording... 0:00")
         self.show_notification("🎙️ Recording", "Speak now...", sound=True)
+
+        # Start recording timer thread
+        self.recording_timer_thread = threading.Thread(target=self.update_recording_timer, daemon=True)
+        self.recording_timer_thread.start()
 
         # Start recording stream - explicitly use default input device
         default_input = sd.query_devices(kind='input')
@@ -243,6 +270,7 @@ class DictationService:
             return
 
         self.is_recording = False
+        self.stop_timer = True
 
         # Stop the stream
         if self.recording_stream:
@@ -280,16 +308,19 @@ class DictationService:
             print(f"📦 Long recording detected ({audio_duration:.1f}s), chunking into {CHUNK_DURATION}s segments...", flush=True)
             return self._transcribe_chunked(audio_array, CHUNK_DURATION)
         else:
-            # Short recording - process normally
-            return self._transcribe_single(audio_array)
+            # Short recording - process normally with percentage
+            return self._transcribe_single(audio_array, show_percentage=True)
 
-    def _transcribe_single(self, audio_array):
+    def _transcribe_single(self, audio_array, show_percentage=False):
         """Transcribe a single audio segment"""
         audio_duration = len(audio_array) / SAMPLE_RATE
         temp_audio_path = os.path.join(self.temp_dir, f"recording_{int(time.time())}.wav")
         sf.write(temp_audio_path, audio_array, SAMPLE_RATE)
 
         try:
+            if show_percentage:
+                self.menu_app.update_status("Transcribing... 50%")
+
             print(f"🔄 Sending {audio_duration:.1f}s audio to OpenAI Whisper API...", flush=True)
 
             with open(temp_audio_path, "rb") as audio_file:
@@ -298,6 +329,9 @@ class DictationService:
                     file=audio_file,
                     response_format="text"
                 )
+
+            if show_percentage:
+                self.menu_app.update_status("Transcribing... 100%")
 
             return response.strip()
         finally:
@@ -322,6 +356,10 @@ class DictationService:
             end_idx = min((i + 1) * chunk_size, total_samples)
             chunk = audio_array[start_idx:end_idx]
 
+            # Update status with percentage
+            percentage = int((i / num_chunks) * 100)
+            self.menu_app.update_status(f"Transcribing... {percentage}%")
+
             chunk_duration = len(chunk) / SAMPLE_RATE
             print(f"🔄 Transcribing chunk {i+1}/{num_chunks} ({chunk_duration:.1f}s)...", flush=True)
 
@@ -333,6 +371,9 @@ class DictationService:
                 print(f"⚠️ Chunk {i+1}/{num_chunks} failed: {e}", flush=True)
                 # Continue with other chunks
 
+        # Final percentage
+        self.menu_app.update_status("Transcribing... 100%")
+
         # Combine all transcripts
         combined = " ".join(transcripts)
         print(f"✅ All chunks transcribed, combined length: {len(combined)} chars", flush=True)
@@ -341,8 +382,8 @@ class DictationService:
     def process_audio(self):
         """Transcribe and clean audio"""
         try:
-            # Show transcribing status
-            self.menu_app.update_status("Transcribing...")
+            # Show transcribing status with 0% to start
+            self.menu_app.update_status("Transcribing... 0%")
             self.show_notification("🔄 Transcribing", "Processing your speech...", sound=False)
 
             # Combine audio chunks
