@@ -1,0 +1,73 @@
+In this video we create
+a standard operating procedure. By the end of this video,
+you will be able create a draft SOP for review with your colleagues. Understand the work
+required to prepare an SOP. Let's make an operating procedure, consider a business's
+invoice payment process. As I said in an earlier video,
+this process needs a standard operating procedure because it contains
+a high risk of invoice fraud. In fact, invoice fraud is the biggest
+singular area of business fraud. So we need a procedure that
+builds in rigorous checks. In essence, the invoice payment
+process is very simple and comprises only three check invoice
+approve invoice pay invoice. But this process is the main means of
+cash leaving a business's bank account, which makes it very high risk. And it's the checks to ensure accuracy and
+to prevent fraud that had complexity and
+also justify the need for an SOP. As we saw earlier, every standard operating procedure
+will have at least five elements. One, purpose two, preparation,
+three, process flow, four, checklist, five document control. Let's get started, the first
+section of our SOP is its purpose. Here is my take on that supplier
+invoice payment standard operating procedure section one purpose
+the purpose of this operating procedure is to ensure that genuine supplier
+invoices are paid correctly and efficiently within the agreed timescale. The secondary purpose of
+the procedure is to detect and eliminate fraudulent attack,
+to extract money from the company, and to remove as far as possible, the risks
+of invoice fraud against the company. The second section of the SOP is
+preparation, being the things we have to put in place before starting
+the activity covered by the procedure. This will cover safety equipment and
+protective clothing and other essential prerequisites. In the case of an invoice
+payment procedure, there is no safety equipment required,
+but there are some prerequisites. Section 2, preparation. All staff undertaking
+the invoice payment process must be qualified to at
+least bookkeeping level 4. All staff undertaking the invoice
+payment process must have completed the company's fraud awareness training
+within the previous 12 months and must recertify the training
+every 12 months. All staff undertaking the invoice payment
+process must be trained in this standard operating procedure with their competence
+verified by the head of accounts payable. The invoice payment process must be
+undertaken through a secure connection to the company's accounting system. The third section of the SOP is
+the flowchart for the activity itself. Here is my version for
+this fictitious company. Section 3, process flow charts. Receive invoice, emails with invoices attached should be
+stored in the Invoices Received inbox. Ensure firewall is active,
+open attachment, save in Invoices Received folder. Paper invoices should be scanned
+into the Invoices Received folder. Check supplier and payment details. Ensure supplier name and address fully
+match a supplier on the supplier database. Ensure bank and payment details match
+those on the supplier database. If there is any discrepancy,
+inform a team leader or finance manager. Reconcile invoice, match the invoice to its relevant purchase
+order and/or goods received note. Check quantities and prices and
+ensure totals are correct. Approve for payment. Once all checks are complete,
+approve invoice for payment apply the payment terms
+on the supplier database. No payment should ever be
+made in less than 72 hours. If there is pressure for rush payment,
+consult a team leader or finance manager. If at any time you feel things are not
+quite right or you suspect fraud, halt any payment and consult your
+team leader or finance manager. If necessary, consult our bank fraud team
+using the hot light number the fourth section of the SOP is a checklist usually
+archived for audit purposes to ensure that key parts of the process or
+activity have been completed correctly. For the invoice payment process, there
+are several steps that should be recorded. Section four checklist action
+person completing date and time completed supplier name and
+address match supplier bank details and payment details match quantities and
+prices match totals to be paid, checked and matched payment
+approved payment date in accordance with contract terms and
+no less than 72 hours in future. The final section of our
+recipe is document control. When the procedure was approved,
+the version number and file reference and the date by which the procedure
+should be reviewed. Section 5, Document Control. Document version 2.1 file path xxx/xxxx. Approved by T Rex,
+date of approval xx/xx/2x. Due for review by yy/yy/2y. In conclusion, the creation of
+standard operating procedures, the key processes and activities
+in your business is not onerous. SOPs are working documents and
+should be easy to understand and apply in the workplace. At the same time, however, they must
+ensure that the work is carried out in a way that meets the standards required. That is the whole point of SOPs. This is not an easy balance to achieve,
+and it's likely that your SOPs will go through several iterations
+before being implemented. They should also be reviewed regularly
+in implementation to ensure that they remain relevant and are meeting the standards that made
+the SOP necessary in the first place. Now I have a question for you.

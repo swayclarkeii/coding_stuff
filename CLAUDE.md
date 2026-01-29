@@ -480,6 +480,72 @@ mcp__n8n-mcp__tools_documentation(
 
 ---
 
+## n8n Agentic Building Protocol
+
+**CRITICAL: Autonomous n8n workflow building is now enabled.**
+
+### The Agentic Loop
+
+When Sway asks to build, test, or fix n8n workflows, run this loop autonomously:
+
+```
+Build/Modify → Execute → Error? → Fix → Execute → Repeat until Success
+```
+
+### Available Commands
+
+| Command | Purpose |
+|---------|---------|
+| `/build-n8n` | Full autonomous build loop |
+| `/test-n8n` | Quick test execution |
+| `/fix-n8n` | Auto-fix workflow errors |
+
+### Key Tools for the Loop
+
+| Step | Tool |
+|------|------|
+| Create workflow | `n8n_create_workflow` |
+| Modify workflow | `n8n_update_partial_workflow` |
+| Execute (test) | `n8n_test_workflow` |
+| Get error details | `n8n_executions` with `mode="error"` |
+| Validate | `n8n_validate_workflow` |
+
+### Autonomous Behavior
+
+When Sway says things like:
+- "Build me a workflow that..."
+- "Fix Eugene W2"
+- "Make sure X workflow works"
+- "...and test it"
+- "...until it's done"
+
+**Run autonomously without asking permission at each step.**
+- Use agents: idea-architect → solution-builder → test-runner
+- Loop fix/test until success or blocker
+- Report when done
+
+### Self-Annealing (Learning from Errors)
+
+After every fix, document in `directives/n8n/learnings/errors-and-fixes.md`:
+- What error occurred
+- What fixed it
+- Pattern for future reference
+
+### Webhook Requirement
+
+**Important**: Workflows need webhook/form/chat triggers to be tested via API.
+- For new workflows: always include webhook trigger
+- For existing workflows: add temporary webhook if needed for testing
+
+### Real Execution
+
+`n8n_test_workflow` triggers **real execution** on the n8n server.
+- Sway can watch executions in n8n.oloxa.ai
+- Errors are real errors from real runs
+- This is not simulation
+
+---
+
 ## Additional References
 
 **Project-specific information:**

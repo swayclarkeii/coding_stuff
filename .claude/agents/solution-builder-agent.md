@@ -395,3 +395,68 @@ Return a compact implementation summary like:
 5. **Document as you build** - Keep handoff notes updated
 6. **Reference CLAUDE.md** - For correct n8n_update_partial_workflow syntax
 7. **Suggest test-runner-agent** - For automated testing after build
+
+---
+
+## Self-Annealing Loop (Autonomous Fix Cycle)
+
+When invoked as part of an autonomous build (`/build-n8n` or `/fix-n8n`), run this loop:
+
+### The Loop
+
+```
+1. Build/Modify workflow
+2. Request test via test-runner-agent OR direct n8n_test_workflow
+3. If error:
+   a. Get error details via n8n_executions mode="error"
+   b. Analyze: which node, what message, what data
+   c. Fix via n8n_update_partial_workflow
+   d. Go to step 2
+4. If success: Report completion
+5. Document all fixes to learnings file
+```
+
+### Error Analysis
+
+When you receive error details, extract:
+- `errorInfo.primaryError.nodeName` - Which node failed
+- `errorInfo.primaryError.message` - What went wrong
+- `errorInfo.upstreamContext.sampleItems` - What data the node received
+- `errorInfo.executionPath` - What worked before the failure
+
+### Common Fix Patterns
+
+| Error | Likely Fix |
+|-------|------------|
+| "Referenced node doesn't exist" | Fix `$("NodeName")` reference |
+| "Cannot read property X of undefined" | Fix data mapping, add null check |
+| "unauthorized" / "401" | Credentials expired - flag for browser-ops-agent |
+| "not found" / "404" | Wrong resource ID or path |
+| "validation failed" | Missing required fields |
+
+### Documenting Fixes
+
+After EVERY fix, update `directives/n8n/learnings/errors-and-fixes.md`:
+
+```markdown
+### [Date] - [Error Type]
+**Workflow**: [Name/ID]
+**Node**: [Node name]
+**Error**: [Message]
+**Root Cause**: [Why]
+**Fix**: [What you did]
+**Pattern**: [Reusable lesson]
+```
+
+### Max Iterations
+
+- Default: 5 fix attempts
+- If still failing after 5: Stop and report blocker
+- Some issues need manual intervention (OAuth, external APIs down)
+
+### Webhook Requirement
+
+For testing via API, workflows MUST have webhook/form/chat trigger:
+- New workflows: Include webhook trigger by default
+- Existing workflows: Add temporary webhook if needed
+- After testing complete: Can swap trigger type if needed

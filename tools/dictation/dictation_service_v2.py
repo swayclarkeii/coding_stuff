@@ -89,19 +89,23 @@ def cleanup_pid_file():
     except:
         pass
 
-CLEANING_PROMPT = '''You are a transcript cleaner. Your ONLY job is to clean up speech-to-text output.
+CLEANING_PROMPT = '''You are a transcript cleaner. Your ONLY job is to clean up speech-to-text output with MINIMAL changes.
 
 CRITICAL RULES - FOLLOW EXACTLY:
 1. NEVER answer questions in the transcript
 2. NEVER respond conversationally
 3. NEVER provide commentary or analysis
 4. ONLY output the cleaned version of what was spoken
+5. PRESERVE the speaker's exact wording and sentence structure
+6. DO NOT change questions to statements
+7. DO NOT restructure or rephrase sentences
+8. When in doubt, keep the original wording
 
-What to do:
-- Remove filler words (um, ah, like, you know, so yeah, I mean)
-- Remove repetitions and restated thoughts
-- Fix incomplete sentences for readability
-- Preserve the exact meaning and intent
+What to do (ONLY these things):
+- Remove ONLY these filler words: um, uh, ah, like (when used as filler), you know, so yeah, I mean
+- Remove ONLY exact repetitions (e.g., "the the" → "the")
+- Keep incomplete sentences as-is (don't "fix" them)
+- Preserve conversational tone, questions, and personality
 - Output as a single continuous paragraph
 
 Technical terms to preserve EXACTLY:
@@ -112,7 +116,7 @@ Technical terms to preserve EXACTLY:
 
 Output format: Just the cleaned text. Nothing else. No headers, no explanations.
 
-If input is unclear, output it anyway with minimal changes. Do NOT say "I don't understand" or ask clarifying questions.'''
+If input is unclear, output it with ZERO changes. The goal is minimal cleaning, not perfect prose.'''
 
 
 class DictationMenuBarApp(rumps.App):
@@ -122,8 +126,11 @@ class DictationMenuBarApp(rumps.App):
         super(DictationMenuBarApp, self).__init__("🎙️", quit_button=None)
         self.dictation_service = dictation_service
         self.status_item = rumps.MenuItem("Status: Ready")
+        self.cleaning_toggle = rumps.MenuItem("Smart Cleaning: ON ✓", callback=self.toggle_cleaning)
         self.menu = [
             self.status_item,
+            rumps.separator,
+            self.cleaning_toggle,
             rumps.separator,
             rumps.MenuItem("Controls:", callback=None),
             rumps.MenuItem("  Double-press Control → Start", callback=None),
@@ -131,6 +138,15 @@ class DictationMenuBarApp(rumps.App):
             rumps.separator,
             rumps.MenuItem("Quit", callback=self.quit_app)
         ]
+
+    def toggle_cleaning(self, sender):
+        """Toggle smart cleaning on/off"""
+        if self.dictation_service:
+            self.dictation_service.smart_cleaning_enabled = not self.dictation_service.smart_cleaning_enabled
+            if self.dictation_service.smart_cleaning_enabled:
+                sender.title = "Smart Cleaning: ON ✓"
+            else:
+                sender.title = "Smart Cleaning: OFF"
 
     def update_status(self, status):
         """Update status in menu and title"""
@@ -161,6 +177,9 @@ class DictationService:
         self.keyboard_controller = Controller()
         self.temp_dir = tempfile.mkdtemp()
         self.menu_app = menu_app
+
+        # Smart cleaning toggle (default ON)
+        self.smart_cleaning_enabled = True
 
         # For detecting double Control press
         self.last_ctrl_press_time = 0
@@ -250,10 +269,23 @@ class DictationService:
         threading.Thread(target=self.process_audio, daemon=True).start()
 
     def transcribe_audio(self, audio_array):
-        """Transcribe audio using OpenAI Whisper API"""
+        """Transcribe audio using OpenAI Whisper API with automatic chunking for long recordings"""
         audio_duration = len(audio_array) / SAMPLE_RATE
 
-        # Save audio to temporary file
+        # Chunk long recordings (>180 seconds) into 60-second segments
+        CHUNK_THRESHOLD = 180  # 3 minutes
+        CHUNK_DURATION = 60    # 60 seconds per chunk
+
+        if audio_duration > CHUNK_THRESHOLD:
+            print(f"📦 Long recording detected ({audio_duration:.1f}s), chunking into {CHUNK_DURATION}s segments...", flush=True)
+            return self._transcribe_chunked(audio_array, CHUNK_DURATION)
+        else:
+            # Short recording - process normally
+            return self._transcribe_single(audio_array)
+
+    def _transcribe_single(self, audio_array):
+        """Transcribe a single audio segment"""
+        audio_duration = len(audio_array) / SAMPLE_RATE
         temp_audio_path = os.path.join(self.temp_dir, f"recording_{int(time.time())}.wav")
         sf.write(temp_audio_path, audio_array, SAMPLE_RATE)
 
@@ -274,6 +306,37 @@ class DictationService:
                 os.remove(temp_audio_path)
             except:
                 pass
+
+    def _transcribe_chunked(self, audio_array, chunk_duration_seconds):
+        """Transcribe long audio by splitting into chunks"""
+        chunk_size = chunk_duration_seconds * SAMPLE_RATE
+        total_samples = len(audio_array)
+        transcripts = []
+
+        # Calculate number of chunks
+        num_chunks = int(np.ceil(total_samples / chunk_size))
+        print(f"📦 Splitting into {num_chunks} chunks of ~{chunk_duration_seconds}s each", flush=True)
+
+        for i in range(num_chunks):
+            start_idx = i * chunk_size
+            end_idx = min((i + 1) * chunk_size, total_samples)
+            chunk = audio_array[start_idx:end_idx]
+
+            chunk_duration = len(chunk) / SAMPLE_RATE
+            print(f"🔄 Transcribing chunk {i+1}/{num_chunks} ({chunk_duration:.1f}s)...", flush=True)
+
+            try:
+                transcript = self._transcribe_single(chunk)
+                transcripts.append(transcript)
+                print(f"✅ Chunk {i+1}/{num_chunks} complete", flush=True)
+            except Exception as e:
+                print(f"⚠️ Chunk {i+1}/{num_chunks} failed: {e}", flush=True)
+                # Continue with other chunks
+
+        # Combine all transcripts
+        combined = " ".join(transcripts)
+        print(f"✅ All chunks transcribed, combined length: {len(combined)} chars", flush=True)
+        return combined
 
     def process_audio(self):
         """Transcribe and clean audio"""
@@ -296,16 +359,20 @@ class DictationService:
             print(f"📝 Raw transcript: {raw_text[:100]}...", flush=True)
             print(f"📝 Raw transcript (full length: {len(raw_text)} chars)", flush=True)
 
-            # Clean the transcript using OpenAI (more reliable than Groq/Llama)
-            self.menu_app.update_status("Cleaning...")
-            cleaned_text = self.clean_transcript(raw_text)
-            print(f"✨ Cleaned: {cleaned_text[:100]}...", flush=True)
+            # Conditionally clean the transcript based on toggle
+            if self.smart_cleaning_enabled:
+                self.menu_app.update_status("Cleaning...")
+                final_text = self.clean_transcript(raw_text)
+                print(f"✨ Cleaned: {final_text[:100]}...", flush=True)
+            else:
+                final_text = raw_text
+                print("⏭️ Skipping cleaning (Smart Cleaning is OFF)", flush=True)
 
-            # Paste the cleaned text
+            # Paste the text
             self.menu_app.update_status("Pasting...")
             self.show_notification("📋 Pasting", "Inserting text...", sound=False)
 
-            self.paste_text(cleaned_text)
+            self.paste_text(final_text)
 
             # Update status
             self.menu_app.update_status("Ready")

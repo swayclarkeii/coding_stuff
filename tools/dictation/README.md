@@ -18,10 +18,11 @@ System-wide voice dictation for macOS with automatic transcription and pasting.
 
 ✅ **Auto-paste** - Transcribed text pastes automatically at cursor
 ✅ **Menu bar icon** - Shows status (🎙️ → 🔴 → ⚙️ → ✨ → 📋)
-✅ **GPT cleaning** - Removes filler words, fixes grammar
+✅ **Smart Cleaning toggle** - Turn on/off GPT cleaning via menu bar (ON by default)
+✅ **GPT cleaning** - Removes filler words with minimal changes to preserve meaning
 ✅ **Single paragraph** - No line breaks (prevents accidental submit)
 ✅ **Background service** - Runs without terminal
-✅ **Long recordings** - Handles recordings of any length (auto-chunks 3+ minutes)
+✅ **Long recordings** - Auto-chunks recordings >3 minutes into 60s segments for faster processing
 
 ## Files
 
@@ -98,12 +99,32 @@ The service now preserves:
 4. **Clean** - GPT-4o-mini removes filler words and fixes grammar
 5. **Paste** - Automatically pastes at cursor location
 
+## Smart Cleaning Toggle
+
+Click the **menu bar icon** (🎙️) to access settings:
+- **Smart Cleaning: ON ✓** - GPT cleans transcript (removes filler words, minimal changes)
+- **Smart Cleaning: OFF** - Raw Whisper output (no processing)
+
+**When to turn OFF:**
+- You want exact transcription with all "ums" and "ahs"
+- Cleaning is changing your meaning
+- You prefer raw output for later editing
+
+**When to keep ON:**
+- Most general use (default setting)
+- You want polished text without filler words
+- Professional communications
+
 ## Technical Details
 
-- **Transcription**: OpenAI Whisper (base model, runs locally)
-  - Recordings ≤3 minutes: transcribed as single file
-  - Recordings >3 minutes: auto-chunked into 60-second segments
-- **Cleaning**: GPT-4o-mini API (removes "um", "uh", fixes grammar)
+- **Transcription**: OpenAI Whisper API (via OpenAI API)
+  - Recordings ≤180 seconds: transcribed as single file
+  - Recordings >180 seconds: auto-chunked into 60-second segments
+  - Chunking provides faster processing for long recordings
+- **Cleaning**: GPT-4o-mini API (minimal changes, preserves meaning)
+  - Only removes obvious filler words (um, uh, ah, like, you know)
+  - Does NOT restructure sentences or change questions to statements
+  - Toggle on/off via menu bar
 - **Audio**: 16kHz, mono, float32
 - **Hotkey**: Control key double-press (0.3s threshold)
 - **Output**: Single continuous paragraph (no line breaks)

@@ -1,0 +1,78 @@
+[MUSIC] In this video, we look at the purpose
+of standard operating procedures and the different formats they come in. By the end of this video, you'll be
+able to describe the purpose of standard operating procedures and discuss
+the different formats that SOPs come in, and which formats might be most
+applicable and which circumstances. One of the reasons that standard operating
+procedures get a bad rep is because people think of them as long,
+densely worded written text documents, hindering rather than helping. Good work. Good sops are not like that, and
+I think people sometimes get confused between standard operating procedures and
+specifications. Specifications need to be detailed because
+they're defining the exact makeup and tolerances of an item. Specifications form part of the contract
+between a producer and the customer and they are often required by regulators and
+external inspectors. This course is not about specifications. If your business is mistaking
+procedures for specifications and has long text based operating procedures,
+then it's doing sops wrong. Let me tell you why the purpose of SOPs. As I said in the previous video,
+the watchwords for SOPs are efficiency, quality, and safety. The purpose of SOPs is to
+ensure best practice in the operation of a process or activity. Because the phrase standard
+operating procedure is very dry, SOPs are called the one best
+way in many organizations. And that's a term I'll come
+back to later in this course. The term one best way is often
+used as a substitute for standard operating procedure
+because it's more user-friendly and because it accurately describes
+the purpose of the SOP. It is the current one best
+way to carry out an activity. It is the current one best way of
+delivering consistent quality that meets customer requirements. It's the one best way to ensure
+the safety of the work area. It's the current best method of operating
+a process, the method which experts and those operating the process can
+challenge to create a new best way. In short, an SOP is the current best way
+of carrying out the process or activity. Notice my use of the word current there. Operating procedures are useless if
+they're not reviewed regularly and kept up to date. The SOP is a baseline against which
+proposed improvements can be tested and improvements implemented. I've seen plenty of examples of
+out of date procedures in my time, you may have too. Technology has moved on or
+the market has changed and the procedure has not been updated for
+the new way of working. An SOP that is not regularly reviewed and
+revised is worse than useless. Standard operating procedures
+are tools for ready and frequent reference by the people
+working in the process. Densely written text documents
+are not well suited to that use, and SOPs tend to be much
+more visually structured. Types of SOP. Standard operating procedures generally
+follow one of the following five formats. Number one, photographs and diagrams. Clear pictures of how the process should
+look are often the best way to present a simple process. Think of a recipe book, photographs or accurate diagrams of the key parts of
+a process with a short description might be all that's needed to operate
+that process safely efficiently. Number two, flowcharts. Flowcharts are a very common way of
+presenting the one best way for a process. Flowcharts are easy to understand and provide a nice visual step
+by step map of the process. Flowcharts would generally be used for
+more complicated activities or processes, although the flowchart will often be
+accompanied by photographs of the key elements in the process. Number three, checklists. Checklists are a handy reminder of
+the steps needed to operate a process or activity safely and efficiently. They are most useful for people who
+are already familiar with the process but who need to verify that certain
+steps have been carried out, perhaps for safety reasons. Often they will be archived after the
+procedure has been completed to show that each requirement was ticked off as
+evidence for quality of safety audits. Checklists are usually accompanied by more
+detailed procedures to help staff new to the work area. Number four, videos and
+electronic instructions. Modern computer controlled equipment
+often has a visual display of their operating procedure built-in. These may be animated graphics or
+video demonstrations. Software tools are always supported
+by video tutorials and help guides. Video operating procedures demonstrating
+the steps needed are very useful, provided the people working the processor
+activity have ready access to equipment to play the videos
+when they feel unsure. Number five, text documents. Earlier in this lesson, I said that text based operating
+procedures were a sign of poor sops. That was a generalization
+that has some exceptions. Some highly complex processes do need
+thorough documentation to ensure they're carried out effectively. Medical procedures, strictly defined
+chemical or pharmaceutical processes, or specific legal steps might
+require such written Sops. However, it should be noted that the more
+complex a process is to execute, the more likely it is
+that mistakes will occur. The organisation should work to simplify
+such activities as much as possible, perhaps by breaking them down
+into constituent parts so that simpler sops can be developed
+that minimise the risk of error. In conclusion, the purpose of standard
+operating procedures is to identify the best way of delivering a particular
+activity or process at the present time. That means they have to be practical and
+usable in the workplace. SOPs are not documents for
+the office filing cabinet, they are live tools of the process. They are tools as important to the process
+as any others used by the team working there. From software tools to wrenches or
+computer controlled machines to ensure their usability, sops are usually
+visual presentations of the steps and requirements for
+operating a process or activity. We'll show some examples of sops
+in the next video in this lesson. Now I have a question for.

@@ -1,0 +1,99 @@
+In this video, we offer
+you some practice in creating a standard operating procedure with a case study. By the end of this video,
+you will be able to identify processes
+and activities for which SOPs are needed, and those which don't need SOPs. Conduct an audit of business activities to determine which require their own SOP. Our aim is to make this course
+as practical as possible, and that includes
+rehearsing the creation of a standard operating
+procedure with a case study. Let's
+make a start. Consider the following
+three scenarios. Scenario 1, the
+finance process for reviewing supplier invoices and approving them for payment. Scenario 2, the
+cleaning of a staff changing room floor using
+a floor polishing machine. Number three, the
+movement of boxes of stationery from the receiving
+area to a store cupboard. Only one of these activities needs a standard
+operating procedure. Do you know which one it is, and why don't the other
+activities need an SOP? Pause the video here for a moment if you
+need time to think. We have three
+business activities, a finance process,
+a cleaning process, and a manual handling process. Which needs an SOP? Well, it's the finance process. Let me explain why. In the first lesson
+in this video, I mentioned the three watchwords for standard
+operating procedures, efficiency, quality, and safety. I'll go into more detail about when we need an SOP
+in the next lesson, but essentially, it's to meet one or more
+of these criteria. The finance process, reviewing supplier invoices and
+approving them for payment matches two of these criteria,
+quality and safety. I'm using safety in a
+broad sense here to include risk and
+specifically financial risk. Invoice fraud is the biggest single financial
+fraud in business. A Llyods bank survey
+identified that 52% of UK businesses had experienced to invoice fraud or
+attempted fraud. About 37% of businesses lacked checks to
+prevent invoice fraud. There is a significant risk from invoice fraud and therefore, a rigorous operating
+procedure is needed for the process to ensure that checks are carried
+out thoroughly. Any staff undertaking this role need to be fully trained
+in the procedure. I can understand
+that you might argue that the operation of the
+floor polishing machine would require an SOP because there is a potential safety risk from electricity or
+inappropriate use. That would be true.
+There will be a standard operating
+procedure for cleaning staff that covers safe use of all the
+machines that they operate, and the chemicals they may use. But there does not need to be a separate specific
+procedure for polishing the
+changing room floor or any other
+specific floor area. I apologize if you think
+I'm being pedantic there. But my question was specifically about cleaning the
+changing room floor. That does not need its own SOP. The procedure for the
+safe operation of cleaning machinery will cover
+it for all applications. Similarly, a case
+might be made for the manual movement of
+boxes of stationery. But again, this
+would be covered by a general safe
+handling procedure for all staff that would cover all manual handling
+requirements. There doesn't need to be
+a specific procedure for moving boxes from the receiving
+area to the storeroom. I hope you understand the
+distinction I'm making here. Individual processes,
+activities, and tasks which have specific risks or requirements will need their own standard
+operating procedure. But generalized tasks,
+such as manual handling or operating equipment that is used in a range
+of activities, can be covered by general health and safety procedures
+and training. Your first task, therefore, in preparing for
+the introduction of standard operating procedures
+is to determine which activities need their
+own specific SOPs and which can be covered by general procedures
+and training. It might be useful to
+audit the processes and activities carried
+out in your company, speaking to the people
+that work in them. For each process, task, or activity identified, we
+would ask four questions. One, is the activity expensive to operate or use
+expensive materials? Two, is the quality
+of the output of the activity or
+process critical? Three, is the process
+or activity high risk, safety risk, financial risk, reputational risk, and so on. Four, does the risk
+in the process or activity apply across
+a range of activities? If there is an
+affirmative answer to any of the first
+three questions, then an SOP is needed for
+that process or activity. If there is a negative
+answer to all of the first three
+questions, cost, quality, or specific risk,
+then the activity or process probably doesn't
+need its own SOP. Although, this is a
+subjective judgment, and the final decision should be made by
+the management team. If there is a negative answer to all of the first
+three questions, but the fourth question
+has an affirmative answer, then a specific SOP is not needed for the
+processor activity. But there does need to be
+a generalized procedure to cover the broader risk. Such general safety briefings are common in all organizations, manual handling, the use
+of cleaning materials, electrical equipment
+awareness, and so on. However, the judgment on
+risk is important and if you think the risk may be increased in this
+specific activity, then a specific SOP
+would be appropriate. In conclusion, judging
+whether a business process or activity needs a standard operating
+procedure can be tricky, and we'll return to this
+topic in the next lesson. In broad terms,
+processes and activities with specific concerns
+relating to cost, quality, and safety or risk
+will need their own SOP. General safety procedures and training can cover
+risks that feature across the business and are not specific to any particular area. Now, I have a question for you.

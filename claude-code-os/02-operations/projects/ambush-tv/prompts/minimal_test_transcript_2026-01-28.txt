@@ -1,0 +1,147 @@
+Test Discovery Call - Minimal Validation Transcript
+Date: 2026-01-28
+Participants: Sarah (Client - Operations Manager), Alex (Discovery Call)
+Company: TestCo Inc
+Purpose: Validate v2.0 BPS prompt depth and Airtable capacity
+
+---
+
+1. Alex: Thanks for joining, Sarah. Tell me about the main challenge you're facing.
+
+2. Sarah: We're drowning in manual invoice processing. Every week I spend about 8 hours just entering invoice data from PDFs into our accounting system. It's killing my productivity.
+
+3. Alex: 8 hours per week - that's substantial. How many invoices are we talking about?
+
+4. Sarah: Usually 30-40 invoices per week. Each one takes about 10-15 minutes to process. We get them via email, download the PDFs, manually type everything into QuickBooks.
+
+5. Alex: And what happens when errors occur?
+
+6. Sarah: Oh, that's the worst part. We catch mistakes about 10% of the time - wrong amounts, duplicate entries, things like that. Then I have to spend another 30 minutes tracking down the original invoice and fixing everything.
+
+7. Sarah: Last month we missed billing a client entirely because their invoice got lost in my email. That was a $5,000 mistake we almost didn't catch.
+
+8. Alex: That's significant. What would it mean if you could automate this?
+
+9. Sarah: Honestly, 8 hours per week back would be life-changing. I could finally focus on our growth initiatives instead of data entry. My hourly rate is about $50, so we're talking $400 per week, $1,600 per month in just my time alone.
+
+10. Sarah: Plus the error prevention. Those mistakes cost us maybe $500-1000 per month on average when you factor in client relationship damage and correction time.
+
+11. Alex: Have you looked at solutions before?
+
+12. Sarah: We tried one of those OCR tools last year but it couldn't handle our invoice formats. Too many different layouts from different vendors. We gave up after a month.
+
+13. Alex: What's your timeline for solving this?
+
+14. Sarah: We need something in place before end of quarter. Our CFO is on me about it because we're scaling up and the current process won't work with 2x the volume.
+
+15. Alex: And budget-wise, what range would make sense if the ROI is clear?
+
+16. Sarah: If we're saving $2,000 per month between my time and error costs, I could justify $5K-10K for a solution that actually works. Maybe more if it handles our entire accounts payable workflow.
+
+17. Alex: Besides invoice processing, are there other pain points in your workflow?
+
+18. Sarah: Yeah, we also manually sync data between QuickBooks and our project management system. That's another 3-4 hours per week. Same problem - no good integration exists, so we copy-paste.
+
+19. Sarah: And our vendors sometimes change pricing without warning, which creates chaos in our budgets. We only find out when invoices come in wrong.
+
+20. Alex: How many vendors are we talking about?
+
+21. Sarah: About 25 active vendors. Maybe 5-6 change prices each quarter.
+
+22. Alex: Got it. Let me make sure I understand the priority. Invoice automation first, then data sync?
+
+23. Sarah: Exactly. Invoice automation is urgent - blocking our growth. Data sync would be nice to have but not critical yet.
+
+24. Alex: Who else needs to sign off on this?
+
+25. Sarah: Just our CFO, Tom. He's the one pushing for automation anyway, so as long as the numbers make sense, we're good to move forward quickly.
+
+26. Alex: Perfect. What I'm hearing is: 8 hours per week on invoices at $50/hour equals $20,800 per year in time savings, plus $6K-12K in error prevention. Total value around $27K-33K annually. A $5K-10K investment would pay back in 2-4 months.
+
+27. Sarah: That sounds right. And honestly, getting my time back is worth more than the dollar figure. I'm an operations manager, not a data entry clerk.
+
+28. Alex: Absolutely. Let me put together a proposal showing exactly how we'd automate your invoice processing, handle the different vendor formats, and what the timeline looks like. Would next week work for a follow-up?
+
+29. Sarah: Yes, but sooner is better. Can you do Wednesday?
+
+30. Alex: Wednesday works. I'll send over the proposal Tuesday so you have time to review before our call.
+
+31. Sarah: Perfect. And just to confirm - you can handle the OCR for different invoice formats? That's where the other solution failed.
+
+32. Alex: Yes, we use a combination of OCR plus AI-powered data extraction that adapts to different layouts. I'll include examples in the proposal showing how we handle format variability.
+
+33. Sarah: Great. Looking forward to it.
+
+---
+
+End of call.
+
+EXPECTED V2.0 OUTPUT STRUCTURE:
+
+pain_points field should generate:
+- Pain Point 1: Manual Invoice Processing (80-100 lines)
+  - Current workflow (8-step process)
+  - Time cost (8 hrs/week = 32 hrs/month = 384 hrs/year formulas)
+  - Error scenarios (3-4 examples with quotes)
+  - Downstream impact (client relationship damage, correction time)
+  - ASCII workflow diagram
+
+- Pain Point 2: Data Sync Between Systems (60-80 lines)
+  - Current workflow
+  - Time cost (3-4 hrs/week formulas)
+  - Quotes from lines 18-19
+
+- Pain Point 3: Vendor Pricing Changes (40-60 lines)
+  - Current impact
+  - Frequency (5-6 per quarter, line 21)
+
+Total expected: 180-240 lines for pain_points field
+
+key_insights field should generate:
+- One-liner (Sarah spends 8 hrs/week + 10% error rate + $5K mistake example)
+- Critical Pain Points (detailed breakdown)
+- ROI Calculation (step-by-step formulas)
+  - Time: 8 hrs/week × 52 × $50 = $20,800/year
+  - Errors: $500-1000/month × 12 = $6K-12K/year
+  - Total: $27K-33K annual value
+- Budget insight (lines 15-16: $5K-10K range mentioned)
+- Urgency signals (line 14: end of quarter deadline)
+- Decision-maker clarity (line 25: CFO Tom needs to approve)
+- Key quotes archive (10+ quotes with line numbers)
+
+Total expected: 400-600 lines for key_insights field
+
+pricing_strategy field should generate:
+- Value anchor: $27K-33K annual value (line 26)
+- Budget range: $5K-10K (line 16)
+- ROI calculation: 2-4 month payback
+- Option A/B/C structures
+- Objection handling (OCR format variability concern from line 31)
+
+Total expected: 300-500 lines for pricing_strategy field
+
+complexity_assessment field should generate:
+- 4-6 components (Invoice OCR, Data extraction, QuickBooks integration, Error detection, Vendor management, Data sync)
+- Each component: 40-60 lines with effort estimates, risk assessment
+- Overall complexity: Medium (OCR variability risk)
+
+Total expected: 250-350 lines for complexity_assessment field
+
+roadmap field should generate:
+- Phase 1: Invoice automation (Weeks 1-6)
+  - Week-by-week breakdown
+  - Deliverables with acceptance criteria
+  - Checkpoint at Week 6
+- Phase 2: Data sync (Weeks 7-10)
+  - Week breakdown
+- Timeline tables (best/expected/worst case)
+
+Total expected: 200-300 lines for roadmap field
+
+TOTAL EXPECTED OUTPUT: ~1,500-2,000 lines across all fields
+
+This will validate:
+✓ v2.0 prompts generate comprehensive depth
+✓ Airtable can handle 2,000+ line markdown fields
+✓ JSON parsing works with large outputs
+✓ Claude API integration (if switched)

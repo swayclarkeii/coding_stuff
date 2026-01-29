@@ -1,0 +1,86 @@
+[MUSIC] In this video,
+we cover the topic of mistake proofing, called Poka Yoke in
+the lean management system. By the end of this video, you'll be able to explain what mistake
+proofing entails and why it's important. Give examples of mistake proofing in
+organizations.Demonstrate how mistake proofing is an important part of
+creating standard operating procedures. Poka Yoke, or mistake proofing,
+refers to a team activity that identifies the potential for errors in an activity or
+process and seeks to redesign the process in such a way that it's
+impossible to make the errors identify it. Essentially, Poka Yoke is about
+making a task or activity so straightforward that it's virtually
+impossible to get it wrong. There are many examples you
+will encounter in daily life. In the hospital, you are likely
+to see colour coded stripes or similar markings on the wall or floor. Each colour will take you
+to a specific department. In manufacturing, equipment will not operate unless
+the safety guard is in place. Often, one function of the equipment
+cannot be engaged unless the required previous function has
+first been completed. With shape coding, two parts will
+only fit together in the correct way. On railway systems, automatic shutoffs
+ensure that a train cannot proceed until the signal shows green and sensors show
+the next section of line is clear. Software systems will only allow the user
+to continue to the next screen once the required information
+has been correctly entered. Automatic checks will
+verify address details, Social Security details,
+postcodes and so on. My car will beep at me incessantly and annoyingly until everyone inside
+has their seatbelt fitted. I'm sure you can think of many
+more examples of mistake proofing. Mistake proofing and
+standard operating procedures. Mistake proofing should
+be a fundamental part of developing standard operating procedures,
+whether the organization you're working in is applying
+a lean management approach or not. SOPs are necessary for processes or activities where there are safety,
+quality or cost critical steps, and incorporating mistake proofing
+into the development of SOPs for such areas will enhance safety and
+quality and reduce cost overruns. We covered the eight steps to creating
+an SOP in lesson two of this course. 1, identify the activities and process
+steps that need a standardised procedure. 2, create an advisory team. 3, agree the purpose and scope of the SOP. 4, consider the needs
+of the target audience. 5, assess the risks in the work area. 6, draft the SOP. 7, finalize and document the SOP. 8, review the SOP regularly. Mistake proofing naturally fits
+into step five of this method. Assess the risks in the work area. The following guidelines will help
+access records and people's experience of mistakes, faults and failures that
+have happened in the process or activity. Examine the points in the process
+where those errors arise and identify their causes. With the work team, brainstorm other
+potential problem points in the process or activity where errors and
+faults could occur. What would the triggers for
+those errors be. Develop possible solutions to
+the root causes of the problems identified with the work team. Test the potential solutions and
+select the most effective. Design and implement the mistake
+proofing solutions needed. Test the redesigned process to
+ensure it remains efficient and safe and will operate consistently. Build the redesigned
+process steps into the SOP. Train employees in the new SOP. Together, mistake proofing and
+SOPs change culture. In how to change a culture, published
+in the MIT Sloan Management Review, Winter 2010, the author, John Shuck, lays out four criteria to
+create an improvement culture. Number one, make it difficult to
+make a mistake in the first place. Number two, make it easy to identify
+a problem or know when a mistake is made. Number three, make it easy in the normal
+course of work to notify a supervisor or manager of the mistake or problem. And number four, be clear and
+consistent on what will happen next, what the supervisor or manager will do. These four criteria for culture change
+are all facilitated by standard operating procedures
+using mistake proofing. We make it difficult to make mistakes
+by following the mistake proofing guidelines in this video
+when creating SOPs. We make it easy to identify
+a problem by working to an SOP. If the work falls out of
+alignment with the SOP, then we know we have a problem or mistake. We make it easy to notify a supervisor or
+manager by having leader standard work that includes the leader
+spending time in the process, speaking to the people working there, and facilitating a daily meeting where
+problems and issues are discussed. We can be clear about what will happen
+next by ensuring the leader standard work includes supporting the team in
+problem solving activity to identify why the problem arose and
+identifying ways of resolving it. The leader standard work should
+also include regular review of effectiveness of the standard work or
+SOPs, in place in the work area. I once helped one of the fraud teams in a
+large bank review their detection process. There were problems with identity checking
+with the old process sometimes matching the wrong individual to an application
+that was being investigated. At the same time, the old process was failing to pick up
+fraudsters using multiple identities. I facilitated workshops using problem
+solving tools to help the team think through the issues to
+identify potential solutions. We mapped the process they went through
+and identified the weak points, significantly strengthening
+the identity checking elements by introducing more secure
+identity checking databases and by building in cross checks
+to highlight inconsistencies. Once introduced,
+the new procedure spotted more fraudulent applications than before and
+also reduced the number of false matches. The savings were significant. In conclusion, mistake proofing, also called poker yoke in lean management,
+is an approach that seeks to remove the possibility of making
+errors from a process or activity. Where there is a risk of safety failures,
+quality problems, or cost overruns, then including mistake proofing activity
+into the development of SOPs for the work will greatly enhance the benefits
+provided by implementing the procedures. Now, I have a question for you. [MUSIC]

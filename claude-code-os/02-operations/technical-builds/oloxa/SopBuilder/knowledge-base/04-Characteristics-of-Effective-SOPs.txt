@@ -1,0 +1,72 @@
+[MUSIC]
+In this video we discuss the characteristics of an
+effective standard operating procedure and the elements we should include. By the end of this video, you'll be
+able explain the characteristics of an effective standard operating procedure. Review a business process to
+identify if an SOP is required, and outline the main elements
+that an SOP should contain. The characteristics of an effective SOP
+the purpose of sops, as we've seen, is to ensure best practice in
+the operation of a process or activity. Every SOP created, therefore must one identify why
+an sops are needed for the activity. We do not need SOPs for every activity
+in the business, just those where there are quality, safety and efficiency
+requirements that make them necessary. Two, show the most efficient
+way to complete the activity or process to the required level of quality. If there's an easier way
+of carrying out the task, then the SOP must explain
+why this is not permitted. If that is not done properly, people
+will inevitably take the easier route. Three, explain the safety precautions
+that need to be taken and why they're necessary. Four describe the quality
+requirements that must be methadone, including equipment,
+settings and tolerances. Five describe the equipment
+necessary to carry out the task and the location of that equipment. Six provide an appropriate course
+of action should anything in the process not allow it
+to operate efficiently. This will include calling a supervisor or
+support team. I mentioned that we do not need
+standard operating procedures for every task in an organisation. Trying to do that would be overkill. Creating and maintaining sops
+is an administrative burden and has to be kept manageable and affordable
+by concentrating on the essential tasks. For example, on most projects I've worked
+on, there's been a simple procedure for the correct file naming convention because
+this allows efficient searching for documents. But there's been no need for a procedure
+on how to save your document or how to print it because these
+tasks are not critical to quality. That brings us to the following when do
+I need a standard operating procedure? The simple answer to the question
+when do I need an SOP? Is when you have a routine task
+that requires a consistent, efficient or safe way of performing it. Thus, we need a standard operating
+procedure when at least one of the following criteria are met. A process, step or activity needs to
+achieve consistent results every time. The activity or process is critical
+to the quality of the output, the activity or
+process is costly to operate and it's necessary to specify
+the most efficient method. There is a relatively high
+risk of serious consequences, including risk to health,
+financial risk or reputational risk. A safe method of working,
+therefore, needs to be specified. Routine tasks that are not critical to
+quality, not expensive to undertake, and do not have a significant
+risk do not need sops. However, even then, a very simple induction sheet
+can be helpful to new staff. Elements in an SOP the elements that
+make up a standard operating procedure vary depending on the nature
+of the task being covered. In the examples in the previous lesson,
+I showed some very simple sops for routine tasks in a hospital where
+the main purpose was infection control. These SOPs had only five one,
+purpose two, preparation, showing the equipment and
+training needed, including safety requirements three, process flowchart or
+step by step guide. Four, checklist to ensure
+correct completion. Five, document control issue number,
+file name and date for auditing and revision purposes. Generally, I try to stick to these
+five sections, but more complex or technical procedures may require
+some additional sections. Scope and responsibilities. Terminology and definitions,
+detailed safety briefing, appendices of other relevant information,
+including supporting specifications. Equipment manuals, supplier details,
+inspection procedures, and so on. Approval signatures. There is a danger in making the standard
+operating procedure in use in the workplace too complex and bulky. And my personal preference is to
+keep the SOP itself concise and usable with reference documentation
+easily accessible in a side area. Of course, having the SOP and reference documentation online avoids
+the need for physical documentation, provided that it can be easily
+accessed for use in the workplace. In conclusion, we see that effective standard operating
+procedures can be challenging to create. On the one hand, they must be
+comprehensive enough to ensure safe, consistent, and efficient working,
+but on the other hand, they have to be as simple and
+accessible as possible. To be both exacting and easily understandable at the same time
+is no mean feat, and you can see why youre likely to work through several
+iterations before getting it right. In this video, weve looked at the six
+characteristics of an effective SOP, the situations in which we need an SOP,
+and the five core elements in an SOP. Although complex procedures
+may have more elements. In the next video, well discuss meeting
+the challenge of creating an SOP. Now I have a question for you. [MUSIC]

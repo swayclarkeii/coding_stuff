@@ -1,0 +1,92 @@
+[MUSIC] In this video, I want to expand our understanding
+of standard operating procedures by explaining their place in the context
+of the philosophy of lean management. By the end of this video you'll be able
+define the lean management philosophy, explain the main tools and techniques that
+form the lean approach to management, and describe the importance of standard
+operating procedures in the lean management philosophy. What is lean? Lean management,
+sometimes called lean manufacturing, is an approach to operational management
+that has its roots in the excellence of Japanese management methods,
+particularly in Toyota and Honda. These management methods were studied in
+the 1990s and resulted in many western companies adopting the tools and
+techniques identified. The lean management philosophy is a great
+illustration of the importance of standard operating procedures
+to business success. Without the consistency and stability
+created by the implementation of SOPs for critical activities, this approach to
+operational excellence could not work. Called standard work in lean terminology,
+standard operating procedures are one of the tools that
+form the heart of lean management. But before we come on to them, let's
+have a definition of lean management. The inspirational operations manager
+Taiichi Ono is credited as one of the founders of the Toyota
+production system, which later became called lean management. He also developed many of
+the tools of lean management. In his book the Toyota production System, published in English in 1988,
+Taiichi Ohno defined his approach as all we are doing is looking
+at the timeline from the moment the customer gives us an order to
+the point when we collect the cash and we are reducing the timeline by
+reducing the non value adding wastes. This is a good definition of lean. It shows that lean management is
+about improving business processes so that they deliver what the customer
+requires more quickly by eliminating steps that do not benefit the customer. These non value adding
+steps are called waste. Such wastes include things such
+as handoffs between systems or teams, waiting for authorizations,
+batching work requests, reworking faulty products and so on. Building on this definition, lean
+management focuses on three key elements. One, delivering what
+the customer actually wants and values from a process at the right
+time and at the right price. Two, streamlining and smoothing
+the process to consistently deliver that customer value with as few non
+value adding steps as possible. And three, empowering the team to
+continuously improve the process. I spent some time in a small
+lean factory in Italy and what struck me about it
+was the team spirit. Managers, supervisors and
+operatives worked together with plenty of humor to tackle problems
+that they were facing. There was no us and them culture, but a
+desire to make things better for everyone. Lean is a collaborative
+approach to management. It's not about making people
+work harder or faster, it's about working together to
+identify and remove inefficiencies from the process, unnecessary
+steps over complicated elements, excessive layers of authorisation,
+time delays and so on. In order to create the capacity to do more
+profitable work in the time available. The tools of lean management. Lean management focuses on streamlining
+business processes to make them more efficient and to improve quality. Work to implement a lean approach revolves
+around seven key management tools. Standard work, lean management uses
+standard operating procedures to ensure efficient processes that
+consistently deliver customer value. Value stream mapping,
+also called process mapping, to show how a process works
+with all its twists and turns. Team problem solving,
+the work team identifying and resolving problems in their
+work area visual management, including performance measures displayed
+in the work area and other visual cues. 5S, tools to create a clean,
+well organised workplace kanban a visual method of controlling work
+in progress to ensure a steady flow of work through a business
+process without bottlenecks. Poka Yoke, which means mistake proofing. This is an important part of developing
+standard operating procedures and I'll cover it in more
+detail in a later video. New balance the sport shoes manufacturer
+has used these techniques to cut work in progress by 80% whilst
+improving manufacturing throughput and finished goods availability. Customer orders can be manufactured and
+shipped within 24 hours, where they previously had
+a nine day lead time. Although labour costs are significantly
+higher in the United States than in Asia, the productivity gains made and
+the ability to respond almost instantly to customer orders balance
+out this difference. Standard work. In lean management,
+SOPs are called standard work. Although increasingly in
+workplaces applying lean concepts, the more user friendly phrase
+one best way is applied. Standard work or one best way procedures
+are one of the keys to efficient, high quality processes in
+the lean management system. Standard work is developed in exactly
+the same way as I have described for sops in the previous videos. They are the current best way
+of carrying out an activity or process to deliver the quality
+required by the customer efficiently. Lean management has a focus
+on continuous improvement, which means that the standard
+work is regularly reviewed and updated with the team in the work area to
+identify more efficient ways of working. Standard work and
+SOPs are essentially the same thing, although the emphasis on continuous
+improvement may mean that standard work is more actively reviewed than SOPs
+in some traditional organizations. In conclusion, lean management is
+an approach to operational management that devolves a lot of
+responsibility down to work teams. The focus is very much on delivering
+what the customer wants with optimal efficiency. Workplace teams develop standard operating
+procedures, which is called standard work, that focus on streamlining the process to
+deliver quality, efficiency and safety. These procedures are regularly
+reviewed with the work team, using problem solving tools to
+see how they can be improved. The aim is to make every step in
+the process a little better each time. All those small improvements add up to
+large gains at the organizational level. A concept that is sometimes called
+the doctrine of marginal gains. Now, I have a question for you. [MUSIC]

@@ -25,7 +25,7 @@ Usage: ./mcp-toggle.sh <command>
 Commands:
   ${GREEN}status${NC}           Show current MCP server status
   ${GREEN}enable-all${NC}       Enable all MCP servers
-  ${GREEN}core-mode${NC}        Enable core servers (n8n, playwriter, playwright, google-sheets, google-drive)
+  ${GREEN}core-mode${NC}        Enable core servers (n8n, playwriter, playwright, google-sheets, google-drive, airtable)
   ${GREEN}google-mode${NC}      Enable Google workspace mode (n8n, google-sheets, google-drive, google-slides)
   ${GREEN}pa-mode${NC}          Enable PA mode (n8n, calendar, github, sheets, notion)
   ${GREEN}minimal${NC}          Enable minimal set (n8n only)
@@ -40,6 +40,8 @@ Token Costs (per conversation):
   - google-drive:    ~8,000-10,000 tokens (est.)
   - n8n-mcp:         ~6,575 tokens (20 tools)
   - playwriter:      ~5,090 tokens (2 tools)
+  - airtable:        ~5,000-7,000 tokens (est.)
+  - fathom:          ~3,000-5,000 tokens (est.)
 
 Examples:
   ./mcp-toggle.sh core-mode      # Daily work mode (saves ~34K tokens)
@@ -91,8 +93,19 @@ show_status() {
     # Read disabled servers from config
     DISABLED=$(jq -r --arg proj "$PROJECT_PATH" '.projects[$proj].disabledMcpServers[]' "$CONFIG_FILE" 2>/dev/null | sort)
 
-    # All defined servers
-    ALL_SERVERS=$(jq -r --arg proj "$PROJECT_PATH" '.projects[$proj].mcpServers | keys[]' "$CONFIG_FILE" 2>/dev/null | sort)
+    # All defined servers from ~/.claude.json (project scope)
+    SERVERS_CLAUDE=$(jq -r --arg proj "$PROJECT_PATH" '.projects[$proj].mcpServers | keys[]' "$CONFIG_FILE" 2>/dev/null)
+
+    # All defined servers from .mcp.json (project-level file)
+    PROJECT_MCP_FILE="$PROJECT_PATH/.mcp.json"
+    if [ -f "$PROJECT_MCP_FILE" ]; then
+        SERVERS_PROJECT=$(jq -r '.mcpServers | keys[]' "$PROJECT_MCP_FILE" 2>/dev/null)
+    else
+        SERVERS_PROJECT=""
+    fi
+
+    # Merge and deduplicate all servers
+    ALL_SERVERS=$(echo -e "$SERVERS_CLAUDE\n$SERVERS_PROJECT" | grep -v '^$' | sort -u)
 
     echo -e "${GREEN}Enabled Servers:${NC}"
     for server in $ALL_SERVERS; do
@@ -138,6 +151,7 @@ CORE_SERVERS=(
     "playwright"
     "google-sheets"
     "google-drive"
+    "airtable"
 )
 
 # PA mode servers (focused personal assistant work)
@@ -165,9 +179,9 @@ GOOGLE_SERVERS=(
 
 # Enable core mode
 enable_core() {
-    print_status "Enabling core mode (n8n, playwriter, playwright, google-sheets, google-drive)..."
+    print_status "Enabling core mode (n8n, playwriter, playwright, google-sheets, google-drive, airtable)..."
 
-    # Disable: PA additions + optional servers
+    # Disable: PA additions + optional servers (airtable is now in core)
     DISABLED='["notion","google-calendar","fathom","github-mcp","google-slides","google-docs"]'
 
     update_disabled_servers "$DISABLED"
@@ -182,8 +196,8 @@ enable_core() {
 enable_pa_mode() {
     print_status "Enabling PA mode (n8n, calendar, github, sheets, notion)..."
 
-    # Disable: playwriter, playwright, drive, fathom, slides, docs
-    DISABLED='["playwriter","playwright","google-drive","fathom","google-slides","google-docs"]'
+    # Disable: playwriter, playwright, drive, fathom, slides, docs, airtable
+    DISABLED='["playwriter","playwright","google-drive","fathom","google-slides","google-docs","airtable"]'
 
     update_disabled_servers "$DISABLED"
 
@@ -199,7 +213,7 @@ enable_google_mode() {
     print_status "Enabling Google mode (n8n, google-sheets, google-drive, google-slides)..."
 
     # Disable: everything except Google servers + n8n
-    DISABLED='["playwriter","playwright","notion","google-calendar","fathom","github-mcp","google-docs"]'
+    DISABLED='["playwriter","playwright","notion","google-calendar","fathom","github-mcp","google-docs","airtable"]'
 
     update_disabled_servers "$DISABLED"
 
@@ -229,7 +243,7 @@ enable_minimal() {
     print_status "Enabling minimal mode (n8n-mcp only)..."
 
     # Disable: everything except n8n-mcp
-    DISABLED='["playwriter","playwright","google-sheets","google-drive","notion","google-calendar","fathom","github-mcp","google-slides","google-docs"]'
+    DISABLED='["playwriter","playwright","google-sheets","google-drive","notion","google-calendar","fathom","github-mcp","google-slides","google-docs","airtable"]'
 
     update_disabled_servers "$DISABLED"
 
@@ -252,7 +266,7 @@ disable_all() {
     fi
 
     # Disable: everything
-    DISABLED='["n8n-mcp","playwriter","playwright","google-sheets","google-drive","notion","google-calendar","fathom","github-mcp","google-slides","google-docs"]'
+    DISABLED='["n8n-mcp","playwriter","playwright","google-sheets","google-drive","notion","google-calendar","fathom","github-mcp","google-slides","google-docs","airtable"]'
 
     update_disabled_servers "$DISABLED"
 
