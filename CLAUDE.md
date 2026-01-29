@@ -29,6 +29,81 @@
 
 ---
 
+## 📋 COMPACTING SUMMARIES PROTOCOL (MANDATORY FOR ALL AGENTS)
+
+**EVERY summary — whether created by `/summaries`, an agent, or manual request — MUST follow these rules. No exceptions.**
+
+### When to Create a Summary
+
+A compacting summary MUST be created when Sway says ANY of these:
+- "Save a summary for [project]"
+- "Give me a summary"
+- "Summarize where we're at"
+- "Create a handoff / session summary"
+- "Save state for [project]"
+- Or any variation requesting project state documentation
+
+### Where Summaries Go (Non-Negotiable)
+
+```
+/claude-code-os/02-operations/technical-builds/{project}/compacting-summaries/
+```
+
+**Project folder mapping:**
+| Project | Folder |
+|---------|--------|
+| Eugene / AMA Capital | `eugene/` |
+| Sway's Expense System | `oloxa/SwaysExpenseSystem/` |
+| SOP Builder | `oloxa/SopBuilder/` |
+| Fathom Workflow | `oloxa/fathom-workflow/` |
+| Any new project | `{client-name}/{ProjectName}/` |
+
+**NEVER save summaries to:**
+- ❌ Root `/coding_stuff/` directory
+- ❌ `/session-summaries/` (that's for session handoffs, not project summaries)
+- ❌ `/projects/` directory
+- ❌ Random or invented paths
+- ❌ Misspelled folder names (e.g., `aloxa` instead of `oloxa`)
+
+### Filename Format (Non-Negotiable)
+
+```
+summary_v{major.minor}_{YYYY-MM-DD}.md
+```
+
+**Examples:**
+- `summary_v12.0_2026-01-29.md`
+- `summary_v12.1_2026-01-30.md`
+
+**NEVER use:** `v11-expense-system-fixes.md`, `PROJECT_STATE_*.md`, or any other format.
+
+### Version Auto-Increment
+
+Before writing, ALWAYS check existing summaries in the folder:
+1. `Glob` for `summary_v*.md` in the project's `compacting-summaries/` folder
+2. Find the highest version number
+3. Increment: minor bump (v12.0 → v12.1) for same session/day, major bump (v12.1 → v13.0) for new major work
+
+### Required Content (Every Summary Must Include)
+
+1. **Agent IDs table** — ALL agents used in the session, with ID, type, task, status
+2. **Date** — today's date in the header
+3. **Current status** — what's working, what's pending, what's blocked
+4. **Next steps** — clear action items for the next session
+5. **Key IDs** — workflow IDs, sheet IDs, folder IDs referenced
+
+### Agent Compliance
+
+**ALL agents** (solution-builder, test-runner, general-purpose, etc.) that create summaries or documentation MUST:
+- Check the project's `compacting-summaries/` folder for the latest version
+- Use the correct filename format
+- Save to the correct project folder
+- Include agent IDs
+
+**If an agent creates a summary in the wrong location, the main conversation MUST move it to the correct location before responding to Sway.**
+
+---
+
 ## 🎛️ MCP SERVER MODE MANAGEMENT (READ SECOND)
 
 **IMPORTANT:** MCP servers consume tokens every conversation. Use the right mode for your task.

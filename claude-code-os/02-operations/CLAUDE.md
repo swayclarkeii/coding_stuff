@@ -61,3 +61,38 @@ All technical implementation documents go in the centralized location:
 **Do NOT create technical-builds folders inside individual project folders.**
 ✅ Correct: `/02-operations/technical-builds/eugene/`
 ❌ Wrong: `/02-operations/projects/eugene/technical-builds/`
+
+---
+
+## File Placement Rules (MANDATORY)
+
+**CRITICAL: NEVER save files to the root `/coding_stuff/` directory. Always place files in the correct project folder.**
+
+### Root Directory - ONLY These Files Allowed
+
+- `CLAUDE.md` - Main instructions
+- `PROJECT_REFERENCE.md` - Project reference
+- `README.md` - Repository overview
+- `CREDENTIALS.md` - Credentials reference
+
+**Everything else goes into organized folders.**
+
+### Where Files Go
+
+| File Type | Destination |
+|-----------|-------------|
+| Eugene project files (iterations, docs, dual classification) | `/02-operations/technical-builds/eugene/` (use `iterations/`, `documentation/` subfolders) |
+| Expense System / W2 files | `/02-operations/technical-builds/oloxa/SwaysExpenseSystem/documentation/` |
+| SOP Builder files | `/02-operations/technical-builds/oloxa/SopBuilder/documentation/` |
+| OAuth / monitoring system docs | `/claude-code-os/00-system-docs/` |
+| Session summaries / work logs | `/session-summaries/` |
+| Test reports | Inside the relevant project's `tests/` subfolder |
+| Scripts (project-specific) | Inside the relevant project's `scripts/` subfolder |
+| Scripts (global) | `/scripts/` |
+
+### Before Saving ANY File
+
+1. **What project is this for?** → Find its folder in `technical-builds/` or `projects/`
+2. **What type?** → Use the correct subfolder (`documentation/`, `iterations/`, `tests/`, `scripts/`)
+3. **Is it truly global?** → Only then use `00-system-docs/` or `session-summaries/`
+4. **NEVER save to root** — no exceptions
