@@ -1,0 +1,37 @@
+<!--
+  Bank Statement Watcher - launchd plist
+
+  Install: cp com.oloxa.bank-statement-watcher.plist ~/Library/LaunchAgents/
+  Load:    launchctl load ~/Library/LaunchAgents/com.oloxa.bank-statement-watcher.plist
+  Unload:  launchctl unload ~/Library/LaunchAgents/com.oloxa.bank-statement-watcher.plist
+  Check:   launchctl list | grep oloxa
+-->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.oloxa.bank-statement-watcher</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Library/Frameworks/Python.framework/Versions/3.12/bin/python3</string>
+        <string>/Users/swayclarke/coding_stuff/scripts/bank-statement-watcher.py</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/swayclarke/coding_stuff/scripts</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/Users/swayclarke/Library/Logs/bank-statement-watcher-stdout.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/swayclarke/Library/Logs/bank-statement-watcher-stderr.log</string>
+</dict>
+</plist>

@@ -22,6 +22,7 @@ const formData = {
     name: '',
     goal: '',
     improvement_type: '',
+    company_name: '',
     department: '',
     end_user: '',
     process_steps: '',
@@ -254,6 +255,7 @@ function saveCurrentStepData() {
             formData.improvement_type = selected ? selected.value : '';
             break;
         case 3:
+            formData.company_name = document.getElementById('company_name').value.trim();
             formData.department = document.getElementById('department').value;
             formData.end_user = document.getElementById('end_user').value.trim();
             break;
@@ -367,6 +369,7 @@ async function submitForm() {
         payload.append('name', formData.name);
         payload.append('goal', formData.goal);
         payload.append('improvement_type', formData.improvement_type);
+        payload.append('companyName', formData.company_name);
         payload.append('department', formData.department);
         payload.append('end_user', formData.end_user);
         if (formData.lead_id) {
@@ -510,6 +513,7 @@ function resetForm() {
     document.getElementById('name').value = '';
     document.getElementById('goal').value = '';
     document.querySelectorAll('input[name="improvement_type"]').forEach(r => r.checked = false);
+    document.getElementById('company_name').value = '';
     document.getElementById('department').value = '';
     document.getElementById('end_user').value = '';
     document.getElementById('process_steps').value = '';

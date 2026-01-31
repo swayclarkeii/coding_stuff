@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6bc47a24ff91ba371e785bd5ab5a1feb90b67c542da53ae7fcde66edd3102b99"
+  },
+  "nodes": [],
+  "connections": {
+    "Route Expensify to W6": {
+      "main": [
+        [
+          {
+            "node": "Prepare W6 Input",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check if Sway Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Sway Invoice": {
+      "main": [
+        [
+          {
+            "node": "Download Sway Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {},
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-01-30T00:00:00.000Z",
+  "versionId": ""
+}

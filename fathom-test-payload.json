@@ -1,0 +1,53 @@
+{
+  "meeting": {
+    "title": "Meeting with Sinbad Ixil - 2026-01-29",
+    "date": "2026-01-29",
+    "transcript": [
+      {
+        "speaker": "Sinbad",
+        "timestamp": "00:00:15",
+        "text": "Hi, I'm Sinbad from ambush.tv. We're spending about 8 hours per week on manual content scheduling."
+      },
+      {
+        "speaker": "You",
+        "timestamp": "00:00:30",
+        "text": "Tell me more about your current process and team size."
+      },
+      {
+        "speaker": "Sinbad",
+        "timestamp": "00:00:45",
+        "text": "We have a team of 5 content creators. We use spreadsheets to track everything. Our email is sinbad@ambush.tv and we lose about 20% productivity to manual processes."
+      },
+      {
+        "speaker": "You",
+        "timestamp": "00:01:10",
+        "text": "What are the biggest pain points you're experiencing?"
+      },
+      {
+        "speaker": "Sinbad",
+        "timestamp": "00:01:20",
+        "text": "The main issues are: 1) We manually copy-paste content between platforms, 2) No automated scheduling, 3) We miss deadlines because of manual tracking. It's costing us about $2000 per month in lost productivity."
+      },
+      {
+        "speaker": "You",
+        "timestamp": "00:02:00",
+        "text": "Have you looked at any automation solutions before?"
+      },
+      {
+        "speaker": "Sinbad",
+        "timestamp": "00:02:15",
+        "text": "We tried Zapier but it didn't handle our complex workflows. We need something that can integrate with our custom CMS at ambush.tv and also handle multi-platform posting."
+      },
+      {
+        "speaker": "You",
+        "timestamp": "00:03:00",
+        "text": "What would success look like for you in 6 months?"
+      },
+      {
+        "speaker": "Sinbad",
+        "timestamp": "00:03:15",
+        "text": "Ideally, we'd reduce manual work by 80%, have automated scheduling across all platforms, and get back those 8 hours per week. That would free up our team to focus on creative work instead of admin tasks."
+      }
+    ]
+  }
+}

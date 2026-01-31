@@ -1,0 +1,70 @@
+{
+  "nodes": [],
+  "connections": {
+    "Route Expensify to W6": {
+      "main": [
+        [
+          {
+            "node": "Prepare W6 Input",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Unknown Results": {
+      "main": [
+        [
+          {
+            "node": "Is Invoice?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Invoice?": {
+      "main": [
+        [
+          {
+            "node": "Route by Direction",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is Receipt?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Receipt?": {
+      "main": [
+        [
+          {
+            "node": "Route EXPENSE vs UNKNOWN",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upload to Unknown Pool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
