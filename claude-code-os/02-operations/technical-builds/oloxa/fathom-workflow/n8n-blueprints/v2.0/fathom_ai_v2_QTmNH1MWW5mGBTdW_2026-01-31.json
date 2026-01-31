@@ -1,0 +1,987 @@
+{
+  "updatedAt": "2026-01-31T00:40:36.458Z",
+  "createdAt": "2026-01-30T20:45:56.542Z",
+  "id": "QTmNH1MWW5mGBTdW",
+  "name": "Fathom AI Analysis v2 - Multi-Call",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fathom-ai-analysis-v2",
+        "responseMode": "onReceived",
+        "options": {},
+        "responseData": "allEntries"
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        176
+      ],
+      "webhookId": "936186e6-26b2-4ed3-a188-5b41a2c54cfa",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const personalDomains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'icloud.com', 'aol.com', 'proton.me', 'protonmail.com', 'gmx.com', 'gmx.de', 'web.de', 't-online.de', 'freenet.de', 'posteo.de', 'live.com', 'msn.com', 'me.com', 'mac.com'];\nconst raw = $input.first().json;\nconst data = raw.body || raw;\nconst email = data.contact_email || '';\nconst domain = email.split('@')[1] || '';\nlet company = '';\nif (domain && !personalDomains.includes(domain.toLowerCase())) {\n  const companyName = domain.split('.')[0];\n  company = companyName.charAt(0).toUpperCase() + companyName.slice(1);\n}\nreturn [{\n  json: {\n    combined_transcript: data.combined_transcript || '',\n    contact_email: data.contact_email || '',\n    contact_name: data.contact_name || '',\n    title: data.title || '',\n    company: company\n  }\n}];"
+      },
+      "id": "extract-company",
+      "name": "Extract Company",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nlet raw = '';\nif (item.choices && item.choices[0] && item.choices[0].message) {\n  raw = item.choices[0].message.content || '';\n} else if (typeof item.text === 'string') {\n  raw = item.text;\n} else if (typeof item.output === 'string') {\n  raw = item.output;\n} else {\n  raw = JSON.stringify(item);\n}\nlet text = raw;\ntext = text.replace(/```json\\s*/gi, '').replace(/```\\s*/gi, '');\nconst start = text.indexOf('{');\nconst end = text.lastIndexOf('}');\nif (start === -1 || end === -1) return [{ json: { error: 'No JSON found', raw: text.substring(0, 200) } }];\ntext = text.substring(start, end + 1);\ntext = text.replace(/,\\s*([\\]}])/g, '$1');\ntry {\n  return [{ json: JSON.parse(text) }];\n} catch(e) {\n  return [{ json: { error: e.message, raw: text.substring(0, 200) } }];\n}"
+      },
+      "id": "parse-discovery",
+      "name": "Parse Discovery",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nlet raw = '';\nif (item.choices && item.choices[0] && item.choices[0].message) {\n  raw = item.choices[0].message.content || '';\n} else if (typeof item.text === 'string') {\n  raw = item.text;\n} else if (typeof item.output === 'string') {\n  raw = item.output;\n} else {\n  raw = JSON.stringify(item);\n}\nlet text = raw;\ntext = text.replace(/```json\\s*/gi, '').replace(/```\\s*/gi, '');\nconst start = text.indexOf('{');\nconst end = text.lastIndexOf('}');\nif (start === -1 || end === -1) return [{ json: { error: 'No JSON found', raw: text.substring(0, 200) } }];\ntext = text.substring(start, end + 1);\ntext = text.replace(/,\\s*([\\]}])/g, '$1');\ntry {\n  return [{ json: JSON.parse(text) }];\n} catch(e) {\n  return [{ json: { error: e.message, raw: text.substring(0, 200) } }];\n}"
+      },
+      "id": "parse-opportunity",
+      "name": "Parse Opportunity",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nlet raw = '';\nif (item.choices && item.choices[0] && item.choices[0].message) {\n  raw = item.choices[0].message.content || '';\n} else if (typeof item.text === 'string') {\n  raw = item.text;\n} else if (typeof item.output === 'string') {\n  raw = item.output;\n} else {\n  raw = JSON.stringify(item);\n}\nlet text = raw;\ntext = text.replace(/```json\\s*/gi, '').replace(/```\\s*/gi, '');\nconst start = text.indexOf('{');\nconst end = text.lastIndexOf('}');\nif (start === -1 || end === -1) return [{ json: { error: 'No JSON found', raw: text.substring(0, 200) } }];\ntext = text.substring(start, end + 1);\ntext = text.replace(/,\\s*([\\]}])/g, '$1');\ntry {\n  return [{ json: JSON.parse(text) }];\n} catch(e) {\n  return [{ json: { error: e.message, raw: text.substring(0, 200) } }];\n}"
+      },
+      "id": "parse-technical",
+      "name": "Parse Technical",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2448,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nlet raw = '';\nif (item.choices && item.choices[0] && item.choices[0].message) {\n  raw = item.choices[0].message.content || '';\n} else if (typeof item.text === 'string') {\n  raw = item.text;\n} else if (typeof item.output === 'string') {\n  raw = item.output;\n} else {\n  raw = JSON.stringify(item);\n}\nlet text = raw;\ntext = text.replace(/```json\\s*/gi, '').replace(/```\\s*/gi, '');\nconst start = text.indexOf('{');\nconst end = text.lastIndexOf('}');\nif (start === -1 || end === -1) return [{ json: { error: 'No JSON found', raw: text.substring(0, 200) } }];\ntext = text.substring(start, end + 1);\ntext = text.replace(/,\\s*([\\]}])/g, '$1');\ntry {\n  return [{ json: JSON.parse(text) }];\n} catch(e) {\n  return [{ json: { error: e.message, raw: text.substring(0, 200) } }];\n}"
+      },
+      "id": "parse-strategic",
+      "name": "Parse Strategic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3104,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Collect results from all 4 parse nodes\nconst results = {};\ntry { Object.assign(results, $('Parse Discovery').first().json); } catch(e) {}\ntry { Object.assign(results, $('Parse Opportunity').first().json); } catch(e) {}\ntry { Object.assign(results, $('Parse Technical').first().json); } catch(e) {}\ntry { Object.assign(results, $('Parse Strategic').first().json); } catch(e) {}\n\n// Get metadata from Extract Company\ntry {\n  const ec = $('Extract Company').first().json;\n  results.company = ec.company || '';\n  results.contact_email = ec.contact_email || '';\n  results.contact_name = ec.contact_name || '';\n  results.title = ec.title || '';\n} catch(e) {}\n\nreturn [{ json: results }];"
+      },
+      "id": "combine-output",
+      "name": "Combine Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3328,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst transcript = data.combined_transcript || '';\n\nconst prompt = `You are an expert business analyst. Analyze this meeting transcript and return ONLY a valid JSON object (no markdown, no code fences, no text before or after the JSON).\n\nCRITICAL REQUIREMENTS:\n1. You MUST write AT LEAST the minimum word count specified for each field\n2. Use markdown formatting (##, ###, bullets, numbered lists, tables) within each field\n3. Include DIRECT QUOTES from the transcript with speaker attribution (use \\\"Speaker: 'exact quote'\\\" format)\n4. Include specific metrics, scores, and ratings where applicable\n5. Break each field into 3-5 subsections with clear headers\n6. Be EXTREMELY detailed and thorough\n\nThe JSON must have these exact keys:\n\n\\\"summary\\\" (MINIMUM 800 words):\n- Use markdown headers (##, ###) to structure this field\n- Write a comprehensive executive summary covering:\n  ## Meeting Context (150+ words)\n  - Meeting type and format\n  - Date/time references if mentioned\n  - Setting and circumstances\n  \n  ## Stakeholders & Participants (150+ words)\n  - Who attended and their roles\n  - Decision makers identified\n  - Influencers and technical stakeholders\n  - Include DIRECT QUOTES showing their positions/concerns\n  \n  ## Key Themes & Topics (200+ words)\n  - Main discussion areas\n  - Strategic focus areas\n  - Technical topics covered\n  - Business objectives discussed\n  \n  ## Outcomes & Decisions (150+ words)\n  - Concrete decisions made\n  - Agreements reached\n  - Next steps identified\n  \n  ## Business Implications (150+ words)\n  - Strategic significance\n  - Budget/investment signals\n  - Timeline expectations\n  - Success criteria discussed\n\n\\\"key_insights\\\" (MINIMUM 600 words):\n- Use markdown structure with clear subsections:\n  ## Meeting Classification (100+ words)\n  - Type: Discovery/Sales/Technical/Strategy (with evidence)\n  - Stage in sales cycle or project lifecycle\n  - Level of engagement (score 1-10 with justification)\n  \n  ## Decision Maker Analysis (150+ words)\n  - Primary decision maker(s) identified\n  - Authority level: Budget holder / Influencer / End user\n  - Decision-making style observed\n  - Include DIRECT QUOTES showing decision authority\n  - Engagement level (score 1-10)\n  \n  ## Budget & Investment Signals (150+ words)\n  - Budget mentions (include exact quotes if present)\n  - Investment readiness score (1-10 with justification)\n  - Cost sensitivity indicators\n  - ROI expectations discussed\n  - Timeline for budget allocation\n  \n  ## Competitive Landscape (100+ words)\n  - Current solutions mentioned\n  - Competitors or alternatives discussed\n  - Incumbent vendors\n  - Switching costs or barriers\n  \n  ## Strategic Opportunities (100+ words)\n  - Key leverage points identified\n  - Unique value propositions that resonated\n  - Potential upsell or expansion opportunities\n  - Partnership potential\n\n\\\"pain_points\\\" (MINIMUM 600 words):\n- MUST include severity scores, confidence levels, and DIRECT QUOTES\n- Structure as:\n  ## Critical Severity (Score: 9-10/10)\n  For each pain point at this level:\n  ### [Pain Point Title]\n  **Severity Score:** X/10\n  **Confidence Level:** High/Medium/Low (XX%)\n  **Evidence:**\n  - Include DIRECT QUOTES with speaker names: \\\"Speaker Name: 'exact quote from transcript'\\\"\n  - Provide 2-3 supporting quotes per pain point\n  **Business Impact:**\n  - Quantified impact (time, money, efficiency)\n  - Affected stakeholders\n  - Current workarounds or coping mechanisms\n  **Root Cause Analysis:**\n  - Underlying systemic issues\n  - Contributing factors\n  **Urgency Assessment:**\n  - Timeline pressure\n  - Consequences of inaction\n  \n  ## High Severity (Score: 7-8/10)\n  [Repeat same structure for 2-3 pain points]\n  \n  ## Medium Severity (Score: 4-6/10)\n  [Repeat same structure for 2-3 pain points]\n  \n  Include at least 5-8 total pain points across severity levels.\n\n\\\"action_items\\\" (MINIMUM 400 words):\n- Use structured format with clear priorities:\n  ## Immediate Actions (Next 1-2 weeks)\n  For each action:\n  ### [Action Title]\n  **Owner:** [Person/team responsible]\n  **Priority:** Critical / High / Medium (with justification)\n  **Deadline:** [Specific date or timeframe]\n  **Description:** [Detailed explanation of what needs to be done, 50+ words]\n  **Dependencies:** [What must happen first]\n  **Success Criteria:** [How we'll know it's complete]\n  **Effort Estimate:** [Hours/days with confidence level]\n  \n  ## Short-term Actions (2-4 weeks)\n  [Repeat structure for 3-5 actions]\n  \n  ## Medium-term Actions (1-3 months)\n  [Repeat structure for 2-3 actions]\n  \n  Include 8-12 total action items with complete details for each.\n\nIMPORTANT: Return ONLY the JSON object. No markdown code fences, no explanatory text, just the raw JSON. Each field value should be a string containing the markdown-formatted content described above.\n\nTranscript:\n` + transcript;\n\nreturn [{ json: { prompt, company: data.company, contact_email: data.contact_email, contact_name: data.contact_name, title: data.title } }];"
+      },
+      "id": "build-prompt-1",
+      "name": "Build Prompt 1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: \"gpt-4o\", messages: [{ role: \"user\", content: $json.prompt }], temperature: 0.3, max_tokens: 16384 }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "http-openai-1",
+      "name": "HTTP OpenAI 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        912,
+        352
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "xmJ7t6kaKgMwA1ce",
+          "name": "OpenAi account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 35000
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Extract Company').first().json;\nconst transcript = data.combined_transcript || '';\n\nconst prompt = `You are an expert business strategist. Analyze this meeting transcript and return ONLY a valid JSON object (no markdown, no code fences, no text before or after the JSON).\n\nCRITICAL REQUIREMENTS:\n1. You MUST write AT LEAST the minimum word count specified for each field\n2. Use markdown formatting (##, ###, bullets, numbered lists, tables) within each field\n3. Include DIRECT QUOTES from the transcript with speaker attribution\n4. Include effort/impact scores, ROI calculations, and specific metrics\n5. Break each field into multiple subsections with clear headers\n6. Be EXTREMELY detailed and thorough\n\nThe JSON must have these exact keys:\n\n\\\"quick_wins\\\" (MINIMUM 800 words):\n- Structure as an opportunity matrix with detailed analysis:\n  ## High Impact / Low Effort (Priority 1)\n  For each opportunity (provide 3-5 opportunities):\n  ### [Opportunity Title]\n  **Impact Score:** X/10 (with justification)\n  **Effort Score:** X/10 (with justification)\n  **Implementation Timeline:** [Specific timeframe]\n  **Expected ROI:** [Percentage or ratio with calculation method]\n  **Prerequisites:** [What's needed to start]\n  **Implementation Steps:**\n  1. [Detailed step 1 - 30+ words]\n  2. [Detailed step 2 - 30+ words]\n  3. [Detailed step 3 - 30+ words]\n  **Resource Requirements:**\n  - Personnel: [Roles and time commitment]\n  - Budget: [Estimated cost breakdown]\n  - Technology: [Tools or platforms needed]\n  **Risk Assessment:** [Potential obstacles, score 1-10]\n  **Success Metrics:** [How to measure success, include KPIs]\n  **Evidence from Transcript:** [DIRECT QUOTES supporting this opportunity]\n  \n  ## High Impact / Medium Effort (Priority 2)\n  [Repeat structure for 2-3 opportunities]\n  \n  ## Medium Impact / Low Effort (Priority 3)\n  [Repeat structure for 2-3 opportunities]\n  \n  ## Opportunity Matrix Summary\n  [Table showing all opportunities plotted on effort vs impact grid]\n  \n  Include detailed analysis for 8-10 total opportunities.\n\n\\\"pricing_strategy\\\" (MINIMUM 800 words):\n- Develop comprehensive value-based pricing analysis:\n  ## Pricing Philosophy & Approach (100+ words)\n  - Value-based vs cost-based rationale\n  - Competitive positioning strategy\n  - Client's perceived value signals from transcript (include DIRECT QUOTES)\n  - Price sensitivity indicators observed\n  \n  ## Package Tier Breakdown\n  \n  ### Tier 1: [Package Name] (150+ words)\n  **Target Customer:** [Profile and use case]\n  **Price Point:** $X [with justification based on value delivered]\n  **Core Features:**\n  - [Feature 1] - Value: $X equivalent\n  - [Feature 2] - Value: $X equivalent\n  - [Feature 3] - Value: $X equivalent\n  **Included Services:** [Detailed list]\n  **Support Level:** [Description]\n  **ROI Calculation:**\n  - Cost: $X\n  - Value delivered: $X\n  - Payback period: X months\n  - 12-month ROI: X%\n  **Differentiation:** [Why choose this tier]\n  \n  ### Tier 2: [Package Name] (150+ words)\n  [Repeat structure with different scope]\n  \n  ### Tier 3: [Package Name] (150+ words)\n  [Repeat structure with different scope]\n  \n  ## Add-Ons & Extensions (100+ words)\n  - [Add-on 1]: $X - [Description and value]\n  - [Add-on 2]: $X - [Description and value]\n  - [Add-on 3]: $X - [Description and value]\n  \n  ## Pricing Justification & Value Anchoring (150+ words)\n  - Cost of current solution (if mentioned)\n  - Cost of problem/pain point (quantified)\n  - Value of solution (quantified benefits)\n  - Competitive pricing landscape\n  - Include DIRECT QUOTES about budget or value expectations\n  \n  ## Payment Terms & Models (100+ words)\n  - One-time vs subscription rationale\n  - Payment schedule options\n  - Discount structures (volume, annual commit, etc.)\n  - Contract length recommendations\n  \n  ## Upsell & Expansion Pathways (100+ words)\n  - Natural progression from Tier 1 to Tier 2 to Tier 3\n  - Usage-based expansion opportunities\n  - Additional services or modules\n  - Long-term value growth strategy\n\nIMPORTANT: Return ONLY the JSON object. No markdown code fences, no explanatory text, just the raw JSON. Each field value should be a string containing the markdown-formatted content described above.\n\nTranscript:\n` + transcript;\n\nreturn [{ json: { prompt } }];"
+      },
+      "id": "build-prompt-2",
+      "name": "Build Prompt 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: \"gpt-4o\", messages: [{ role: \"user\", content: $json.prompt }], temperature: 0.3, max_tokens: 16384 }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "http-openai-2",
+      "name": "HTTP OpenAI 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1568,
+        352
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "xmJ7t6kaKgMwA1ce",
+          "name": "OpenAi account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 35000
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Extract Company').first().json;\nconst transcript = data.combined_transcript || '';\n\nconst prompt = `You are an expert technical architect and project manager. Analyze this meeting transcript and return ONLY a valid JSON object (no markdown, no code fences, no text before or after the JSON).\n\nCRITICAL REQUIREMENTS:\n1. You MUST write AT LEAST the minimum word count specified for each field\n2. Use markdown formatting (##, ###, bullets, numbered lists, tables) within each field\n3. Include DIRECT QUOTES from the transcript with speaker attribution\n4. Include complexity scores, risk ratings, and resource estimates\n5. Break each field into multiple detailed subsections\n6. Be EXTREMELY detailed and thorough\n\nThe JSON must have these exact keys:\n\n\\\"complexity_assessment\\\" (MINIMUM 800 words):\n- Comprehensive technical complexity scoring:\n  ## Overall Complexity Score: X/10\n  **Confidence Level:** High/Medium/Low (XX%)\n  **Justification:** [100+ word detailed explanation]\n  \n  ## Technical Complexity Breakdown\n  \n  ### Architecture Complexity (Score: X/10)\n  **Assessment:** [100+ words]\n  - System integration points identified\n  - Data flow complexity\n  - Scalability requirements\n  - Technology stack considerations\n  **Evidence from Transcript:** [DIRECT QUOTES]\n  **Mitigation Strategies:** [Specific approaches to manage complexity]\n  \n  ### Integration Complexity (Score: X/10)\n  **Assessment:** [100+ words]\n  - Third-party systems mentioned\n  - API requirements\n  - Data migration needs\n  - Authentication/authorization requirements\n  **Evidence from Transcript:** [DIRECT QUOTES]\n  **Mitigation Strategies:** [Specific approaches]\n  \n  ### Data Complexity (Score: X/10)\n  **Assessment:** [100+ words]\n  - Data volume and velocity\n  - Data quality challenges\n  - Data modeling requirements\n  - Privacy/compliance considerations\n  **Evidence from Transcript:** [DIRECT QUOTES]\n  **Mitigation Strategies:** [Specific approaches]\n  \n  ### User Experience Complexity (Score: X/10)\n  **Assessment:** [100+ words]\n  - User persona diversity\n  - Accessibility requirements\n  - Multi-platform needs\n  - Customization requirements\n  **Evidence from Transcript:** [DIRECT QUOTES]\n  **Mitigation Strategies:** [Specific approaches]\n  \n  ## Risk Assessment Matrix\n  \n  ### Technical Risks (Score: X/10)\n  For each risk (identify 3-5 risks):\n  **Risk:** [Description]\n  **Probability:** High/Medium/Low (XX%)\n  **Impact:** High/Medium/Low (score 1-10)\n  **Mitigation:** [Specific mitigation strategy]\n  **Contingency:** [Fallback plan]\n  \n  ### Resource Risks (Score: X/10)\n  [Repeat structure for 2-3 risks]\n  \n  ### Timeline Risks (Score: X/10)\n  [Repeat structure for 2-3 risks]\n  \n  ## Resource Requirements (150+ words)\n  **Development Team:**\n  - Frontend developers: X FTE for X weeks\n  - Backend developers: X FTE for X weeks\n  - DevOps engineers: X FTE for X weeks\n  - UX/UI designers: X FTE for X weeks\n  \n  **Specialized Skills:**\n  - [Skill 1]: X hours\n  - [Skill 2]: X hours\n  \n  **Infrastructure:**\n  - [Requirement 1]: $X/month\n  - [Requirement 2]: $X/month\n  \n  **Total Effort Estimate:** X person-weeks (confidence: XX%)\n  **Total Duration:** X weeks (with X person team)\n  **Total Cost Estimate:** $X - $X (range with assumptions)\n\n\\\"requirements\\\" (MINIMUM 800 words):\n- Comprehensive requirements documentation:\n  ## Functional Requirements\n  For each requirement (provide 8-12 requirements):\n  ### FR-XX: [Requirement Title]\n  **Priority:** Critical / High / Medium / Low\n  **Description:** [100+ word detailed description of the requirement]\n  **User Story:** As a [role], I want [capability], so that [benefit]\n  **Evidence from Transcript:** [DIRECT QUOTES supporting this requirement]\n  **Acceptance Criteria:**\n  - Given [context]\n  - When [action]\n  - Then [expected outcome]\n  - And [additional criterion]\n  - And [additional criterion]\n  **Dependencies:** [Other requirements or systems this depends on]\n  **Estimated Effort:** X hours/days (confidence: XX%)\n  \n  ## Non-Functional Requirements\n  \n  ### Performance Requirements (100+ words)\n  **Requirements:**\n  - Response time: [Specific metrics]\n  - Throughput: [Specific metrics]\n  - Concurrent users: [Specific metrics]\n  **Evidence from Transcript:** [DIRECT QUOTES]\n  **Acceptance Criteria:** [Measurable criteria]\n  \n  ### Security Requirements (100+ words)\n  **Requirements:**\n  - Authentication: [Specific requirements]\n  - Authorization: [Specific requirements]\n  - Data protection: [Specific requirements]\n  **Evidence from Transcript:** [DIRECT QUOTES]\n  **Acceptance Criteria:** [Measurable criteria]\n  \n  ### Scalability Requirements (100+ words)\n  **Requirements:**\n  - User growth: [Specific projections]\n  - Data growth: [Specific projections]\n  - Geographic expansion: [Specific requirements]\n  **Evidence from Transcript:** [DIRECT QUOTES]\n  **Acceptance Criteria:** [Measurable criteria]\n  \n  ### Compliance Requirements (100+ words)\n  **Requirements:**\n  - Regulatory compliance: [Specific requirements]\n  - Industry standards: [Specific requirements]\n  - Audit requirements: [Specific requirements]\n  **Evidence from Transcript:** [DIRECT QUOTES]\n  **Acceptance Criteria:** [Measurable criteria]\n  \n  ## Constraints & Assumptions\n  **Technical Constraints:**\n  - [Constraint 1 with impact]\n  - [Constraint 2 with impact]\n  **Business Constraints:**\n  - Budget: [Specific constraints from transcript]\n  - Timeline: [Specific constraints from transcript]\n  **Assumptions:**\n  - [Assumption 1 - needs validation]\n  - [Assumption 2 - needs validation]\n  \n  Include evidence from transcript with DIRECT QUOTES for all major requirements.\n\nIMPORTANT: Return ONLY the JSON object. No markdown code fences, no explanatory text, just the raw JSON. Each field value should be a string containing the markdown-formatted content described above.\n\nTranscript:\n` + transcript;\n\nreturn [{ json: { prompt } }];"
+      },
+      "id": "build-prompt-3",
+      "name": "Build Prompt 3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: \"gpt-4o\", messages: [{ role: \"user\", content: $json.prompt }], temperature: 0.3, max_tokens: 16384 }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "http-openai-3",
+      "name": "HTTP OpenAI 3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2224,
+        352
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "xmJ7t6kaKgMwA1ce",
+          "name": "OpenAi account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 35000
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Extract Company').first().json;\nconst transcript = data.combined_transcript || '';\n\nconst prompt = `You are an expert strategic planner and customer success architect. Analyze this meeting transcript and return ONLY a valid JSON object (no markdown, no code fences, no text before or after the JSON).\n\nCRITICAL REQUIREMENTS:\n1. You MUST write AT LEAST the minimum word count specified for each field\n2. Use markdown formatting (##, ###, bullets, numbered lists, tables) within each field\n3. Include DIRECT QUOTES from the transcript with speaker attribution\n4. Include timelines, milestones, and specific deliverables\n5. Break each field into detailed phases and stages\n6. Be EXTREMELY detailed and thorough\n\nThe JSON must have these exact keys:\n\n\\\"roadmap\\\" (MINIMUM 800 words):\n- Comprehensive phased implementation plan:\n  ## Executive Summary (100+ words)\n  - Total timeline: X months\n  - Number of phases: X\n  - Total estimated cost: $X - $X\n  - Key success factors\n  - Critical dependencies\n  \n  ## Phase 1: [Phase Name] (150+ words)\n  **Duration:** X weeks (Week 1 - Week X)\n  **Objectives:**\n  - [Objective 1 with success criteria]\n  - [Objective 2 with success criteria]\n  - [Objective 3 with success criteria]\n  \n  **Key Milestones:**\n  - Week X: [Milestone 1] - [Deliverable description]\n  - Week X: [Milestone 2] - [Deliverable description]\n  - Week X: [Milestone 3] - [Deliverable description]\n  \n  **Deliverables:**\n  - [Deliverable 1]: [Detailed description, 30+ words]\n  - [Deliverable 2]: [Detailed description, 30+ words]\n  \n  **Dependencies:**\n  - [Dependency 1 with impact]\n  - [Dependency 2 with impact]\n  \n  **Resources Required:**\n  - Team: [Roles and FTE]\n  - Budget: $X\n  - Tools/Infrastructure: [Specific requirements]\n  \n  **Success Criteria:**\n  - [Measurable criterion 1]\n  - [Measurable criterion 2]\n  \n  **Risk Factors:**\n  - [Risk 1]: Probability X%, Mitigation: [strategy]\n  - [Risk 2]: Probability X%, Mitigation: [strategy]\n  \n  **Evidence from Transcript:** [DIRECT QUOTES supporting this phase]\n  \n  ## Phase 2: [Phase Name] (150+ words)\n  [Repeat complete structure]\n  \n  ## Phase 3: [Phase Name] (150+ words)\n  [Repeat complete structure]\n  \n  ## Phase 4: [Phase Name] (150+ words)\n  [Repeat complete structure]\n  \n  ## Dependencies Map (100+ words)\n  **Critical Path:**\n  - [Phase/Milestone 1] then [Phase/Milestone 2] then [Phase/Milestone 3]\n  \n  **Parallel Workstreams:**\n  - Workstream A: [Phases that can run concurrently]\n  - Workstream B: [Phases that can run concurrently]\n  \n  **External Dependencies:**\n  - [External dependency 1 with timeline]\n  - [External dependency 2 with timeline]\n  \n  ## Timeline Visualization\n  [Text-based Gantt chart or timeline showing phases, milestones, and dependencies]\n  \n  Include at least 4-5 distinct phases with complete details for each.\n\n\\\"client_journey_map\\\" (MINIMUM 800 words):\n- Detailed current vs future state customer journey:\n  ## Current State Analysis (250+ words)\n  \n  ### Discovery Phase\n  **Touchpoints:**\n  - [Touchpoint 1]: [Detailed description, 30+ words]\n  - [Touchpoint 2]: [Detailed description, 30+ words]\n  \n  **Pain Points:**\n  - [Pain 1]: Severity X/10 - [Description with DIRECT QUOTE]\n  - [Pain 2]: Severity X/10 - [Description with DIRECT QUOTE]\n  \n  **Customer Emotions:**\n  - Frustration level: X/10\n  - Confidence level: X/10\n  - Satisfaction level: X/10\n  \n  **Evidence from Transcript:** [DIRECT QUOTES]\n  \n  ### Evaluation Phase\n  [Repeat structure with touchpoints, pain points, emotions, evidence]\n  \n  ### Purchase Phase\n  [Repeat structure]\n  \n  ### Onboarding Phase\n  [Repeat structure]\n  \n  ### Usage/Value Realization Phase\n  [Repeat structure]\n  \n  ### Support/Renewal Phase\n  [Repeat structure]\n  \n  ## Future State Vision (250+ words)\n  \n  ### Discovery Phase\n  **Touchpoints:**\n  - [Improved touchpoint 1]: [How it's better, 30+ words]\n  - [New touchpoint]: [Description, 30+ words]\n  \n  **Delight Moments:**\n  - [Delight 1]: [Description with expected impact]\n  - [Delight 2]: [Description with expected impact]\n  \n  **Customer Emotions (Target):**\n  - Frustration level: X/10 (improved from X/10)\n  - Confidence level: X/10 (improved from X/10)\n  - Satisfaction level: X/10 (improved from X/10)\n  \n  **Enablers:**\n  - [Technology/process enabling this improvement]\n  - [Technology/process enabling this improvement]\n  \n  ### Evaluation Phase\n  [Repeat structure with improvements, delights, targets, enablers]\n  \n  ### Purchase Phase\n  [Repeat structure]\n  \n  ### Onboarding Phase\n  [Repeat structure]\n  \n  ### Usage/Value Realization Phase\n  [Repeat structure]\n  \n  ### Support/Renewal Phase\n  [Repeat structure]\n  \n  ## Gap Analysis (150+ words)\n  **Critical Gaps:**\n  - [Gap 1]: Current state vs Future state - [Impact and priority]\n  - [Gap 2]: Current state vs Future state - [Impact and priority]\n  \n  **Improvement Opportunities by Phase:**\n  - Discovery: [Specific improvements with effort estimate]\n  - Evaluation: [Specific improvements with effort estimate]\n  - Purchase: [Specific improvements with effort estimate]\n  - Onboarding: [Specific improvements with effort estimate]\n  - Usage: [Specific improvements with effort estimate]\n  - Support: [Specific improvements with effort estimate]\n  \n  ## Transformation Metrics (150+ words)\n  **Customer Satisfaction:**\n  - Current NPS: X (estimated)\n  - Target NPS: X\n  - Improvement: +X points\n  \n  **Efficiency Metrics:**\n  - Time to value: X days then X days (X% improvement)\n  - Onboarding duration: X days then X days (X% improvement)\n  - Support ticket volume: X/month then X/month (X% reduction)\n  \n  **Business Impact:**\n  - Customer retention: X% then X% (X% improvement)\n  - Expansion revenue: X% then X% (X% improvement)\n  - Customer lifetime value: $X then $X (X% improvement)\n  \n  **Evidence from Transcript:** [DIRECT QUOTES supporting transformation goals]\n  \n  Cover all 6 journey phases with complete current/future state analysis.\n\nIMPORTANT: Return ONLY the JSON object. No markdown code fences, no explanatory text, just the raw JSON. Each field value should be a string containing the markdown-formatted content described above.\n\nTranscript:\n` + transcript;\n\nreturn [{ json: { prompt } }];"
+      },
+      "id": "build-prompt-4",
+      "name": "Build Prompt 4",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2672,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: \"gpt-4o\", messages: [{ role: \"user\", content: $json.prompt }], temperature: 0.3, max_tokens: 16384 }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "http-openai-4",
+      "name": "HTTP OpenAI 4",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2880,
+        352
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "xmJ7t6kaKgMwA1ce",
+          "name": "OpenAi account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 35000
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Company",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Company": {
+      "main": [
+        [
+          {
+            "node": "Build Prompt 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Prompt 1": {
+      "main": [
+        [
+          {
+            "node": "HTTP OpenAI 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP OpenAI 1": {
+      "main": [
+        [
+          {
+            "node": "Parse Discovery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Discovery": {
+      "main": [
+        [
+          {
+            "node": "Build Prompt 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Prompt 2": {
+      "main": [
+        [
+          {
+            "node": "HTTP OpenAI 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP OpenAI 2": {
+      "main": [
+        [
+          {
+            "node": "Parse Opportunity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Opportunity": {
+      "main": [
+        [
+          {
+            "node": "Build Prompt 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Prompt 3": {
+      "main": [
+        [
+          {
+            "node": "HTTP OpenAI 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP OpenAI 3": {
+      "main": [
+        [
+          {
+            "node": "Parse Technical",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Technical": {
+      "main": [
+        [
+          {
+            "node": "Build Prompt 4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Prompt 4": {
+      "main": [
+        [
+          {
+            "node": "HTTP OpenAI 4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP OpenAI 4": {
+      "main": [
+        [
+          {
+            "node": "Parse Strategic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Strategic": {
+      "main": [
+        [
+          {
+            "node": "Combine Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "1709f812-ebef-41c5-a2fd-418912e5a3fc",
+  "activeVersionId": "1709f812-ebef-41c5-a2fd-418912e5a3fc",
+  "versionCounter": 166,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-01-30T20:45:56.542Z",
+      "createdAt": "2026-01-30T20:45:56.542Z",
+      "role": "workflow:owner",
+      "workflowId": "QTmNH1MWW5mGBTdW",
+      "projectId": "Rs8mhw052fnrzWZM",
+      "project": {
+        "updatedAt": "2025-12-31T15:54:29.115Z",
+        "createdAt": "2025-12-31T15:27:33.865Z",
+        "id": "Rs8mhw052fnrzWZM",
+        "name": "Sway Clarke <sway@oloxa.ai>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+        "projectRelations": [
+          {
+            "updatedAt": "2025-12-31T15:27:33.865Z",
+            "createdAt": "2025-12-31T15:27:33.865Z",
+            "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+            "projectId": "Rs8mhw052fnrzWZM",
+            "user": {
+              "updatedAt": "2026-01-31T00:12:46.682Z",
+              "createdAt": "2025-12-31T15:27:33.119Z",
+              "id": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+              "email": "sway@oloxa.ai",
+              "firstName": "Sway",
+              "lastName": "Clarke",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-12-31T15:54:37.562Z",
+                "personalization_survey_n8n_version": "2.1.4"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "zbxHkXOoD1qaz6OS",
+                "userActivatedAt": 1767398053308,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1767684846804
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-01-30",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-01-31T00:40:17.263Z",
+    "createdAt": "2026-01-31T00:40:17.263Z",
+    "versionId": "1709f812-ebef-41c5-a2fd-418912e5a3fc",
+    "workflowId": "QTmNH1MWW5mGBTdW",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "fathom-ai-analysis-v2",
+          "responseMode": "onReceived",
+          "options": {},
+          "responseData": "allEntries"
+        },
+        "id": "webhook-trigger",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          240,
+          176
+        ],
+        "webhookId": "936186e6-26b2-4ed3-a188-5b41a2c54cfa",
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "const personalDomains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'icloud.com', 'aol.com', 'proton.me', 'protonmail.com', 'gmx.com', 'gmx.de', 'web.de', 't-online.de', 'freenet.de', 'posteo.de', 'live.com', 'msn.com', 'me.com', 'mac.com'];\nconst raw = $input.first().json;\nconst data = raw.body || raw;\nconst email = data.contact_email || '';\nconst domain = email.split('@')[1] || '';\nlet company = '';\nif (domain && !personalDomains.includes(domain.toLowerCase())) {\n  const companyName = domain.split('.')[0];\n  company = companyName.charAt(0).toUpperCase() + companyName.slice(1);\n}\nreturn [{\n  json: {\n    combined_transcript: data.combined_transcript || '',\n    contact_email: data.contact_email || '',\n    contact_name: data.contact_name || '',\n    title: data.title || '',\n    company: company\n  }\n}];"
+        },
+        "id": "extract-company",
+        "name": "Extract Company",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          464,
+          352
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const item = $input.first().json;\nlet raw = '';\nif (item.choices && item.choices[0] && item.choices[0].message) {\n  raw = item.choices[0].message.content || '';\n} else if (typeof item.text === 'string') {\n  raw = item.text;\n} else if (typeof item.output === 'string') {\n  raw = item.output;\n} else {\n  raw = JSON.stringify(item);\n}\nlet text = raw;\ntext = text.replace(/```json\\s*/gi, '').replace(/```\\s*/gi, '');\nconst start = text.indexOf('{');\nconst end = text.lastIndexOf('}');\nif (start === -1 || end === -1) return [{ json: { error: 'No JSON found', raw: text.substring(0, 200) } }];\ntext = text.substring(start, end + 1);\ntext = text.replace(/,\\s*([\\]}])/g, '$1');\ntry {\n  return [{ json: JSON.parse(text) }];\n} catch(e) {\n  return [{ json: { error: e.message, raw: text.substring(0, 200) } }];\n}"
+        },
+        "id": "parse-discovery",
+        "name": "Parse Discovery",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1120,
+          352
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const item = $input.first().json;\nlet raw = '';\nif (item.choices && item.choices[0] && item.choices[0].message) {\n  raw = item.choices[0].message.content || '';\n} else if (typeof item.text === 'string') {\n  raw = item.text;\n} else if (typeof item.output === 'string') {\n  raw = item.output;\n} else {\n  raw = JSON.stringify(item);\n}\nlet text = raw;\ntext = text.replace(/```json\\s*/gi, '').replace(/```\\s*/gi, '');\nconst start = text.indexOf('{');\nconst end = text.lastIndexOf('}');\nif (start === -1 || end === -1) return [{ json: { error: 'No JSON found', raw: text.substring(0, 200) } }];\ntext = text.substring(start, end + 1);\ntext = text.replace(/,\\s*([\\]}])/g, '$1');\ntry {\n  return [{ json: JSON.parse(text) }];\n} catch(e) {\n  return [{ json: { error: e.message, raw: text.substring(0, 200) } }];\n}"
+        },
+        "id": "parse-opportunity",
+        "name": "Parse Opportunity",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1792,
+          352
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const item = $input.first().json;\nlet raw = '';\nif (item.choices && item.choices[0] && item.choices[0].message) {\n  raw = item.choices[0].message.content || '';\n} else if (typeof item.text === 'string') {\n  raw = item.text;\n} else if (typeof item.output === 'string') {\n  raw = item.output;\n} else {\n  raw = JSON.stringify(item);\n}\nlet text = raw;\ntext = text.replace(/```json\\s*/gi, '').replace(/```\\s*/gi, '');\nconst start = text.indexOf('{');\nconst end = text.lastIndexOf('}');\nif (start === -1 || end === -1) return [{ json: { error: 'No JSON found', raw: text.substring(0, 200) } }];\ntext = text.substring(start, end + 1);\ntext = text.replace(/,\\s*([\\]}])/g, '$1');\ntry {\n  return [{ json: JSON.parse(text) }];\n} catch(e) {\n  return [{ json: { error: e.message, raw: text.substring(0, 200) } }];\n}"
+        },
+        "id": "parse-technical",
+        "name": "Parse Technical",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2448,
+          352
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const item = $input.first().json;\nlet raw = '';\nif (item.choices && item.choices[0] && item.choices[0].message) {\n  raw = item.choices[0].message.content || '';\n} else if (typeof item.text === 'string') {\n  raw = item.text;\n} else if (typeof item.output === 'string') {\n  raw = item.output;\n} else {\n  raw = JSON.stringify(item);\n}\nlet text = raw;\ntext = text.replace(/```json\\s*/gi, '').replace(/```\\s*/gi, '');\nconst start = text.indexOf('{');\nconst end = text.lastIndexOf('}');\nif (start === -1 || end === -1) return [{ json: { error: 'No JSON found', raw: text.substring(0, 200) } }];\ntext = text.substring(start, end + 1);\ntext = text.replace(/,\\s*([\\]}])/g, '$1');\ntry {\n  return [{ json: JSON.parse(text) }];\n} catch(e) {\n  return [{ json: { error: e.message, raw: text.substring(0, 200) } }];\n}"
+        },
+        "id": "parse-strategic",
+        "name": "Parse Strategic",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3104,
+          352
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Collect results from all 4 parse nodes\nconst results = {};\ntry { Object.assign(results, $('Parse Discovery').first().json); } catch(e) {}\ntry { Object.assign(results, $('Parse Opportunity').first().json); } catch(e) {}\ntry { Object.assign(results, $('Parse Technical').first().json); } catch(e) {}\ntry { Object.assign(results, $('Parse Strategic').first().json); } catch(e) {}\n\n// Get metadata from Extract Company\ntry {\n  const ec = $('Extract Company').first().json;\n  results.company = ec.company || '';\n  results.contact_email = ec.contact_email || '';\n  results.contact_name = ec.contact_name || '';\n  results.title = ec.title || '';\n} catch(e) {}\n\nreturn [{ json: results }];"
+        },
+        "id": "combine-output",
+        "name": "Combine Output",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3328,
+          352
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const data = $input.first().json;\nconst transcript = data.combined_transcript || '';\n\nconst prompt = `You are an expert business analyst. Analyze this meeting transcript and return ONLY a valid JSON object (no markdown, no code fences, no text before or after the JSON).\n\nCRITICAL REQUIREMENTS:\n1. You MUST write AT LEAST the minimum word count specified for each field\n2. Use markdown formatting (##, ###, bullets, numbered lists, tables) within each field\n3. Include DIRECT QUOTES from the transcript with speaker attribution (use \\\"Speaker: 'exact quote'\\\" format)\n4. Include specific metrics, scores, and ratings where applicable\n5. Break each field into 3-5 subsections with clear headers\n6. Be EXTREMELY detailed and thorough\n\nThe JSON must have these exact keys:\n\n\\\"summary\\\" (MINIMUM 800 words):\n- Use markdown headers (##, ###) to structure this field\n- Write a comprehensive executive summary covering:\n  ## Meeting Context (150+ words)\n  - Meeting type and format\n  - Date/time references if mentioned\n  - Setting and circumstances\n  \n  ## Stakeholders & Participants (150+ words)\n  - Who attended and their roles\n  - Decision makers identified\n  - Influencers and technical stakeholders\n  - Include DIRECT QUOTES showing their positions/concerns\n  \n  ## Key Themes & Topics (200+ words)\n  - Main discussion areas\n  - Strategic focus areas\n  - Technical topics covered\n  - Business objectives discussed\n  \n  ## Outcomes & Decisions (150+ words)\n  - Concrete decisions made\n  - Agreements reached\n  - Next steps identified\n  \n  ## Business Implications (150+ words)\n  - Strategic significance\n  - Budget/investment signals\n  - Timeline expectations\n  - Success criteria discussed\n\n\\\"key_insights\\\" (MINIMUM 600 words):\n- Use markdown structure with clear subsections:\n  ## Meeting Classification (100+ words)\n  - Type: Discovery/Sales/Technical/Strategy (with evidence)\n  - Stage in sales cycle or project lifecycle\n  - Level of engagement (score 1-10 with justification)\n  \n  ## Decision Maker Analysis (150+ words)\n  - Primary decision maker(s) identified\n  - Authority level: Budget holder / Influencer / End user\n  - Decision-making style observed\n  - Include DIRECT QUOTES showing decision authority\n  - Engagement level (score 1-10)\n  \n  ## Budget & Investment Signals (150+ words)\n  - Budget mentions (include exact quotes if present)\n  - Investment readiness score (1-10 with justification)\n  - Cost sensitivity indicators\n  - ROI expectations discussed\n  - Timeline for budget allocation\n  \n  ## Competitive Landscape (100+ words)\n  - Current solutions mentioned\n  - Competitors or alternatives discussed\n  - Incumbent vendors\n  - Switching costs or barriers\n  \n  ## Strategic Opportunities (100+ words)\n  - Key leverage points identified\n  - Unique value propositions that resonated\n  - Potential upsell or expansion opportunities\n  - Partnership potential\n\n\\\"pain_points\\\" (MINIMUM 600 words):\n- MUST include severity scores, confidence levels, and DIRECT QUOTES\n- Structure as:\n  ## Critical Severity (Score: 9-10/10)\n  For each pain point at this level:\n  ### [Pain Point Title]\n  **Severity Score:** X/10\n  **Confidence Level:** High/Medium/Low (XX%)\n  **Evidence:**\n  - Include DIRECT QUOTES with speaker names: \\\"Speaker Name: 'exact quote from transcript'\\\"\n  - Provide 2-3 supporting quotes per pain point\n  **Business Impact:**\n  - Quantified impact (time, money, efficiency)\n  - Affected stakeholders\n  - Current workarounds or coping mechanisms\n  **Root Cause Analysis:**\n  - Underlying systemic issues\n  - Contributing factors\n  **Urgency Assessment:**\n  - Timeline pressure\n  - Consequences of inaction\n  \n  ## High Severity (Score: 7-8/10)\n  [Repeat same structure for 2-3 pain points]\n  \n  ## Medium Severity (Score: 4-6/10)\n  [Repeat same structure for 2-3 pain points]\n  \n  Include at least 5-8 total pain points across severity levels.\n\n\\\"action_items\\\" (MINIMUM 400 words):\n- Use structured format with clear priorities:\n  ## Immediate Actions (Next 1-2 weeks)\n  For each action:\n  ### [Action Title]\n  **Owner:** [Person/team responsible]\n  **Priority:** Critical / High / Medium (with justification)\n  **Deadline:** [Specific date or timeframe]\n  **Description:** [Detailed explanation of what needs to be done, 50+ words]\n  **Dependencies:** [What must happen first]\n  **Success Criteria:** [How we'll know it's complete]\n  **Effort Estimate:** [Hours/days with confidence level]\n  \n  ## Short-term Actions (2-4 weeks)\n  [Repeat structure for 3-5 actions]\n  \n  ## Medium-term Actions (1-3 months)\n  [Repeat structure for 2-3 actions]\n  \n  Include 8-12 total action items with complete details for each.\n\nIMPORTANT: Return ONLY the JSON object. No markdown code fences, no explanatory text, just the raw JSON. Each field value should be a string containing the markdown-formatted content described above.\n\nTranscript:\n` + transcript;\n\nreturn [{ json: { prompt, company: data.company, contact_email: data.contact_email, contact_name: data.contact_name, title: data.title } }];"
+        },
+        "id": "build-prompt-1",
+        "name": "Build Prompt 1",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          688,
+          352
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.openai.com/v1/chat/completions",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "openAiApi",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ model: \"gpt-4o\", messages: [{ role: \"user\", content: $json.prompt }], temperature: 0.3, max_tokens: 16384 }) }}",
+          "options": {
+            "timeout": 120000
+          }
+        },
+        "id": "http-openai-1",
+        "name": "HTTP OpenAI 1",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          912,
+          352
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "xmJ7t6kaKgMwA1ce",
+            "name": "OpenAi account"
+          }
+        },
+        "retryOnFail": true,
+        "maxTries": 5,
+        "waitBetweenTries": 35000
+      },
+      {
+        "parameters": {
+          "jsCode": "const data = $('Extract Company').first().json;\nconst transcript = data.combined_transcript || '';\n\nconst prompt = `You are an expert business strategist. Analyze this meeting transcript and return ONLY a valid JSON object (no markdown, no code fences, no text before or after the JSON).\n\nCRITICAL REQUIREMENTS:\n1. You MUST write AT LEAST the minimum word count specified for each field\n2. Use markdown formatting (##, ###, bullets, numbered lists, tables) within each field\n3. Include DIRECT QUOTES from the transcript with speaker attribution\n4. Include effort/impact scores, ROI calculations, and specific metrics\n5. Break each field into multiple subsections with clear headers\n6. Be EXTREMELY detailed and thorough\n\nThe JSON must have these exact keys:\n\n\\\"quick_wins\\\" (MINIMUM 800 words):\n- Structure as an opportunity matrix with detailed analysis:\n  ## High Impact / Low Effort (Priority 1)\n  For each opportunity (provide 3-5 opportunities):\n  ### [Opportunity Title]\n  **Impact Score:** X/10 (with justification)\n  **Effort Score:** X/10 (with justification)\n  **Implementation Timeline:** [Specific timeframe]\n  **Expected ROI:** [Percentage or ratio with calculation method]\n  **Prerequisites:** [What's needed to start]\n  **Implementation Steps:**\n  1. [Detailed step 1 - 30+ words]\n  2. [Detailed step 2 - 30+ words]\n  3. [Detailed step 3 - 30+ words]\n  **Resource Requirements:**\n  - Personnel: [Roles and time commitment]\n  - Budget: [Estimated cost breakdown]\n  - Technology: [Tools or platforms needed]\n  **Risk Assessment:** [Potential obstacles, score 1-10]\n  **Success Metrics:** [How to measure success, include KPIs]\n  **Evidence from Transcript:** [DIRECT QUOTES supporting this opportunity]\n  \n  ## High Impact / Medium Effort (Priority 2)\n  [Repeat structure for 2-3 opportunities]\n  \n  ## Medium Impact / Low Effort (Priority 3)\n  [Repeat structure for 2-3 opportunities]\n  \n  ## Opportunity Matrix Summary\n  [Table showing all opportunities plotted on effort vs impact grid]\n  \n  Include detailed analysis for 8-10 total opportunities.\n\n\\\"pricing_strategy\\\" (MINIMUM 800 words):\n- Develop comprehensive value-based pricing analysis:\n  ## Pricing Philosophy & Approach (100+ words)\n  - Value-based vs cost-based rationale\n  - Competitive positioning strategy\n  - Client's perceived value signals from transcript (include DIRECT QUOTES)\n  - Price sensitivity indicators observed\n  \n  ## Package Tier Breakdown\n  \n  ### Tier 1: [Package Name] (150+ words)\n  **Target Customer:** [Profile and use case]\n  **Price Point:** $X [with justification based on value delivered]\n  **Core Features:**\n  - [Feature 1] - Value: $X equivalent\n  - [Feature 2] - Value: $X equivalent\n  - [Feature 3] - Value: $X equivalent\n  **Included Services:** [Detailed list]\n  **Support Level:** [Description]\n  **ROI Calculation:**\n  - Cost: $X\n  - Value delivered: $X\n  - Payback period: X months\n  - 12-month ROI: X%\n  **Differentiation:** [Why choose this tier]\n  \n  ### Tier 2: [Package Name] (150+ words)\n  [Repeat structure with different scope]\n  \n  ### Tier 3: [Package Name] (150+ words)\n  [Repeat structure with different scope]\n  \n  ## Add-Ons & Extensions (100+ words)\n  - [Add-on 1]: $X - [Description and value]\n  - [Add-on 2]: $X - [Description and value]\n  - [Add-on 3]: $X - [Description and value]\n  \n  ## Pricing Justification & Value Anchoring (150+ words)\n  - Cost of current solution (if mentioned)\n  - Cost of problem/pain point (quantified)\n  - Value of solution (quantified benefits)\n  - Competitive pricing landscape\n  - Include DIRECT QUOTES about budget or value expectations\n  \n  ## Payment Terms & Models (100+ words)\n  - One-time vs subscription rationale\n  - Payment schedule options\n  - Discount structures (volume, annual commit, etc.)\n  - Contract length recommendations\n  \n  ## Upsell & Expansion Pathways (100+ words)\n  - Natural progression from Tier 1 to Tier 2 to Tier 3\n  - Usage-based expansion opportunities\n  - Additional services or modules\n  - Long-term value growth strategy\n\nIMPORTANT: Return ONLY the JSON object. No markdown code fences, no explanatory text, just the raw JSON. Each field value should be a string containing the markdown-formatted content described above.\n\nTranscript:\n` + transcript;\n\nreturn [{ json: { prompt } }];"
+        },
+        "id": "build-prompt-2",
+        "name": "Build Prompt 2",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1344,
+          352
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.openai.com/v1/chat/completions",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "openAiApi",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ model: \"gpt-4o\", messages: [{ role: \"user\", content: $json.prompt }], temperature: 0.3, max_tokens: 16384 }) }}",
+          "options": {
+            "timeout": 120000
+          }
+        },
+        "id": "http-openai-2",
+        "name": "HTTP OpenAI 2",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1568,
+          352
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "xmJ7t6kaKgMwA1ce",
+            "name": "OpenAi account"
+          }
+        },
+        "retryOnFail": true,
+        "maxTries": 5,
+        "waitBetweenTries": 35000
+      },
+      {
+        "parameters": {
+          "jsCode": "const data = $('Extract Company').first().json;\nconst transcript = data.combined_transcript || '';\n\nconst prompt = `You are an expert technical architect and project manager. Analyze this meeting transcript and return ONLY a valid JSON object (no markdown, no code fences, no text before or after the JSON).\n\nCRITICAL REQUIREMENTS:\n1. You MUST write AT LEAST the minimum word count specified for each field\n2. Use markdown formatting (##, ###, bullets, numbered lists, tables) within each field\n3. Include DIRECT QUOTES from the transcript with speaker attribution\n4. Include complexity scores, risk ratings, and resource estimates\n5. Break each field into multiple detailed subsections\n6. Be EXTREMELY detailed and thorough\n\nThe JSON must have these exact keys:\n\n\\\"complexity_assessment\\\" (MINIMUM 800 words):\n- Comprehensive technical complexity scoring:\n  ## Overall Complexity Score: X/10\n  **Confidence Level:** High/Medium/Low (XX%)\n  **Justification:** [100+ word detailed explanation]\n  \n  ## Technical Complexity Breakdown\n  \n  ### Architecture Complexity (Score: X/10)\n  **Assessment:** [100+ words]\n  - System integration points identified\n  - Data flow complexity\n  - Scalability requirements\n  - Technology stack considerations\n  **Evidence from Transcript:** [DIRECT QUOTES]\n  **Mitigation Strategies:** [Specific approaches to manage complexity]\n  \n  ### Integration Complexity (Score: X/10)\n  **Assessment:** [100+ words]\n  - Third-party systems mentioned\n  - API requirements\n  - Data migration needs\n  - Authentication/authorization requirements\n  **Evidence from Transcript:** [DIRECT QUOTES]\n  **Mitigation Strategies:** [Specific approaches]\n  \n  ### Data Complexity (Score: X/10)\n  **Assessment:** [100+ words]\n  - Data volume and velocity\n  - Data quality challenges\n  - Data modeling requirements\n  - Privacy/compliance considerations\n  **Evidence from Transcript:** [DIRECT QUOTES]\n  **Mitigation Strategies:** [Specific approaches]\n  \n  ### User Experience Complexity (Score: X/10)\n  **Assessment:** [100+ words]\n  - User persona diversity\n  - Accessibility requirements\n  - Multi-platform needs\n  - Customization requirements\n  **Evidence from Transcript:** [DIRECT QUOTES]\n  **Mitigation Strategies:** [Specific approaches]\n  \n  ## Risk Assessment Matrix\n  \n  ### Technical Risks (Score: X/10)\n  For each risk (identify 3-5 risks):\n  **Risk:** [Description]\n  **Probability:** High/Medium/Low (XX%)\n  **Impact:** High/Medium/Low (score 1-10)\n  **Mitigation:** [Specific mitigation strategy]\n  **Contingency:** [Fallback plan]\n  \n  ### Resource Risks (Score: X/10)\n  [Repeat structure for 2-3 risks]\n  \n  ### Timeline Risks (Score: X/10)\n  [Repeat structure for 2-3 risks]\n  \n  ## Resource Requirements (150+ words)\n  **Development Team:**\n  - Frontend developers: X FTE for X weeks\n  - Backend developers: X FTE for X weeks\n  - DevOps engineers: X FTE for X weeks\n  - UX/UI designers: X FTE for X weeks\n  \n  **Specialized Skills:**\n  - [Skill 1]: X hours\n  - [Skill 2]: X hours\n  \n  **Infrastructure:**\n  - [Requirement 1]: $X/month\n  - [Requirement 2]: $X/month\n  \n  **Total Effort Estimate:** X person-weeks (confidence: XX%)\n  **Total Duration:** X weeks (with X person team)\n  **Total Cost Estimate:** $X - $X (range with assumptions)\n\n\\\"requirements\\\" (MINIMUM 800 words):\n- Comprehensive requirements documentation:\n  ## Functional Requirements\n  For each requirement (provide 8-12 requirements):\n  ### FR-XX: [Requirement Title]\n  **Priority:** Critical / High / Medium / Low\n  **Description:** [100+ word detailed description of the requirement]\n  **User Story:** As a [role], I want [capability], so that [benefit]\n  **Evidence from Transcript:** [DIRECT QUOTES supporting this requirement]\n  **Acceptance Criteria:**\n  - Given [context]\n  - When [action]\n  - Then [expected outcome]\n  - And [additional criterion]\n  - And [additional criterion]\n  **Dependencies:** [Other requirements or systems this depends on]\n  **Estimated Effort:** X hours/days (confidence: XX%)\n  \n  ## Non-Functional Requirements\n  \n  ### Performance Requirements (100+ words)\n  **Requirements:**\n  - Response time: [Specific metrics]\n  - Throughput: [Specific metrics]\n  - Concurrent users: [Specific metrics]\n  **Evidence from Transcript:** [DIRECT QUOTES]\n  **Acceptance Criteria:** [Measurable criteria]\n  \n  ### Security Requirements (100+ words)\n  **Requirements:**\n  - Authentication: [Specific requirements]\n  - Authorization: [Specific requirements]\n  - Data protection: [Specific requirements]\n  **Evidence from Transcript:** [DIRECT QUOTES]\n  **Acceptance Criteria:** [Measurable criteria]\n  \n  ### Scalability Requirements (100+ words)\n  **Requirements:**\n  - User growth: [Specific projections]\n  - Data growth: [Specific projections]\n  - Geographic expansion: [Specific requirements]\n  **Evidence from Transcript:** [DIRECT QUOTES]\n  **Acceptance Criteria:** [Measurable criteria]\n  \n  ### Compliance Requirements (100+ words)\n  **Requirements:**\n  - Regulatory compliance: [Specific requirements]\n  - Industry standards: [Specific requirements]\n  - Audit requirements: [Specific requirements]\n  **Evidence from Transcript:** [DIRECT QUOTES]\n  **Acceptance Criteria:** [Measurable criteria]\n  \n  ## Constraints & Assumptions\n  **Technical Constraints:**\n  - [Constraint 1 with impact]\n  - [Constraint 2 with impact]\n  **Business Constraints:**\n  - Budget: [Specific constraints from transcript]\n  - Timeline: [Specific constraints from transcript]\n  **Assumptions:**\n  - [Assumption 1 - needs validation]\n  - [Assumption 2 - needs validation]\n  \n  Include evidence from transcript with DIRECT QUOTES for all major requirements.\n\nIMPORTANT: Return ONLY the JSON object. No markdown code fences, no explanatory text, just the raw JSON. Each field value should be a string containing the markdown-formatted content described above.\n\nTranscript:\n` + transcript;\n\nreturn [{ json: { prompt } }];"
+        },
+        "id": "build-prompt-3",
+        "name": "Build Prompt 3",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2000,
+          352
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.openai.com/v1/chat/completions",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "openAiApi",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ model: \"gpt-4o\", messages: [{ role: \"user\", content: $json.prompt }], temperature: 0.3, max_tokens: 16384 }) }}",
+          "options": {
+            "timeout": 120000
+          }
+        },
+        "id": "http-openai-3",
+        "name": "HTTP OpenAI 3",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2224,
+          352
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "xmJ7t6kaKgMwA1ce",
+            "name": "OpenAi account"
+          }
+        },
+        "retryOnFail": true,
+        "maxTries": 5,
+        "waitBetweenTries": 35000
+      },
+      {
+        "parameters": {
+          "jsCode": "const data = $('Extract Company').first().json;\nconst transcript = data.combined_transcript || '';\n\nconst prompt = `You are an expert strategic planner and customer success architect. Analyze this meeting transcript and return ONLY a valid JSON object (no markdown, no code fences, no text before or after the JSON).\n\nCRITICAL REQUIREMENTS:\n1. You MUST write AT LEAST the minimum word count specified for each field\n2. Use markdown formatting (##, ###, bullets, numbered lists, tables) within each field\n3. Include DIRECT QUOTES from the transcript with speaker attribution\n4. Include timelines, milestones, and specific deliverables\n5. Break each field into detailed phases and stages\n6. Be EXTREMELY detailed and thorough\n\nThe JSON must have these exact keys:\n\n\\\"roadmap\\\" (MINIMUM 800 words):\n- Comprehensive phased implementation plan:\n  ## Executive Summary (100+ words)\n  - Total timeline: X months\n  - Number of phases: X\n  - Total estimated cost: $X - $X\n  - Key success factors\n  - Critical dependencies\n  \n  ## Phase 1: [Phase Name] (150+ words)\n  **Duration:** X weeks (Week 1 - Week X)\n  **Objectives:**\n  - [Objective 1 with success criteria]\n  - [Objective 2 with success criteria]\n  - [Objective 3 with success criteria]\n  \n  **Key Milestones:**\n  - Week X: [Milestone 1] - [Deliverable description]\n  - Week X: [Milestone 2] - [Deliverable description]\n  - Week X: [Milestone 3] - [Deliverable description]\n  \n  **Deliverables:**\n  - [Deliverable 1]: [Detailed description, 30+ words]\n  - [Deliverable 2]: [Detailed description, 30+ words]\n  \n  **Dependencies:**\n  - [Dependency 1 with impact]\n  - [Dependency 2 with impact]\n  \n  **Resources Required:**\n  - Team: [Roles and FTE]\n  - Budget: $X\n  - Tools/Infrastructure: [Specific requirements]\n  \n  **Success Criteria:**\n  - [Measurable criterion 1]\n  - [Measurable criterion 2]\n  \n  **Risk Factors:**\n  - [Risk 1]: Probability X%, Mitigation: [strategy]\n  - [Risk 2]: Probability X%, Mitigation: [strategy]\n  \n  **Evidence from Transcript:** [DIRECT QUOTES supporting this phase]\n  \n  ## Phase 2: [Phase Name] (150+ words)\n  [Repeat complete structure]\n  \n  ## Phase 3: [Phase Name] (150+ words)\n  [Repeat complete structure]\n  \n  ## Phase 4: [Phase Name] (150+ words)\n  [Repeat complete structure]\n  \n  ## Dependencies Map (100+ words)\n  **Critical Path:**\n  - [Phase/Milestone 1] then [Phase/Milestone 2] then [Phase/Milestone 3]\n  \n  **Parallel Workstreams:**\n  - Workstream A: [Phases that can run concurrently]\n  - Workstream B: [Phases that can run concurrently]\n  \n  **External Dependencies:**\n  - [External dependency 1 with timeline]\n  - [External dependency 2 with timeline]\n  \n  ## Timeline Visualization\n  [Text-based Gantt chart or timeline showing phases, milestones, and dependencies]\n  \n  Include at least 4-5 distinct phases with complete details for each.\n\n\\\"client_journey_map\\\" (MINIMUM 800 words):\n- Detailed current vs future state customer journey:\n  ## Current State Analysis (250+ words)\n  \n  ### Discovery Phase\n  **Touchpoints:**\n  - [Touchpoint 1]: [Detailed description, 30+ words]\n  - [Touchpoint 2]: [Detailed description, 30+ words]\n  \n  **Pain Points:**\n  - [Pain 1]: Severity X/10 - [Description with DIRECT QUOTE]\n  - [Pain 2]: Severity X/10 - [Description with DIRECT QUOTE]\n  \n  **Customer Emotions:**\n  - Frustration level: X/10\n  - Confidence level: X/10\n  - Satisfaction level: X/10\n  \n  **Evidence from Transcript:** [DIRECT QUOTES]\n  \n  ### Evaluation Phase\n  [Repeat structure with touchpoints, pain points, emotions, evidence]\n  \n  ### Purchase Phase\n  [Repeat structure]\n  \n  ### Onboarding Phase\n  [Repeat structure]\n  \n  ### Usage/Value Realization Phase\n  [Repeat structure]\n  \n  ### Support/Renewal Phase\n  [Repeat structure]\n  \n  ## Future State Vision (250+ words)\n  \n  ### Discovery Phase\n  **Touchpoints:**\n  - [Improved touchpoint 1]: [How it's better, 30+ words]\n  - [New touchpoint]: [Description, 30+ words]\n  \n  **Delight Moments:**\n  - [Delight 1]: [Description with expected impact]\n  - [Delight 2]: [Description with expected impact]\n  \n  **Customer Emotions (Target):**\n  - Frustration level: X/10 (improved from X/10)\n  - Confidence level: X/10 (improved from X/10)\n  - Satisfaction level: X/10 (improved from X/10)\n  \n  **Enablers:**\n  - [Technology/process enabling this improvement]\n  - [Technology/process enabling this improvement]\n  \n  ### Evaluation Phase\n  [Repeat structure with improvements, delights, targets, enablers]\n  \n  ### Purchase Phase\n  [Repeat structure]\n  \n  ### Onboarding Phase\n  [Repeat structure]\n  \n  ### Usage/Value Realization Phase\n  [Repeat structure]\n  \n  ### Support/Renewal Phase\n  [Repeat structure]\n  \n  ## Gap Analysis (150+ words)\n  **Critical Gaps:**\n  - [Gap 1]: Current state vs Future state - [Impact and priority]\n  - [Gap 2]: Current state vs Future state - [Impact and priority]\n  \n  **Improvement Opportunities by Phase:**\n  - Discovery: [Specific improvements with effort estimate]\n  - Evaluation: [Specific improvements with effort estimate]\n  - Purchase: [Specific improvements with effort estimate]\n  - Onboarding: [Specific improvements with effort estimate]\n  - Usage: [Specific improvements with effort estimate]\n  - Support: [Specific improvements with effort estimate]\n  \n  ## Transformation Metrics (150+ words)\n  **Customer Satisfaction:**\n  - Current NPS: X (estimated)\n  - Target NPS: X\n  - Improvement: +X points\n  \n  **Efficiency Metrics:**\n  - Time to value: X days then X days (X% improvement)\n  - Onboarding duration: X days then X days (X% improvement)\n  - Support ticket volume: X/month then X/month (X% reduction)\n  \n  **Business Impact:**\n  - Customer retention: X% then X% (X% improvement)\n  - Expansion revenue: X% then X% (X% improvement)\n  - Customer lifetime value: $X then $X (X% improvement)\n  \n  **Evidence from Transcript:** [DIRECT QUOTES supporting transformation goals]\n  \n  Cover all 6 journey phases with complete current/future state analysis.\n\nIMPORTANT: Return ONLY the JSON object. No markdown code fences, no explanatory text, just the raw JSON. Each field value should be a string containing the markdown-formatted content described above.\n\nTranscript:\n` + transcript;\n\nreturn [{ json: { prompt } }];"
+        },
+        "id": "build-prompt-4",
+        "name": "Build Prompt 4",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2672,
+          352
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.openai.com/v1/chat/completions",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "openAiApi",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ model: \"gpt-4o\", messages: [{ role: \"user\", content: $json.prompt }], temperature: 0.3, max_tokens: 16384 }) }}",
+          "options": {
+            "timeout": 120000
+          }
+        },
+        "id": "http-openai-4",
+        "name": "HTTP OpenAI 4",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2880,
+          352
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "xmJ7t6kaKgMwA1ce",
+            "name": "OpenAi account"
+          }
+        },
+        "retryOnFail": true,
+        "maxTries": 5,
+        "waitBetweenTries": 35000
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Extract Company",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Company": {
+        "main": [
+          [
+            {
+              "node": "Build Prompt 1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Prompt 1": {
+        "main": [
+          [
+            {
+              "node": "HTTP OpenAI 1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP OpenAI 1": {
+        "main": [
+          [
+            {
+              "node": "Parse Discovery",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Discovery": {
+        "main": [
+          [
+            {
+              "node": "Build Prompt 2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Prompt 2": {
+        "main": [
+          [
+            {
+              "node": "HTTP OpenAI 2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP OpenAI 2": {
+        "main": [
+          [
+            {
+              "node": "Parse Opportunity",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Opportunity": {
+        "main": [
+          [
+            {
+              "node": "Build Prompt 3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Prompt 3": {
+        "main": [
+          [
+            {
+              "node": "HTTP OpenAI 3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP OpenAI 3": {
+        "main": [
+          [
+            {
+              "node": "Parse Technical",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Technical": {
+        "main": [
+          [
+            {
+              "node": "Build Prompt 4",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Prompt 4": {
+        "main": [
+          [
+            {
+              "node": "HTTP OpenAI 4",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP OpenAI 4": {
+        "main": [
+          [
+            {
+              "node": "Parse Strategic",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Strategic": {
+        "main": [
+          [
+            {
+              "node": "Combine Output",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Sway Clarke",
+    "name": null,
+    "description": null,
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-01-31T00:40:17.415Z",
+        "id": 2263,
+        "workflowId": "QTmNH1MWW5mGBTdW",
+        "versionId": "1709f812-ebef-41c5-a2fd-418912e5a3fc",
+        "event": "activated",
+        "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8"
+      },
+      {
+        "createdAt": "2026-01-31T00:40:36.835Z",
+        "id": 2266,
+        "workflowId": "QTmNH1MWW5mGBTdW",
+        "versionId": "1709f812-ebef-41c5-a2fd-418912e5a3fc",
+        "event": "activated",
+        "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8"
+      },
+      {
+        "createdAt": "2026-01-31T00:40:23.946Z",
+        "id": 2264,
+        "workflowId": "QTmNH1MWW5mGBTdW",
+        "versionId": "1709f812-ebef-41c5-a2fd-418912e5a3fc",
+        "event": "activated",
+        "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8"
+      },
+      {
+        "createdAt": "2026-01-31T00:40:24.294Z",
+        "id": 2265,
+        "workflowId": "QTmNH1MWW5mGBTdW",
+        "versionId": "1709f812-ebef-41c5-a2fd-418912e5a3fc",
+        "event": "deactivated",
+        "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8"
+      }
+    ]
+  }
+}

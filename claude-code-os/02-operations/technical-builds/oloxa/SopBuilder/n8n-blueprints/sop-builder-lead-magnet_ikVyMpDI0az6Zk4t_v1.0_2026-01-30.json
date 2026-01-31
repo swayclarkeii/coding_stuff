@@ -1,0 +1,2667 @@
+{
+  "updatedAt": "2026-01-30T18:15:30.369Z",
+  "createdAt": "2026-01-28T10:30:42.989Z",
+  "id": "ikVyMpDI0az6Zk4t",
+  "name": "SOP Builder Lead Magnet",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sop-builder",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        32,
+        424
+      ],
+      "webhookId": "4531aaec-2563-488b-982c-8c5b933f9d07",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\n\nreturn [{ json: {\n  email: body.email || '',\n  name: body.name || '',\n  goal: body.goal || body.processName || '',\n  improvement_type: body.improvement_type || 'process_improvement',\n  department: body.department || 'general',\n  process_steps: body.process_steps || body.processSteps || '',\n  has_audio: body.audio_file ? true : false,\n  audio_data: body.audio_file || null,\n  end_user: body.end_user || '',\n  lead_id: body.lead_id || '',\n  company_name: body.company_name || body.companyName || ''\n} }];"
+      },
+      "id": "parse-form",
+      "name": "Parse Form Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        256,
+        424
+      ],
+      "notes": "Fixed to handle both new field names (goal, process_steps) and old field names (processName, processSteps)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "audio-check",
+              "leftValue": "={{ $json.has_audio }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-audio",
+      "name": "Check Audio File",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        480,
+        424
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Webhook Trigger\nAccepts POST requests with form data:\n- email, name, goal\n- improvement_type, department\n- process_steps (text)\n- audio_file (optional binary)",
+        "height": 180,
+        "width": 280
+      },
+      "id": "note-trigger",
+      "name": "Note: Trigger",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        224,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "name": "={{ $json.email.split('@')[0] }}_sop_audio_{{ $now.toFormat('yyyy-MM-dd_HH-mm') }}.m4a",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "mode": "list",
+          "value": "root"
+        },
+        "options": {}
+      },
+      "id": "upload-to-drive",
+      "name": "Upload Audio to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        704,
+        328
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.openai.com/v1/audio/transcriptions",
+        "options": {}
+      },
+      "id": "transcribe-audio",
+      "name": "Transcribe with Whisper",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        928,
+        328
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const transcription = $input.first().json.text || '';\nconst formData = $('Parse Form Data').first().json;\n\nreturn [{ json: {\n  ...formData,\n  process_steps: transcription,\n  transcription_used: true\n} }];"
+      },
+      "id": "set-transcription",
+      "name": "Set Transcription as Steps",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        328
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: $input.first().json }];"
+      },
+      "id": "use-text-input",
+      "name": "Use Text Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        520
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "merge-paths",
+      "name": "Merge Audio and Text Paths",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1376,
+        424
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'gpt-4o-mini', messages: [{ role: 'system', content: '# SOP Expert Knowledge Base\\n\\n## What is an SOP?\\nA Standard Operating Procedure (SOP), also called \"One Best Way,\" is the current best method of carrying out a process or activity. SOPs ensure efficiency, quality, and safety through consistent, documented practices.\\n\\n## When an SOP is Needed\\nCreate SOPs when:\\n1. Process needs consistent results every time\\n2. Activity is critical to output quality\\n3. Process is costly to operate (efficiency matters)\\n4. High risk of serious consequences (safety, financial, reputational)\\n\\n## 5 Core Elements of Every SOP\\n1. **Purpose** - Why this SOP is needed (quality/safety/efficiency/consistency)\\n2. **Preparation** - Equipment, training, safety requirements, prerequisites\\n3. **Process Flow (Steps)** - Sequential numbered steps, decision points, who does what\\n4. **Checklist** - Key verification points for sign-off/audit trail\\n5. **Document Control** - Version, author, review date, file reference\\n\\n## Scoring an SOP (0-100 Scale)\\n**Completeness (40 points)**\\n- Has clear purpose (10 pts)\\n- Has preparation section (10 pts)\\n- Has step-by-step process (10 pts)\\n- Has checklist/verification (10 pts)\\n\\n**Clarity (30 points)**\\n- Steps use action verbs (10 pts)\\n- Instructions are specific/measurable (10 pts)\\n- No ambiguous language (10 pts)\\n\\n**Usability (30 points)**\\n- Logical flow/sequence (10 pts)\\n- Includes decision points/escalation (10 pts)\\n- Appropriate detail level (10 pts)\\n\\n**Score Interpretation:**\\n- 85-100: Excellent - Ready for implementation\\n- 70-84: Good - Minor improvements needed\\n- 50-69: Fair - Significant gaps to address\\n- Below 50: Needs substantial rework\\n\\n## How to Write SOP Steps\\n- Use action verbs (Receive, Check, Approve, Send)\\n- Be specific with measurements (\"Heat to 150\u00b0F\" not \"Heat water\")\\n- Include all steps - no magical jumps\\n- Use \"May\" (permission), \"Must\" (required), \"Should\" (conditional)\\n\\nYour task: Analyze this SOP and calculate scores based on the rubric above.\\n\\nFor each missing element, provide detailed information to help the user understand the gap.\\n\\nYou MUST respond with valid JSON only. No markdown, no code blocks, no explanations. Return ONLY this exact structure:\\n{\\n  \"completeness_score\": <0-40>,\\n  \"clarity_score\": <0-30>,\\n  \"usability_score\": <0-30>,\\n  \"total_score\": <0-100>,\\n  \"missing_elements\": [\\n    {\\n      \"element_name\": \"name of missing element\",\\n      \"why_it_matters\": \"one sentence on why this is important\",\\n      \"how_to_fix\": \"one sentence on what they should add\"\\n    }\\n  ],\\n  \"strengths\": [\"strength1\", \"strength2\"],\\n  \"summary\": \"Brief explanation of score\",\\n  \"top_3_quick_wins\": [\\n    {\"title\": \"short title\", \"action\": \"specific action to take\"},\\n    {\"title\": \"short title\", \"action\": \"specific action to take\"},\\n    {\"title\": \"short title\", \"action\": \"specific action to take\"}\\n  ]\\n}' }, { role: 'user', content: 'Intention: ' + $json.goal + '\\nDepartment: ' + $json.department + '\\nYour Focus: ' + $json.improvement_type + '\\nEnd Users: ' + $json.end_user + '\\nProcess Steps:\\n' + $json.process_steps }], max_tokens: 2048 }) }}",
+        "options": {}
+      },
+      "id": "llm-validate",
+      "name": "LLM: Validate Completeness",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        424
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "xmJ7t6kaKgMwA1ce",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst validation = response.choices?.[0]?.message?.content || response.content?.[0]?.text || '';\nconst formData = $('Merge Audio and Text Paths').first().json;\n\nlet parsedValidation = {};\nlet top_3_quick_wins = [];\ntry {\n  parsedValidation = JSON.parse(validation);\n  top_3_quick_wins = parsedValidation.top_3_quick_wins || [];\n} catch (e) {}\n\nreturn [{ json: {\n  ...formData,\n  validation_feedback: validation,\n  top_3_quick_wins: top_3_quick_wins\n} }];"
+      },
+      "id": "extract-validation",
+      "name": "Extract Validation Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1824,
+        424
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.requestBody }}",
+        "options": {}
+      },
+      "id": "llm-automation",
+      "name": "LLM: Generate Improved SOP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2496,
+        424
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "xmJ7t6kaKgMwA1ce",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst improvedSOP = response.choices?.[0]?.message?.content || response.content?.[0]?.text || '';\nconst allData = $('Calculate SOP Score').first().json;\n\nreturn [{ json: {\n  ...allData,\n  improved_sop: improvedSOP\n} }];"
+      },
+      "id": "extract-automation",
+      "name": "Extract Improved SOP",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2720,
+        424
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ $json.email_subject }}",
+        "emailType": "html",
+        "message": "={{ $json.html_report }}",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data"
+              }
+            ]
+          }
+        }
+      },
+      "id": "send-email",
+      "name": "Send HTML Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3616,
+        256
+      ],
+      "webhookId": "9cbc7092-6925-4b22-9562-6e0ae5997232",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aYzk7sZF8ZVyfOan",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"message\": \"Your SOP analysis has been sent to your email!\" } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "webhook-response",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        5184,
+        424
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const error = $input.first().json.error || {};\nconst errorNode = error.node || 'Unknown';\nconst errorMessage = error.message || 'Unknown error';\nconst formData = $('Parse Form Data').first()?.json || {};\n\nreturn [{ json: {\n  email: formData.email || 'unknown',\n  name: formData.name || 'Unknown',\n  error_node: errorNode,\n  error_message: errorMessage,\n  timestamp: new Date().toISOString()\n} }];"
+      },
+      "id": "error-handler",
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        256,
+        840
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "sway@oloxa.ai",
+        "subject": "=SOP Builder Error - {{ $('Error Handler').first().json.email }}",
+        "emailType": "html",
+        "message": "={{ \"<html><body><h2>SOP Builder Workflow Error</h2><p><strong>User:</strong> \" + $json.name + \" (\" + $json.email + \")</p><p><strong>Failed Node:</strong> \" + $json.error_node + \"</p><p><strong>Error:</strong> \" + $json.error_message + \"</p><p><strong>Time:</strong> \" + $json.timestamp + \"</p></body></html>\" }}",
+        "options": {}
+      },
+      "id": "notify-sway",
+      "name": "Notify Sway of Error",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        840
+      ],
+      "webhookId": "6396e39a-a315-47d6-975f-a3fd4cd20952",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aYzk7sZF8ZVyfOan",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": false, \"message\": \"We encountered an issue processing your SOP. Our team has been notified and will reach out shortly.\", \"error\": $('Error Handler').first().json.error_message } }}",
+        "options": {
+          "responseCode": 500
+        }
+      },
+      "id": "error-response",
+      "name": "Error Response to User",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        704,
+        840
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Text Path (FALSE)\nNo audio file present.\nUse text input directly.",
+        "height": 120
+      },
+      "id": "note-text",
+      "name": "Note: Text Path",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        880,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## LLM Analysis\nTwo Claude Haiku calls:\n1. Validate completeness\n2. Recommend automations",
+        "height": 140,
+        "width": 260
+      },
+      "id": "note-llm",
+      "name": "Note: AI Analysis",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Generate & Send\n1. Calculate SOP score (0-100)\n2. Create HTML report with score badge\n3. Convert to PDF\n4. Email to user with dynamic CTA\n5. Log in Airtable CRM\n6. Respond to webhook\n\nNote: Replaced Google Sheets with Airtable",
+        "height": 180,
+        "width": 280
+      },
+      "id": "note-output",
+      "name": "Note: Output & CRM",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2864,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Error Flow\nCatch errors globally:\n- Notify Sway via email\n- Send error response to user",
+        "height": 120
+      },
+      "id": "note-error",
+      "name": "Note: Error Handling",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2432,
+        624
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const validationData = $input.first().json;\nconst validationText = validationData.validation_feedback || '';\n\nlet totalScore = 0;\nlet completenessScore = 0;\nlet clarityScore = 0;\nlet usabilityScore = 0;\nlet missingElements = [];\nlet strengths = [];\nlet summary = '';\n\ntry {\n  let jsonStr = validationText;\n  const jsonMatch = validationText.match(/\\{[\\s\\S]*\\}/);\n  if (jsonMatch) { jsonStr = jsonMatch[0]; }\n  const parsed = JSON.parse(jsonStr);\n  completenessScore = parsed.completeness_score || 0;\n  clarityScore = parsed.clarity_score || 0;\n  usabilityScore = parsed.usability_score || 0;\n  totalScore = parsed.total_score || (completenessScore + clarityScore + usabilityScore);\n  missingElements = parsed.missing_elements || [];\n  strengths = parsed.strengths || [];\n  summary = parsed.summary || '';\n} catch (e) {\n  const steps = validationData.process_steps || '';\n  const lines = steps.split('\\n').filter(s => s.trim()).length;\n  const hasGoal = validationData.goal && validationData.goal.length > 5;\n  completenessScore = 0;\n  if (hasGoal) completenessScore += 10;\n  if (steps.toLowerCase().includes('preparation') || steps.toLowerCase().includes('equipment')) completenessScore += 10;\n  if (lines >= 3) completenessScore += 10;\n  if (steps.toLowerCase().includes('checklist') || steps.toLowerCase().includes('verify')) completenessScore += 10;\n  const actionVerbs = ['check', 'verify', 'inspect', 'clean', 'wash', 'label', 'store', 'cover', 'lock', 'fill', 'call', 'review'];\n  const hasActionVerbs = actionVerbs.some(v => steps.toLowerCase().includes(v));\n  const hasSpecifics = /\\d+/.test(steps);\n  clarityScore = (hasActionVerbs ? 10 : 5) + (hasSpecifics ? 10 : 5) + (lines > 10 ? 10 : 5);\n  const hasSequence = /\\d+\\.\\s/.test(steps);\n  const hasDecisionPoints = steps.toLowerCase().includes('if ') || steps.toLowerCase().includes('need');\n  usabilityScore = (hasSequence ? 10 : 5) + (hasDecisionPoints ? 10 : 5) + (lines > 15 ? 10 : 5);\n  totalScore = completenessScore + clarityScore + usabilityScore;\n  summary = 'Score calculated using heuristic analysis.';\n}\ntotalScore = Math.max(0, Math.min(100, totalScore));\n\nreturn [{ json: {\n  ...validationData,\n  sop_score: totalScore,\n  automation_ready: totalScore >= 75,\n  missing_elements: missingElements,\n  strengths: strengths,\n  score_summary: summary,\n  score_breakdown: { completeness: completenessScore, clarity: clarityScore, usability: usabilityScore },\n  top_3_quick_wins: validationData.top_3_quick_wins || [],\n  end_user: validationData.end_user || ''\n} }];"
+      },
+      "id": "calculate-score",
+      "name": "Calculate SOP Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2048,
+        424
+      ],
+      "notes": "Improved JSON parsing with fallback heuristics, added proper score breakdown with completeness/clarity/usability"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appvd4nlsNhIWYdbI",
+          "mode": "list",
+          "cachedResultName": "Oloxa CRM",
+          "cachedResultUrl": "https://airtable.com/appvd4nlsNhIWYdbI"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblEHjJlvorWTgptU",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "log-to-airtable",
+      "name": "Log Lead in Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        4960,
+        616
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "7Nw3lCcZ0ETUwNak",
+          "name": "airtable-creds"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## SOP Scoring System\nCalculates completeness score (0-100):\n\nScoring criteria:\n- Goal clarity (0-20 pts)\n- Step completeness (0-30 pts)  \n- Detail level (0-30 pts)\n- Safety considerations (0-20 pts)\n- Minus: Missing elements penalty (-5 each)\n\nScore >= 75% = automation_ready = true\n\nUsed for:\n- Dynamic email CTA\n- PDF report badge\n- Airtable lead tracking",
+        "height": 220,
+        "width": 280
+      },
+      "id": "note-scoring",
+      "name": "Note: SOP Scoring System",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2180,
+        364
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "error-trigger",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        32,
+        840
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "score-check",
+              "leftValue": "={{ $json.sop_score }}",
+              "rightValue": 85,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "route-email",
+      "name": "Route Based on Score",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3168,
+        424
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst score = data.sop_score || 0;\nconst name = data.name || data.end_user || 'there';\nconst companyName = data.company_name || '';\n\n// Extract process title from goal or process_steps\nlet processTitle = data.goal || 'Process';\n\n// FIX: For resubmissions, extract better title from improved_sop\nif (processTitle.toLowerCase().includes('resubmission') || processTitle.toLowerCase().includes('improving existing')) {\n  const h1Match = (data.improved_sop || '').match(/^#\\s+(.+)$/m);\n  if (h1Match) {\n    processTitle = h1Match[1];\n  } else if (!data.goal && data.process_steps) {\n    // Fallback: Try to extract from process_steps\n    const firstHeadingMatch = data.process_steps.match(/^#\\s+(.+)$/m);\n    if (firstHeadingMatch) {\n      processTitle = firstHeadingMatch[1];\n    }\n  }\n}\n\nvar formattedSop = '';\nvar sopText = data.improved_sop || '';\nif (sopText) {\n  var lines = sopText.split('\\n');\n  var inList = false;\n  var listType = '';\n  for (var i = 0; i < lines.length; i++) {\n    var line = lines[i].trim();\n    if (!line) {\n      if (inList) { formattedSop += '</' + listType + '>'; inList = false; }\n      formattedSop += '<div style=\"height:10px;\"></div>';\n      continue;\n    }\n\n    // FIX 3: Handle checkbox items FIRST, BEFORE any replacements\n    // Check for unchecked checkbox\n    if (line.match(/^-\\s*\\[\\s?\\]\\s+/)) {\n      if (inList) { formattedSop += '</' + listType + '>'; inList = false; }\n      var checkText = line.replace(/^-\\s*\\[\\s?\\]\\s+/, '');\n      formattedSop += '<div style=\"color:#ccc;margin:6px 0;font-size:14px;\">\u2610 ' + checkText + '</div>';\n      continue;\n    }\n    // Check for checked checkbox\n    if (line.match(/^-\\s*\\[x\\]\\s+/i)) {\n      if (inList) { formattedSop += '</' + listType + '>'; inList = false; }\n      var checkText = line.replace(/^-\\s*\\[x\\]\\s+/i, '');\n      formattedSop += '<div style=\"color:#22c55e;margin:6px 0;font-size:14px;\">\u2611 ' + checkText + '</div>';\n      continue;\n    }\n\n    // NOW do the general replacements (after checkbox check)\n    line = line.replace(/\\*\\*([^*]+)\\*\\*/g, '<strong>$1</strong>');\n\n    if (line.match(/^-{3,}$/)) {\n      if (inList) { formattedSop += '</' + listType + '>'; inList = false; }\n      formattedSop += '<hr style=\"border:none;border-top:1px solid #333;margin:15px 0;\">';\n      continue;\n    }\n    // FIX 1: Expand heading support from 1-3 to 1-4 pounds, with adjusted margins\n    if (line.match(/^#{1,4}\\s+/)) {\n      if (inList) { formattedSop += '</' + listType + '>'; inList = false; }\n      var hashes = line.match(/^(#+)/)[1].length;\n      var t = line.replace(/^#+\\s+/, '');\n      var sz = hashes === 1 ? '22' : hashes === 2 ? '18' : hashes === 3 ? '16' : '15';\n      var clr = hashes === 1 ? '#fff' : hashes === 2 ? '#2563EB' : '#ccc';\n      // FIX 2: Increased spacing for H3/H4 (process steps)\n      var mgn = hashes === 1 ? '25px 0 10px' : hashes === 2 ? '25px 0 10px' : hashes === 3 ? '30px 0 8px' : '30px 0 8px';\n      formattedSop += '<div style=\"font-size:' + sz + 'px;font-weight:bold;color:' + clr + ';margin:' + mgn + ';\">' + t + '</div>';\n      continue;\n    }\n    // FIX 4: Handle markdown table rows - convert to \"Label: Value\" format\n    if (line.match(/^\\|.+\\|$/)) {\n      if (inList) { formattedSop += '</' + listType + '>'; inList = false; }\n      // Skip separator rows (|---|---|)\n      if (line.match(/^\\|[\\s-:]+\\|$/)) continue;\n      // Skip header rows that match \"| Field | Value |\" pattern\n      if (line.match(/^\\|\\s*Field\\s*\\|\\s*Value\\s*\\|/i)) continue;\n      // Extract cells\n      var cells = line.split('|').filter(function(c) { return c.trim(); }).map(function(c) { return c.trim(); });\n      if (cells.length >= 2) {\n        formattedSop += '<p style=\"color:#ccc;margin:4px 0;font-size:14px;\"><strong style=\"color:#fff;\">' + cells[0] + ':</strong> ' + cells[1] + '</p>';\n      }\n      continue;\n    }\n    if (line.match(/^[-*\u2022]\\s+/)) {\n      var item = line.replace(/^[-*\u2022]\\s+/, '');\n      if (!inList || listType !== 'ul') {\n        if (inList) formattedSop += '</' + listType + '>';\n        formattedSop += '<ul style=\"margin:8px 0;padding-left:20px;\">';\n        inList = true; listType = 'ul';\n      }\n      formattedSop += '<li style=\"color:#ccc;margin:4px 0;\">' + item + '</li>';\n      continue;\n    }\n    if (line.match(/^\\d+[\\.\\)]\\s+/)) {\n      var item = line.replace(/^\\d+[\\.\\)]\\s+/, '');\n      if (!inList || listType !== 'ol') {\n        if (inList) formattedSop += '</' + listType + '>';\n        formattedSop += '<ol style=\"margin:8px 0;padding-left:20px;\">';\n        inList = true; listType = 'ol';\n      }\n      formattedSop += '<li style=\"color:#ccc;margin:4px 0;\">' + item + '</li>';\n      continue;\n    }\n    if (inList) { formattedSop += '</' + listType + '>'; inList = false; }\n    formattedSop += '<p style=\"color:#ccc;margin:6px 0;line-height:1.6;\">' + line + '</p>';\n  }\n  if (inList) formattedSop += '</' + listType + '>';\n} else {\n  formattedSop = '<p>Your improved SOP will appear here.</p>';\n}\n\nconst html = '<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"><style>body{font-family:Arial,sans-serif;background:#000;color:#fff;margin:0;padding:0}</style></head><body><div style=\"max-width:600px;margin:0 auto;padding:40px 20px;\"><div style=\"text-align:center;margin-bottom:40px;\"><img src=\"https://sopbuilder.oloxa.ai/logo.png\" alt=\"OLOXA AI Solutions\" style=\"max-width:150px;height:auto;\"></div><h1 style=\"color:#fff;font-size:28px;text-align:center;\">Congratulations, ' + name + '!</h1><h2 style=\"color:#fff;font-size:22px;text-align:center;margin-top:10px;font-weight:normal;\">Your SOP is now strong.</h2><div style=\"font-size:64px;font-weight:bold;color:#F26B5D;text-align:center;margin:30px 0;\">' + score + '%</div><div style=\"text-align:center;font-size:18px;color:#fff;margin-bottom:15px;\">Your SOP Completeness Score</div><div style=\"text-align:center;font-size:20px;color:#F26B5D;font-weight:bold;margin-bottom:40px;\">You are Ready for Automation!</div><div style=\"margin:30px 0;padding:25px;background:#1a1a1a;border-left:4px solid #F26B5D;border-radius:4px;\"><h2 style=\"color:#F26B5D;font-size:20px;margin-top:0;\">Your Goal</h2><p><strong style=\"color:#F26B5D;\">Intention:</strong> ' + (data.goal||'') + '</p><p><strong style=\"color:#F26B5D;\">Department:</strong> ' + (data.department||'') + '</p><p><strong style=\"color:#F26B5D;\">Who will use this:</strong> ' + (data.end_user||'Not specified') + '</p><p><strong style=\"color:#F26B5D;\">Your Focus:</strong> ' + (data.improvement_type||'') + '</p></div><div style=\"margin:30px 0;padding:25px;background:#1a1a1a;border-left:4px solid #F26B5D;border-radius:4px;\"><h2 style=\"color:#2563EB;font-size:20px;margin-top:0;\">Here\\'s Your Improved SOP</h2><div style=\"background:#2a2a2a;border-left:4px solid #2563EB;padding:15px;margin:15px 0;border-radius:4px;font-size:14px;\"><strong>Note:</strong> This is a guide to help you restructure your SOP. Fill in details from your own business.</div><div style=\"background:#1a2233;padding:20px;border-radius:8px;font-size:14px;line-height:1.8;\">' + formattedSop + '</div></div><div style=\"text-align:center;margin:40px 0 20px;\"><h2 style=\"color:#fff;font-size:24px;\">Amazing, you did it! \ud83c\udf89</h2><p style=\"color:#ccc;font-size:16px;line-height:1.6;\">Want to take the next step?<br>Let us help you <strong style=\"color:#2563EB;\">automate this process</strong>.</p><div style=\"margin:20px 0;\"><a href=\"https://calendly.com/sway-oloxa/discovery-call\" style=\"display:inline-block;background:#2563EB;color:#ffffff;text-decoration:none;font-weight:bold;font-size:16px;padding:14px 35px;border-radius:8px;\">Book a Discovery Call \u2192</a></div></div><div style=\"text-align:center;color:#3B3B3B;font-size:12px;margin-top:40px;border-top:1px solid #3B3B3B;padding-top:20px;\">\u00a9 2026 OLOXA.AI</div></div></body></html>';\n\n// Fixed subject line: {Company}'s Improved SOP: {Process Title} - Scored {Score}%\nconst emailSubject = (companyName ? companyName + \"'s \" : \"Your \") + \"Improved SOP: \" + processTitle + \" - Scored \" + score + \"%\";\n\nconst result = { ...data, html_report: html, email_subject: emailSubject };\nreturn [{ json: result }];"
+      },
+      "id": "generate-success-email",
+      "name": "Generate Success Email (\u226585%)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3392,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst score = data.sop_score || 0;\nconst name = data.name || 'there';\nconst companyName = data.company_name || '';\n\nlet processTitle = data.goal || 'Process';\nif (!data.goal && data.process_steps) {\n  const m = data.process_steps.match(/^#\\s+(.+)$/m);\n  if (m) processTitle = m[1];\n}\n\nvar progressBadge = '';\nif (score >= 75) { progressBadge = '<span style=\"background:#d4af37;color:#000;padding:8px 16px;border-radius:20px;font-weight:bold;font-size:14px;\">ALMOST THERE!</span>'; }\nelse if (score >= 50) { progressBadge = '<span style=\"background:#F26B5D;color:#fff;padding:8px 16px;border-radius:20px;font-weight:bold;font-size:14px;\">GOOD START</span>'; }\nelse { progressBadge = '<span style=\"background:#999;color:#fff;padding:8px 16px;border-radius:20px;font-weight:bold;font-size:14px;\">NEEDS IMPROVEMENT</span>'; }\n\nconst quickWins = data.top_3_quick_wins || [];\nvar qwHtml = '';\nfor (var i = 0; i < quickWins.length && i < 3; i++) {\n  var w = quickWins[i];\n  var t = (typeof w === 'object' && w !== null) ? (w.title || 'Quick Win') : String(w);\n  var a = (typeof w === 'object' && w !== null) ? (w.action || '') : '';\n  qwHtml += '<div style=\"background:#2a2a2a;border-left:4px solid #d4af37;padding:15px;margin:12px 0;border-radius:6px;\"><strong style=\"color:#d4af37;\">' + (i+1) + '. ' + t + '</strong>';\n  if (a) qwHtml += '<p style=\"color:#ccc;margin:5px 0 0;font-size:14px;\">' + a + '</p>';\n  qwHtml += '</div>';\n}\nif (!qwHtml) qwHtml = '<p>No quick wins available. Try adding more detail.</p>';\n\nvar missingHtml = '';\nvar me = data.missing_elements || [];\nfor (var j = 0; j < me.length; j++) {\n  var el = me[j];\n  if (typeof el === 'object' && el !== null) {\n    missingHtml += '<div style=\"margin:15px 0;padding:15px;background:#2a2a2a;border-radius:6px;\"><strong style=\"color:#F26B5D;\">\\u25a1 ' + (el.element_name||'Unknown') + '</strong><p style=\"color:#ccc;margin:5px 0;\"><em>Why:</em> ' + (el.why_it_matters||'Missing.') + '</p><p style=\"color:#E8A317;margin:5px 0;\"><em>Fix:</em> ' + (el.how_to_fix||'Review SOP.') + '</p></div>';\n  }\n}\nif (!missingHtml) missingHtml = '<p>Analysis not available</p>';\n\nvar resubmitUrl = 'https://sopbuilder.oloxa.ai?lead=' + (data.lead_id||'') + '&email=' + encodeURIComponent(data.email||'') + '&name=' + encodeURIComponent(name) + '&score=' + score + '&wins=' + encodeURIComponent(JSON.stringify(quickWins));\n\nvar html = '<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"><style>body{font-family:Arial,sans-serif;background:#000;color:#fff;margin:0;padding:0}</style></head><body><div style=\"max-width:600px;margin:0 auto;padding:40px 20px;\"><div style=\"text-align:center;margin-bottom:40px;\"><img src=\"https://sopbuilder.oloxa.ai/logo.png\" alt=\"OLOXA\" style=\"max-width:150px;height:auto;\"></div><h1 style=\"color:#fff;font-size:28px;text-align:center;\">Hey ' + name + ', here\\'s your SOP analysis.</h1><div style=\"text-align:center;margin:20px 0;\">' + progressBadge + '</div><div style=\"font-size:64px;font-weight:bold;color:#F26B5D;text-align:center;margin:30px 0;\">' + score + '%</div><p style=\"text-align:center;font-size:18px;color:#fff;margin:10px 0;\">Your SOP Completeness Score</p><p style=\"text-align:center;font-size:16px;color:#ccc;font-style:italic;margin-bottom:30px;\">Great start! With a few improvements, you\\'ll be on your way.</p><div style=\"margin:30px 0;padding:25px;background:#1a1a1a;border-left:4px solid #F26B5D;border-radius:4px;\"><h2 style=\"color:#F26B5D;font-size:20px;margin-top:0;\">Your Goal</h2><p><strong style=\"color:#F26B5D;\">Intention:</strong> ' + (data.goal||'Not specified') + '</p><p><strong style=\"color:#F26B5D;\">Department:</strong> ' + (data.department||'General') + '</p><p><strong style=\"color:#F26B5D;\">Who will use this:</strong> ' + (data.end_user||'Not specified') + '</p></div><div style=\"margin:30px 0;padding:25px;background:#1a1a1a;border-left:4px solid #F26B5D;border-radius:4px;\"><h2 style=\"color:#F26B5D;font-size:20px;margin-top:0;\">What\\'s Missing</h2><p style=\"font-size:13px;color:#999;\">Based on the 5 core elements every SOP needs:</p>' + missingHtml + '</div><div style=\"margin:30px 0;padding:25px;background:#1a1a1a;border-left:4px solid #F26B5D;border-radius:4px;\"><h2 style=\"color:#F26B5D;font-size:20px;margin-top:0;\">3 Quick Wins to Improve Your Score</h2>' + qwHtml + '<div style=\"background:#2a2a2a;border-left:4px solid #d4af37;padding:15px;margin:30px 0 15px;border-radius:4px;font-size:14px;\"><strong>Note:</strong> This is a starting point &mdash; resubmit with improvements to raise your score.</div></div><p style=\"color:#ccc;font-size:16px;text-align:center;margin:50px 0 10px;\">Implementing these recommendations alone will make your SOP incredible!</p><p style=\"color:#ccc;font-size:16px;text-align:center;margin:0 0 30px;\">Click below to make those tweaks.</p><div style=\"background:linear-gradient(135deg,#F26B5D,#ff8577);padding:30px;text-align:center;margin:10px 0 40px;border-radius:10px;\"><a href=\"' + resubmitUrl + '\" style=\"display:inline-block;background:#d4af37;color:#000;text-decoration:none;font-weight:bold;font-size:18px;padding:15px 35px;border-radius:10px;\">Let\\'s Improve My SOP &#8594;</a></div><div style=\"text-align:center;color:#3B3B3B;font-size:12px;margin-top:40px;\">\\u00a9 2026 OLOXA.AI</div></div></body></html>';\n\nconst emailSubject = (companyName ? companyName + \"'s \" : \"Your \") + \"SOP Analysis: \" + processTitle + \" - Scored \" + score + \"%\";\n\nreturn [{ json: { ...data, html_report: html, email_subject: emailSubject } }];"
+      },
+      "id": "generate-improvement-email",
+      "name": "Generate Improvement Email (<85%)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3392,
+        568
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\nreturn [{ json: {\n  email: data.email,\n  name: data.name,\n  goal: data.goal,\n  department: data.department,\n  sop_score: data.sop_score,\n  automation_ready: data.automation_ready ? 'true' : 'false',\n  source: 'SOP Builder Lead Magnet',\n  timestamp: new Date().toISOString(),\n  end_user: data.end_user || '',\n  lead_id: data.lead_id || '',\n  submission_count: 1,\n  score_history: String(data.sop_score)\n} }];"
+      },
+      "id": "format-for-airtable",
+      "name": "Format for Airtable",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3616,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\n// Generate UUID-style lead_id if not provided\nif (!data.lead_id) {\n  data.lead_id = 'lead_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);\n}\n\nreturn [{ json: data }];\n"
+      },
+      "id": "generate-lead-id",
+      "name": "Generate Lead ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2944,
+        424
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appvd4nlsNhIWYdbI",
+          "mode": "list",
+          "cachedResultName": "SOP Builder Leads"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblEHjJlvorWTgptU",
+          "mode": "id"
+        },
+        "filterByFormula": "={{ '{email} = \"' + $json.email + '\"' }}",
+        "options": {}
+      },
+      "id": "check-existing-lead",
+      "name": "Check Existing Lead",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        3840,
+        520
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "7Nw3lCcZ0ETUwNak",
+          "name": "airtable-creds"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "returning-check",
+              "leftValue": "={{ $('Check Existing Lead').all().length > 0 }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-if-returning",
+      "name": "Check If Returning User",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        4064,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const existingRecord = $('Check Existing Lead').first().json;\nconst newData = $('Format for Airtable').first().json;\n\nconst existingCount = existingRecord.submission_count || 1;\nconst previousScore = existingRecord.sop_score || 0;\n\n// Remove fields that don't exist in Airtable\nconst { is_returning, score_history, ...cleanData } = newData;\n\nreturn [{ json: {\n  ...cleanData,\n  submission_count: existingCount + 1,\n  previous_score: previousScore\n} }];"
+      },
+      "id": "prepare-update-data",
+      "name": "Prepare Update Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4288,
+        424
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const newData = $('Format for Airtable').first().json;\n\n// Remove fields that don't exist in Airtable\nconst { is_returning, previous_score, ...cleanData } = newData;\n\nreturn [{ json: cleanData }];"
+      },
+      "id": "prepare-new-data",
+      "name": "Prepare New Lead Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4288,
+        616
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "merge-airtable-paths",
+      "name": "Merge Airtable Paths",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        4512,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "is-returning-check",
+              "leftValue": "={{ $json.submission_count }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "route-create-or-update",
+      "name": "Route Create or Update",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        4736,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appvd4nlsNhIWYdbI",
+          "mode": "list",
+          "cachedResultName": "Oloxa CRM",
+          "cachedResultUrl": "https://airtable.com/appvd4nlsNhIWYdbI"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblEHjJlvorWTgptU",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "update-lead-airtable",
+      "name": "Update Lead in Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        4960,
+        424
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "7Nw3lCcZ0ETUwNak",
+          "name": "airtable-creds"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\nconst systemPrompt = `# Role\n\nYou are SOP Formatter, an expert Standard Operating Procedure specialist.\nYou specialize in transforming raw process information into professionally structured, finalized SOPs.\nYour expertise combines process engineering, technical writing, and document formatting to ensure every SOP is clear, actionable, and consistently formatted.\nYou act as a document finalization engine \u2014 you receive raw input and produce a polished, ready-to-use SOP.\n\n---\n\n# Task\n\nYour core task is to take the user's submitted process information and produce a finalized SOP document in strict markdown format.\n\nFollow this process:\n\n1. Read all submitted information \u2014 goal, department, end user, improvement focus, process steps, and any validation feedback\n2. Extract the SOP title from the goal (e.g., \"Employee Onboarding SOP\" not \"Template\" or \"Guide\")\n3. Organize all user-provided content into the 5 required sections (see Specifics)\n4. Format every section using the exact markdown structure defined below \u2014 no deviations\n5. Improve wording, grammar, and clarity while preserving the user's original meaning\n6. Number all process steps sequentially (1, 2, 3...) with consistent sub-structure\n7. Validate that no invented content was added \u2014 every operational detail must trace back to user input\n\nAt every stage, preserve the user's intent and never invent steps, tasks, or details they did not provide.\n\n---\n\n# Specifics\n\n**Content Rules:**\n- NEVER add tasks, steps, activities, or operational details the user did not provide or clearly imply\n- You MAY reorganize content, improve wording/grammar/clarity, and add structural elements\n- You MAY NOT invent new process steps, add tasks not mentioned, or create fictional activities\n- This is a FINALIZED SOP \u2014 NOT a template. Do NOT use placeholders like [Your system name] or [Responsible person]\n- If a detail was not provided, omit it entirely\n- Do NOT include a \"Next Steps\" section \u2014 the SOP should feel complete\n\n**Scope:**\n- INCLUDED: Purpose, Preparation, Process Flow, Verification Checklist, Document Control\n- EXCLUDED: Next Steps, Appendices, References, anything not provided by user\n\n**Required Sections (use these exact headings):**\n\n## [SOP Title based on goal]\n\n### 1. Purpose\nWhy this SOP exists, based on the user's stated goal. One to three sentences.\n\n### 2. Preparation\nWhat is needed before starting: tools, training, prerequisites, systems access. Use bullet points.\n\n### 3. Process Flow\nSequential steps. THIS IS THE MOST CRITICAL SECTION FOR FORMATTING. Each step MUST follow this exact structure:\n\n#### [Step Number]. [Step Name]\n**Owner:** [Role or person responsible]\n**Actions:**\n- [First action item]\n- [Second action item]\n- [Third action item if applicable]\n**Verification:** [How to confirm this step is complete]\n**Escalation:** [What to do if issues arise \u2014 only if user provided this info]\n\nRULES for Process Flow:\n- Use #### for each step heading (H4 level)\n- Number steps sequentially: 1, 2, 3, 4... (NEVER restart numbering)\n- Owner, Actions, Verification are MANDATORY fields for every step\n- Escalation is OPTIONAL \u2014 only include if the user mentioned it\n- Each field label (Owner:, Actions:, Verification:, Escalation:) MUST be bold and on its own line\n- Actions MUST be bullet points (- ), NEVER paragraphs\n- Each action is a separate bullet point \u2014 do NOT combine multiple actions into one bullet\n- If a step has sub-steps, use indented bullets (  - ) under the parent action\n\n### 4. Verification Checklist\nKey checkpoints formatted as a checklist:\n- [ ] Checkpoint 1\n- [ ] Checkpoint 2\n- [ ] Checkpoint 3\n\n### 5. Document Control\n| Field | Value |\n|-------|-------|\n| Version | 1.0 |\n| Department | [from user input] |\n| Last Updated | [today's date] |\n| Review Frequency | Quarterly |\n\n**Markdown Formatting Rules:**\n- ## for the SOP title (H2)\n- ### for the 5 section headers (H3): Purpose, Preparation, Process Flow, Verification Checklist, Document Control\n- #### for individual process step headings (H4)\n- Bold (**text**) for field labels: Owner:, Actions:, Verification:, Escalation:\n- Bullet points (- ) for action items and preparation items\n- Numbered steps ONLY for process flow step headings (#### 1. Step Name)\n- Checkbox format (- [ ]) for verification checklist items\n- Table format for Document Control\n- NEVER use paragraphs for action items \u2014 always bullet points\n- NEVER use bold-only headings for process steps \u2014 always use #### markdown headings\n- NEVER restart numbering mid-document\n\n---\n\n# Context\n\nThis prompt governs the SOP Builder Lead Magnet, a tool where users submit their process information and receive a professionally formatted SOP document.\n\nThe output is converted to both HTML email and PDF. Consistent markdown formatting is critical because downstream Code nodes parse the markdown into styled HTML. If the markdown structure varies, the PDF and email rendering breaks.\n\nYour formatting consistency directly determines whether the final PDF looks professional or broken.\n\n---\n\n# Examples\n\n### Example 1: Process Flow Step (CORRECT)\n\n#### 1. Welcome Communication\n**Owner:** HR Coordinator\n**Actions:**\n- Send welcome email to new hire with start date and first-day instructions\n- Share employee handbook and company policies via email\n- Set up IT account request for laptop, email, and system access\n**Verification:** Welcome email sent and confirmed received by new hire\n\n#### 2. Kickoff Meeting\n**Owner:** Team Lead\n**Actions:**\n- Schedule 30-minute orientation meeting for first day\n- Prepare agenda covering team structure, project overview, and expectations\n- Assign onboarding buddy from the team\n**Verification:** Meeting scheduled and calendar invite sent to all participants\n\n### Example 2: Process Flow Step (WRONG \u2014 never do this)\n\n**1. Welcome Communication**\nThe HR Coordinator sends a welcome email to the new hire with start date and first-day instructions. They also share the employee handbook and company policies, and set up IT account request for laptop, email, and system access. Verification is done by confirming email received.\n\n(This is WRONG because: step heading is bold-only not ####, actions are a paragraph not bullets, fields are not on separate lines)\n\n### Example 3: Verification Checklist (CORRECT)\n\n### 4. Verification Checklist\n- [ ] Welcome email sent and confirmed received\n- [ ] IT equipment provisioned and tested\n- [ ] All onboarding meetings completed\n- [ ] Employee added to relevant systems and channels\n- [ ] 30-day check-in scheduled with manager\n\n---\n\n# Notes\n\n**Format Consistency is Non-Negotiable:**\nThe downstream PDF and email rendering depends on exact markdown structure. Every process step MUST use #### headings, bold field labels on own lines, and bullet points for actions. No exceptions.\n\n**No Invented Content:**\nIf the user provides 4 process steps, output 4 process steps. Do not add a 5th. Do not add sub-steps the user didn't mention. Improve wording only.\n\n**Sequential Numbering:**\nSteps must be numbered 1, 2, 3, 4... continuously. Never restart at 1 mid-document. Never use 1, 1, 1.\n\n**Guardrails:**\n- Never use placeholders like [Insert name here] or [TBD]\n- Never add a Next Steps section\n- Never combine multiple actions into a single bullet point\n- Never use paragraphs where bullets are required\n- Never use bold-only text as step headings (must use #### markdown)\n- Always use #### for process step headings\n- Always put Owner, Actions, Verification on separate lines with bold labels\n- Always number process steps sequentially\n- Maintain consistent heading hierarchy: ## > ### > ####`;\n\nconst userMsg = 'Create my finalized SOP based on this information:\\\\n\\\\nGoal: ' + (data.goal || '') + '\\\\nDepartment: ' + (data.department || '') + '\\\\nWho will use this: ' + (data.end_user || '') + '\\\\nImprovement focus: ' + (data.improvement_type || '') + '\\\\n\\\\nMy process steps:\\\\n' + (data.process_steps || '') + '\\\\n\\\\nValidation feedback:\\\\n' + (data.validation_feedback || '');\n\nconst requestBody = JSON.stringify({\n  model: 'gpt-4o-mini',\n  temperature: 0.4,\n  max_tokens: 3000,\n  messages: [\n    { role: 'system', content: systemPrompt },\n    { role: 'user', content: userMsg }\n  ]\n});\n\nreturn [{ json: { ...data, requestBody: requestBody } }];"
+      },
+      "id": "prepare-llm-body",
+      "name": "Prepare LLM Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2272,
+        424
+      ]
+    },
+    {
+      "id": "generate-pdf-html",
+      "name": "Generate PDF HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3200,
+        100
+      ],
+      "parameters": {
+        "jsCode": "// Generate clean, print-friendly HTML for PDF with improved markdown conversion\nconst data = $input.item.json;\nconst sopMarkdown = data.improved_sop || '';\nconst processName = data.goal || 'Process';\nconst userName = data.name || 'User';\nconst companyName = data.company_name || '';\nconst currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });\n\n// FIX: Extract better title for resubmissions\nlet docTitle = processName;\nif (docTitle.toLowerCase().includes('resubmission') || docTitle.toLowerCase().includes('improving existing')) {\n  const h1Match = (data.improved_sop || '').match(/^#\\s+(.+)$/m);\n  if (h1Match) docTitle = h1Match[1];\n  else docTitle = 'SOP';\n}\n\n// REWRITTEN: Improved Markdown to HTML converter with proper process flow structure\nfunction markdownToHtml(md) {\n  let html = md;\n\n  // STEP 1: Convert headers FIRST (in order of specificity)\n  // H4 (####) - Process step sub-headers - FIX 1: ADDED\n  html = html.replace(/^#### (.+)$/gm, '<h4>$1</h4>');\n\n  // H3 (###) - Subsection headers\n  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');\n\n  // H2 (##) - Section headers (Purpose, Preparation, Process Flow)\n  // ALSO convert \"## Step N:\" to H3 for process steps\n  html = html.replace(/^## (Step \\d+:.+)$/gm, '<h3>$1</h3>');\n  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');\n\n  // H1 (#) - Main title\n  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');\n\n  // STEP 2: Convert horizontal rules\n  html = html.replace(/^---$/gm, '<hr>');\n  html = html.replace(/^\\*\\*\\*$/gm, '<hr>');\n\n  // STEP 3: Convert checkboxes BEFORE lists and bold text\n  html = html.replace(/^- \\[ \\] (.+)$/gm, '<div class=\"checklist-item\"><span class=\"checkbox-unchecked\">\u2610</span> $1</div>');\n  html = html.replace(/^- \\[x\\] (.+)$/gmi, '<div class=\"checklist-item\"><span class=\"checkbox-checked\">\u2611</span> $1</div>');\n\n  // STEP 4: Convert numbered lists (1. **Step Title**) to H3 headers\n  // This handles process steps that come as ordered lists\n  html = html.replace(/^\\d+\\.\\s+\\*\\*(.+?)\\*\\*(.*)$/gm, (match, title, rest) => {\n    // Extract step number from the match\n    const stepMatch = match.match(/^(\\d+)\\./);\n    const stepNum = stepMatch ? stepMatch[1] : '';\n    return `<h3>${stepNum}. ${title}</h3>${rest ? `<p>${rest.trim()}</p>` : ''}`;\n  });\n\n  // STEP 5: Convert field labels (Owner:, Actions:, Tools:, etc.) BEFORE general bold\n  // Pattern: Line starts with \"- **Label:** value\" OR \"**Label:** value\"\n  html = html.replace(/^-?\\s*\\*\\*(Owner|Actions|Tools|Verification|Escalation|Exception|Prerequisites|Training Prerequisites|Roles and Responsibilities):\\*\\*\\s*(.*)$/gm,\n    (match, label, value) => {\n      if (value.trim()) {\n        // Has value on same line\n        return `<p class=\"field-label\"><strong>${label}:</strong> ${value}</p>`;\n      } else {\n        // Label only (like \"Actions:\" followed by bullet list)\n        return `<p class=\"field-label\"><strong>${label}:</strong></p>`;\n      }\n    });\n\n  // STEP 6: Convert bold and italic (AFTER field labels)\n  html = html.replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>');\n  html = html.replace(/\\*(.+?)\\*/g, '<em>$1</em>');\n  html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');\n  html = html.replace(/_(.+?)_/g, '<em>$1</em>');\n\n  // STEP 7: Convert inline code\n  html = html.replace(/`(.+?)`/g, '<code>$1</code>');\n\n  // STEP 8: Convert bullet lists (but NOT checkboxes or field labels already converted)\n  // Match consecutive lines starting with \"- \" that aren't already HTML\n  const lines = html.split('\\n');\n  let inList = false;\n  let listItems = [];\n  const processedLines = [];\n\n  for (let i = 0; i < lines.length; i++) {\n    const line = lines[i];\n    const trimmed = line.trim();\n\n    // Check if this is a bullet point (and not already converted)\n    if (trimmed.startsWith('- ') && !trimmed.startsWith('<div class=\"checklist-item\">') && !trimmed.includes('<p class=\"field-label\">')) {\n      // Also skip if this looks like a field label that wasn't caught\n      const fieldLabelCheck = trimmed.match(/^- \\*\\*(Owner|Actions|Tools|Verification|Escalation|Exception):\\*\\*/);\n      if (fieldLabelCheck) {\n        // Convert to field label, not list item\n        if (inList) {\n          processedLines.push('<ul>');\n          processedLines.push(...listItems);\n          processedLines.push('</ul>');\n          inList = false;\n          listItems = [];\n        }\n        const labelMatch = trimmed.match(/^- \\*\\*(.+?):\\*\\*\\s*(.*)/);\n        if (labelMatch) {\n          const val = labelMatch[2].trim();\n          processedLines.push(val ? `<p class=\"field-label\"><strong>${labelMatch[1]}:</strong> ${val}</p>` : `<p class=\"field-label\"><strong>${labelMatch[1]}:</strong></p>`);\n        } else {\n          processedLines.push(trimmed);\n        }\n      } else {\n        // Regular bullet item\n        if (!inList) {\n          inList = true;\n          listItems = [];\n        }\n        // Remove the \"- \" and add to list\n        const content = trimmed.substring(2).trim();\n        listItems.push(`  <li>${content}</li>`);\n      }\n    } else {\n      // Not a bullet point\n      if (inList) {\n        // Close the list\n        processedLines.push('<ul>');\n        processedLines.push(...listItems);\n        processedLines.push('</ul>');\n        inList = false;\n        listItems = [];\n      }\n      processedLines.push(line);\n    }\n  }\n\n  // Close any remaining list\n  if (inList) {\n    processedLines.push('<ul>');\n    processedLines.push(...listItems);\n    processedLines.push('</ul>');\n  }\n\n  html = processedLines.join('\\n');\n\n  // STEP 8.5: FIX 4 - Convert markdown tables to plain text with colons\n  // Process line by line again for tables\n  const tableLines = html.split('\\n');\n  const tableProcessed = [];\n  for (let i = 0; i < tableLines.length; i++) {\n    const tl = tableLines[i].trim();\n    if (tl.match(/^\\|.+\\|$/)) {\n      // Skip separator rows\n      if (tl.match(/^\\|[\\s-:]+\\|$/)) continue;\n      // Skip header rows\n      if (tl.match(/^\\|\\s*Field\\s*\\|\\s*Value\\s*\\|/i)) continue;\n      // Extract cells and format as \"Label: Value\"\n      const cells = tl.split('|').filter(c => c.trim()).map(c => c.trim());\n      if (cells.length >= 2) {\n        tableProcessed.push('<p><strong>' + cells[0] + ':</strong> ' + cells[1] + '</p>');\n      }\n    } else {\n      tableProcessed.push(tableLines[i]);\n    }\n  }\n  html = tableProcessed.join('\\n');\n\n  // STEP 9: Convert paragraphs (split by double newlines, skip already-converted tags)\n  const blocks = html.split('\\n\\n');\n  html = blocks.map(block => {\n    const trimmed = block.trim();\n    // Don't wrap if already an HTML tag or empty\n    if (trimmed.startsWith('<h') || trimmed.startsWith('<ul') ||\n        trimmed.startsWith('<ol') || trimmed.startsWith('<hr') ||\n        trimmed.startsWith('<div') || trimmed.startsWith('<p') ||\n        trimmed === '' || trimmed.startsWith('</')) {\n      return trimmed;\n    }\n    // Don't wrap single newline blocks that are just HTML\n    if (trimmed.match(/^<.+>$/)) {\n      return trimmed;\n    }\n    return `<p>${trimmed}</p>`;\n  }).join('\\n\\n');\n\n  return html;\n}\n\nconst sopHtml = markdownToHtml(sopMarkdown);\n\n// FIX: Create document title with improved format\nconst documentTitle = companyName ? `${companyName}'s Improved ${docTitle}` : `Improved ${docTitle}`;\n\n// Create professionally formatted HTML for PDF with FIXED header and hierarchy\nconst pdfHtml = `\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>${documentTitle}</title>\n  <style>\n    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');\n\n    * {\n      margin: 0;\n      padding: 0;\n      box-sizing: border-box;\n    }\n\n    body {\n      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;\n      line-height: 1.7;\n      color: #1a1a1a;\n      background: #ffffff;\n      padding: 50px 60px;\n    }\n\n    .header {\n      text-align: center;\n      border-bottom: 4px solid #F26B5D;\n      padding-bottom: 25px;\n      margin-bottom: 40px;\n    }\n\n    .logo {\n      height: 80px;\n      width: auto;\n      display: block;\n      margin: 0 auto;\n    }\n\n    .document-title {\n      color: #1a1a1a;\n      font-size: 30px;\n      font-weight: 700;\n      margin: 30px 0 20px;\n      text-align: center;\n    }\n\n    .metadata {\n      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);\n      border-left: 5px solid #d4af37;\n      padding: 25px 30px;\n      border-radius: 8px;\n      margin-bottom: 40px;\n      box-shadow: 0 2px 8px rgba(0,0,0,0.05);\n    }\n\n    .metadata p {\n      margin: 8px 0;\n      font-size: 15px;\n      color: #333;\n    }\n\n    .metadata strong {\n      color: #1a1a1a;\n      font-weight: 600;\n      min-width: 120px;\n      display: inline-block;\n    }\n\n    .content {\n      margin-top: 30px;\n    }\n\n    /* H1 = SOP main title - HIDE to avoid duplicate */\n    .content h1:first-child {\n      display: none;\n    }\n\n    /* H1 = Section headers (other H1s in content) */\n    h1 {\n      color: #1a1a1a;\n      font-size: 28px;\n      font-weight: 700;\n      margin-top: 35px;\n      margin-bottom: 18px;\n      border-bottom: 2px solid #F26B5D;\n      padding-bottom: 10px;\n    }\n\n    /* H2 = Section headers (Purpose, Preparation, Process Flow) */\n    h2 {\n      color: #2d3748;\n      font-size: 22px;\n      font-weight: 700;\n      margin-top: 30px;\n      margin-bottom: 15px;\n      border-left: 4px solid #d4af37;\n      padding-left: 15px;\n    }\n\n    /* H3 = Process step headers (1. Welcome Communication, etc.) - FIX 2: INCREASED SPACING */\n    h3 {\n      color: #222;\n      font-size: 18px;\n      font-weight: 700;\n      margin-top: 35px;\n      margin-bottom: 10px;\n    }\n\n    /* H4 = Process step sub-headers - FIX 1: ADDED */\n    h4 {\n      color: #222;\n      font-size: 16px;\n      font-weight: 700;\n      margin-top: 30px;\n      margin-bottom: 8px;\n    }\n\n    /* Field labels (Owner:, Actions:, Verification:, etc.) - NO BULLETS */\n    .field-label {\n      font-size: 14px;\n      font-weight: 600;\n      color: #1a1a1a;\n      margin-top: 8px;\n      margin-bottom: 4px;\n      list-style: none;\n    }\n\n    .field-label strong {\n      font-size: 14px;\n    }\n\n    p {\n      margin-bottom: 12px;\n      color: #333;\n      font-size: 14px;\n      line-height: 1.8;\n    }\n\n    ul, ol {\n      margin: 4px 0 12px 20px;\n      padding: 0;\n    }\n\n    li {\n      margin: 4px 0;\n      color: #333;\n      font-size: 14px;\n      line-height: 1.6;\n    }\n\n    ul li {\n      list-style-type: disc;\n    }\n\n    ol {\n      counter-reset: item;\n      list-style-type: decimal;\n    }\n\n    ol li {\n      list-style-type: decimal;\n    }\n\n    /* Checklist items - tighter spacing */\n    .checklist-item {\n      margin: 4px 0;\n      padding: 6px 0;\n      font-size: 14px;\n      color: #333;\n    }\n\n    .checkbox-unchecked {\n      color: #999;\n      font-size: 16px;\n      margin-right: 8px;\n    }\n\n    .checkbox-checked {\n      color: #22c55e;\n      font-size: 16px;\n      margin-right: 8px;\n      font-weight: bold;\n    }\n\n    hr {\n      border: none;\n      border-top: 2px solid #e5e7eb;\n      margin: 30px 0;\n    }\n\n    code {\n      background: #f1f5f9;\n      padding: 3px 8px;\n      border-radius: 4px;\n      font-family: 'Courier New', monospace;\n      font-size: 13px;\n      color: #e11d48;\n    }\n\n    strong {\n      font-weight: 600;\n      color: #1a1a1a;\n    }\n\n    em {\n      font-style: italic;\n      color: #4a5568;\n    }\n\n    .footer {\n      margin-top: 60px;\n      padding-top: 25px;\n      border-top: 3px solid #e5e7eb;\n      text-align: center;\n    }\n\n    .footer p {\n      margin: 8px 0;\n      font-size: 13px;\n      color: #666;\n    }\n\n    .footer-brand {\n      font-weight: 600;\n      color: #F26B5D;\n      font-size: 14px;\n    }\n\n    @media print {\n      body {\n        padding: 30px 40px;\n      }\n\n      .header {\n        page-break-after: avoid;\n      }\n\n      h1, h2, h3 {\n        page-break-after: avoid;\n      }\n    }\n  </style>\n</head>\n<body>\n  <div class=\"header\">\n    <img src=\"https://sopbuilder.oloxa.ai/logo-black-transparent.png\" alt=\"Oloxa Logo\" class=\"logo\" />\n  </div>\n\n  <h1 class=\"document-title\">${documentTitle}</h1>\n\n  <div class=\"metadata\">\n    <p><strong>Process Name:</strong> ${docTitle}</p>${companyName ? `\\n    <p><strong>Company:</strong> ${companyName}</p>` : ''}\n    <p><strong>Prepared for:</strong> ${userName}</p>\n    <p><strong>Generated:</strong> ${currentDate}</p>\n  </div>\n\n  <div class=\"content\">\n    ${sopHtml}\n  </div>\n\n  <div class=\"footer\">\n    <p class=\"footer-brand\">Generated by Oloxa AI Solutions</p>\n    <p>${currentDate}</p>\n    <p>\u00a9 ${new Date().getFullYear()} Oloxa. All rights reserved.</p>\n  </div>\n</body>\n</html>\n`;\n\n// Return ALL existing data plus the new pdf_html field\nreturn [{ json: { ...data, pdf_html: pdfHtml } }];"
+      }
+    },
+    {
+      "id": "convert-to-pdf",
+      "name": "Convert HTML to PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3400,
+        100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.html2pdf.app/v1/generate",
+        "authentication": "none",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={\"html\": {{ JSON.stringify($json.pdf_html) }}, \"apiKey\": \"bKXk6fNavTofZUsJMdvwEkGIt45rSB3W7s7ePH0r1jPp7mUYkfr3aO4LDHiGxRDr\"}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": false,
+              "neverError": false,
+              "responseFormat": "file",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "send-improvement-email",
+      "name": "Send Improvement Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3616,
+        568
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ $json.email_subject }}",
+        "message": "={{ $json.html_report }}",
+        "emailType": "html"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aYzk7sZF8ZVyfOan",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "id": "format-check",
+      "name": "Format Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2832,
+        424
+      ],
+      "parameters": {
+        "jsCode": "// Format Check: Clean up markdown formatting issues\nconst items = $input.all();\nconst output = [];\n\nfor (const item of items) {\n  let markdown = item.json.improved_sop || '';\n  \n  // 1. Fix sequential numbering for process steps\n  let counter = 0;\n  markdown = markdown.replace(/^(\\d+)\\. (\\*\\*[^*]+\\*\\*)/gm, (match, num, title) => {\n    counter++;\n    return counter + '. ' + title;\n  });\n  \n  // 2. Fix step headers (### format) - sequential numbering\n  let stepCounter = 0;\n  markdown = markdown.replace(/^### \\d+\\. /gm, () => {\n    stepCounter++;\n    return '### ' + stepCounter + '. ';\n  });\n  \n  // 3. Ensure standard labels are bold and on their own lines\n  const labels = ['Owner', 'Actions', 'Verification', 'Escalation', 'Exception'];\n  labels.forEach(label => {\n    // Fix unbold labels at start of line\n    const unboldRegex = new RegExp('^' + label + ':', 'gm');\n    markdown = markdown.replace(unboldRegex, '**' + label + ':**');\n    \n    // Fix inline labels (not at start of line) - put on new line\n    const inlineRegex = new RegExp('([^\\\\n])\\\\s+' + label + ':\\\\s*', 'g');\n    markdown = markdown.replace(inlineRegex, '$1\\n\\n**' + label + ':** ');\n  });\n  \n  // 4. Fix run-on action items - split into bullet points\n  markdown = markdown.replace(\n    /\\*\\*Actions:\\*\\*\\s*([^\\n]+(?:\\.[^\\n]+)+)/g,\n    (match, actionText) => {\n      const sentences = actionText.split(/\\.\\s+(?=[A-Z])/);\n      if (sentences.length > 1) {\n        const bullets = sentences\n          .map(s => s.trim())\n          .filter(s => s.length > 0)\n          .map(s => '- ' + s + (s.endsWith('.') ? '' : '.'));\n        return '**Actions:**\\n' + bullets.join('\\n');\n      }\n      return match;\n    }\n  );\n  \n  // 5. Ensure only one H1\n  const h1Matches = markdown.match(/^# /gm) || [];\n  if (h1Matches.length === 0) {\n    markdown = markdown.replace(/^## (.+)$/m, '# $1');\n  } else if (h1Matches.length > 1) {\n    let firstH1 = true;\n    markdown = markdown.replace(/^# (.+)$/gm, (match, text) => {\n      if (firstH1) { firstH1 = false; return match; }\n      return '## ' + text;\n    });\n  }\n  \n  // 6. Normalize blank lines\n  markdown = markdown.replace(/\\n{3,}/g, '\\n\\n');\n  \n  // 7. Clean trailing whitespace\n  markdown = markdown.split('\\n').map(line => line.trimEnd()).join('\\n');\n  \n  output.push({\n    json: {\n      ...item.json,\n      improved_sop: markdown.trim()\n    }\n  });\n}\n\nreturn output;"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Form Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Form Data": {
+      "main": [
+        [
+          {
+            "node": "Check Audio File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Audio File": {
+      "main": [
+        [
+          {
+            "node": "Upload Audio to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Use Text Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Audio to Drive": {
+      "main": [
+        [
+          {
+            "node": "Transcribe with Whisper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe with Whisper": {
+      "main": [
+        [
+          {
+            "node": "Set Transcription as Steps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Transcription as Steps": {
+      "main": [
+        [
+          {
+            "node": "Merge Audio and Text Paths",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use Text Input": {
+      "main": [
+        [
+          {
+            "node": "Merge Audio and Text Paths",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Audio and Text Paths": {
+      "main": [
+        [
+          {
+            "node": "LLM: Validate Completeness",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM: Validate Completeness": {
+      "main": [
+        [
+          {
+            "node": "Extract Validation Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Validation Response": {
+      "main": [
+        [
+          {
+            "node": "Calculate SOP Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM: Generate Improved SOP": {
+      "main": [
+        [
+          {
+            "node": "Extract Improved SOP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Handler": {
+      "main": [
+        [
+          {
+            "node": "Notify Sway of Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Sway of Error": {
+      "main": [
+        [
+          {
+            "node": "Error Response to User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "0": [
+        [
+          {
+            "node": "Error Handler",
+            "type": "0",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Based on Score": {
+      "main": [
+        [
+          {
+            "node": "Generate Success Email (\u226585%)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Improvement Email (<85%)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Success Email (\u226585%)": {
+      "0": [
+        [
+          {
+            "node": "Send HTML Email",
+            "type": "0",
+            "index": 0
+          }
+        ]
+      ],
+      "main": [
+        [
+          {
+            "node": "Format for Airtable",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generate PDF HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Improvement Email (<85%)": {
+      "main": [
+        [
+          {
+            "node": "Format for Airtable",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Improvement Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format for Airtable": {
+      "main": [
+        [
+          {
+            "node": "Check Existing Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send HTML Email": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Lead in Airtable": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Lead ID": {
+      "main": [
+        [
+          {
+            "node": "Route Based on Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Existing Lead": {
+      "main": [
+        [
+          {
+            "node": "Check If Returning User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Returning User": {
+      "main": [
+        [
+          {
+            "node": "Prepare Update Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare New Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Update Data": {
+      "main": [
+        [
+          {
+            "node": "Merge Airtable Paths",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare New Lead Data": {
+      "main": [
+        [
+          {
+            "node": "Merge Airtable Paths",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Airtable Paths": {
+      "main": [
+        [
+          {
+            "node": "Route Create or Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Create or Update": {
+      "main": [
+        [
+          {
+            "node": "Update Lead in Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Lead in Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate SOP Score": {
+      "main": [
+        [
+          {
+            "node": "Prepare LLM Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare LLM Request": {
+      "main": [
+        [
+          {
+            "node": "LLM: Generate Improved SOP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate PDF HTML": {
+      "main": [
+        [
+          {
+            "node": "Convert HTML to PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert HTML to PDF": {
+      "main": [
+        [
+          {
+            "node": "Send HTML Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Improvement Email": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Improved SOP": {
+      "main": [
+        [
+          {
+            "node": "Format Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Check": {
+      "main": [
+        [
+          {
+            "node": "Generate Lead ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": true,
+    "timeSavedMode": "fixed"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "28fde4bf-d23e-4f74-8613-cc06beedfa18",
+  "activeVersionId": "28fde4bf-d23e-4f74-8613-cc06beedfa18",
+  "versionCounter": 555,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-01-28T10:30:42.989Z",
+      "createdAt": "2026-01-28T10:30:42.989Z",
+      "role": "workflow:owner",
+      "workflowId": "ikVyMpDI0az6Zk4t",
+      "projectId": "Rs8mhw052fnrzWZM",
+      "project": {
+        "updatedAt": "2025-12-31T15:54:29.115Z",
+        "createdAt": "2025-12-31T15:27:33.865Z",
+        "id": "Rs8mhw052fnrzWZM",
+        "name": "Sway Clarke <sway@oloxa.ai>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+        "projectRelations": [
+          {
+            "updatedAt": "2025-12-31T15:27:33.865Z",
+            "createdAt": "2025-12-31T15:27:33.865Z",
+            "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+            "projectId": "Rs8mhw052fnrzWZM",
+            "user": {
+              "updatedAt": "2026-01-31T00:12:46.682Z",
+              "createdAt": "2025-12-31T15:27:33.119Z",
+              "id": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+              "email": "sway@oloxa.ai",
+              "firstName": "Sway",
+              "lastName": "Clarke",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-12-31T15:54:37.562Z",
+                "personalization_survey_n8n_version": "2.1.4"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "zbxHkXOoD1qaz6OS",
+                "userActivatedAt": 1767398053308,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1767684846804
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-01-30",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-01-30T18:15:30.373Z",
+    "createdAt": "2026-01-30T18:15:30.373Z",
+    "versionId": "28fde4bf-d23e-4f74-8613-cc06beedfa18",
+    "workflowId": "ikVyMpDI0az6Zk4t",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "sop-builder",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "id": "webhook-trigger",
+        "name": "Webhook Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          32,
+          424
+        ],
+        "webhookId": "4531aaec-2563-488b-982c-8c5b933f9d07",
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "const body = $input.first().json.body || $input.first().json;\n\nreturn [{ json: {\n  email: body.email || '',\n  name: body.name || '',\n  goal: body.goal || body.processName || '',\n  improvement_type: body.improvement_type || 'process_improvement',\n  department: body.department || 'general',\n  process_steps: body.process_steps || body.processSteps || '',\n  has_audio: body.audio_file ? true : false,\n  audio_data: body.audio_file || null,\n  end_user: body.end_user || '',\n  lead_id: body.lead_id || '',\n  company_name: body.company_name || body.companyName || ''\n} }];"
+        },
+        "id": "parse-form",
+        "name": "Parse Form Data",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          256,
+          424
+        ],
+        "notes": "Fixed to handle both new field names (goal, process_steps) and old field names (processName, processSteps)"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "audio-check",
+                "leftValue": "={{ $json.has_audio }}",
+                "rightValue": true,
+                "operator": {
+                  "type": "boolean",
+                  "operation": "equals"
+                }
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "check-audio",
+        "name": "Check Audio File",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          480,
+          424
+        ]
+      },
+      {
+        "parameters": {
+          "content": "## Webhook Trigger\nAccepts POST requests with form data:\n- email, name, goal\n- improvement_type, department\n- process_steps (text)\n- audio_file (optional binary)",
+          "height": 180,
+          "width": 280
+        },
+        "id": "note-trigger",
+        "name": "Note: Trigger",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          224,
+          192
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "upload",
+          "name": "={{ $json.email.split('@')[0] }}_sop_audio_{{ $now.toFormat('yyyy-MM-dd_HH-mm') }}.m4a",
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "mode": "list",
+            "value": "root"
+          },
+          "options": {}
+        },
+        "id": "upload-to-drive",
+        "name": "Upload Audio to Drive",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          704,
+          328
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "url": "https://api.openai.com/v1/audio/transcriptions",
+          "options": {}
+        },
+        "id": "transcribe-audio",
+        "name": "Transcribe with Whisper",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          928,
+          328
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const transcription = $input.first().json.text || '';\nconst formData = $('Parse Form Data').first().json;\n\nreturn [{ json: {\n  ...formData,\n  process_steps: transcription,\n  transcription_used: true\n} }];"
+        },
+        "id": "set-transcription",
+        "name": "Set Transcription as Steps",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1152,
+          328
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "return [{ json: $input.first().json }];"
+        },
+        "id": "use-text-input",
+        "name": "Use Text Input",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1152,
+          520
+        ]
+      },
+      {
+        "parameters": {},
+        "id": "merge-paths",
+        "name": "Merge Audio and Text Paths",
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3,
+        "position": [
+          1376,
+          424
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.openai.com/v1/chat/completions",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "openAiApi",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ model: 'gpt-4o-mini', messages: [{ role: 'system', content: '# SOP Expert Knowledge Base\\n\\n## What is an SOP?\\nA Standard Operating Procedure (SOP), also called \"One Best Way,\" is the current best method of carrying out a process or activity. SOPs ensure efficiency, quality, and safety through consistent, documented practices.\\n\\n## When an SOP is Needed\\nCreate SOPs when:\\n1. Process needs consistent results every time\\n2. Activity is critical to output quality\\n3. Process is costly to operate (efficiency matters)\\n4. High risk of serious consequences (safety, financial, reputational)\\n\\n## 5 Core Elements of Every SOP\\n1. **Purpose** - Why this SOP is needed (quality/safety/efficiency/consistency)\\n2. **Preparation** - Equipment, training, safety requirements, prerequisites\\n3. **Process Flow (Steps)** - Sequential numbered steps, decision points, who does what\\n4. **Checklist** - Key verification points for sign-off/audit trail\\n5. **Document Control** - Version, author, review date, file reference\\n\\n## Scoring an SOP (0-100 Scale)\\n**Completeness (40 points)**\\n- Has clear purpose (10 pts)\\n- Has preparation section (10 pts)\\n- Has step-by-step process (10 pts)\\n- Has checklist/verification (10 pts)\\n\\n**Clarity (30 points)**\\n- Steps use action verbs (10 pts)\\n- Instructions are specific/measurable (10 pts)\\n- No ambiguous language (10 pts)\\n\\n**Usability (30 points)**\\n- Logical flow/sequence (10 pts)\\n- Includes decision points/escalation (10 pts)\\n- Appropriate detail level (10 pts)\\n\\n**Score Interpretation:**\\n- 85-100: Excellent - Ready for implementation\\n- 70-84: Good - Minor improvements needed\\n- 50-69: Fair - Significant gaps to address\\n- Below 50: Needs substantial rework\\n\\n## How to Write SOP Steps\\n- Use action verbs (Receive, Check, Approve, Send)\\n- Be specific with measurements (\"Heat to 150\u00b0F\" not \"Heat water\")\\n- Include all steps - no magical jumps\\n- Use \"May\" (permission), \"Must\" (required), \"Should\" (conditional)\\n\\nYour task: Analyze this SOP and calculate scores based on the rubric above.\\n\\nFor each missing element, provide detailed information to help the user understand the gap.\\n\\nYou MUST respond with valid JSON only. No markdown, no code blocks, no explanations. Return ONLY this exact structure:\\n{\\n  \"completeness_score\": <0-40>,\\n  \"clarity_score\": <0-30>,\\n  \"usability_score\": <0-30>,\\n  \"total_score\": <0-100>,\\n  \"missing_elements\": [\\n    {\\n      \"element_name\": \"name of missing element\",\\n      \"why_it_matters\": \"one sentence on why this is important\",\\n      \"how_to_fix\": \"one sentence on what they should add\"\\n    }\\n  ],\\n  \"strengths\": [\"strength1\", \"strength2\"],\\n  \"summary\": \"Brief explanation of score\",\\n  \"top_3_quick_wins\": [\\n    {\"title\": \"short title\", \"action\": \"specific action to take\"},\\n    {\"title\": \"short title\", \"action\": \"specific action to take\"},\\n    {\"title\": \"short title\", \"action\": \"specific action to take\"}\\n  ]\\n}' }, { role: 'user', content: 'Intention: ' + $json.goal + '\\nDepartment: ' + $json.department + '\\nYour Focus: ' + $json.improvement_type + '\\nEnd Users: ' + $json.end_user + '\\nProcess Steps:\\n' + $json.process_steps }], max_tokens: 2048 }) }}",
+          "options": {}
+        },
+        "id": "llm-validate",
+        "name": "LLM: Validate Completeness",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1600,
+          424
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "xmJ7t6kaKgMwA1ce",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const response = $input.first().json;\nconst validation = response.choices?.[0]?.message?.content || response.content?.[0]?.text || '';\nconst formData = $('Merge Audio and Text Paths').first().json;\n\nlet parsedValidation = {};\nlet top_3_quick_wins = [];\ntry {\n  parsedValidation = JSON.parse(validation);\n  top_3_quick_wins = parsedValidation.top_3_quick_wins || [];\n} catch (e) {}\n\nreturn [{ json: {\n  ...formData,\n  validation_feedback: validation,\n  top_3_quick_wins: top_3_quick_wins\n} }];"
+        },
+        "id": "extract-validation",
+        "name": "Extract Validation Response",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1824,
+          424
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.openai.com/v1/chat/completions",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "openAiApi",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ $json.requestBody }}",
+          "options": {}
+        },
+        "id": "llm-automation",
+        "name": "LLM: Generate Improved SOP",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2496,
+          424
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "xmJ7t6kaKgMwA1ce",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const response = $input.first().json;\nconst improvedSOP = response.choices?.[0]?.message?.content || response.content?.[0]?.text || '';\nconst allData = $('Calculate SOP Score').first().json;\n\nreturn [{ json: {\n  ...allData,\n  improved_sop: improvedSOP\n} }];"
+        },
+        "id": "extract-automation",
+        "name": "Extract Improved SOP",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2720,
+          424
+        ]
+      },
+      {
+        "parameters": {
+          "resource": "message",
+          "operation": "send",
+          "sendTo": "={{ $json.email }}",
+          "subject": "={{ $json.email_subject }}",
+          "emailType": "html",
+          "message": "={{ $json.html_report }}",
+          "options": {
+            "attachmentsUi": {
+              "attachmentsBinary": [
+                {
+                  "property": "data"
+                }
+              ]
+            }
+          }
+        },
+        "id": "send-email",
+        "name": "Send HTML Email",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          3616,
+          256
+        ],
+        "webhookId": "9cbc7092-6925-4b22-9562-6e0ae5997232",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "aYzk7sZF8ZVyfOan",
+            "name": "Gmail account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { \"success\": true, \"message\": \"Your SOP analysis has been sent to your email!\" } }}",
+          "options": {
+            "responseCode": 200
+          }
+        },
+        "id": "webhook-response",
+        "name": "Respond to Webhook",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          5184,
+          424
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const error = $input.first().json.error || {};\nconst errorNode = error.node || 'Unknown';\nconst errorMessage = error.message || 'Unknown error';\nconst formData = $('Parse Form Data').first()?.json || {};\n\nreturn [{ json: {\n  email: formData.email || 'unknown',\n  name: formData.name || 'Unknown',\n  error_node: errorNode,\n  error_message: errorMessage,\n  timestamp: new Date().toISOString()\n} }];"
+        },
+        "id": "error-handler",
+        "name": "Error Handler",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          256,
+          840
+        ]
+      },
+      {
+        "parameters": {
+          "resource": "message",
+          "operation": "send",
+          "sendTo": "sway@oloxa.ai",
+          "subject": "=SOP Builder Error - {{ $('Error Handler').first().json.email }}",
+          "emailType": "html",
+          "message": "={{ \"<html><body><h2>SOP Builder Workflow Error</h2><p><strong>User:</strong> \" + $json.name + \" (\" + $json.email + \")</p><p><strong>Failed Node:</strong> \" + $json.error_node + \"</p><p><strong>Error:</strong> \" + $json.error_message + \"</p><p><strong>Time:</strong> \" + $json.timestamp + \"</p></body></html>\" }}",
+          "options": {}
+        },
+        "id": "notify-sway",
+        "name": "Notify Sway of Error",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          480,
+          840
+        ],
+        "webhookId": "6396e39a-a315-47d6-975f-a3fd4cd20952",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "aYzk7sZF8ZVyfOan",
+            "name": "Gmail account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { \"success\": false, \"message\": \"We encountered an issue processing your SOP. Our team has been notified and will reach out shortly.\", \"error\": $('Error Handler').first().json.error_message } }}",
+          "options": {
+            "responseCode": 500
+          }
+        },
+        "id": "error-response",
+        "name": "Error Response to User",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          704,
+          840
+        ]
+      },
+      {
+        "parameters": {
+          "content": "## Text Path (FALSE)\nNo audio file present.\nUse text input directly.",
+          "height": 120
+        },
+        "id": "note-text",
+        "name": "Note: Text Path",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          880,
+          480
+        ]
+      },
+      {
+        "parameters": {
+          "content": "## LLM Analysis\nTwo Claude Haiku calls:\n1. Validate completeness\n2. Recommend automations",
+          "height": 140,
+          "width": 260
+        },
+        "id": "note-llm",
+        "name": "Note: AI Analysis",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          1760,
+          192
+        ]
+      },
+      {
+        "parameters": {
+          "content": "## Generate & Send\n1. Calculate SOP score (0-100)\n2. Create HTML report with score badge\n3. Convert to PDF\n4. Email to user with dynamic CTA\n5. Log in Airtable CRM\n6. Respond to webhook\n\nNote: Replaced Google Sheets with Airtable",
+          "height": 180,
+          "width": 280
+        },
+        "id": "note-output",
+        "name": "Note: Output & CRM",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          2864,
+          192
+        ]
+      },
+      {
+        "parameters": {
+          "content": "## Error Flow\nCatch errors globally:\n- Notify Sway via email\n- Send error response to user",
+          "height": 120
+        },
+        "id": "note-error",
+        "name": "Note: Error Handling",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          2432,
+          624
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const validationData = $input.first().json;\nconst validationText = validationData.validation_feedback || '';\n\nlet totalScore = 0;\nlet completenessScore = 0;\nlet clarityScore = 0;\nlet usabilityScore = 0;\nlet missingElements = [];\nlet strengths = [];\nlet summary = '';\n\ntry {\n  let jsonStr = validationText;\n  const jsonMatch = validationText.match(/\\{[\\s\\S]*\\}/);\n  if (jsonMatch) { jsonStr = jsonMatch[0]; }\n  const parsed = JSON.parse(jsonStr);\n  completenessScore = parsed.completeness_score || 0;\n  clarityScore = parsed.clarity_score || 0;\n  usabilityScore = parsed.usability_score || 0;\n  totalScore = parsed.total_score || (completenessScore + clarityScore + usabilityScore);\n  missingElements = parsed.missing_elements || [];\n  strengths = parsed.strengths || [];\n  summary = parsed.summary || '';\n} catch (e) {\n  const steps = validationData.process_steps || '';\n  const lines = steps.split('\\n').filter(s => s.trim()).length;\n  const hasGoal = validationData.goal && validationData.goal.length > 5;\n  completenessScore = 0;\n  if (hasGoal) completenessScore += 10;\n  if (steps.toLowerCase().includes('preparation') || steps.toLowerCase().includes('equipment')) completenessScore += 10;\n  if (lines >= 3) completenessScore += 10;\n  if (steps.toLowerCase().includes('checklist') || steps.toLowerCase().includes('verify')) completenessScore += 10;\n  const actionVerbs = ['check', 'verify', 'inspect', 'clean', 'wash', 'label', 'store', 'cover', 'lock', 'fill', 'call', 'review'];\n  const hasActionVerbs = actionVerbs.some(v => steps.toLowerCase().includes(v));\n  const hasSpecifics = /\\d+/.test(steps);\n  clarityScore = (hasActionVerbs ? 10 : 5) + (hasSpecifics ? 10 : 5) + (lines > 10 ? 10 : 5);\n  const hasSequence = /\\d+\\.\\s/.test(steps);\n  const hasDecisionPoints = steps.toLowerCase().includes('if ') || steps.toLowerCase().includes('need');\n  usabilityScore = (hasSequence ? 10 : 5) + (hasDecisionPoints ? 10 : 5) + (lines > 15 ? 10 : 5);\n  totalScore = completenessScore + clarityScore + usabilityScore;\n  summary = 'Score calculated using heuristic analysis.';\n}\ntotalScore = Math.max(0, Math.min(100, totalScore));\n\nreturn [{ json: {\n  ...validationData,\n  sop_score: totalScore,\n  automation_ready: totalScore >= 75,\n  missing_elements: missingElements,\n  strengths: strengths,\n  score_summary: summary,\n  score_breakdown: { completeness: completenessScore, clarity: clarityScore, usability: usabilityScore },\n  top_3_quick_wins: validationData.top_3_quick_wins || [],\n  end_user: validationData.end_user || ''\n} }];"
+        },
+        "id": "calculate-score",
+        "name": "Calculate SOP Score",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2048,
+          424
+        ],
+        "notes": "Improved JSON parsing with fallback heuristics, added proper score breakdown with completeness/clarity/usability"
+      },
+      {
+        "parameters": {
+          "operation": "create",
+          "base": {
+            "__rl": true,
+            "value": "appvd4nlsNhIWYdbI",
+            "mode": "list",
+            "cachedResultName": "Oloxa CRM",
+            "cachedResultUrl": "https://airtable.com/appvd4nlsNhIWYdbI"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tblEHjJlvorWTgptU",
+            "mode": "id"
+          },
+          "columns": {
+            "mappingMode": "autoMapInputData",
+            "matchingColumns": [
+              "email"
+            ],
+            "schema": []
+          },
+          "options": {}
+        },
+        "id": "log-to-airtable",
+        "name": "Log Lead in Airtable",
+        "type": "n8n-nodes-base.airtable",
+        "typeVersion": 2.1,
+        "position": [
+          4960,
+          616
+        ],
+        "credentials": {
+          "airtableTokenApi": {
+            "id": "7Nw3lCcZ0ETUwNak",
+            "name": "airtable-creds"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "## SOP Scoring System\nCalculates completeness score (0-100):\n\nScoring criteria:\n- Goal clarity (0-20 pts)\n- Step completeness (0-30 pts)  \n- Detail level (0-30 pts)\n- Safety considerations (0-20 pts)\n- Minus: Missing elements penalty (-5 each)\n\nScore >= 75% = automation_ready = true\n\nUsed for:\n- Dynamic email CTA\n- PDF report badge\n- Airtable lead tracking",
+          "height": 220,
+          "width": 280
+        },
+        "id": "note-scoring",
+        "name": "Note: SOP Scoring System",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          2180,
+          364
+        ]
+      },
+      {
+        "parameters": {},
+        "id": "error-trigger",
+        "name": "Error Trigger",
+        "type": "n8n-nodes-base.errorTrigger",
+        "typeVersion": 1,
+        "position": [
+          32,
+          840
+        ]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "score-check",
+                "leftValue": "={{ $json.sop_score }}",
+                "rightValue": 85,
+                "operator": {
+                  "type": "number",
+                  "operation": "gte"
+                }
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "route-email",
+        "name": "Route Based on Score",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          3168,
+          424
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const data = $input.first().json;\nconst score = data.sop_score || 0;\nconst name = data.name || data.end_user || 'there';\nconst companyName = data.company_name || '';\n\n// Extract process title from goal or process_steps\nlet processTitle = data.goal || 'Process';\n\n// FIX: For resubmissions, extract better title from improved_sop\nif (processTitle.toLowerCase().includes('resubmission') || processTitle.toLowerCase().includes('improving existing')) {\n  const h1Match = (data.improved_sop || '').match(/^#\\s+(.+)$/m);\n  if (h1Match) {\n    processTitle = h1Match[1];\n  } else if (!data.goal && data.process_steps) {\n    // Fallback: Try to extract from process_steps\n    const firstHeadingMatch = data.process_steps.match(/^#\\s+(.+)$/m);\n    if (firstHeadingMatch) {\n      processTitle = firstHeadingMatch[1];\n    }\n  }\n}\n\nvar formattedSop = '';\nvar sopText = data.improved_sop || '';\nif (sopText) {\n  var lines = sopText.split('\\n');\n  var inList = false;\n  var listType = '';\n  for (var i = 0; i < lines.length; i++) {\n    var line = lines[i].trim();\n    if (!line) {\n      if (inList) { formattedSop += '</' + listType + '>'; inList = false; }\n      formattedSop += '<div style=\"height:10px;\"></div>';\n      continue;\n    }\n\n    // FIX 3: Handle checkbox items FIRST, BEFORE any replacements\n    // Check for unchecked checkbox\n    if (line.match(/^-\\s*\\[\\s?\\]\\s+/)) {\n      if (inList) { formattedSop += '</' + listType + '>'; inList = false; }\n      var checkText = line.replace(/^-\\s*\\[\\s?\\]\\s+/, '');\n      formattedSop += '<div style=\"color:#ccc;margin:6px 0;font-size:14px;\">\u2610 ' + checkText + '</div>';\n      continue;\n    }\n    // Check for checked checkbox\n    if (line.match(/^-\\s*\\[x\\]\\s+/i)) {\n      if (inList) { formattedSop += '</' + listType + '>'; inList = false; }\n      var checkText = line.replace(/^-\\s*\\[x\\]\\s+/i, '');\n      formattedSop += '<div style=\"color:#22c55e;margin:6px 0;font-size:14px;\">\u2611 ' + checkText + '</div>';\n      continue;\n    }\n\n    // NOW do the general replacements (after checkbox check)\n    line = line.replace(/\\*\\*([^*]+)\\*\\*/g, '<strong>$1</strong>');\n\n    if (line.match(/^-{3,}$/)) {\n      if (inList) { formattedSop += '</' + listType + '>'; inList = false; }\n      formattedSop += '<hr style=\"border:none;border-top:1px solid #333;margin:15px 0;\">';\n      continue;\n    }\n    // FIX 1: Expand heading support from 1-3 to 1-4 pounds, with adjusted margins\n    if (line.match(/^#{1,4}\\s+/)) {\n      if (inList) { formattedSop += '</' + listType + '>'; inList = false; }\n      var hashes = line.match(/^(#+)/)[1].length;\n      var t = line.replace(/^#+\\s+/, '');\n      var sz = hashes === 1 ? '22' : hashes === 2 ? '18' : hashes === 3 ? '16' : '15';\n      var clr = hashes === 1 ? '#fff' : hashes === 2 ? '#2563EB' : '#ccc';\n      // FIX 2: Increased spacing for H3/H4 (process steps)\n      var mgn = hashes === 1 ? '25px 0 10px' : hashes === 2 ? '25px 0 10px' : hashes === 3 ? '30px 0 8px' : '30px 0 8px';\n      formattedSop += '<div style=\"font-size:' + sz + 'px;font-weight:bold;color:' + clr + ';margin:' + mgn + ';\">' + t + '</div>';\n      continue;\n    }\n    // FIX 4: Handle markdown table rows - convert to \"Label: Value\" format\n    if (line.match(/^\\|.+\\|$/)) {\n      if (inList) { formattedSop += '</' + listType + '>'; inList = false; }\n      // Skip separator rows (|---|---|)\n      if (line.match(/^\\|[\\s-:]+\\|$/)) continue;\n      // Skip header rows that match \"| Field | Value |\" pattern\n      if (line.match(/^\\|\\s*Field\\s*\\|\\s*Value\\s*\\|/i)) continue;\n      // Extract cells\n      var cells = line.split('|').filter(function(c) { return c.trim(); }).map(function(c) { return c.trim(); });\n      if (cells.length >= 2) {\n        formattedSop += '<p style=\"color:#ccc;margin:4px 0;font-size:14px;\"><strong style=\"color:#fff;\">' + cells[0] + ':</strong> ' + cells[1] + '</p>';\n      }\n      continue;\n    }\n    if (line.match(/^[-*\u2022]\\s+/)) {\n      var item = line.replace(/^[-*\u2022]\\s+/, '');\n      if (!inList || listType !== 'ul') {\n        if (inList) formattedSop += '</' + listType + '>';\n        formattedSop += '<ul style=\"margin:8px 0;padding-left:20px;\">';\n        inList = true; listType = 'ul';\n      }\n      formattedSop += '<li style=\"color:#ccc;margin:4px 0;\">' + item + '</li>';\n      continue;\n    }\n    if (line.match(/^\\d+[\\.\\)]\\s+/)) {\n      var item = line.replace(/^\\d+[\\.\\)]\\s+/, '');\n      if (!inList || listType !== 'ol') {\n        if (inList) formattedSop += '</' + listType + '>';\n        formattedSop += '<ol style=\"margin:8px 0;padding-left:20px;\">';\n        inList = true; listType = 'ol';\n      }\n      formattedSop += '<li style=\"color:#ccc;margin:4px 0;\">' + item + '</li>';\n      continue;\n    }\n    if (inList) { formattedSop += '</' + listType + '>'; inList = false; }\n    formattedSop += '<p style=\"color:#ccc;margin:6px 0;line-height:1.6;\">' + line + '</p>';\n  }\n  if (inList) formattedSop += '</' + listType + '>';\n} else {\n  formattedSop = '<p>Your improved SOP will appear here.</p>';\n}\n\nconst html = '<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"><style>body{font-family:Arial,sans-serif;background:#000;color:#fff;margin:0;padding:0}</style></head><body><div style=\"max-width:600px;margin:0 auto;padding:40px 20px;\"><div style=\"text-align:center;margin-bottom:40px;\"><img src=\"https://sopbuilder.oloxa.ai/logo.png\" alt=\"OLOXA AI Solutions\" style=\"max-width:150px;height:auto;\"></div><h1 style=\"color:#fff;font-size:28px;text-align:center;\">Congratulations, ' + name + '!</h1><h2 style=\"color:#fff;font-size:22px;text-align:center;margin-top:10px;font-weight:normal;\">Your SOP is now strong.</h2><div style=\"font-size:64px;font-weight:bold;color:#F26B5D;text-align:center;margin:30px 0;\">' + score + '%</div><div style=\"text-align:center;font-size:18px;color:#fff;margin-bottom:15px;\">Your SOP Completeness Score</div><div style=\"text-align:center;font-size:20px;color:#F26B5D;font-weight:bold;margin-bottom:40px;\">You are Ready for Automation!</div><div style=\"margin:30px 0;padding:25px;background:#1a1a1a;border-left:4px solid #F26B5D;border-radius:4px;\"><h2 style=\"color:#F26B5D;font-size:20px;margin-top:0;\">Your Goal</h2><p><strong style=\"color:#F26B5D;\">Intention:</strong> ' + (data.goal||'') + '</p><p><strong style=\"color:#F26B5D;\">Department:</strong> ' + (data.department||'') + '</p><p><strong style=\"color:#F26B5D;\">Who will use this:</strong> ' + (data.end_user||'Not specified') + '</p><p><strong style=\"color:#F26B5D;\">Your Focus:</strong> ' + (data.improvement_type||'') + '</p></div><div style=\"margin:30px 0;padding:25px;background:#1a1a1a;border-left:4px solid #F26B5D;border-radius:4px;\"><h2 style=\"color:#2563EB;font-size:20px;margin-top:0;\">Here\\'s Your Improved SOP</h2><div style=\"background:#2a2a2a;border-left:4px solid #2563EB;padding:15px;margin:15px 0;border-radius:4px;font-size:14px;\"><strong>Note:</strong> This is a guide to help you restructure your SOP. Fill in details from your own business.</div><div style=\"background:#1a2233;padding:20px;border-radius:8px;font-size:14px;line-height:1.8;\">' + formattedSop + '</div></div><div style=\"text-align:center;margin:40px 0 20px;\"><h2 style=\"color:#fff;font-size:24px;\">Amazing, you did it! \ud83c\udf89</h2><p style=\"color:#ccc;font-size:16px;line-height:1.6;\">Want to take the next step?<br>Let us help you <strong style=\"color:#2563EB;\">automate this process</strong>.</p><div style=\"margin:20px 0;\"><a href=\"https://calendly.com/sway-oloxa/discovery-call\" style=\"display:inline-block;background:#2563EB;color:#ffffff;text-decoration:none;font-weight:bold;font-size:16px;padding:14px 35px;border-radius:8px;\">Book a Discovery Call \u2192</a></div></div><div style=\"text-align:center;color:#3B3B3B;font-size:12px;margin-top:40px;border-top:1px solid #3B3B3B;padding-top:20px;\">\u00a9 2026 OLOXA.AI</div></div></body></html>';\n\n// Fixed subject line: {Company}'s Improved SOP: {Process Title} - Scored {Score}%\nconst emailSubject = (companyName ? companyName + \"'s \" : \"Your \") + \"Improved SOP: \" + processTitle + \" - Scored \" + score + \"%\";\n\nconst result = { ...data, html_report: html, email_subject: emailSubject };\nreturn [{ json: result }];"
+        },
+        "id": "generate-success-email",
+        "name": "Generate Success Email (\u226585%)",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3392,
+          208
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const data = $input.first().json;\nconst score = data.sop_score || 0;\nconst name = data.name || 'there';\nconst companyName = data.company_name || '';\n\nlet processTitle = data.goal || 'Process';\nif (!data.goal && data.process_steps) {\n  const m = data.process_steps.match(/^#\\s+(.+)$/m);\n  if (m) processTitle = m[1];\n}\n\nvar progressBadge = '';\nif (score >= 75) { progressBadge = '<span style=\"background:#d4af37;color:#000;padding:8px 16px;border-radius:20px;font-weight:bold;font-size:14px;\">ALMOST THERE!</span>'; }\nelse if (score >= 50) { progressBadge = '<span style=\"background:#F26B5D;color:#fff;padding:8px 16px;border-radius:20px;font-weight:bold;font-size:14px;\">GOOD START</span>'; }\nelse { progressBadge = '<span style=\"background:#999;color:#fff;padding:8px 16px;border-radius:20px;font-weight:bold;font-size:14px;\">NEEDS IMPROVEMENT</span>'; }\n\nconst quickWins = data.top_3_quick_wins || [];\nvar qwHtml = '';\nfor (var i = 0; i < quickWins.length && i < 3; i++) {\n  var w = quickWins[i];\n  var t = (typeof w === 'object' && w !== null) ? (w.title || 'Quick Win') : String(w);\n  var a = (typeof w === 'object' && w !== null) ? (w.action || '') : '';\n  qwHtml += '<div style=\"background:#2a2a2a;border-left:4px solid #d4af37;padding:15px;margin:12px 0;border-radius:6px;\"><strong style=\"color:#d4af37;\">' + (i+1) + '. ' + t + '</strong>';\n  if (a) qwHtml += '<p style=\"color:#ccc;margin:5px 0 0;font-size:14px;\">' + a + '</p>';\n  qwHtml += '</div>';\n}\nif (!qwHtml) qwHtml = '<p>No quick wins available. Try adding more detail.</p>';\n\nvar missingHtml = '';\nvar me = data.missing_elements || [];\nfor (var j = 0; j < me.length; j++) {\n  var el = me[j];\n  if (typeof el === 'object' && el !== null) {\n    missingHtml += '<div style=\"margin:15px 0;padding:15px;background:#2a2a2a;border-radius:6px;\"><strong style=\"color:#F26B5D;\">\\u25a1 ' + (el.element_name||'Unknown') + '</strong><p style=\"color:#ccc;margin:5px 0;\"><em>Why:</em> ' + (el.why_it_matters||'Missing.') + '</p><p style=\"color:#E8A317;margin:5px 0;\"><em>Fix:</em> ' + (el.how_to_fix||'Review SOP.') + '</p></div>';\n  }\n}\nif (!missingHtml) missingHtml = '<p>Analysis not available</p>';\n\nvar resubmitUrl = 'https://sopbuilder.oloxa.ai?lead=' + (data.lead_id||'') + '&email=' + encodeURIComponent(data.email||'') + '&name=' + encodeURIComponent(name) + '&score=' + score + '&wins=' + encodeURIComponent(JSON.stringify(quickWins));\n\nvar html = '<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"><style>body{font-family:Arial,sans-serif;background:#000;color:#fff;margin:0;padding:0}</style></head><body><div style=\"max-width:600px;margin:0 auto;padding:40px 20px;\"><div style=\"text-align:center;margin-bottom:40px;\"><img src=\"https://sopbuilder.oloxa.ai/logo.png\" alt=\"OLOXA\" style=\"max-width:150px;height:auto;\"></div><h1 style=\"color:#fff;font-size:28px;text-align:center;\">Hey ' + name + ', here\\'s your SOP analysis.</h1><div style=\"text-align:center;margin:20px 0;\">' + progressBadge + '</div><div style=\"font-size:64px;font-weight:bold;color:#F26B5D;text-align:center;margin:30px 0;\">' + score + '%</div><p style=\"text-align:center;font-size:18px;color:#fff;margin:10px 0;\">Your SOP Completeness Score</p><p style=\"text-align:center;font-size:16px;color:#ccc;font-style:italic;margin-bottom:30px;\">Great start! With a few improvements, you\\'ll be on your way.</p><div style=\"margin:30px 0;padding:25px;background:#1a1a1a;border-left:4px solid #F26B5D;border-radius:4px;\"><h2 style=\"color:#F26B5D;font-size:20px;margin-top:0;\">Your Goal</h2><p><strong style=\"color:#F26B5D;\">Intention:</strong> ' + (data.goal||'Not specified') + '</p><p><strong style=\"color:#F26B5D;\">Department:</strong> ' + (data.department||'General') + '</p><p><strong style=\"color:#F26B5D;\">Who will use this:</strong> ' + (data.end_user||'Not specified') + '</p></div><div style=\"margin:30px 0;padding:25px;background:#1a1a1a;border-left:4px solid #F26B5D;border-radius:4px;\"><h2 style=\"color:#F26B5D;font-size:20px;margin-top:0;\">What\\'s Missing</h2><p style=\"font-size:13px;color:#999;\">Based on the 5 core elements every SOP needs:</p>' + missingHtml + '</div><div style=\"margin:30px 0;padding:25px;background:#1a1a1a;border-left:4px solid #F26B5D;border-radius:4px;\"><h2 style=\"color:#F26B5D;font-size:20px;margin-top:0;\">3 Quick Wins to Improve Your Score</h2>' + qwHtml + '<div style=\"background:#2a2a2a;border-left:4px solid #d4af37;padding:15px;margin:30px 0 15px;border-radius:4px;font-size:14px;\"><strong>Note:</strong> This is a starting point &mdash; resubmit with improvements to raise your score.</div></div><p style=\"color:#ccc;font-size:16px;text-align:center;margin:50px 0 10px;\">Implementing these recommendations alone will make your SOP incredible!</p><p style=\"color:#ccc;font-size:16px;text-align:center;margin:0 0 30px;\">Click below to make those tweaks.</p><div style=\"background:linear-gradient(135deg,#F26B5D,#ff8577);padding:30px;text-align:center;margin:10px 0 40px;border-radius:10px;\"><a href=\"' + resubmitUrl + '\" style=\"display:inline-block;background:#d4af37;color:#000;text-decoration:none;font-weight:bold;font-size:18px;padding:15px 35px;border-radius:10px;\">Let\\'s Improve My SOP &#8594;</a></div><div style=\"text-align:center;color:#3B3B3B;font-size:12px;margin-top:40px;\">\\u00a9 2026 OLOXA.AI</div></div></body></html>';\n\nconst emailSubject = (companyName ? companyName + \"'s \" : \"Your \") + \"SOP Analysis: \" + processTitle + \" - Scored \" + score + \"%\";\n\nreturn [{ json: { ...data, html_report: html, email_subject: emailSubject } }];"
+        },
+        "id": "generate-improvement-email",
+        "name": "Generate Improvement Email (<85%)",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3392,
+          568
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const data = $input.first().json;\n\nreturn [{ json: {\n  email: data.email,\n  name: data.name,\n  goal: data.goal,\n  department: data.department,\n  sop_score: data.sop_score,\n  automation_ready: data.automation_ready ? 'true' : 'false',\n  source: 'SOP Builder Lead Magnet',\n  timestamp: new Date().toISOString(),\n  end_user: data.end_user || '',\n  lead_id: data.lead_id || '',\n  submission_count: 1,\n  score_history: String(data.sop_score)\n} }];"
+        },
+        "id": "format-for-airtable",
+        "name": "Format for Airtable",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3616,
+          520
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const data = $input.first().json;\n\n// Generate UUID-style lead_id if not provided\nif (!data.lead_id) {\n  data.lead_id = 'lead_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);\n}\n\nreturn [{ json: data }];\n"
+        },
+        "id": "generate-lead-id",
+        "name": "Generate Lead ID",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2944,
+          424
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "search",
+          "base": {
+            "__rl": true,
+            "value": "appvd4nlsNhIWYdbI",
+            "mode": "list",
+            "cachedResultName": "SOP Builder Leads"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tblEHjJlvorWTgptU",
+            "mode": "id"
+          },
+          "filterByFormula": "={{ '{email} = \"' + $json.email + '\"' }}",
+          "options": {}
+        },
+        "id": "check-existing-lead",
+        "name": "Check Existing Lead",
+        "type": "n8n-nodes-base.airtable",
+        "typeVersion": 2,
+        "position": [
+          3840,
+          520
+        ],
+        "credentials": {
+          "airtableTokenApi": {
+            "id": "7Nw3lCcZ0ETUwNak",
+            "name": "airtable-creds"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "loose"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "returning-check",
+                "leftValue": "={{ $('Check Existing Lead').all().length > 0 }}",
+                "rightValue": true,
+                "operator": {
+                  "type": "boolean",
+                  "operation": "equals"
+                }
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "check-if-returning",
+        "name": "Check If Returning User",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          4064,
+          520
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const existingRecord = $('Check Existing Lead').first().json;\nconst newData = $('Format for Airtable').first().json;\n\nconst existingCount = existingRecord.submission_count || 1;\nconst previousScore = existingRecord.sop_score || 0;\n\n// Remove fields that don't exist in Airtable\nconst { is_returning, score_history, ...cleanData } = newData;\n\nreturn [{ json: {\n  ...cleanData,\n  submission_count: existingCount + 1,\n  previous_score: previousScore\n} }];"
+        },
+        "id": "prepare-update-data",
+        "name": "Prepare Update Data",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          4288,
+          424
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const newData = $('Format for Airtable').first().json;\n\n// Remove fields that don't exist in Airtable\nconst { is_returning, previous_score, ...cleanData } = newData;\n\nreturn [{ json: cleanData }];"
+        },
+        "id": "prepare-new-data",
+        "name": "Prepare New Lead Data",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          4288,
+          616
+        ]
+      },
+      {
+        "parameters": {},
+        "id": "merge-airtable-paths",
+        "name": "Merge Airtable Paths",
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3,
+        "position": [
+          4512,
+          520
+        ]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "loose"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "is-returning-check",
+                "leftValue": "={{ $json.submission_count }}",
+                "rightValue": 1,
+                "operator": {
+                  "type": "number",
+                  "operation": "gt"
+                }
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "route-create-or-update",
+        "name": "Route Create or Update",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          4736,
+          520
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "base": {
+            "__rl": true,
+            "value": "appvd4nlsNhIWYdbI",
+            "mode": "list",
+            "cachedResultName": "Oloxa CRM",
+            "cachedResultUrl": "https://airtable.com/appvd4nlsNhIWYdbI"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tblEHjJlvorWTgptU",
+            "mode": "id"
+          },
+          "columns": {
+            "mappingMode": "autoMapInputData",
+            "matchingColumns": [
+              "email"
+            ],
+            "schema": []
+          },
+          "options": {}
+        },
+        "id": "update-lead-airtable",
+        "name": "Update Lead in Airtable",
+        "type": "n8n-nodes-base.airtable",
+        "typeVersion": 2.1,
+        "position": [
+          4960,
+          424
+        ],
+        "credentials": {
+          "airtableTokenApi": {
+            "id": "7Nw3lCcZ0ETUwNak",
+            "name": "airtable-creds"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const data = $input.first().json;\n\nconst systemPrompt = `# Role\n\nYou are SOP Formatter, an expert Standard Operating Procedure specialist.\nYou specialize in transforming raw process information into professionally structured, finalized SOPs.\nYour expertise combines process engineering, technical writing, and document formatting to ensure every SOP is clear, actionable, and consistently formatted.\nYou act as a document finalization engine \u2014 you receive raw input and produce a polished, ready-to-use SOP.\n\n---\n\n# Task\n\nYour core task is to take the user's submitted process information and produce a finalized SOP document in strict markdown format.\n\nFollow this process:\n\n1. Read all submitted information \u2014 goal, department, end user, improvement focus, process steps, and any validation feedback\n2. Extract the SOP title from the goal (e.g., \"Employee Onboarding SOP\" not \"Template\" or \"Guide\")\n3. Organize all user-provided content into the 5 required sections (see Specifics)\n4. Format every section using the exact markdown structure defined below \u2014 no deviations\n5. Improve wording, grammar, and clarity while preserving the user's original meaning\n6. Number all process steps sequentially (1, 2, 3...) with consistent sub-structure\n7. Validate that no invented content was added \u2014 every operational detail must trace back to user input\n\nAt every stage, preserve the user's intent and never invent steps, tasks, or details they did not provide.\n\n---\n\n# Specifics\n\n**Content Rules:**\n- NEVER add tasks, steps, activities, or operational details the user did not provide or clearly imply\n- You MAY reorganize content, improve wording/grammar/clarity, and add structural elements\n- You MAY NOT invent new process steps, add tasks not mentioned, or create fictional activities\n- This is a FINALIZED SOP \u2014 NOT a template. Do NOT use placeholders like [Your system name] or [Responsible person]\n- If a detail was not provided, omit it entirely\n- Do NOT include a \"Next Steps\" section \u2014 the SOP should feel complete\n\n**Scope:**\n- INCLUDED: Purpose, Preparation, Process Flow, Verification Checklist, Document Control\n- EXCLUDED: Next Steps, Appendices, References, anything not provided by user\n\n**Required Sections (use these exact headings):**\n\n## [SOP Title based on goal]\n\n### 1. Purpose\nWhy this SOP exists, based on the user's stated goal. One to three sentences.\n\n### 2. Preparation\nWhat is needed before starting: tools, training, prerequisites, systems access. Use bullet points.\n\n### 3. Process Flow\nSequential steps. THIS IS THE MOST CRITICAL SECTION FOR FORMATTING. Each step MUST follow this exact structure:\n\n#### [Step Number]. [Step Name]\n**Owner:** [Role or person responsible]\n**Actions:**\n- [First action item]\n- [Second action item]\n- [Third action item if applicable]\n**Verification:** [How to confirm this step is complete]\n**Escalation:** [What to do if issues arise \u2014 only if user provided this info]\n\nRULES for Process Flow:\n- Use #### for each step heading (H4 level)\n- Number steps sequentially: 1, 2, 3, 4... (NEVER restart numbering)\n- Owner, Actions, Verification are MANDATORY fields for every step\n- Escalation is OPTIONAL \u2014 only include if the user mentioned it\n- Each field label (Owner:, Actions:, Verification:, Escalation:) MUST be bold and on its own line\n- Actions MUST be bullet points (- ), NEVER paragraphs\n- Each action is a separate bullet point \u2014 do NOT combine multiple actions into one bullet\n- If a step has sub-steps, use indented bullets (  - ) under the parent action\n\n### 4. Verification Checklist\nKey checkpoints formatted as a checklist:\n- [ ] Checkpoint 1\n- [ ] Checkpoint 2\n- [ ] Checkpoint 3\n\n### 5. Document Control\n| Field | Value |\n|-------|-------|\n| Version | 1.0 |\n| Department | [from user input] |\n| Last Updated | [today's date] |\n| Review Frequency | Quarterly |\n\n**Markdown Formatting Rules:**\n- ## for the SOP title (H2)\n- ### for the 5 section headers (H3): Purpose, Preparation, Process Flow, Verification Checklist, Document Control\n- #### for individual process step headings (H4)\n- Bold (**text**) for field labels: Owner:, Actions:, Verification:, Escalation:\n- Bullet points (- ) for action items and preparation items\n- Numbered steps ONLY for process flow step headings (#### 1. Step Name)\n- Checkbox format (- [ ]) for verification checklist items\n- Table format for Document Control\n- NEVER use paragraphs for action items \u2014 always bullet points\n- NEVER use bold-only headings for process steps \u2014 always use #### markdown headings\n- NEVER restart numbering mid-document\n\n---\n\n# Context\n\nThis prompt governs the SOP Builder Lead Magnet, a tool where users submit their process information and receive a professionally formatted SOP document.\n\nThe output is converted to both HTML email and PDF. Consistent markdown formatting is critical because downstream Code nodes parse the markdown into styled HTML. If the markdown structure varies, the PDF and email rendering breaks.\n\nYour formatting consistency directly determines whether the final PDF looks professional or broken.\n\n---\n\n# Examples\n\n### Example 1: Process Flow Step (CORRECT)\n\n#### 1. Welcome Communication\n**Owner:** HR Coordinator\n**Actions:**\n- Send welcome email to new hire with start date and first-day instructions\n- Share employee handbook and company policies via email\n- Set up IT account request for laptop, email, and system access\n**Verification:** Welcome email sent and confirmed received by new hire\n\n#### 2. Kickoff Meeting\n**Owner:** Team Lead\n**Actions:**\n- Schedule 30-minute orientation meeting for first day\n- Prepare agenda covering team structure, project overview, and expectations\n- Assign onboarding buddy from the team\n**Verification:** Meeting scheduled and calendar invite sent to all participants\n\n### Example 2: Process Flow Step (WRONG \u2014 never do this)\n\n**1. Welcome Communication**\nThe HR Coordinator sends a welcome email to the new hire with start date and first-day instructions. They also share the employee handbook and company policies, and set up IT account request for laptop, email, and system access. Verification is done by confirming email received.\n\n(This is WRONG because: step heading is bold-only not ####, actions are a paragraph not bullets, fields are not on separate lines)\n\n### Example 3: Verification Checklist (CORRECT)\n\n### 4. Verification Checklist\n- [ ] Welcome email sent and confirmed received\n- [ ] IT equipment provisioned and tested\n- [ ] All onboarding meetings completed\n- [ ] Employee added to relevant systems and channels\n- [ ] 30-day check-in scheduled with manager\n\n---\n\n# Notes\n\n**Format Consistency is Non-Negotiable:**\nThe downstream PDF and email rendering depends on exact markdown structure. Every process step MUST use #### headings, bold field labels on own lines, and bullet points for actions. No exceptions.\n\n**No Invented Content:**\nIf the user provides 4 process steps, output 4 process steps. Do not add a 5th. Do not add sub-steps the user didn't mention. Improve wording only.\n\n**Sequential Numbering:**\nSteps must be numbered 1, 2, 3, 4... continuously. Never restart at 1 mid-document. Never use 1, 1, 1.\n\n**Guardrails:**\n- Never use placeholders like [Insert name here] or [TBD]\n- Never add a Next Steps section\n- Never combine multiple actions into a single bullet point\n- Never use paragraphs where bullets are required\n- Never use bold-only text as step headings (must use #### markdown)\n- Always use #### for process step headings\n- Always put Owner, Actions, Verification on separate lines with bold labels\n- Always number process steps sequentially\n- Maintain consistent heading hierarchy: ## > ### > ####`;\n\nconst userMsg = 'Create my finalized SOP based on this information:\\\\n\\\\nGoal: ' + (data.goal || '') + '\\\\nDepartment: ' + (data.department || '') + '\\\\nWho will use this: ' + (data.end_user || '') + '\\\\nImprovement focus: ' + (data.improvement_type || '') + '\\\\n\\\\nMy process steps:\\\\n' + (data.process_steps || '') + '\\\\n\\\\nValidation feedback:\\\\n' + (data.validation_feedback || '');\n\nconst requestBody = JSON.stringify({\n  model: 'gpt-4o-mini',\n  temperature: 0.4,\n  max_tokens: 3000,\n  messages: [\n    { role: 'system', content: systemPrompt },\n    { role: 'user', content: userMsg }\n  ]\n});\n\nreturn [{ json: { ...data, requestBody: requestBody } }];"
+        },
+        "id": "prepare-llm-body",
+        "name": "Prepare LLM Request",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2272,
+          424
+        ]
+      },
+      {
+        "id": "generate-pdf-html",
+        "name": "Generate PDF HTML",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3200,
+          100
+        ],
+        "parameters": {
+          "jsCode": "// Generate clean, print-friendly HTML for PDF with improved markdown conversion\nconst data = $input.item.json;\nconst sopMarkdown = data.improved_sop || '';\nconst processName = data.goal || 'Process';\nconst userName = data.name || 'User';\nconst companyName = data.company_name || '';\nconst currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });\n\n// FIX: Extract better title for resubmissions\nlet docTitle = processName;\nif (docTitle.toLowerCase().includes('resubmission') || docTitle.toLowerCase().includes('improving existing')) {\n  const h1Match = (data.improved_sop || '').match(/^#\\s+(.+)$/m);\n  if (h1Match) docTitle = h1Match[1];\n  else docTitle = 'SOP';\n}\n\n// REWRITTEN: Improved Markdown to HTML converter with proper process flow structure\nfunction markdownToHtml(md) {\n  let html = md;\n\n  // STEP 1: Convert headers FIRST (in order of specificity)\n  // H4 (####) - Process step sub-headers - FIX 1: ADDED\n  html = html.replace(/^#### (.+)$/gm, '<h4>$1</h4>');\n\n  // H3 (###) - Subsection headers\n  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');\n\n  // H2 (##) - Section headers (Purpose, Preparation, Process Flow)\n  // ALSO convert \"## Step N:\" to H3 for process steps\n  html = html.replace(/^## (Step \\d+:.+)$/gm, '<h3>$1</h3>');\n  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');\n\n  // H1 (#) - Main title\n  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');\n\n  // STEP 2: Convert horizontal rules\n  html = html.replace(/^---$/gm, '<hr>');\n  html = html.replace(/^\\*\\*\\*$/gm, '<hr>');\n\n  // STEP 3: Convert checkboxes BEFORE lists and bold text\n  html = html.replace(/^- \\[ \\] (.+)$/gm, '<div class=\"checklist-item\"><span class=\"checkbox-unchecked\">\u2610</span> $1</div>');\n  html = html.replace(/^- \\[x\\] (.+)$/gmi, '<div class=\"checklist-item\"><span class=\"checkbox-checked\">\u2611</span> $1</div>');\n\n  // STEP 4: Convert numbered lists (1. **Step Title**) to H3 headers\n  // This handles process steps that come as ordered lists\n  html = html.replace(/^\\d+\\.\\s+\\*\\*(.+?)\\*\\*(.*)$/gm, (match, title, rest) => {\n    // Extract step number from the match\n    const stepMatch = match.match(/^(\\d+)\\./);\n    const stepNum = stepMatch ? stepMatch[1] : '';\n    return `<h3>${stepNum}. ${title}</h3>${rest ? `<p>${rest.trim()}</p>` : ''}`;\n  });\n\n  // STEP 5: Convert field labels (Owner:, Actions:, Tools:, etc.) BEFORE general bold\n  // Pattern: Line starts with \"- **Label:** value\" OR \"**Label:** value\"\n  html = html.replace(/^-?\\s*\\*\\*(Owner|Actions|Tools|Verification|Escalation|Exception|Prerequisites|Training Prerequisites|Roles and Responsibilities):\\*\\*\\s*(.*)$/gm,\n    (match, label, value) => {\n      if (value.trim()) {\n        // Has value on same line\n        return `<p class=\"field-label\"><strong>${label}:</strong> ${value}</p>`;\n      } else {\n        // Label only (like \"Actions:\" followed by bullet list)\n        return `<p class=\"field-label\"><strong>${label}:</strong></p>`;\n      }\n    });\n\n  // STEP 6: Convert bold and italic (AFTER field labels)\n  html = html.replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>');\n  html = html.replace(/\\*(.+?)\\*/g, '<em>$1</em>');\n  html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');\n  html = html.replace(/_(.+?)_/g, '<em>$1</em>');\n\n  // STEP 7: Convert inline code\n  html = html.replace(/`(.+?)`/g, '<code>$1</code>');\n\n  // STEP 8: Convert bullet lists (but NOT checkboxes or field labels already converted)\n  // Match consecutive lines starting with \"- \" that aren't already HTML\n  const lines = html.split('\\n');\n  let inList = false;\n  let listItems = [];\n  const processedLines = [];\n\n  for (let i = 0; i < lines.length; i++) {\n    const line = lines[i];\n    const trimmed = line.trim();\n\n    // Check if this is a bullet point (and not already converted)\n    if (trimmed.startsWith('- ') && !trimmed.startsWith('<div class=\"checklist-item\">') && !trimmed.includes('<p class=\"field-label\">')) {\n      // Also skip if this looks like a field label that wasn't caught\n      const fieldLabelCheck = trimmed.match(/^- \\*\\*(Owner|Actions|Tools|Verification|Escalation|Exception):\\*\\*/);\n      if (fieldLabelCheck) {\n        // Convert to field label, not list item\n        if (inList) {\n          processedLines.push('<ul>');\n          processedLines.push(...listItems);\n          processedLines.push('</ul>');\n          inList = false;\n          listItems = [];\n        }\n        const labelMatch = trimmed.match(/^- \\*\\*(.+?):\\*\\*\\s*(.*)/);\n        if (labelMatch) {\n          const val = labelMatch[2].trim();\n          processedLines.push(val ? `<p class=\"field-label\"><strong>${labelMatch[1]}:</strong> ${val}</p>` : `<p class=\"field-label\"><strong>${labelMatch[1]}:</strong></p>`);\n        } else {\n          processedLines.push(trimmed);\n        }\n      } else {\n        // Regular bullet item\n        if (!inList) {\n          inList = true;\n          listItems = [];\n        }\n        // Remove the \"- \" and add to list\n        const content = trimmed.substring(2).trim();\n        listItems.push(`  <li>${content}</li>`);\n      }\n    } else {\n      // Not a bullet point\n      if (inList) {\n        // Close the list\n        processedLines.push('<ul>');\n        processedLines.push(...listItems);\n        processedLines.push('</ul>');\n        inList = false;\n        listItems = [];\n      }\n      processedLines.push(line);\n    }\n  }\n\n  // Close any remaining list\n  if (inList) {\n    processedLines.push('<ul>');\n    processedLines.push(...listItems);\n    processedLines.push('</ul>');\n  }\n\n  html = processedLines.join('\\n');\n\n  // STEP 8.5: FIX 4 - Convert markdown tables to plain text with colons\n  // Process line by line again for tables\n  const tableLines = html.split('\\n');\n  const tableProcessed = [];\n  for (let i = 0; i < tableLines.length; i++) {\n    const tl = tableLines[i].trim();\n    if (tl.match(/^\\|.+\\|$/)) {\n      // Skip separator rows\n      if (tl.match(/^\\|[\\s-:]+\\|$/)) continue;\n      // Skip header rows\n      if (tl.match(/^\\|\\s*Field\\s*\\|\\s*Value\\s*\\|/i)) continue;\n      // Extract cells and format as \"Label: Value\"\n      const cells = tl.split('|').filter(c => c.trim()).map(c => c.trim());\n      if (cells.length >= 2) {\n        tableProcessed.push('<p><strong>' + cells[0] + ':</strong> ' + cells[1] + '</p>');\n      }\n    } else {\n      tableProcessed.push(tableLines[i]);\n    }\n  }\n  html = tableProcessed.join('\\n');\n\n  // STEP 9: Convert paragraphs (split by double newlines, skip already-converted tags)\n  const blocks = html.split('\\n\\n');\n  html = blocks.map(block => {\n    const trimmed = block.trim();\n    // Don't wrap if already an HTML tag or empty\n    if (trimmed.startsWith('<h') || trimmed.startsWith('<ul') ||\n        trimmed.startsWith('<ol') || trimmed.startsWith('<hr') ||\n        trimmed.startsWith('<div') || trimmed.startsWith('<p') ||\n        trimmed === '' || trimmed.startsWith('</')) {\n      return trimmed;\n    }\n    // Don't wrap single newline blocks that are just HTML\n    if (trimmed.match(/^<.+>$/)) {\n      return trimmed;\n    }\n    return `<p>${trimmed}</p>`;\n  }).join('\\n\\n');\n\n  return html;\n}\n\nconst sopHtml = markdownToHtml(sopMarkdown);\n\n// FIX: Create document title with improved format\nconst documentTitle = companyName ? `${companyName}'s Improved ${docTitle}` : `Improved ${docTitle}`;\n\n// Create professionally formatted HTML for PDF with FIXED header and hierarchy\nconst pdfHtml = `\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>${documentTitle}</title>\n  <style>\n    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');\n\n    * {\n      margin: 0;\n      padding: 0;\n      box-sizing: border-box;\n    }\n\n    body {\n      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;\n      line-height: 1.7;\n      color: #1a1a1a;\n      background: #ffffff;\n      padding: 50px 60px;\n    }\n\n    .header {\n      text-align: center;\n      border-bottom: 4px solid #F26B5D;\n      padding-bottom: 25px;\n      margin-bottom: 40px;\n    }\n\n    .logo {\n      height: 80px;\n      width: auto;\n      display: block;\n      margin: 0 auto;\n    }\n\n    .document-title {\n      color: #1a1a1a;\n      font-size: 30px;\n      font-weight: 700;\n      margin: 30px 0 20px;\n      text-align: center;\n    }\n\n    .metadata {\n      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);\n      border-left: 5px solid #d4af37;\n      padding: 25px 30px;\n      border-radius: 8px;\n      margin-bottom: 40px;\n      box-shadow: 0 2px 8px rgba(0,0,0,0.05);\n    }\n\n    .metadata p {\n      margin: 8px 0;\n      font-size: 15px;\n      color: #333;\n    }\n\n    .metadata strong {\n      color: #1a1a1a;\n      font-weight: 600;\n      min-width: 120px;\n      display: inline-block;\n    }\n\n    .content {\n      margin-top: 30px;\n    }\n\n    /* H1 = SOP main title - HIDE to avoid duplicate */\n    .content h1:first-child {\n      display: none;\n    }\n\n    /* H1 = Section headers (other H1s in content) */\n    h1 {\n      color: #1a1a1a;\n      font-size: 28px;\n      font-weight: 700;\n      margin-top: 35px;\n      margin-bottom: 18px;\n      border-bottom: 2px solid #F26B5D;\n      padding-bottom: 10px;\n    }\n\n    /* H2 = Section headers (Purpose, Preparation, Process Flow) */\n    h2 {\n      color: #2d3748;\n      font-size: 22px;\n      font-weight: 700;\n      margin-top: 30px;\n      margin-bottom: 15px;\n      border-left: 4px solid #d4af37;\n      padding-left: 15px;\n    }\n\n    /* H3 = Process step headers (1. Welcome Communication, etc.) - FIX 2: INCREASED SPACING */\n    h3 {\n      color: #222;\n      font-size: 18px;\n      font-weight: 700;\n      margin-top: 35px;\n      margin-bottom: 10px;\n    }\n\n    /* H4 = Process step sub-headers - FIX 1: ADDED */\n    h4 {\n      color: #222;\n      font-size: 16px;\n      font-weight: 700;\n      margin-top: 30px;\n      margin-bottom: 8px;\n    }\n\n    /* Field labels (Owner:, Actions:, Verification:, etc.) - NO BULLETS */\n    .field-label {\n      font-size: 14px;\n      font-weight: 600;\n      color: #1a1a1a;\n      margin-top: 8px;\n      margin-bottom: 4px;\n      list-style: none;\n    }\n\n    .field-label strong {\n      font-size: 14px;\n    }\n\n    p {\n      margin-bottom: 12px;\n      color: #333;\n      font-size: 14px;\n      line-height: 1.8;\n    }\n\n    ul, ol {\n      margin: 4px 0 12px 20px;\n      padding: 0;\n    }\n\n    li {\n      margin: 4px 0;\n      color: #333;\n      font-size: 14px;\n      line-height: 1.6;\n    }\n\n    ul li {\n      list-style-type: disc;\n    }\n\n    ol {\n      counter-reset: item;\n      list-style-type: decimal;\n    }\n\n    ol li {\n      list-style-type: decimal;\n    }\n\n    /* Checklist items - tighter spacing */\n    .checklist-item {\n      margin: 4px 0;\n      padding: 6px 0;\n      font-size: 14px;\n      color: #333;\n    }\n\n    .checkbox-unchecked {\n      color: #999;\n      font-size: 16px;\n      margin-right: 8px;\n    }\n\n    .checkbox-checked {\n      color: #22c55e;\n      font-size: 16px;\n      margin-right: 8px;\n      font-weight: bold;\n    }\n\n    hr {\n      border: none;\n      border-top: 2px solid #e5e7eb;\n      margin: 30px 0;\n    }\n\n    code {\n      background: #f1f5f9;\n      padding: 3px 8px;\n      border-radius: 4px;\n      font-family: 'Courier New', monospace;\n      font-size: 13px;\n      color: #e11d48;\n    }\n\n    strong {\n      font-weight: 600;\n      color: #1a1a1a;\n    }\n\n    em {\n      font-style: italic;\n      color: #4a5568;\n    }\n\n    .footer {\n      margin-top: 60px;\n      padding-top: 25px;\n      border-top: 3px solid #e5e7eb;\n      text-align: center;\n    }\n\n    .footer p {\n      margin: 8px 0;\n      font-size: 13px;\n      color: #666;\n    }\n\n    .footer-brand {\n      font-weight: 600;\n      color: #F26B5D;\n      font-size: 14px;\n    }\n\n    @media print {\n      body {\n        padding: 30px 40px;\n      }\n\n      .header {\n        page-break-after: avoid;\n      }\n\n      h1, h2, h3 {\n        page-break-after: avoid;\n      }\n    }\n  </style>\n</head>\n<body>\n  <div class=\"header\">\n    <img src=\"https://sopbuilder.oloxa.ai/logo-black-transparent.png\" alt=\"Oloxa Logo\" class=\"logo\" />\n  </div>\n\n  <h1 class=\"document-title\">${documentTitle}</h1>\n\n  <div class=\"metadata\">\n    <p><strong>Process Name:</strong> ${docTitle}</p>${companyName ? `\\n    <p><strong>Company:</strong> ${companyName}</p>` : ''}\n    <p><strong>Prepared for:</strong> ${userName}</p>\n    <p><strong>Generated:</strong> ${currentDate}</p>\n  </div>\n\n  <div class=\"content\">\n    ${sopHtml}\n  </div>\n\n  <div class=\"footer\">\n    <p class=\"footer-brand\">Generated by Oloxa AI Solutions</p>\n    <p>${currentDate}</p>\n    <p>\u00a9 ${new Date().getFullYear()} Oloxa. All rights reserved.</p>\n  </div>\n</body>\n</html>\n`;\n\n// Return ALL existing data plus the new pdf_html field\nreturn [{ json: { ...data, pdf_html: pdfHtml } }];"
+        }
+      },
+      {
+        "id": "convert-to-pdf",
+        "name": "Convert HTML to PDF",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          3400,
+          100
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.html2pdf.app/v1/generate",
+          "authentication": "none",
+          "sendHeaders": true,
+          "specifyHeaders": "keypair",
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "contentType": "json",
+          "specifyBody": "json",
+          "jsonBody": "={\"html\": {{ JSON.stringify($json.pdf_html) }}, \"apiKey\": \"bKXk6fNavTofZUsJMdvwEkGIt45rSB3W7s7ePH0r1jPp7mUYkfr3aO4LDHiGxRDr\"}",
+          "options": {
+            "response": {
+              "response": {
+                "fullResponse": false,
+                "neverError": false,
+                "responseFormat": "file",
+                "outputPropertyName": "data"
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "send-improvement-email",
+        "name": "Send Improvement Email",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          3616,
+          568
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "send",
+          "sendTo": "={{ $json.email }}",
+          "subject": "={{ $json.email_subject }}",
+          "message": "={{ $json.html_report }}",
+          "emailType": "html"
+        },
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "aYzk7sZF8ZVyfOan",
+            "name": "Gmail account"
+          }
+        }
+      },
+      {
+        "id": "format-check",
+        "name": "Format Check",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2832,
+          424
+        ],
+        "parameters": {
+          "jsCode": "// Format Check: Clean up markdown formatting issues\nconst items = $input.all();\nconst output = [];\n\nfor (const item of items) {\n  let markdown = item.json.improved_sop || '';\n  \n  // 1. Fix sequential numbering for process steps\n  let counter = 0;\n  markdown = markdown.replace(/^(\\d+)\\. (\\*\\*[^*]+\\*\\*)/gm, (match, num, title) => {\n    counter++;\n    return counter + '. ' + title;\n  });\n  \n  // 2. Fix step headers (### format) - sequential numbering\n  let stepCounter = 0;\n  markdown = markdown.replace(/^### \\d+\\. /gm, () => {\n    stepCounter++;\n    return '### ' + stepCounter + '. ';\n  });\n  \n  // 3. Ensure standard labels are bold and on their own lines\n  const labels = ['Owner', 'Actions', 'Verification', 'Escalation', 'Exception'];\n  labels.forEach(label => {\n    // Fix unbold labels at start of line\n    const unboldRegex = new RegExp('^' + label + ':', 'gm');\n    markdown = markdown.replace(unboldRegex, '**' + label + ':**');\n    \n    // Fix inline labels (not at start of line) - put on new line\n    const inlineRegex = new RegExp('([^\\\\n])\\\\s+' + label + ':\\\\s*', 'g');\n    markdown = markdown.replace(inlineRegex, '$1\\n\\n**' + label + ':** ');\n  });\n  \n  // 4. Fix run-on action items - split into bullet points\n  markdown = markdown.replace(\n    /\\*\\*Actions:\\*\\*\\s*([^\\n]+(?:\\.[^\\n]+)+)/g,\n    (match, actionText) => {\n      const sentences = actionText.split(/\\.\\s+(?=[A-Z])/);\n      if (sentences.length > 1) {\n        const bullets = sentences\n          .map(s => s.trim())\n          .filter(s => s.length > 0)\n          .map(s => '- ' + s + (s.endsWith('.') ? '' : '.'));\n        return '**Actions:**\\n' + bullets.join('\\n');\n      }\n      return match;\n    }\n  );\n  \n  // 5. Ensure only one H1\n  const h1Matches = markdown.match(/^# /gm) || [];\n  if (h1Matches.length === 0) {\n    markdown = markdown.replace(/^## (.+)$/m, '# $1');\n  } else if (h1Matches.length > 1) {\n    let firstH1 = true;\n    markdown = markdown.replace(/^# (.+)$/gm, (match, text) => {\n      if (firstH1) { firstH1 = false; return match; }\n      return '## ' + text;\n    });\n  }\n  \n  // 6. Normalize blank lines\n  markdown = markdown.replace(/\\n{3,}/g, '\\n\\n');\n  \n  // 7. Clean trailing whitespace\n  markdown = markdown.split('\\n').map(line => line.trimEnd()).join('\\n');\n  \n  output.push({\n    json: {\n      ...item.json,\n      improved_sop: markdown.trim()\n    }\n  });\n}\n\nreturn output;"
+        }
+      }
+    ],
+    "connections": {
+      "Webhook Trigger": {
+        "main": [
+          [
+            {
+              "node": "Parse Form Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Form Data": {
+        "main": [
+          [
+            {
+              "node": "Check Audio File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Audio File": {
+        "main": [
+          [
+            {
+              "node": "Upload Audio to Drive",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Use Text Input",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload Audio to Drive": {
+        "main": [
+          [
+            {
+              "node": "Transcribe with Whisper",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Transcribe with Whisper": {
+        "main": [
+          [
+            {
+              "node": "Set Transcription as Steps",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Transcription as Steps": {
+        "main": [
+          [
+            {
+              "node": "Merge Audio and Text Paths",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Use Text Input": {
+        "main": [
+          [
+            {
+              "node": "Merge Audio and Text Paths",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Merge Audio and Text Paths": {
+        "main": [
+          [
+            {
+              "node": "LLM: Validate Completeness",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "LLM: Validate Completeness": {
+        "main": [
+          [
+            {
+              "node": "Extract Validation Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Validation Response": {
+        "main": [
+          [
+            {
+              "node": "Calculate SOP Score",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "LLM: Generate Improved SOP": {
+        "main": [
+          [
+            {
+              "node": "Extract Improved SOP",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Error Handler": {
+        "main": [
+          [
+            {
+              "node": "Notify Sway of Error",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Notify Sway of Error": {
+        "main": [
+          [
+            {
+              "node": "Error Response to User",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Error Trigger": {
+        "0": [
+          [
+            {
+              "node": "Error Handler",
+              "type": "0",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Route Based on Score": {
+        "main": [
+          [
+            {
+              "node": "Generate Success Email (\u226585%)",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Generate Improvement Email (<85%)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Success Email (\u226585%)": {
+        "0": [
+          [
+            {
+              "node": "Send HTML Email",
+              "type": "0",
+              "index": 0
+            }
+          ]
+        ],
+        "main": [
+          [
+            {
+              "node": "Format for Airtable",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Generate PDF HTML",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Improvement Email (<85%)": {
+        "main": [
+          [
+            {
+              "node": "Format for Airtable",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Send Improvement Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format for Airtable": {
+        "main": [
+          [
+            {
+              "node": "Check Existing Lead",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send HTML Email": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Log Lead in Airtable": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Lead ID": {
+        "main": [
+          [
+            {
+              "node": "Route Based on Score",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Existing Lead": {
+        "main": [
+          [
+            {
+              "node": "Check If Returning User",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check If Returning User": {
+        "main": [
+          [
+            {
+              "node": "Prepare Update Data",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Prepare New Lead Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Update Data": {
+        "main": [
+          [
+            {
+              "node": "Merge Airtable Paths",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare New Lead Data": {
+        "main": [
+          [
+            {
+              "node": "Merge Airtable Paths",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge Airtable Paths": {
+        "main": [
+          [
+            {
+              "node": "Route Create or Update",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Route Create or Update": {
+        "main": [
+          [
+            {
+              "node": "Update Lead in Airtable",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Log Lead in Airtable",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Calculate SOP Score": {
+        "main": [
+          [
+            {
+              "node": "Prepare LLM Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare LLM Request": {
+        "main": [
+          [
+            {
+              "node": "LLM: Generate Improved SOP",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate PDF HTML": {
+        "main": [
+          [
+            {
+              "node": "Convert HTML to PDF",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Convert HTML to PDF": {
+        "main": [
+          [
+            {
+              "node": "Send HTML Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send Improvement Email": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Improved SOP": {
+        "main": [
+          [
+            {
+              "node": "Format Check",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Check": {
+        "main": [
+          [
+            {
+              "node": "Generate Lead ID",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Sway Clarke",
+    "name": null,
+    "description": null,
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-01-30T18:15:30.580Z",
+        "id": 2149,
+        "workflowId": "ikVyMpDI0az6Zk4t",
+        "versionId": "28fde4bf-d23e-4f74-8613-cc06beedfa18",
+        "event": "activated",
+        "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8"
+      }
+    ]
+  }
+}
