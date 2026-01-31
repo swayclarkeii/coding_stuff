@@ -1,0 +1,1751 @@
+{
+  "updatedAt": "2026-01-31T08:19:39.465Z",
+  "createdAt": "2026-01-31T00:31:46.363Z",
+  "id": "qSuG0gwuJByd2hGJ",
+  "name": "Expense System - W7v2: Receipts & Invoices Intake (Webhook)",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "expense-receipts-upload",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        288,
+        448
+      ],
+      "webhookId": "13dd7824-2cfb-4598-af17-6682568a1953"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract metadata from uploaded file\nconst item = $input.first();\n\n// Handle webhook binary upload\nconst binaryKey = item.binary?.data ? 'data' : (item.binary?.file ? 'file' : null);\nconst fileName = (binaryKey && item.binary[binaryKey]?.fileName) || item.json.name || 'unknown.pdf';\n\n// Generate fileId from webhook timestamp\nconst fileId = `file-${Date.now()}`;\n\n// Get current timestamp for ProcessedDate\nconst processedDate = new Date().toISOString();\n\nreturn {\n  json: { fileName, fileId, processedDate },\n  binary: item.binary\n};"
+      },
+      "id": "extract-metadata",
+      "name": "Extract File Metadata",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build Anthropic Vision API request for file classification\nconst inputItem = $input.first();\nconst metadata = inputItem.json;\n\n// Read binary file data\nconst binaryPropertyName = 'data';\nconst binaryBuffer = await this.helpers.getBinaryDataBuffer(0, binaryPropertyName);\nconst base64Data = binaryBuffer.toString('base64');\n\n// Determine media type from filename\nconst fileName = metadata.fileName.toLowerCase();\nlet mediaType = 'application/pdf';\nif (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {\n  mediaType = 'image/jpeg';\n} else if (fileName.endsWith('.png')) {\n  mediaType = 'image/png';\n}\n\n// Build classification request\nconst requestBody = {\n  model: \"claude-sonnet-4-5\",\n  max_tokens: 2048,\n  messages: [\n    {\n      role: \"user\",\n      content: [\n        {\n          type: \"text\",\n          text: \"Classify this document and extract key information. Return JSON in this exact format:\\n{\\n  \\\"fileType\\\": \\\"receipt\\\" | \\\"sway_invoice\\\" | \\\"expensify\\\" | \\\"unknown\\\",\\n  \\\"vendor\\\": \\\"store/company name\\\",\\n  \\\"date\\\": \\\"YYYY-MM-DD\\\",\\n  \\\"amount\\\": \\\"123.45\\\",\\n  \\\"currency\\\": \\\"EUR\\\",\\n  \\\"description\\\": \\\"brief description\\\",\\n  \\\"confidence\\\": 0.95\\n}\\n\\nClassification rules:\\n- **receipt**: Store receipts, online order confirmations, payment confirmations\\n- **sway_invoice**: Invoices FROM Sway Clarke/Oloxa TO clients (has invoice number, Sway's company as sender)\\n- **expensify**: Expensify expense reports (has Expensify branding)\\n- **unknown**: Cannot classify\"\n        },\n        {\n          type: \"document\",\n          source: {\n            type: \"base64\",\n            media_type: mediaType,\n            data: base64Data\n          }\n        }\n      ]\n    }\n  ]\n};\n\nreturn {\n  json: {\n    requestBody: requestBody,\n    fileName: metadata.fileName,\n    fileId: metadata.fileId,\n    processedDate: metadata.processedDate\n  },\n  binary: inputItem.binary\n};"
+      },
+      "id": "build-classification-request",
+      "name": "Build Classification Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.requestBody }}",
+        "options": {}
+      },
+      "id": "classify-with-vision",
+      "name": "Classify with Anthropic Vision",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        944,
+        336
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "MRSNO4UW3OEIA3tQ",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Anthropic response with robust JSON extraction\nconst response = $input.first().json;\nconst textContent = response.content[0].text;\n\nlet classification;\n\n// Step 1: Try direct JSON.parse first (in case response is pure JSON)\ntry {\n  classification = JSON.parse(textContent);\n} catch (e1) {\n  // Step 2: Try removing markdown code fences\n  try {\n    const jsonText2 = textContent.replace(/^```json\\n?/, '').replace(/\\n?```$/, '').trim();\n    classification = JSON.parse(jsonText2);\n  } catch (e2) {\n    // Step 3: Extract JSON between code fences if present\n    try {\n      const codeBlockMatch = textContent.match(/```(?:json)?\\n?([\\s\\S]*?)```/);\n      if (codeBlockMatch && codeBlockMatch[1]) {\n        const jsonText3 = codeBlockMatch[1].trim();\n        classification = JSON.parse(jsonText3);\n      } else {\n        throw new Error('No code block found');\n      }\n    } catch (e3) {\n      // Step 4: Extract JSON by finding first { and last }\n      const jsonStart = textContent.indexOf('{');\n      const jsonEnd = textContent.lastIndexOf('}');\n      if (jsonStart >= 0 && jsonEnd > jsonStart) {\n        const jsonText4 = textContent.substring(jsonStart, jsonEnd + 1);\n        classification = JSON.parse(jsonText4);\n      } else {\n        throw new Error('Failed to extract JSON: could not find opening brace');\n      }\n    }\n  }\n}\n\nif (!classification.fileType) {\n  throw new Error('Missing fileType in classification result');\n}\n\nconst metadata = $('Build Classification Request').first().json;\nconst binaryData = $('Build Classification Request').first().binary;\n\nreturn {\n  json: {\n    fileType: classification.fileType || 'unknown',\n    vendor: classification.vendor || 'Unknown',\n    date: classification.date || '',\n    amount: classification.amount || '0',\n    currency: classification.currency || 'USD',\n    description: classification.description || '',\n    confidence: classification.confidence || 0,\n    fileName: metadata.fileName,\n    fileId: metadata.fileId,\n    processedDate: metadata.processedDate\n  },\n  binary: binaryData\n};"
+      },
+      "id": "parse-classification",
+      "name": "Parse Classification",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "receipt-condition",
+              "leftValue": "={{ $json.fileType }}",
+              "rightValue": "receipt",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "route-by-type",
+      "name": "Route by File Type",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1392,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "invoice-condition",
+              "leftValue": "={{ $json.fileType }}",
+              "rightValue": "sway_invoice",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-invoice-or-other",
+      "name": "Check Invoice or Other",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1616,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "expensify-condition",
+              "leftValue": "={{ $json.fileType }}",
+              "rightValue": "expensify",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-expensify-or-unknown",
+      "name": "Check Expensify or Unknown",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1840,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare receipt data for Google Sheets\nconst item = $input.first();\nconst timestamp = Date.now();\n\n// Generate ReceiptID\nconst vendor = item.json.vendor || 'Unknown';\nconst receiptId = `RCV-${vendor.replace(/[^a-zA-Z0-9]/g, '')}-${timestamp}`;\n\nreturn {\n  json: {\n    ReceiptID: receiptId,\n    Date: item.json.date,\n    Vendor: item.json.vendor,\n    Amount: item.json.amount,\n    Currency: item.json.currency,\n    Category: '',\n    Source: 'Hard Drive',\n    FileName: item.json.fileName,\n    FileID: item.json.fileId,\n    FilePath: '',\n    ProcessedDate: item.json.processedDate,\n    MatchStatus: 'unmatched',\n    Tags: '',\n    Notes: item.json.description,\n    _driveFolder: '1NP5y-HvPfAv28wz2It6BtNZXD7Xfe5D4'\n  },\n  binary: item.binary\n};"
+      },
+      "id": "prepare-receipt-data",
+      "name": "Prepare Receipt Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1616,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare invoice data for Google Sheets\nconst item = $input.first();\nconst timestamp = Date.now();\n\n// Generate InvoiceID\nconst client = item.json.vendor || 'Unknown';\nconst invoiceId = `INV-${client.replace(/[^a-zA-Z0-9]/g, '')}-${timestamp}`;\n\nreturn {\n  json: {\n    InvoiceID: invoiceId,\n    InvoiceNumber: '',\n    Date: item.json.date,\n    Client: item.json.vendor,\n    Amount: item.json.amount,\n    Currency: item.json.currency,\n    Description: item.json.description,\n    FileName: item.json.fileName,\n    FileID: item.json.fileId,\n    FilePath: '',\n    ProcessedDate: item.json.processedDate,\n    _driveFolder: '1V7UmNvDP3a2t6IIbJJI7y8YXz6_X7F6l'\n  },\n  binary: item.binary\n};"
+      },
+      "id": "prepare-invoice-data",
+      "name": "Prepare Invoice Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1840,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare expensify data - write to Receipts with Source=Expensify\nconst item = $input.first();\nconst timestamp = Date.now();\n\nconst receiptId = `RCV-Expensify-${timestamp}`;\n\nreturn {\n  json: {\n    ReceiptID: receiptId,\n    Date: item.json.date,\n    Vendor: 'Expensify',\n    Amount: item.json.amount,\n    Currency: item.json.currency,\n    Category: '',\n    Source: 'Expensify',\n    FileName: item.json.fileName,\n    FileID: item.json.fileId,\n    FilePath: '',\n    ProcessedDate: item.json.processedDate,\n    MatchStatus: 'unmatched',\n    Tags: '',\n    Notes: item.json.description,\n    _driveFolder: '1NP5y-HvPfAv28wz2It6BtNZXD7Xfe5D4'\n  },\n  binary: item.binary\n};"
+      },
+      "id": "prepare-expensify-data",
+      "name": "Prepare Expensify Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2064,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare unknown file data\nconst item = $input.first();\n\nreturn {\n  json: {\n    FileName: item.json.fileName,\n    FileID: item.json.fileId,\n    ProcessedDate: item.json.processedDate,\n    Notes: 'Classification failed - manual review needed',\n    _driveFolder: '1f4HP_6JEtePXjEmNqvdRNQ9vB_CcdQ3x'\n  },\n  binary: item.binary\n};"
+      },
+      "id": "prepare-unknown-data",
+      "name": "Prepare Unknown Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2064,
+        912
+      ]
+    },
+    {
+      "parameters": {
+        "name": "={{ $json.FileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "upload-receipt-to-drive",
+      "name": "Upload Receipt to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1840,
+        144
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "name": "={{ $json.FileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "upload-invoice-to-drive",
+      "name": "Upload Invoice to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2064,
+        336
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "name": "={{ $json.FileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "upload-expensify-to-drive",
+      "name": "Upload Expensify to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2288,
+        528
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "name": "={{ $json.FileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "upload-unknown-to-drive",
+      "name": "Upload Unknown to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2288,
+        912
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get Drive file ID from upload response\nconst driveFileId = $input.first().json.id;\nconst receiptData = $('Prepare Receipt Data').first().json;\n\n// Update FilePath with Drive file ID\nreturn {\n  json: {\n    ...receiptData,\n    FilePath: `https://drive.google.com/file/d/${driveFileId}/view`\n  }\n};"
+      },
+      "id": "update-receipt-filepath",
+      "name": "Update Receipt FilePath",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2064,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get Drive file ID from upload response\nconst driveFileId = $input.first().json.id;\nconst invoiceData = $('Prepare Invoice Data').first().json;\n\n// Update FilePath with Drive file ID\nreturn {\n  json: {\n    ...invoiceData,\n    FilePath: `https://drive.google.com/file/d/${driveFileId}/view`\n  }\n};"
+      },
+      "id": "update-invoice-filepath",
+      "name": "Update Invoice FilePath",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2288,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Receipts"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ReceiptID": "={{ $json.ReceiptID }}",
+            "Date": "={{ $json.Date }}",
+            "Vendor": "={{ $json.Vendor }}",
+            "Amount": "={{ $json.Amount }}",
+            "Currency": "={{ $json.Currency }}",
+            "Category": "={{ $json.Category }}",
+            "Source": "={{ $json.Source }}",
+            "FileName": "={{ $json.FileName }}",
+            "FileID": "={{ $json.FileID }}",
+            "FilePath": "={{ $json.FilePath }}",
+            "ProcessedDate": "={{ $json.ProcessedDate }}",
+            "MatchStatus": "={{ $json.MatchStatus }}",
+            "Tags": "={{ $json.Tags }}",
+            "Notes": "={{ $json.Notes }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "write-receipt-to-sheet",
+      "name": "Write Receipt to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2288,
+        144
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Invoices"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "InvoiceID": "={{ $json.InvoiceID }}",
+            "InvoiceNumber": "={{ $json.InvoiceNumber }}",
+            "Date": "={{ $json.Date }}",
+            "Client": "={{ $json.Client }}",
+            "Amount": "={{ $json.Amount }}",
+            "Currency": "={{ $json.Currency }}",
+            "Description": "={{ $json.Description }}",
+            "FileName": "={{ $json.FileName }}",
+            "FileID": "={{ $json.FileID }}",
+            "FilePath": "={{ $json.FilePath }}",
+            "ProcessedDate": "={{ $json.ProcessedDate }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "write-invoice-to-sheet",
+      "name": "Write Invoice to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2512,
+        336
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Receipts"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ReceiptID": "={{ $json.ReceiptID }}",
+            "Date": "={{ $json.Date }}",
+            "Vendor": "={{ $json.Vendor }}",
+            "Amount": "={{ $json.Amount }}",
+            "Currency": "={{ $json.Currency }}",
+            "Category": "={{ $json.Category }}",
+            "Source": "={{ $json.Source }}",
+            "FileName": "={{ $json.FileName }}",
+            "FileID": "={{ $json.FileID }}",
+            "FilePath": "={{ $json.FilePath }}",
+            "ProcessedDate": "={{ $json.ProcessedDate }}",
+            "MatchStatus": "={{ $json.MatchStatus }}",
+            "Tags": "={{ $json.Tags }}",
+            "Notes": "={{ $json.Notes }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "write-expensify-to-sheet",
+      "name": "Write Expensify to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2512,
+        528
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build summary response for webhook\nconst allItems = $input.all();\n\nif (allItems.length === 0) {\n  return {\n    json: {\n      success: false,\n      message: 'No data to process'\n    }\n  };\n}\n\nconst item = allItems[0].json;\n\n// Determine which path processed this file\nlet fileType = 'unknown';\nlet sheetName = 'Unknown';\nlet driveFolder = 'Downloads';\n\nif (item.ReceiptID) {\n  fileType = item.Source === 'Expensify' ? 'expensify' : 'receipt';\n  sheetName = 'Receipts';\n  driveFolder = 'Receipt Pool';\n} else if (item.InvoiceID) {\n  fileType = 'invoice';\n  sheetName = 'Invoices';\n  driveFolder = 'Invoice Pool';\n}\n\nreturn {\n  json: {\n    success: true,\n    fileType: fileType,\n    fileName: item.FileName,\n    processedTo: {\n      sheet: sheetName,\n      driveFolder: driveFolder\n    },\n    metadata: {\n      date: item.Date,\n      vendor: item.Vendor || item.Client,\n      amount: item.Amount,\n      currency: item.Currency\n    }\n  }\n};"
+      },
+      "id": "build-response",
+      "name": "Build Webhook Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2736,
+        336
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract File Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract File Metadata": {
+      "main": [
+        [
+          {
+            "node": "Build Classification Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Classification Request": {
+      "main": [
+        [
+          {
+            "node": "Classify with Anthropic Vision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify with Anthropic Vision": {
+      "main": [
+        [
+          {
+            "node": "Parse Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Classification": {
+      "main": [
+        [
+          {
+            "node": "Route by File Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by File Type": {
+      "main": [
+        [
+          {
+            "node": "Prepare Receipt Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check Invoice or Other",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Invoice or Other": {
+      "main": [
+        [
+          {
+            "node": "Prepare Invoice Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check Expensify or Unknown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Expensify or Unknown": {
+      "main": [
+        [
+          {
+            "node": "Prepare Expensify Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Unknown Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Receipt Data": {
+      "main": [
+        [
+          {
+            "node": "Upload Receipt to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Invoice Data": {
+      "main": [
+        [
+          {
+            "node": "Upload Invoice to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Expensify Data": {
+      "main": [
+        [
+          {
+            "node": "Upload Expensify to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Unknown Data": {
+      "main": [
+        [
+          {
+            "node": "Upload Unknown to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Receipt to Drive": {
+      "main": [
+        [
+          {
+            "node": "Update Receipt FilePath",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Invoice to Drive": {
+      "main": [
+        [
+          {
+            "node": "Update Invoice FilePath",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Expensify to Drive": {
+      "main": [
+        [
+          {
+            "node": "Write Expensify to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Unknown to Drive": {
+      "main": [
+        [
+          {
+            "node": "Build Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Receipt FilePath": {
+      "main": [
+        [
+          {
+            "node": "Write Receipt to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Invoice FilePath": {
+      "main": [
+        [
+          {
+            "node": "Write Invoice to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Receipt to Sheet": {
+      "main": [
+        [
+          {
+            "node": "Build Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Invoice to Sheet": {
+      "main": [
+        [
+          {
+            "node": "Build Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Expensify to Sheet": {
+      "main": [
+        [
+          {
+            "node": "Build Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "1fa160b0-11e9-40ea-bb3b-a6440c9c043a",
+  "activeVersionId": "1fa160b0-11e9-40ea-bb3b-a6440c9c043a",
+  "versionCounter": 27,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-01-31T00:31:46.363Z",
+      "createdAt": "2026-01-31T00:31:46.363Z",
+      "role": "workflow:owner",
+      "workflowId": "qSuG0gwuJByd2hGJ",
+      "projectId": "Rs8mhw052fnrzWZM",
+      "project": {
+        "updatedAt": "2025-12-31T15:54:29.115Z",
+        "createdAt": "2025-12-31T15:27:33.865Z",
+        "id": "Rs8mhw052fnrzWZM",
+        "name": "Sway Clarke <sway@oloxa.ai>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+        "projectRelations": [
+          {
+            "updatedAt": "2025-12-31T15:27:33.865Z",
+            "createdAt": "2025-12-31T15:27:33.865Z",
+            "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+            "projectId": "Rs8mhw052fnrzWZM",
+            "user": {
+              "updatedAt": "2026-01-31T00:12:46.682Z",
+              "createdAt": "2025-12-31T15:27:33.119Z",
+              "id": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+              "email": "sway@oloxa.ai",
+              "firstName": "Sway",
+              "lastName": "Clarke",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-12-31T15:54:37.562Z",
+                "personalization_survey_n8n_version": "2.1.4"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "zbxHkXOoD1qaz6OS",
+                "userActivatedAt": 1767398053308,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1767684846804
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-01-30",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-01-31T08:19:39.470Z",
+    "createdAt": "2026-01-31T08:19:39.470Z",
+    "versionId": "1fa160b0-11e9-40ea-bb3b-a6440c9c043a",
+    "workflowId": "qSuG0gwuJByd2hGJ",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "expense-receipts-upload",
+          "responseMode": "lastNode",
+          "options": {}
+        },
+        "id": "webhook-trigger",
+        "name": "Webhook Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          288,
+          448
+        ],
+        "webhookId": "13dd7824-2cfb-4598-af17-6682568a1953"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Extract metadata from uploaded file\nconst item = $input.first();\n\n// Handle webhook binary upload\nconst binaryKey = item.binary?.data ? 'data' : (item.binary?.file ? 'file' : null);\nconst fileName = (binaryKey && item.binary[binaryKey]?.fileName) || item.json.name || 'unknown.pdf';\n\n// Generate fileId from webhook timestamp\nconst fileId = `file-${Date.now()}`;\n\n// Get current timestamp for ProcessedDate\nconst processedDate = new Date().toISOString();\n\nreturn {\n  json: { fileName, fileId, processedDate },\n  binary: item.binary\n};"
+        },
+        "id": "extract-metadata",
+        "name": "Extract File Metadata",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          496,
+          336
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Build Anthropic Vision API request for file classification\nconst inputItem = $input.first();\nconst metadata = inputItem.json;\n\n// Read binary file data\nconst binaryPropertyName = 'data';\nconst binaryBuffer = await this.helpers.getBinaryDataBuffer(0, binaryPropertyName);\nconst base64Data = binaryBuffer.toString('base64');\n\n// Determine media type from filename\nconst fileName = metadata.fileName.toLowerCase();\nlet mediaType = 'application/pdf';\nif (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {\n  mediaType = 'image/jpeg';\n} else if (fileName.endsWith('.png')) {\n  mediaType = 'image/png';\n}\n\n// Build classification request\nconst requestBody = {\n  model: \"claude-sonnet-4-5\",\n  max_tokens: 2048,\n  messages: [\n    {\n      role: \"user\",\n      content: [\n        {\n          type: \"text\",\n          text: \"Classify this document and extract key information. Return JSON in this exact format:\\n{\\n  \\\"fileType\\\": \\\"receipt\\\" | \\\"sway_invoice\\\" | \\\"expensify\\\" | \\\"unknown\\\",\\n  \\\"vendor\\\": \\\"store/company name\\\",\\n  \\\"date\\\": \\\"YYYY-MM-DD\\\",\\n  \\\"amount\\\": \\\"123.45\\\",\\n  \\\"currency\\\": \\\"EUR\\\",\\n  \\\"description\\\": \\\"brief description\\\",\\n  \\\"confidence\\\": 0.95\\n}\\n\\nClassification rules:\\n- **receipt**: Store receipts, online order confirmations, payment confirmations\\n- **sway_invoice**: Invoices FROM Sway Clarke/Oloxa TO clients (has invoice number, Sway's company as sender)\\n- **expensify**: Expensify expense reports (has Expensify branding)\\n- **unknown**: Cannot classify\"\n        },\n        {\n          type: \"document\",\n          source: {\n            type: \"base64\",\n            media_type: mediaType,\n            data: base64Data\n          }\n        }\n      ]\n    }\n  ]\n};\n\nreturn {\n  json: {\n    requestBody: requestBody,\n    fileName: metadata.fileName,\n    fileId: metadata.fileId,\n    processedDate: metadata.processedDate\n  },\n  binary: inputItem.binary\n};"
+        },
+        "id": "build-classification-request",
+        "name": "Build Classification Request",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          720,
+          336
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.anthropic.com/v1/messages",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "anthropicApi",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "anthropic-version",
+                "value": "2023-06-01"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ $json.requestBody }}",
+          "options": {}
+        },
+        "id": "classify-with-vision",
+        "name": "Classify with Anthropic Vision",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          944,
+          336
+        ],
+        "credentials": {
+          "anthropicApi": {
+            "id": "MRSNO4UW3OEIA3tQ",
+            "name": "Anthropic account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Parse Anthropic response with robust JSON extraction\nconst response = $input.first().json;\nconst textContent = response.content[0].text;\n\nlet classification;\n\n// Step 1: Try direct JSON.parse first (in case response is pure JSON)\ntry {\n  classification = JSON.parse(textContent);\n} catch (e1) {\n  // Step 2: Try removing markdown code fences\n  try {\n    const jsonText2 = textContent.replace(/^```json\\n?/, '').replace(/\\n?```$/, '').trim();\n    classification = JSON.parse(jsonText2);\n  } catch (e2) {\n    // Step 3: Extract JSON between code fences if present\n    try {\n      const codeBlockMatch = textContent.match(/```(?:json)?\\n?([\\s\\S]*?)```/);\n      if (codeBlockMatch && codeBlockMatch[1]) {\n        const jsonText3 = codeBlockMatch[1].trim();\n        classification = JSON.parse(jsonText3);\n      } else {\n        throw new Error('No code block found');\n      }\n    } catch (e3) {\n      // Step 4: Extract JSON by finding first { and last }\n      const jsonStart = textContent.indexOf('{');\n      const jsonEnd = textContent.lastIndexOf('}');\n      if (jsonStart >= 0 && jsonEnd > jsonStart) {\n        const jsonText4 = textContent.substring(jsonStart, jsonEnd + 1);\n        classification = JSON.parse(jsonText4);\n      } else {\n        throw new Error('Failed to extract JSON: could not find opening brace');\n      }\n    }\n  }\n}\n\nif (!classification.fileType) {\n  throw new Error('Missing fileType in classification result');\n}\n\nconst metadata = $('Build Classification Request').first().json;\nconst binaryData = $('Build Classification Request').first().binary;\n\nreturn {\n  json: {\n    fileType: classification.fileType || 'unknown',\n    vendor: classification.vendor || 'Unknown',\n    date: classification.date || '',\n    amount: classification.amount || '0',\n    currency: classification.currency || 'USD',\n    description: classification.description || '',\n    confidence: classification.confidence || 0,\n    fileName: metadata.fileName,\n    fileId: metadata.fileId,\n    processedDate: metadata.processedDate\n  },\n  binary: binaryData\n};"
+        },
+        "id": "parse-classification",
+        "name": "Parse Classification",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1168,
+          336
+        ]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "receipt-condition",
+                "leftValue": "={{ $json.fileType }}",
+                "rightValue": "receipt",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "route-by-type",
+        "name": "Route by File Type",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1392,
+          336
+        ]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "invoice-condition",
+                "leftValue": "={{ $json.fileType }}",
+                "rightValue": "sway_invoice",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "check-invoice-or-other",
+        "name": "Check Invoice or Other",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1616,
+          528
+        ]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "expensify-condition",
+                "leftValue": "={{ $json.fileType }}",
+                "rightValue": "expensify",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "check-expensify-or-unknown",
+        "name": "Check Expensify or Unknown",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1840,
+          720
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Prepare receipt data for Google Sheets\nconst item = $input.first();\nconst timestamp = Date.now();\n\n// Generate ReceiptID\nconst vendor = item.json.vendor || 'Unknown';\nconst receiptId = `RCV-${vendor.replace(/[^a-zA-Z0-9]/g, '')}-${timestamp}`;\n\nreturn {\n  json: {\n    ReceiptID: receiptId,\n    Date: item.json.date,\n    Vendor: item.json.vendor,\n    Amount: item.json.amount,\n    Currency: item.json.currency,\n    Category: '',\n    Source: 'Hard Drive',\n    FileName: item.json.fileName,\n    FileID: item.json.fileId,\n    FilePath: '',\n    ProcessedDate: item.json.processedDate,\n    MatchStatus: 'unmatched',\n    Tags: '',\n    Notes: item.json.description,\n    _driveFolder: '1NP5y-HvPfAv28wz2It6BtNZXD7Xfe5D4'\n  },\n  binary: item.binary\n};"
+        },
+        "id": "prepare-receipt-data",
+        "name": "Prepare Receipt Data",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1616,
+          144
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Prepare invoice data for Google Sheets\nconst item = $input.first();\nconst timestamp = Date.now();\n\n// Generate InvoiceID\nconst client = item.json.vendor || 'Unknown';\nconst invoiceId = `INV-${client.replace(/[^a-zA-Z0-9]/g, '')}-${timestamp}`;\n\nreturn {\n  json: {\n    InvoiceID: invoiceId,\n    InvoiceNumber: '',\n    Date: item.json.date,\n    Client: item.json.vendor,\n    Amount: item.json.amount,\n    Currency: item.json.currency,\n    Description: item.json.description,\n    FileName: item.json.fileName,\n    FileID: item.json.fileId,\n    FilePath: '',\n    ProcessedDate: item.json.processedDate,\n    _driveFolder: '1V7UmNvDP3a2t6IIbJJI7y8YXz6_X7F6l'\n  },\n  binary: item.binary\n};"
+        },
+        "id": "prepare-invoice-data",
+        "name": "Prepare Invoice Data",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1840,
+          336
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Prepare expensify data - write to Receipts with Source=Expensify\nconst item = $input.first();\nconst timestamp = Date.now();\n\nconst receiptId = `RCV-Expensify-${timestamp}`;\n\nreturn {\n  json: {\n    ReceiptID: receiptId,\n    Date: item.json.date,\n    Vendor: 'Expensify',\n    Amount: item.json.amount,\n    Currency: item.json.currency,\n    Category: '',\n    Source: 'Expensify',\n    FileName: item.json.fileName,\n    FileID: item.json.fileId,\n    FilePath: '',\n    ProcessedDate: item.json.processedDate,\n    MatchStatus: 'unmatched',\n    Tags: '',\n    Notes: item.json.description,\n    _driveFolder: '1NP5y-HvPfAv28wz2It6BtNZXD7Xfe5D4'\n  },\n  binary: item.binary\n};"
+        },
+        "id": "prepare-expensify-data",
+        "name": "Prepare Expensify Data",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2064,
+          528
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Prepare unknown file data\nconst item = $input.first();\n\nreturn {\n  json: {\n    FileName: item.json.fileName,\n    FileID: item.json.fileId,\n    ProcessedDate: item.json.processedDate,\n    Notes: 'Classification failed - manual review needed',\n    _driveFolder: '1f4HP_6JEtePXjEmNqvdRNQ9vB_CcdQ3x'\n  },\n  binary: item.binary\n};"
+        },
+        "id": "prepare-unknown-data",
+        "name": "Prepare Unknown Data",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2064,
+          912
+        ]
+      },
+      {
+        "parameters": {
+          "name": "={{ $json.FileName }}",
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "root",
+            "cachedResultName": "/ (Root folder)"
+          },
+          "options": {}
+        },
+        "id": "upload-receipt-to-drive",
+        "name": "Upload Receipt to Drive",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1840,
+          144
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "name": "={{ $json.FileName }}",
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "root",
+            "cachedResultName": "/ (Root folder)"
+          },
+          "options": {}
+        },
+        "id": "upload-invoice-to-drive",
+        "name": "Upload Invoice to Drive",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          2064,
+          336
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "name": "={{ $json.FileName }}",
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "root",
+            "cachedResultName": "/ (Root folder)"
+          },
+          "options": {}
+        },
+        "id": "upload-expensify-to-drive",
+        "name": "Upload Expensify to Drive",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          2288,
+          528
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "name": "={{ $json.FileName }}",
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "root",
+            "cachedResultName": "/ (Root folder)"
+          },
+          "options": {}
+        },
+        "id": "upload-unknown-to-drive",
+        "name": "Upload Unknown to Drive",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          2288,
+          912
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Get Drive file ID from upload response\nconst driveFileId = $input.first().json.id;\nconst receiptData = $('Prepare Receipt Data').first().json;\n\n// Update FilePath with Drive file ID\nreturn {\n  json: {\n    ...receiptData,\n    FilePath: `https://drive.google.com/file/d/${driveFileId}/view`\n  }\n};"
+        },
+        "id": "update-receipt-filepath",
+        "name": "Update Receipt FilePath",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2064,
+          144
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Get Drive file ID from upload response\nconst driveFileId = $input.first().json.id;\nconst invoiceData = $('Prepare Invoice Data').first().json;\n\n// Update FilePath with Drive file ID\nreturn {\n  json: {\n    ...invoiceData,\n    FilePath: `https://drive.google.com/file/d/${driveFileId}/view`\n  }\n};"
+        },
+        "id": "update-invoice-filepath",
+        "name": "Update Invoice FilePath",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2288,
+          336
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+          },
+          "sheetName": {
+            "__rl": true,
+            "mode": "name",
+            "value": "Receipts"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "ReceiptID": "={{ $json.ReceiptID }}",
+              "Date": "={{ $json.Date }}",
+              "Vendor": "={{ $json.Vendor }}",
+              "Amount": "={{ $json.Amount }}",
+              "Currency": "={{ $json.Currency }}",
+              "Category": "={{ $json.Category }}",
+              "Source": "={{ $json.Source }}",
+              "FileName": "={{ $json.FileName }}",
+              "FileID": "={{ $json.FileID }}",
+              "FilePath": "={{ $json.FilePath }}",
+              "ProcessedDate": "={{ $json.ProcessedDate }}",
+              "MatchStatus": "={{ $json.MatchStatus }}",
+              "Tags": "={{ $json.Tags }}",
+              "Notes": "={{ $json.Notes }}"
+            },
+            "matchingColumns": [],
+            "schema": []
+          },
+          "options": {}
+        },
+        "id": "write-receipt-to-sheet",
+        "name": "Write Receipt to Sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          2288,
+          144
+        ],
+        "retryOnFail": true,
+        "maxTries": 5,
+        "waitBetweenTries": 5000,
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+          },
+          "sheetName": {
+            "__rl": true,
+            "mode": "name",
+            "value": "Invoices"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "InvoiceID": "={{ $json.InvoiceID }}",
+              "InvoiceNumber": "={{ $json.InvoiceNumber }}",
+              "Date": "={{ $json.Date }}",
+              "Client": "={{ $json.Client }}",
+              "Amount": "={{ $json.Amount }}",
+              "Currency": "={{ $json.Currency }}",
+              "Description": "={{ $json.Description }}",
+              "FileName": "={{ $json.FileName }}",
+              "FileID": "={{ $json.FileID }}",
+              "FilePath": "={{ $json.FilePath }}",
+              "ProcessedDate": "={{ $json.ProcessedDate }}"
+            },
+            "matchingColumns": [],
+            "schema": []
+          },
+          "options": {}
+        },
+        "id": "write-invoice-to-sheet",
+        "name": "Write Invoice to Sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          2512,
+          336
+        ],
+        "retryOnFail": true,
+        "maxTries": 5,
+        "waitBetweenTries": 5000,
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+          },
+          "sheetName": {
+            "__rl": true,
+            "mode": "name",
+            "value": "Receipts"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "ReceiptID": "={{ $json.ReceiptID }}",
+              "Date": "={{ $json.Date }}",
+              "Vendor": "={{ $json.Vendor }}",
+              "Amount": "={{ $json.Amount }}",
+              "Currency": "={{ $json.Currency }}",
+              "Category": "={{ $json.Category }}",
+              "Source": "={{ $json.Source }}",
+              "FileName": "={{ $json.FileName }}",
+              "FileID": "={{ $json.FileID }}",
+              "FilePath": "={{ $json.FilePath }}",
+              "ProcessedDate": "={{ $json.ProcessedDate }}",
+              "MatchStatus": "={{ $json.MatchStatus }}",
+              "Tags": "={{ $json.Tags }}",
+              "Notes": "={{ $json.Notes }}"
+            },
+            "matchingColumns": [],
+            "schema": []
+          },
+          "options": {}
+        },
+        "id": "write-expensify-to-sheet",
+        "name": "Write Expensify to Sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          2512,
+          528
+        ],
+        "retryOnFail": true,
+        "maxTries": 5,
+        "waitBetweenTries": 5000,
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Build summary response for webhook\nconst allItems = $input.all();\n\nif (allItems.length === 0) {\n  return {\n    json: {\n      success: false,\n      message: 'No data to process'\n    }\n  };\n}\n\nconst item = allItems[0].json;\n\n// Determine which path processed this file\nlet fileType = 'unknown';\nlet sheetName = 'Unknown';\nlet driveFolder = 'Downloads';\n\nif (item.ReceiptID) {\n  fileType = item.Source === 'Expensify' ? 'expensify' : 'receipt';\n  sheetName = 'Receipts';\n  driveFolder = 'Receipt Pool';\n} else if (item.InvoiceID) {\n  fileType = 'invoice';\n  sheetName = 'Invoices';\n  driveFolder = 'Invoice Pool';\n}\n\nreturn {\n  json: {\n    success: true,\n    fileType: fileType,\n    fileName: item.FileName,\n    processedTo: {\n      sheet: sheetName,\n      driveFolder: driveFolder\n    },\n    metadata: {\n      date: item.Date,\n      vendor: item.Vendor || item.Client,\n      amount: item.Amount,\n      currency: item.Currency\n    }\n  }\n};"
+        },
+        "id": "build-response",
+        "name": "Build Webhook Response",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2736,
+          336
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook Trigger": {
+        "main": [
+          [
+            {
+              "node": "Extract File Metadata",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract File Metadata": {
+        "main": [
+          [
+            {
+              "node": "Build Classification Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Classification Request": {
+        "main": [
+          [
+            {
+              "node": "Classify with Anthropic Vision",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Classify with Anthropic Vision": {
+        "main": [
+          [
+            {
+              "node": "Parse Classification",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Classification": {
+        "main": [
+          [
+            {
+              "node": "Route by File Type",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Route by File Type": {
+        "main": [
+          [
+            {
+              "node": "Prepare Receipt Data",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Check Invoice or Other",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Invoice or Other": {
+        "main": [
+          [
+            {
+              "node": "Prepare Invoice Data",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Check Expensify or Unknown",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Expensify or Unknown": {
+        "main": [
+          [
+            {
+              "node": "Prepare Expensify Data",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Prepare Unknown Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Receipt Data": {
+        "main": [
+          [
+            {
+              "node": "Upload Receipt to Drive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Invoice Data": {
+        "main": [
+          [
+            {
+              "node": "Upload Invoice to Drive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Expensify Data": {
+        "main": [
+          [
+            {
+              "node": "Upload Expensify to Drive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Unknown Data": {
+        "main": [
+          [
+            {
+              "node": "Upload Unknown to Drive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload Receipt to Drive": {
+        "main": [
+          [
+            {
+              "node": "Update Receipt FilePath",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload Invoice to Drive": {
+        "main": [
+          [
+            {
+              "node": "Update Invoice FilePath",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload Expensify to Drive": {
+        "main": [
+          [
+            {
+              "node": "Write Expensify to Sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload Unknown to Drive": {
+        "main": [
+          [
+            {
+              "node": "Build Webhook Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update Receipt FilePath": {
+        "main": [
+          [
+            {
+              "node": "Write Receipt to Sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update Invoice FilePath": {
+        "main": [
+          [
+            {
+              "node": "Write Invoice to Sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Write Receipt to Sheet": {
+        "main": [
+          [
+            {
+              "node": "Build Webhook Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Write Invoice to Sheet": {
+        "main": [
+          [
+            {
+              "node": "Build Webhook Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Write Expensify to Sheet": {
+        "main": [
+          [
+            {
+              "node": "Build Webhook Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Sway Clarke",
+    "name": null,
+    "description": null,
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-01-31T08:19:39.643Z",
+        "id": 2274,
+        "workflowId": "qSuG0gwuJByd2hGJ",
+        "versionId": "1fa160b0-11e9-40ea-bb3b-a6440c9c043a",
+        "event": "activated",
+        "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8"
+      }
+    ]
+  }
+}

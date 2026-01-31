@@ -1,0 +1,1277 @@
+{
+  "updatedAt": "2026-01-31T00:02:12.814Z",
+  "createdAt": "2026-01-30T22:34:35.207Z",
+  "id": "Is8zl1TpWhIzspto",
+  "name": "Expense System - W1v2: Bank Statement Intake (Webhook)",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "expense-bank-statement-upload",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-upload-trigger",
+      "name": "Webhook Upload Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        272,
+        336
+      ],
+      "webhookId": "04f322db-fd95-4755-b2a2-2e3f19964a56"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract metadata from the PDF file\nconst item = $input.first();\n\n// Handle webhook binary upload - check both 'data' and 'file' binary properties\nconst binaryKey = item.binary?.data ? 'data' : (item.binary?.file ? 'file' : null);\nconst fileName = (binaryKey && item.binary[binaryKey]?.fileName) || item.json.name || 'unknown.pdf';\n\n// Generate fileId from webhook timestamp\nconst fileId = `webhook-${Date.now()}`;\n\n// Parse bank from filename - supports TWO formats:\n// Format A: \"BankName_\" (e.g., \"ING_2025-01_Statement.pdf\")\n// Format B: \"BankName - \" (e.g., \"Barclay - Sep 2025.pdf\")\nlet bankMatch = fileName.match(/^([A-Za-z&-]+)_/);\nif (!bankMatch) {\n  bankMatch = fileName.match(/^([A-Za-z& ]+)\\s-\\s/);\n}\nconst bank = bankMatch ? bankMatch[1].trim() : 'Unknown';\n\n// Parse month/year from filename\nlet year, month;\n\n// Try YYYY-MM format first\nconst numericMatch = fileName.match(/_([0-9]{4})-([0-9]{2})_/);\nif (numericMatch) {\n  year = numericMatch[1];\n  month = numericMatch[2];\n} else {\n  // Try TextMonth+YYYY format (Nov2025)\n  const textMonthMatch = fileName.match(/_(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|January|February|March|April|May|June|July|August|September|October|November|December)([0-9]{4})_/i);\n  if (textMonthMatch) {\n    const monthText = textMonthMatch[1].toLowerCase();\n    const monthMap = {'jan':'01','january':'01','feb':'02','february':'02','mar':'03','march':'03','apr':'04','april':'04','may':'05','jun':'06','june':'06','jul':'07','july':'07','aug':'08','august':'08','sep':'09','september':'09','oct':'10','october':'10','nov':'11','november':'11','dec':'12','december':'12'};\n    month = monthMap[monthText];\n    year = textMonthMatch[2];\n  } else {\n    // Try \"Month YYYY\" format (Sep 2025)\n    const spaceMonthMatch = fileName.match(/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|January|February|March|April|May|June|July|August|September|October|November|December)\\s([0-9]{4})/i);\n    if (spaceMonthMatch) {\n      const monthText = spaceMonthMatch[1].toLowerCase();\n      const monthMap = {'jan':'01','january':'01','feb':'02','february':'02','mar':'03','march':'03','apr':'04','april':'04','may':'05','jun':'06','june':'06','jul':'07','july':'07','aug':'08','august':'08','sep':'09','september':'09','oct':'10','october':'10','nov':'11','november':'11','dec':'12','december':'12'};\n      month = monthMap[monthText];\n      year = spaceMonthMatch[2];\n    } else {\n      year = new Date().getFullYear().toString();\n      month = (new Date().getMonth() + 1).toString().padStart(2, '0');\n    }\n  }\n}\n\nconst statementId = `STMT-${bank}-${year}${month}-${Date.now()}`;\n\nreturn {\n  json: { fileName, fileId, bank, year, month, statementId },\n  binary: item.binary\n};"
+      },
+      "id": "extract-file-metadata",
+      "name": "Extract File Metadata",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build the Anthropic API request with proper binary handling for filesystem mode\nconst inputItem = $input.first();\nconst metadata = inputItem.json;\n\n// CRITICAL FIX for n8n 2.1.4 filesystem mode:\n// Use this.helpers.getBinaryDataBuffer() to read actual file from disk\nconst binaryPropertyName = 'data';\nconst binaryBuffer = await this.helpers.getBinaryDataBuffer(0, binaryPropertyName);\nconst base64Data = binaryBuffer.toString('base64');\n\n// Verify we got actual PDF data (should start with JVBERi... which is \"%PDF-\" in base64)\nif (base64Data.startsWith('ZmlsZXN5c3RlbS')) {\n  throw new Error('ERROR: Still encoding filesystem reference, not PDF bytes. Got: ' + base64Data.substring(0, 50));\n}\n\n// Additional validation: Check if it starts with valid PDF header\nif (!base64Data.startsWith('JVBERi')) {\n  throw new Error('ERROR: Base64 does not start with PDF magic bytes. Got: ' + base64Data.substring(0, 50));\n}\n\n// Build the complete Anthropic API request with DOCUMENT type\n// UPDATED: Ask Claude to identify the bank from PDF branding/header\nconst requestBody = {\n  model: \"claude-sonnet-4-5\",\n  max_tokens: 8192,\n  messages: [\n    {\n      role: \"user\",\n      content: [\n        {\n          type: \"text\",\n          text: \"You are a German bank statement parser. Extract the following from this bank statement:\\n\\n1. **Bank Name**: Identify which bank issued this statement (e.g., \\\"Barclay\\\", \\\"Miles & More\\\", \\\"ING\\\", etc.). Look at the logo, header, or footer.\\n2. **Transactions**: Extract all transactions as an array.\\n\\nReturn JSON in this format:\\n{\\n  \\\"bank\\\": \\\"BankName\\\",\\n  \\\"transactions\\\": [\\n    {\\\"date\\\": \\\"DD.MM.YYYY\\\", \\\"description\\\": \\\"...\\\", \\\"amount\\\": -123.45, \\\"currency\\\": \\\"EUR\\\"}\\n  ]\\n}\"\n        },\n        {\n          type: \"document\",\n          source: {\n            type: \"base64\",\n            media_type: \"application/pdf\",\n            data: base64Data\n          }\n        }\n      ]\n    }\n  ]\n};\n\n// Return the request body and metadata\nreturn {\n  json: {\n    requestBody: requestBody,\n    fileName: metadata.fileName,\n    fileId: metadata.fileId,\n    bankFromFilename: metadata.bank,\n    year: metadata.year,\n    month: metadata.month,\n    statementId: metadata.statementId\n  }\n};"
+      },
+      "id": "build-api-request-body",
+      "name": "Build Anthropic API Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.requestBody }}",
+        "options": {}
+      },
+      "id": "parse-pdf-vision",
+      "name": "Parse PDF with Anthropic Vision",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        944,
+        336
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "MRSNO4UW3OEIA3tQ",
+          "name": "Anthropic account"
+        },
+        "httpHeaderAuth": {
+          "id": "vfoYopBRX35Znmq6",
+          "name": "Anthropic API key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Anthropic response and prepare transaction data\nconst response = $input.first().json;\nconst textContent = response.content[0].text;\n\n// Strip markdown code fences if present (Anthropic wraps JSON in ```json...```)\nconst jsonText = textContent.replace(/^```json\\n?/, '').replace(/\\n?```$/, '').trim();\n\n// Parse the JSON\nconst parsedData = JSON.parse(jsonText);\n\n// Extract bank name from Claude's response (new format)\nconst bankFromVision = parsedData.bank || 'Unknown';\nconst transactions = parsedData.transactions || [];\n\nconst metadata = $('Extract File Metadata').first().json;\n\n// Generate new StatementID with correct bank from Vision AI\nconst statementId = `STMT-${bankFromVision}-${metadata.year}${metadata.month}-${Date.now()}`;\n\nreturn transactions.map((txn, index) => ({\n  json: {\n    TransactionID: `${statementId}-${(index + 1).toString().padStart(3, '0')}`,\n    Date: txn.date,\n    Bank: bankFromVision,\n    Amount: txn.amount.toString(),\n    Currency: txn.currency || 'EUR',\n    Description: txn.description,\n    Vendor: '',\n    Category: '',\n    ReceiptID: '',\n    StatementID: statementId,\n    MatchStatus: 'unmatched',\n    MatchConfidence: '0',\n    Notes: '',\n    Tags: '',\n    Type: 'expense',\n    AnnualInvoiceID: '',\n    _metadata: {\n      bankFromVision: bankFromVision,\n      transactionCount: transactions.length\n    }\n  }\n}));"
+      },
+      "id": "parse-anthropic-response",
+      "name": "Parse Anthropic Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare single statement log entry\nconst transactions = $input.all();\nconst firstTransaction = transactions[0].json;\nconst metadata = $('Extract File Metadata').first().json;\n\nreturn {\n  json: {\n    StatementID: firstTransaction.StatementID,\n    Bank: firstTransaction.Bank,\n    Month: metadata.month,\n    Year: metadata.year,\n    FileID: metadata.fileId,\n    FilePath: metadata.fileName,\n    ProcessedDate: new Date().toISOString(),\n    TransactionCount: transactions.length\n  }\n};"
+      },
+      "id": "prepare-statement-log",
+      "name": "Prepare Statement Log",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pass through all transactions unchanged\n// They will be filtered after reading existing transactions\nreturn $input.all();"
+      },
+      "id": "check-duplicates",
+      "name": "Check for Duplicates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Statements"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "StatementID": "={{$json.StatementID}}",
+            "Bank": "={{$json.Bank}}",
+            "Month": "={{$json.Month}}",
+            "Year": "={{$json.Year}}",
+            "FileID": "={{$json.FileID}}",
+            "FilePath": "={{$json.FilePath}}",
+            "ProcessedDate": "={{$json.ProcessedDate}}",
+            "TransactionCount": "={{$json.TransactionCount}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "StatementID",
+              "displayName": "StatementID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Bank",
+              "displayName": "Bank",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Month",
+              "displayName": "Month",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Year",
+              "displayName": "Year",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "FileID",
+              "displayName": "FileID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "FilePath",
+              "displayName": "FilePath",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ProcessedDate",
+              "displayName": "ProcessedDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TransactionCount",
+              "displayName": "TransactionCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "log-statement-record",
+      "name": "Log Statement Record",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1616,
+        432
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 15000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Wrapper to ensure we always output at least 1 item\n// This prevents execution from stopping when sheet is empty\n\ntry {\n  // Call Google Sheets API to read existing transactions\n  const response = await this.helpers.httpRequestWithAuthentication.call(\n    this,\n    'googleSheetsOAuth2Api',\n    {\n      method: 'GET',\n      url: `https://sheets.googleapis.com/v4/spreadsheets/1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM/values/Transactions`,\n      json: true\n    }\n  );\n  \n  const rows = response.values || [];\n  \n  // If sheet is empty or only has headers, return a dummy item\n  if (rows.length <= 1) {\n    console.log('Sheet is empty - returning dummy item to continue execution');\n    return [{ json: { _isEmpty: true } }];\n  }\n  \n  // Parse rows into transaction objects (skip header row)\n  const headers = rows[0];\n  const transactions = rows.slice(1).map(row => {\n    const obj = {};\n    headers.forEach((header, index) => {\n      obj[header] = row[index] || '';\n    });\n    return { json: obj };\n  });\n  \n  console.log(`Read ${transactions.length} existing transactions`);\n  return transactions;\n  \n} catch (error) {\n  console.log('Error reading sheet:', error.message);\n  // Return dummy item to continue execution\n  return [{ json: { _isEmpty: true } }];\n}"
+      },
+      "id": "read-existing-transactions",
+      "name": "Read Existing Transactions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1840,
+        240
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "continueOnFail": false
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get new transactions from Parse Response\nconst newTransactions = $('Parse Anthropic Response').all();\n\n// Get existing transactions from wrapper (filter out dummy items)\nconst existingTransactions = $input.all().filter(item => !item.json._isEmpty);\n\nconsole.log(`Processing ${newTransactions.length} new transactions, ${existingTransactions.length} existing in sheet`);\n\n// If no new transactions, return empty\nif (newTransactions.length === 0) {\n  console.log('No new transactions to process');\n  return [];\n}\n\n// Build set of existing keys for O(1) lookup\nconst existingKeys = new Set(\n  existingTransactions.map(item => \n    `${item.json.Date}_${item.json.Bank}_${item.json.Amount}_${item.json.Description}`\n  )\n);\n\n// Filter out duplicates\nconst uniqueTransactions = newTransactions.filter(item => {\n  const key = `${item.json.Date}_${item.json.Bank}_${item.json.Amount}_${item.json.Description}`;\n  const isDuplicate = existingKeys.has(key);\n  if (isDuplicate) {\n    console.log(`Skipping duplicate: ${key}`);\n  }\n  return !isDuplicate;\n});\n\nif (uniqueTransactions.length === 0) {\n  console.log('No new transactions to add (all duplicates)');\n  return [];\n}\n\nconsole.log(`Adding ${uniqueTransactions.length} new transactions (${newTransactions.length - uniqueTransactions.length} duplicates skipped)`);\n\nreturn uniqueTransactions;"
+      },
+      "id": "filter-non-duplicates",
+      "name": "Filter Non-Duplicates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2064,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Transactions"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "TransactionID": "={{$json.TransactionID}}",
+            "Date": "={{$json.Date}}",
+            "Bank": "={{$json.Bank}}",
+            "Amount": "={{$json.Amount}}",
+            "Currency": "={{$json.Currency}}",
+            "Description": "={{$json.Description}}",
+            "Vendor": "={{$json.Vendor}}",
+            "Category": "={{$json.Category}}",
+            "ReceiptID": "={{$json.ReceiptID}}",
+            "StatementID": "={{$json.StatementID}}",
+            "MatchStatus": "={{$json.MatchStatus}}",
+            "MatchConfidence": "={{$json.MatchConfidence}}",
+            "Notes": "={{$json.Notes}}",
+            "Tags": "={{$json.Tags}}",
+            "Type": "={{$json.Type}}",
+            "AnnualInvoiceID": "={{$json.AnnualInvoiceID}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "TransactionID",
+              "displayName": "TransactionID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Bank",
+              "displayName": "Bank",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Currency",
+              "displayName": "Currency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Vendor",
+              "displayName": "Vendor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ReceiptID",
+              "displayName": "ReceiptID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "StatementID",
+              "displayName": "StatementID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "MatchStatus",
+              "displayName": "MatchStatus",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "MatchConfidence",
+              "displayName": "MatchConfidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tags",
+              "displayName": "Tags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AnnualInvoiceID",
+              "displayName": "AnnualInvoiceID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "write-transactions",
+      "name": "Write Transactions to Database",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2288,
+        240
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Webhook Upload Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract File Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract File Metadata": {
+      "main": [
+        [
+          {
+            "node": "Build Anthropic API Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Anthropic API Request": {
+      "main": [
+        [
+          {
+            "node": "Parse PDF with Anthropic Vision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse PDF with Anthropic Vision": {
+      "main": [
+        [
+          {
+            "node": "Parse Anthropic Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Anthropic Response": {
+      "main": [
+        [
+          {
+            "node": "Prepare Statement Log",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check for Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Statement Log": {
+      "main": [
+        [
+          {
+            "node": "Log Statement Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Read Existing Transactions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Existing Transactions": {
+      "main": [
+        [
+          {
+            "node": "Filter Non-Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Non-Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Write Transactions to Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": true,
+    "timeSavedMode": "fixed"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "a88ad652-c90a-4445-8e6e-271c47141b0e",
+  "activeVersionId": "a88ad652-c90a-4445-8e6e-271c47141b0e",
+  "versionCounter": 36,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-01-30T22:34:35.207Z",
+      "createdAt": "2026-01-30T22:34:35.207Z",
+      "role": "workflow:owner",
+      "workflowId": "Is8zl1TpWhIzspto",
+      "projectId": "Rs8mhw052fnrzWZM",
+      "project": {
+        "updatedAt": "2025-12-31T15:54:29.115Z",
+        "createdAt": "2025-12-31T15:27:33.865Z",
+        "id": "Rs8mhw052fnrzWZM",
+        "name": "Sway Clarke <sway@oloxa.ai>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+        "projectRelations": [
+          {
+            "updatedAt": "2025-12-31T15:27:33.865Z",
+            "createdAt": "2025-12-31T15:27:33.865Z",
+            "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+            "projectId": "Rs8mhw052fnrzWZM",
+            "user": {
+              "updatedAt": "2026-01-31T00:12:46.682Z",
+              "createdAt": "2025-12-31T15:27:33.119Z",
+              "id": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+              "email": "sway@oloxa.ai",
+              "firstName": "Sway",
+              "lastName": "Clarke",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-12-31T15:54:37.562Z",
+                "personalization_survey_n8n_version": "2.1.4"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "zbxHkXOoD1qaz6OS",
+                "userActivatedAt": 1767398053308,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1767684846804
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-01-30",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-01-31T00:02:12.819Z",
+    "createdAt": "2026-01-31T00:02:12.819Z",
+    "versionId": "a88ad652-c90a-4445-8e6e-271c47141b0e",
+    "workflowId": "Is8zl1TpWhIzspto",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "expense-bank-statement-upload",
+          "responseMode": "lastNode",
+          "options": {}
+        },
+        "id": "webhook-upload-trigger",
+        "name": "Webhook Upload Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          272,
+          336
+        ],
+        "webhookId": "04f322db-fd95-4755-b2a2-2e3f19964a56"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Extract metadata from the PDF file\nconst item = $input.first();\n\n// Handle webhook binary upload - check both 'data' and 'file' binary properties\nconst binaryKey = item.binary?.data ? 'data' : (item.binary?.file ? 'file' : null);\nconst fileName = (binaryKey && item.binary[binaryKey]?.fileName) || item.json.name || 'unknown.pdf';\n\n// Generate fileId from webhook timestamp\nconst fileId = `webhook-${Date.now()}`;\n\n// Parse bank from filename - supports TWO formats:\n// Format A: \"BankName_\" (e.g., \"ING_2025-01_Statement.pdf\")\n// Format B: \"BankName - \" (e.g., \"Barclay - Sep 2025.pdf\")\nlet bankMatch = fileName.match(/^([A-Za-z&-]+)_/);\nif (!bankMatch) {\n  bankMatch = fileName.match(/^([A-Za-z& ]+)\\s-\\s/);\n}\nconst bank = bankMatch ? bankMatch[1].trim() : 'Unknown';\n\n// Parse month/year from filename\nlet year, month;\n\n// Try YYYY-MM format first\nconst numericMatch = fileName.match(/_([0-9]{4})-([0-9]{2})_/);\nif (numericMatch) {\n  year = numericMatch[1];\n  month = numericMatch[2];\n} else {\n  // Try TextMonth+YYYY format (Nov2025)\n  const textMonthMatch = fileName.match(/_(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|January|February|March|April|May|June|July|August|September|October|November|December)([0-9]{4})_/i);\n  if (textMonthMatch) {\n    const monthText = textMonthMatch[1].toLowerCase();\n    const monthMap = {'jan':'01','january':'01','feb':'02','february':'02','mar':'03','march':'03','apr':'04','april':'04','may':'05','jun':'06','june':'06','jul':'07','july':'07','aug':'08','august':'08','sep':'09','september':'09','oct':'10','october':'10','nov':'11','november':'11','dec':'12','december':'12'};\n    month = monthMap[monthText];\n    year = textMonthMatch[2];\n  } else {\n    // Try \"Month YYYY\" format (Sep 2025)\n    const spaceMonthMatch = fileName.match(/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|January|February|March|April|May|June|July|August|September|October|November|December)\\s([0-9]{4})/i);\n    if (spaceMonthMatch) {\n      const monthText = spaceMonthMatch[1].toLowerCase();\n      const monthMap = {'jan':'01','january':'01','feb':'02','february':'02','mar':'03','march':'03','apr':'04','april':'04','may':'05','jun':'06','june':'06','jul':'07','july':'07','aug':'08','august':'08','sep':'09','september':'09','oct':'10','october':'10','nov':'11','november':'11','dec':'12','december':'12'};\n      month = monthMap[monthText];\n      year = spaceMonthMatch[2];\n    } else {\n      year = new Date().getFullYear().toString();\n      month = (new Date().getMonth() + 1).toString().padStart(2, '0');\n    }\n  }\n}\n\nconst statementId = `STMT-${bank}-${year}${month}-${Date.now()}`;\n\nreturn {\n  json: { fileName, fileId, bank, year, month, statementId },\n  binary: item.binary\n};"
+        },
+        "id": "extract-file-metadata",
+        "name": "Extract File Metadata",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          496,
+          336
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Build the Anthropic API request with proper binary handling for filesystem mode\nconst inputItem = $input.first();\nconst metadata = inputItem.json;\n\n// CRITICAL FIX for n8n 2.1.4 filesystem mode:\n// Use this.helpers.getBinaryDataBuffer() to read actual file from disk\nconst binaryPropertyName = 'data';\nconst binaryBuffer = await this.helpers.getBinaryDataBuffer(0, binaryPropertyName);\nconst base64Data = binaryBuffer.toString('base64');\n\n// Verify we got actual PDF data (should start with JVBERi... which is \"%PDF-\" in base64)\nif (base64Data.startsWith('ZmlsZXN5c3RlbS')) {\n  throw new Error('ERROR: Still encoding filesystem reference, not PDF bytes. Got: ' + base64Data.substring(0, 50));\n}\n\n// Additional validation: Check if it starts with valid PDF header\nif (!base64Data.startsWith('JVBERi')) {\n  throw new Error('ERROR: Base64 does not start with PDF magic bytes. Got: ' + base64Data.substring(0, 50));\n}\n\n// Build the complete Anthropic API request with DOCUMENT type\n// UPDATED: Ask Claude to identify the bank from PDF branding/header\nconst requestBody = {\n  model: \"claude-sonnet-4-5\",\n  max_tokens: 8192,\n  messages: [\n    {\n      role: \"user\",\n      content: [\n        {\n          type: \"text\",\n          text: \"You are a German bank statement parser. Extract the following from this bank statement:\\n\\n1. **Bank Name**: Identify which bank issued this statement (e.g., \\\"Barclay\\\", \\\"Miles & More\\\", \\\"ING\\\", etc.). Look at the logo, header, or footer.\\n2. **Transactions**: Extract all transactions as an array.\\n\\nReturn JSON in this format:\\n{\\n  \\\"bank\\\": \\\"BankName\\\",\\n  \\\"transactions\\\": [\\n    {\\\"date\\\": \\\"DD.MM.YYYY\\\", \\\"description\\\": \\\"...\\\", \\\"amount\\\": -123.45, \\\"currency\\\": \\\"EUR\\\"}\\n  ]\\n}\"\n        },\n        {\n          type: \"document\",\n          source: {\n            type: \"base64\",\n            media_type: \"application/pdf\",\n            data: base64Data\n          }\n        }\n      ]\n    }\n  ]\n};\n\n// Return the request body and metadata\nreturn {\n  json: {\n    requestBody: requestBody,\n    fileName: metadata.fileName,\n    fileId: metadata.fileId,\n    bankFromFilename: metadata.bank,\n    year: metadata.year,\n    month: metadata.month,\n    statementId: metadata.statementId\n  }\n};"
+        },
+        "id": "build-api-request-body",
+        "name": "Build Anthropic API Request",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          720,
+          336
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.anthropic.com/v1/messages",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "anthropicApi",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "anthropic-version",
+                "value": "2023-06-01"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ $json.requestBody }}",
+          "options": {}
+        },
+        "id": "parse-pdf-vision",
+        "name": "Parse PDF with Anthropic Vision",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          944,
+          336
+        ],
+        "credentials": {
+          "anthropicApi": {
+            "id": "MRSNO4UW3OEIA3tQ",
+            "name": "Anthropic account"
+          },
+          "httpHeaderAuth": {
+            "id": "vfoYopBRX35Znmq6",
+            "name": "Anthropic API key"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Parse Anthropic response and prepare transaction data\nconst response = $input.first().json;\nconst textContent = response.content[0].text;\n\n// Strip markdown code fences if present (Anthropic wraps JSON in ```json...```)\nconst jsonText = textContent.replace(/^```json\\n?/, '').replace(/\\n?```$/, '').trim();\n\n// Parse the JSON\nconst parsedData = JSON.parse(jsonText);\n\n// Extract bank name from Claude's response (new format)\nconst bankFromVision = parsedData.bank || 'Unknown';\nconst transactions = parsedData.transactions || [];\n\nconst metadata = $('Extract File Metadata').first().json;\n\n// Generate new StatementID with correct bank from Vision AI\nconst statementId = `STMT-${bankFromVision}-${metadata.year}${metadata.month}-${Date.now()}`;\n\nreturn transactions.map((txn, index) => ({\n  json: {\n    TransactionID: `${statementId}-${(index + 1).toString().padStart(3, '0')}`,\n    Date: txn.date,\n    Bank: bankFromVision,\n    Amount: txn.amount.toString(),\n    Currency: txn.currency || 'EUR',\n    Description: txn.description,\n    Vendor: '',\n    Category: '',\n    ReceiptID: '',\n    StatementID: statementId,\n    MatchStatus: 'unmatched',\n    MatchConfidence: '0',\n    Notes: '',\n    Tags: '',\n    Type: 'expense',\n    AnnualInvoiceID: '',\n    _metadata: {\n      bankFromVision: bankFromVision,\n      transactionCount: transactions.length\n    }\n  }\n}));"
+        },
+        "id": "parse-anthropic-response",
+        "name": "Parse Anthropic Response",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1168,
+          336
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Prepare single statement log entry\nconst transactions = $input.all();\nconst firstTransaction = transactions[0].json;\nconst metadata = $('Extract File Metadata').first().json;\n\nreturn {\n  json: {\n    StatementID: firstTransaction.StatementID,\n    Bank: firstTransaction.Bank,\n    Month: metadata.month,\n    Year: metadata.year,\n    FileID: metadata.fileId,\n    FilePath: metadata.fileName,\n    ProcessedDate: new Date().toISOString(),\n    TransactionCount: transactions.length\n  }\n};"
+        },
+        "id": "prepare-statement-log",
+        "name": "Prepare Statement Log",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1392,
+          432
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Pass through all transactions unchanged\n// They will be filtered after reading existing transactions\nreturn $input.all();"
+        },
+        "id": "check-duplicates",
+        "name": "Check for Duplicates",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1392,
+          240
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+          },
+          "sheetName": {
+            "__rl": true,
+            "mode": "name",
+            "value": "Statements"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "StatementID": "={{$json.StatementID}}",
+              "Bank": "={{$json.Bank}}",
+              "Month": "={{$json.Month}}",
+              "Year": "={{$json.Year}}",
+              "FileID": "={{$json.FileID}}",
+              "FilePath": "={{$json.FilePath}}",
+              "ProcessedDate": "={{$json.ProcessedDate}}",
+              "TransactionCount": "={{$json.TransactionCount}}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "StatementID",
+                "displayName": "StatementID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Bank",
+                "displayName": "Bank",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Month",
+                "displayName": "Month",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Year",
+                "displayName": "Year",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "FileID",
+                "displayName": "FileID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "FilePath",
+                "displayName": "FilePath",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "ProcessedDate",
+                "displayName": "ProcessedDate",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "TransactionCount",
+                "displayName": "TransactionCount",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "log-statement-record",
+        "name": "Log Statement Record",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          1616,
+          432
+        ],
+        "retryOnFail": true,
+        "maxTries": 5,
+        "waitBetweenTries": 15000,
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Wrapper to ensure we always output at least 1 item\n// This prevents execution from stopping when sheet is empty\n\ntry {\n  // Call Google Sheets API to read existing transactions\n  const response = await this.helpers.httpRequestWithAuthentication.call(\n    this,\n    'googleSheetsOAuth2Api',\n    {\n      method: 'GET',\n      url: `https://sheets.googleapis.com/v4/spreadsheets/1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM/values/Transactions`,\n      json: true\n    }\n  );\n  \n  const rows = response.values || [];\n  \n  // If sheet is empty or only has headers, return a dummy item\n  if (rows.length <= 1) {\n    console.log('Sheet is empty - returning dummy item to continue execution');\n    return [{ json: { _isEmpty: true } }];\n  }\n  \n  // Parse rows into transaction objects (skip header row)\n  const headers = rows[0];\n  const transactions = rows.slice(1).map(row => {\n    const obj = {};\n    headers.forEach((header, index) => {\n      obj[header] = row[index] || '';\n    });\n    return { json: obj };\n  });\n  \n  console.log(`Read ${transactions.length} existing transactions`);\n  return transactions;\n  \n} catch (error) {\n  console.log('Error reading sheet:', error.message);\n  // Return dummy item to continue execution\n  return [{ json: { _isEmpty: true } }];\n}"
+        },
+        "id": "read-existing-transactions",
+        "name": "Read Existing Transactions",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1840,
+          240
+        ],
+        "retryOnFail": true,
+        "maxTries": 5,
+        "waitBetweenTries": 5000,
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        },
+        "onError": "continueRegularOutput",
+        "continueOnFail": false
+      },
+      {
+        "parameters": {
+          "jsCode": "// Get new transactions from Parse Response\nconst newTransactions = $('Parse Anthropic Response').all();\n\n// Get existing transactions from wrapper (filter out dummy items)\nconst existingTransactions = $input.all().filter(item => !item.json._isEmpty);\n\nconsole.log(`Processing ${newTransactions.length} new transactions, ${existingTransactions.length} existing in sheet`);\n\n// If no new transactions, return empty\nif (newTransactions.length === 0) {\n  console.log('No new transactions to process');\n  return [];\n}\n\n// Build set of existing keys for O(1) lookup\nconst existingKeys = new Set(\n  existingTransactions.map(item => \n    `${item.json.Date}_${item.json.Bank}_${item.json.Amount}_${item.json.Description}`\n  )\n);\n\n// Filter out duplicates\nconst uniqueTransactions = newTransactions.filter(item => {\n  const key = `${item.json.Date}_${item.json.Bank}_${item.json.Amount}_${item.json.Description}`;\n  const isDuplicate = existingKeys.has(key);\n  if (isDuplicate) {\n    console.log(`Skipping duplicate: ${key}`);\n  }\n  return !isDuplicate;\n});\n\nif (uniqueTransactions.length === 0) {\n  console.log('No new transactions to add (all duplicates)');\n  return [];\n}\n\nconsole.log(`Adding ${uniqueTransactions.length} new transactions (${newTransactions.length - uniqueTransactions.length} duplicates skipped)`);\n\nreturn uniqueTransactions;"
+        },
+        "id": "filter-non-duplicates",
+        "name": "Filter Non-Duplicates",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2064,
+          240
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+          },
+          "sheetName": {
+            "__rl": true,
+            "mode": "name",
+            "value": "Transactions"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "TransactionID": "={{$json.TransactionID}}",
+              "Date": "={{$json.Date}}",
+              "Bank": "={{$json.Bank}}",
+              "Amount": "={{$json.Amount}}",
+              "Currency": "={{$json.Currency}}",
+              "Description": "={{$json.Description}}",
+              "Vendor": "={{$json.Vendor}}",
+              "Category": "={{$json.Category}}",
+              "ReceiptID": "={{$json.ReceiptID}}",
+              "StatementID": "={{$json.StatementID}}",
+              "MatchStatus": "={{$json.MatchStatus}}",
+              "MatchConfidence": "={{$json.MatchConfidence}}",
+              "Notes": "={{$json.Notes}}",
+              "Tags": "={{$json.Tags}}",
+              "Type": "={{$json.Type}}",
+              "AnnualInvoiceID": "={{$json.AnnualInvoiceID}}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "TransactionID",
+                "displayName": "TransactionID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Date",
+                "displayName": "Date",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Bank",
+                "displayName": "Bank",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Amount",
+                "displayName": "Amount",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Currency",
+                "displayName": "Currency",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Description",
+                "displayName": "Description",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Vendor",
+                "displayName": "Vendor",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Category",
+                "displayName": "Category",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "ReceiptID",
+                "displayName": "ReceiptID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "StatementID",
+                "displayName": "StatementID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "MatchStatus",
+                "displayName": "MatchStatus",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "MatchConfidence",
+                "displayName": "MatchConfidence",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Notes",
+                "displayName": "Notes",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Tags",
+                "displayName": "Tags",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Type",
+                "displayName": "Type",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "AnnualInvoiceID",
+                "displayName": "AnnualInvoiceID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "write-transactions",
+        "name": "Write Transactions to Database",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          2288,
+          240
+        ],
+        "retryOnFail": true,
+        "maxTries": 5,
+        "waitBetweenTries": 5000,
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      }
+    ],
+    "connections": {
+      "Webhook Upload Trigger": {
+        "main": [
+          [
+            {
+              "node": "Extract File Metadata",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract File Metadata": {
+        "main": [
+          [
+            {
+              "node": "Build Anthropic API Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Anthropic API Request": {
+        "main": [
+          [
+            {
+              "node": "Parse PDF with Anthropic Vision",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse PDF with Anthropic Vision": {
+        "main": [
+          [
+            {
+              "node": "Parse Anthropic Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Anthropic Response": {
+        "main": [
+          [
+            {
+              "node": "Prepare Statement Log",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Check for Duplicates",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Statement Log": {
+        "main": [
+          [
+            {
+              "node": "Log Statement Record",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check for Duplicates": {
+        "main": [
+          [
+            {
+              "node": "Read Existing Transactions",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Read Existing Transactions": {
+        "main": [
+          [
+            {
+              "node": "Filter Non-Duplicates",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter Non-Duplicates": {
+        "main": [
+          [
+            {
+              "node": "Write Transactions to Database",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Sway Clarke",
+    "name": null,
+    "description": null,
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-01-31T00:02:12.927Z",
+        "id": 2242,
+        "workflowId": "Is8zl1TpWhIzspto",
+        "versionId": "a88ad652-c90a-4445-8e6e-271c47141b0e",
+        "event": "activated",
+        "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8"
+      }
+    ]
+  }
+}

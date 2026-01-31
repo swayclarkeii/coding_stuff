@@ -1,0 +1,4225 @@
+{
+  "updatedAt": "2026-01-29T22:56:12.383Z",
+  "createdAt": "2026-01-04T15:43:24.793Z",
+  "id": "nASL6hxNQGrNBTV4",
+  "name": "Expense System - Workflow 4: Monthly Folder Builder & Organizer v2.1",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "expense-filing",
+        "options": {}
+      },
+      "id": "manual-trigger",
+      "name": "Webhook Trigger (Manual)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        592
+      ],
+      "webhookId": "d10293e4-5c82-41c9-96e8-f58d814ab294",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse and validate Month/Year input\nconst input = $input.first().json;\n\n// Default to previous month if not provided\nlet monthYear;\nif (!input.month_year && !input.month && !input.year) {\n  const now = new Date();\n  const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);\n  const monthName = prevMonth.toLocaleString('en-US', { month: 'long' });\n  const yearNum = prevMonth.getFullYear();\n  monthYear = `${monthName} ${yearNum}`;\n} else if (input.month && input.year) {\n  monthYear = `${input.month} ${input.year}`;\n} else {\n  monthYear = input.month_year;\n}\n\nconst match = monthYear.match(/^([A-Za-z]+)\\s+(\\d{4})$/);\nif (!match) throw new Error('Format: \"Month YYYY\"');\n\nconst month = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();\nconst year = match[2];\n\nreturn {\n  json: {\n    month,\n    year,\n    folder_name: `VAT ${month} ${year}`,\n    base_folder_id: \"1fgJLso3FuZxX6JjUtN_PHsrIc-VCyl15\"\n  }\n};"
+      },
+      "id": "0cc096a9-b8d3-4806-b970-ef1104187ed2",
+      "name": "Parse Month/Year Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        592
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "f2e1a9e8-6c12-476a-9191-0472afb6e141",
+      "name": "Create Main VAT Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1136,
+        688
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare data for creating 4 bank folders\nconst mainFolder = $input.first().json;\nconst banks = ['ING Diba', 'Deutsche Bank', 'Barclay', 'Miles & More'];\n\nreturn banks.map(bank => ({\n  json: {\n    bank_name: bank,\n    main_vat_folder_id: mainFolder.id,\n    month: mainFolder.name.split(' ')[1],\n    year: mainFolder.name.split(' ')[2]\n  }\n}));"
+      },
+      "id": "a10154b7-d45e-4a11-b16d-1f9ac8ad3f6d",
+      "name": "Prepare Bank Folders",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1584,
+        592
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "5218a2e1-0f67-4dcd-a445-97408b66eb49",
+      "name": "Create Bank Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2256,
+        688
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "5265ecca-1d77-4cc2-9c91-7d4b71d96f02",
+      "name": "Create Statements Subfolder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3152,
+        544
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "f80bc0d3-1ba9-4439-ba34-cadbdae51e49",
+      "name": "Create Receipts Subfolder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3152,
+        736
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "options": {}
+      },
+      "id": "d974e39b-6fd0-4e4b-9689-38abeebbed97",
+      "name": "Wait for Subfolders",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        3376,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get main VAT folder info\nconst mainFolderId = $('Create Main VAT Folder').first().json.id;\nconst folderName = $('Create Main VAT Folder').first().json.name;\nconst [_, month, year] = folderName.split(' ');\n\nreturn {\n  json: {\n    main_vat_folder_id: mainFolderId,\n    month,\n    year\n  }\n};"
+      },
+      "id": "8243d52c-bbd3-4cce-a7c7-ddffb08c22d0",
+      "name": "Get Main Folder Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3600,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "b2da83b0-91f4-441c-ae49-0b5ef3dee934",
+      "name": "Create Income Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        4272,
+        448
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Statements"
+        },
+        "options": {}
+      },
+      "id": "5a2501ae-2153-4620-b03c-0e9a27fb5697",
+      "name": "Read Statements Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4720,
+        112
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Receipts"
+        },
+        "options": {}
+      },
+      "id": "571d9478-9767-4d08-abec-19e986462b8e",
+      "name": "Read Receipts Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4720,
+        304
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Transactions"
+        },
+        "options": {}
+      },
+      "id": "43ea2355-1275-4ff4-9aac-3ca0ba1ccb95",
+      "name": "Read Transactions Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4720,
+        496
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process statements and prepare for moving\nconst statements = $input.all();\nconst month = $('Get Main Folder Data').first().json.month;\nconst year = $('Get Main Folder Data').first().json.year;\n\n// Bank folder mapping\nconst bankFolders = {\n  'ING Diba': null,\n  'Deutsche Bank': null,\n  'Barclay': null,\n  'Miles & More': null\n};\n\n// Get bank folder IDs from created folders\nconst createdBankFolders = $('Create Bank Folder').all();\ncreatedBankFolders.forEach(folder => {\n  const bankName = folder.json.bank_name;\n  if (bankFolders.hasOwnProperty(bankName)) {\n    bankFolders[bankName] = folder.json.id;\n  }\n});\n\n// Process each statement\nconst results = [];\nfor (const statement of statements) {\n  const bank = statement.json.Bank;\n  const fileId = statement.json.FileID;\n  const statementId = statement.json.StatementID;\n  \n  if (!bank || !fileId) {\n    results.push({\n      json: {\n        error: 'Missing Bank or FileID',\n        StatementID: statementId,\n        skipped: true\n      }\n    });\n    continue;\n  }\n  \n  const bankFolderId = bankFolders[bank];\n  if (!bankFolderId) {\n    results.push({\n      json: {\n        error: `Bank folder not found: ${bank}`,\n        StatementID: statementId,\n        skipped: true\n      }\n    });\n    continue;\n  }\n  \n  // Find Statements subfolder for this bank\n  const statementsSubfolder = $('Create Statements Subfolder').all()\n    .find(f => true);\n  \n  results.push({\n    json: {\n      StatementID: statementId,\n      fileId,\n      bank,\n      bankFolderId,\n      targetFolderId: statementsSubfolder?.json.id || bankFolderId,\n      month,\n      year,\n      FilePath: `VAT ${month} ${year}/${bank}/Statements/`\n    }\n  });\n}\n\nreturn results.length > 0 ? results : [{ json: { no_statements: true } }];"
+      },
+      "id": "b7757d65-040a-440c-b354-012aac700cff",
+      "name": "Process Statements",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5168,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "skip-check",
+              "leftValue": "={{ $json.skipped }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "error-check",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "fileid-check",
+              "leftValue": "={{ $json.fileId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "filter-valid-statements",
+      "name": "Filter Valid Statements",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        5392,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        }
+      },
+      "id": "327a3ac9-e88b-4343-a8aa-2999151f96a7",
+      "name": "Move Statement Files",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        5616,
+        112
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Statements"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "StatementID"
+          ],
+          "schema": [
+            {
+              "id": "StatementID",
+              "displayName": "StatementID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Bank",
+              "displayName": "Bank",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Month",
+              "displayName": "Month",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Year",
+              "displayName": "Year",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "FileID",
+              "displayName": "FileID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "FilePath",
+              "displayName": "FilePath",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ProcessedDate",
+              "displayName": "ProcessedDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "TransactionCount",
+              "displayName": "TransactionCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "a5d4745f-2622-4db7-bf36-3abb17b85f06",
+      "name": "Update Statements FilePath",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        5840,
+        112
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process receipts and match to banks via transaction_id\nconst receipts = $input.all();\nconst transactions = $('Read Transactions Sheet').all();\nconst month = $('Get Main Folder Data').first().json.month;\nconst year = $('Get Main Folder Data').first().json.year;\n\n// Create transaction lookup map\nconst transactionMap = {};\ntransactions.forEach(t => {\n  transactionMap[t.json.TransactionID] = t.json.Bank;\n});\n\n// Bank folder mapping\nconst bankFolders = {\n  'ING Diba': null,\n  'Deutsche Bank': null,\n  'Barclay': null,\n  'Miles & More': null\n};\n\nconst createdBankFolders = $('Create Bank Folder').all();\ncreatedBankFolders.forEach(folder => {\n  const bankName = folder.json.bank_name;\n  if (bankFolders.hasOwnProperty(bankName)) {\n    bankFolders[bankName] = folder.json.id;\n  }\n});\n\n// Process each receipt\nconst results = [];\nfor (const receipt of receipts) {\n  const transactionId = receipt.json.transaction_id;\n  const receiptId = receipt.json.ReceiptID;\n  const fileId = receipt.json.FileID;\n  \n  if (!transactionId) {\n    results.push({\n      json: {\n        error: 'No transaction_id',\n        ReceiptID: receiptId,\n        skipped: true\n      }\n    });\n    continue;\n  }\n  \n  const bank = transactionMap[transactionId];\n  if (!bank) {\n    results.push({\n      json: {\n        error: `Transaction not found: ${transactionId}`,\n        ReceiptID: receiptId,\n        skipped: true\n      }\n    });\n    continue;\n  }\n  \n  const bankFolderId = bankFolders[bank];\n  if (!bankFolderId) {\n    results.push({\n      json: {\n        error: `Bank folder not found: ${bank}`,\n        ReceiptID: receiptId,\n        skipped: true\n      }\n    });\n    continue;\n  }\n  \n  results.push({\n    json: {\n      ReceiptID: receiptId,\n      fileId,\n      bank,\n      targetFolderId: bankFolderId,\n      month,\n      year,\n      FilePath: `VAT ${month} ${year}/${bank}/Receipts/`\n    }\n  });\n}\n\nreturn results.length > 0 ? results : [{ json: { no_receipts: true } }];"
+      },
+      "id": "74e62719-84ab-4a25-a077-3c90944016a5",
+      "name": "Process Receipts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5168,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "skip-check",
+              "leftValue": "={{ $json.skipped }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "error-check",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "fileid-check",
+              "leftValue": "={{ $json.fileId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "filter-valid-receipts",
+      "name": "Filter Valid Receipts",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        5392,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        }
+      },
+      "id": "fe93d461-e0c0-4c23-8b0d-92e2dbad9ecb",
+      "name": "Move Receipt Files",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        5616,
+        304
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Receipts"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "ReceiptID"
+          ],
+          "schema": [
+            {
+              "id": "ReceiptID",
+              "displayName": "ReceiptID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "FileName",
+              "displayName": "FileName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Vendor",
+              "displayName": "Vendor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "TransactionType",
+              "displayName": "TransactionType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "FileID",
+              "displayName": "FileID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "DownloadDate",
+              "displayName": "DownloadDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "DownloadTimestamp",
+              "displayName": "DownloadTimestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "SourceEmail",
+              "displayName": "SourceEmail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Matched",
+              "displayName": "Matched",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "transaction_id",
+              "displayName": "transaction_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ExpensifyNumber",
+              "displayName": "ExpensifyNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ReportID",
+              "displayName": "ReportID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "0d1c0a8a-7648-406c-bc92-c40f35524da0",
+      "name": "Update Receipts FilePath",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        5840,
+        304
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "H7ewI1sOrDYabelt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "options": {}
+      },
+      "id": "3f1bb91e-c51a-45a3-958e-8383b773630a",
+      "name": "Wait for Processing",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        6064,
+        376
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Collect all items from merge node\nconst allItems = $input.all();\n\n// Parse month/year from initial input\nconst monthYear = $node[\"Parse Month/Year Input\"].json;\nconst mainFolder = $node[\"Create Income Folder\"].json;\n\n// Count statements, receipts, and invoices processed\nconst statementItems = allItems.filter(item => \n  item.json.StatementID || item.json.BankName\n);\nconst receiptItems = allItems.filter(item => \n  item.json.ReceiptID && !item.json.StatementID\n);\nconst invoiceItems = allItems.filter(item => \n  item.json.InvoiceID && !item.json.ReceiptID\n);\n\nconst statementsProcessed = statementItems.length;\nconst receiptsProcessed = receiptItems.length;\nconst invoicesProcessed = invoiceItems.length;\n\n// Get folder structure info\nconst folderPath = `VAT ${monthYear.year}/${monthYear.month}`;\nconst incomePath = `${folderPath}/Income`;\n\n// Generate summary message\nconst summary = {\n  success: true,\n  month: monthYear.month,\n  year: monthYear.year,\n  folderPath: folderPath,\n  incomeFolderPath: incomePath,\n  mainFolderId: mainFolder.id,\n  statistics: {\n    statementsProcessed,\n    receiptsProcessed,\n    invoicesProcessed,\n    totalFilesOrganized: statementsProcessed + receiptsProcessed + invoicesProcessed\n  },\n  message: `Successfully organized ${monthYear.month} ${monthYear.year}:\\n` +\n    `- ${statementsProcessed} bank statements\\n` +\n    `- ${receiptsProcessed} expense receipts\\n` +\n    `- ${invoicesProcessed} invoices\\n` +\n    `Total: ${statementsProcessed + receiptsProcessed + invoicesProcessed} files organized`\n};\n\nreturn [{ json: summary }];"
+      },
+      "id": "020fa7b4-5f28-4148-9859-14eb32caff57",
+      "name": "Generate Summary Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6288,
+        376
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Invoices"
+        },
+        "options": {}
+      },
+      "id": "read-invoices-sheet",
+      "name": "Read Invoices Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        4720,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const targetMonth = $node[\"Parse Month/Year Input\"].json.month;\nconst targetYear = $node[\"Parse Month/Year Input\"].json.year;\nconst incomeFolder = $node[\"Create Income Folder\"].json.id;\n\n// Filter invoices for this month that have been matched\nconst invoices = $input.all().filter(invoice => {\n  const invoiceDate = new Date(invoice.json.Date);\n  const invoiceMonth = invoiceDate.toLocaleString('en-US', { month: 'long' });\n  const invoiceYear = invoiceDate.getFullYear().toString();\n  \n  return (\n    invoiceMonth === targetMonth &&\n    invoiceYear === targetYear &&\n    invoice.json.InvoiceFileID &&\n    invoice.json.InvoiceFileID.trim() !== \"\"\n  );\n});\n\n// Return invoices with destination folder\nreturn invoices.map(invoice => ({\n  json: {\n    ...invoice.json,\n    destinationFolder: incomeFolder,\n    originalFileId: invoice.json.InvoiceFileID\n  }\n}));"
+      },
+      "id": "process-invoices",
+      "name": "Process Invoices",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4944,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": ""
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.InvoiceFileID }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "filter-valid-invoices",
+      "name": "Filter Valid Invoices",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        5168,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.InvoiceFileID }}"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.destinationFolder }}"
+        }
+      },
+      "id": "move-invoice-files",
+      "name": "Move Invoice Files",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        5392,
+        784
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Invoices"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "FilePath": "=VAT {{ $node[\"Parse Month/Year Input\"].json.year }}/{{ $node[\"Parse Month/Year Input\"].json.month }}/Income/{{ $json.name }}",
+            "FileID": "={{ $json.id }}",
+            "OrganizedDate": "={{ $now }}"
+          },
+          "matchingColumns": [
+            "InvoiceID"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "update-invoices-filepath",
+      "name": "Update Invoices FilePath",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        5616,
+        784
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/drive/v3/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "=name='{{ $json.folder_name }}' and '{{ $json.base_folder_id }}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false"
+            },
+            {
+              "name": "fields",
+              "value": "files(id, name)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-vat-folder-exists",
+      "name": "Check if VAT Folder Exists",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        688,
+        592
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "folder-exists",
+              "leftValue": "={{ $json.files ? $json.files.length : 0 }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-folder-exists-switch",
+      "name": "VAT Folder Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        912,
+        592
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Use the existing folder that was found\nconst searchResult = $input.first().json;\nconst existingFolder = searchResult.files[0];\nconst parsedData = $('Parse Month/Year Input').json;\n\nreturn {\n  json: {\n    id: existingFolder.id,\n    name: existingFolder.name,\n    month: parsedData.month,\n    year: parsedData.year\n  }\n};"
+      },
+      "id": "use-existing-vat-folder",
+      "name": "Use Existing VAT Folder",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1136,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-vat-folder-paths",
+      "name": "Merge VAT Folder",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1360,
+        592
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/drive/v3/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "=name='Bank {{ $json.month }} {{ $json.year }}' and '{{ $json.vat_folder_id }}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false"
+            },
+            {
+              "name": "fields",
+              "value": "files(id, name)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-bank-folder-exists",
+      "name": "Check if Bank Folder Exists",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1808,
+        592
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "folder-exists",
+              "leftValue": "={{ $json.files ? $json.files.length : 0 }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bank-folder-exists-switch",
+      "name": "Bank Folder Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2032,
+        592
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Use the existing bank folder\nconst searchResult = $input.first().json;\nconst existingFolder = searchResult.files[0];\nconst bankData = $('Prepare Bank Folders').json;\n\nreturn {\n  json: {\n    id: existingFolder.id,\n    name: existingFolder.name,\n    bank_name: bankData.bank_name,\n    month: bankData.month,\n    year: bankData.year\n  }\n};"
+      },
+      "id": "use-existing-bank-folder",
+      "name": "Use Existing Bank Folder",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2256,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-bank-folder-paths",
+      "name": "Merge Bank Folder",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        2480,
+        592
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/drive/v3/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "=name='Statements' and '{{ $json.bank_folder_id }}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false"
+            },
+            {
+              "name": "fields",
+              "value": "files(id, name)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-statements-subfolder-exists",
+      "name": "Check Statements Subfolder",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2704,
+        400
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "folder-exists",
+              "leftValue": "={{ $json.files ? $json.files.length : 0 }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "statements-subfolder-exists-switch",
+      "name": "Statements Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2928,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Use the existing statements folder\nconst searchResult = $input.first().json;\nconst existingFolder = searchResult.files[0];\nconst bankData = $input.item.json;\n\nreturn {\n  json: {\n    subfolder_id: existingFolder.id,\n    subfolder_name: existingFolder.name,\n    subfolder_type: 'Statements',\n    bank_folder_id: bankData.bank_folder_id,\n    bank_name: bankData.bank_name,\n    month: bankData.month,\n    year: bankData.year\n  }\n};"
+      },
+      "id": "use-existing-statements-folder",
+      "name": "Use Existing Statements",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3152,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-statements-paths",
+      "name": "Merge Statements",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        3376,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/drive/v3/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "=name='Receipts' and '{{ $json.bank_folder_id }}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false"
+            },
+            {
+              "name": "fields",
+              "value": "files(id, name)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-receipts-subfolder-exists",
+      "name": "Check Receipts Subfolder",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2704,
+        832
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "folder-exists",
+              "leftValue": "={{ $json.files ? $json.files.length : 0 }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "receipts-subfolder-exists-switch",
+      "name": "Receipts Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2928,
+        832
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Use the existing receipts folder\nconst searchResult = $input.first().json;\nconst existingFolder = searchResult.files[0];\nconst bankData = $input.item.json;\n\nreturn {\n  json: {\n    subfolder_id: existingFolder.id,\n    subfolder_name: existingFolder.name,\n    subfolder_type: 'Receipts',\n    bank_folder_id: bankData.bank_folder_id,\n    bank_name: bankData.bank_name,\n    month: bankData.month,\n    year: bankData.year\n  }\n};"
+      },
+      "id": "use-existing-receipts-folder",
+      "name": "Use Existing Receipts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3152,
+        928
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-receipts-paths",
+      "name": "Merge Receipts",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        3376,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/drive/v3/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "=name='Income {{ $json.month }} {{ $json.year }}' and '{{ $json.vat_folder_id }}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false"
+            },
+            {
+              "name": "fields",
+              "value": "files(id, name)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-income-folder-exists",
+      "name": "Check Income Folder",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3824,
+        640
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "a4m50EefR3DJoU0R",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "folder-exists",
+              "leftValue": "={{ $json.files ? $json.files.length : 0 }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "income-folder-exists-switch",
+      "name": "Income Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        4048,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Use the existing income folder\nconst searchResult = $input.first().json;\nconst existingFolder = searchResult.files[0];\nconst monthYearData = $('Merge Month/Year').json;\n\nreturn {\n  json: {\n    id: existingFolder.id,\n    name: existingFolder.name,\n    vat_folder_id: monthYearData.vat_folder_id,\n    month: monthYearData.month,\n    year: monthYearData.year\n  }\n};"
+      },
+      "id": "use-existing-income-folder",
+      "name": "Use Existing Income",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4272,
+        928
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-income-paths",
+      "name": "Merge Income",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        4496,
+        592
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const targetMonth = $('Parse Month/Year Input').json.month;\nconst targetYear = $('Parse Month/Year Input').json.year;\n\nconst statements = $input.all().filter(statement => {\n  const statementDate = new Date(statement.json.StatementDate);\n  const statementMonth = statementDate.toLocaleString('en-US', { month: 'long' });\n  const statementYear = statementDate.getFullYear().toString();\n  \n  return (\n    statementMonth === targetMonth &&\n    statementYear === targetYear\n  );\n});\n\nreturn statements.map(s => ({ json: s.json }));"
+      },
+      "id": "filter-statements-by-month",
+      "name": "Filter Statements by Month",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4944,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const targetMonth = $('Parse Month/Year Input').json.month;\nconst targetYear = $('Parse Month/Year Input').json.year;\nconst transactions = $('Read Transactions Sheet').all();\n\n// Create transaction date lookup\nconst transactionDates = {};\ntransactions.forEach(t => {\n  transactionDates[t.json.TransactionID] = t.json.Date;\n});\n\nconst receipts = $input.all().filter(receipt => {\n  const transactionId = receipt.json.transaction_id;\n  if (!transactionId) return false;\n  \n  const transactionDate = new Date(transactionDates[transactionId]);\n  const transactionMonth = transactionDate.toLocaleString('en-US', { month: 'long' });\n  const transactionYear = transactionDate.getFullYear().toString();\n  \n  return (\n    transactionMonth === targetMonth &&\n    transactionYear === targetYear\n  );\n});\n\nreturn receipts.map(r => ({ json: r.json }));"
+      },
+      "id": "filter-receipts-by-month",
+      "name": "Filter Receipts by Month",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4944,
+        304
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger (Manual)": {
+      "main": [
+        [
+          {
+            "node": "Parse Month/Year Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Statements Subfolder": {
+      "main": [
+        [
+          {
+            "node": "Wait for Subfolders",
+            "type": "input1",
+            "index": 0
+          },
+          {
+            "node": "Merge Statements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Receipts Subfolder": {
+      "main": [
+        [
+          {
+            "node": "Wait for Subfolders",
+            "type": "input2",
+            "index": 0
+          },
+          {
+            "node": "Merge Receipts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Subfolders": {
+      "main": [
+        [
+          {
+            "node": "Get Main Folder Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Income Folder": {
+      "main": [
+        [
+          {
+            "node": "Read Statements Sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Receipts Sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Transactions Sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Invoices Sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Income",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Statements": {
+      "main": [
+        [
+          {
+            "node": "Filter Valid Statements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Valid Statements": {
+      "main": [
+        [
+          {
+            "node": "Move Statement Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move Statement Files": {
+      "main": [
+        [
+          {
+            "node": "Update Statements FilePath",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Receipts": {
+      "main": [
+        [
+          {
+            "node": "Filter Valid Receipts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Valid Receipts": {
+      "main": [
+        [
+          {
+            "node": "Move Receipt Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move Receipt Files": {
+      "main": [
+        [
+          {
+            "node": "Update Receipts FilePath",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Statements FilePath": {
+      "main": [
+        [
+          {
+            "node": "Wait for Processing",
+            "type": "input1",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Receipts FilePath": {
+      "main": [
+        [
+          {
+            "node": "Wait for Processing",
+            "type": "input2",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Processing": {
+      "main": [
+        [
+          {
+            "node": "Generate Summary Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Invoices Sheet": {
+      "main": [
+        [
+          {
+            "node": "Process Invoices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Invoices": {
+      "main": [
+        [
+          {
+            "node": "Filter Valid Invoices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Valid Invoices": {
+      "main": [
+        [
+          {
+            "node": "Move Invoice Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move Invoice Files": {
+      "main": [
+        [
+          {
+            "node": "Update Invoices FilePath",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Invoices FilePath": {
+      "main": [
+        [
+          {
+            "node": "Wait for Processing",
+            "type": "input3",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Month/Year Input": {
+      "main": [
+        [
+          {
+            "node": "Check if VAT Folder Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if VAT Folder Exists": {
+      "main": [
+        [
+          {
+            "node": "VAT Folder Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VAT Folder Exists?": {
+      "true": [
+        [
+          {
+            "node": "Use Existing VAT Folder",
+            "type": "true",
+            "index": 0
+          }
+        ]
+      ],
+      "false": [
+        [
+          {
+            "node": "Create Main VAT Folder",
+            "type": "false",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use Existing VAT Folder": {
+      "main": [
+        [
+          {
+            "node": "Merge VAT Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Main VAT Folder": {
+      "main": [
+        [
+          {
+            "node": "Merge VAT Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge VAT Folder": {
+      "main": [
+        [
+          {
+            "node": "Prepare Bank Folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Bank Folders": {
+      "main": [
+        [
+          {
+            "node": "Check if Bank Folder Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Bank Folder Exists": {
+      "main": [
+        [
+          {
+            "node": "Bank Folder Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bank Folder Exists?": {
+      "true": [
+        [
+          {
+            "node": "Use Existing Bank Folder",
+            "type": "true",
+            "index": 0
+          }
+        ]
+      ],
+      "false": [
+        [
+          {
+            "node": "Create Bank Folder",
+            "type": "false",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use Existing Bank Folder": {
+      "main": [
+        [
+          {
+            "node": "Merge Bank Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Bank Folder": {
+      "main": [
+        [
+          {
+            "node": "Merge Bank Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Bank Folder": {
+      "main": [
+        [
+          {
+            "node": "Check Statements Subfolder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Receipts Subfolder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Statements Subfolder": {
+      "main": [
+        [
+          {
+            "node": "Statements Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Statements Exists?": {
+      "true": [
+        [
+          {
+            "node": "Use Existing Statements",
+            "type": "true",
+            "index": 0
+          }
+        ]
+      ],
+      "false": [
+        [
+          {
+            "node": "Create Statements Subfolder",
+            "type": "false",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use Existing Statements": {
+      "main": [
+        [
+          {
+            "node": "Merge Statements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Receipts Subfolder": {
+      "main": [
+        [
+          {
+            "node": "Receipts Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receipts Exists?": {
+      "true": [
+        [
+          {
+            "node": "Use Existing Receipts",
+            "type": "true",
+            "index": 0
+          }
+        ]
+      ],
+      "false": [
+        [
+          {
+            "node": "Create Receipts Subfolder",
+            "type": "false",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use Existing Receipts": {
+      "main": [
+        [
+          {
+            "node": "Merge Receipts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Main Folder Data": {
+      "main": [
+        [
+          {
+            "node": "Check Income Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Income Folder": {
+      "main": [
+        [
+          {
+            "node": "Income Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Income Exists?": {
+      "true": [
+        [
+          {
+            "node": "Use Existing Income",
+            "type": "true",
+            "index": 0
+          }
+        ]
+      ],
+      "false": [
+        [
+          {
+            "node": "Create Income Folder",
+            "type": "false",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use Existing Income": {
+      "main": [
+        [
+          {
+            "node": "Merge Income",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Income": {
+      "main": [
+        [
+          {
+            "node": "Read Statements Sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Receipts Sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Transactions Sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Invoices Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Statements Sheet": {
+      "main": [
+        [
+          {
+            "node": "Filter Statements by Month",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Statements by Month": {
+      "main": [
+        [
+          {
+            "node": "Process Statements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Receipts Sheet": {
+      "main": [
+        [
+          {
+            "node": "Filter Receipts by Month",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Receipts by Month": {
+      "main": [
+        [
+          {
+            "node": "Process Receipts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "cc27da90-f343-46fc-a8f1-b3e990a92d05",
+  "activeVersionId": "818cbf43-cf61-47b0-aa61-060ee70d1a14",
+  "versionCounter": 238,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-01-04T15:43:24.793Z",
+      "createdAt": "2026-01-04T15:43:24.793Z",
+      "role": "workflow:owner",
+      "workflowId": "nASL6hxNQGrNBTV4",
+      "projectId": "Rs8mhw052fnrzWZM",
+      "project": {
+        "updatedAt": "2025-12-31T15:54:29.115Z",
+        "createdAt": "2025-12-31T15:27:33.865Z",
+        "id": "Rs8mhw052fnrzWZM",
+        "name": "Sway Clarke <sway@oloxa.ai>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+        "projectRelations": [
+          {
+            "updatedAt": "2025-12-31T15:27:33.865Z",
+            "createdAt": "2025-12-31T15:27:33.865Z",
+            "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+            "projectId": "Rs8mhw052fnrzWZM",
+            "user": {
+              "updatedAt": "2026-01-31T00:12:46.682Z",
+              "createdAt": "2025-12-31T15:27:33.119Z",
+              "id": "e9bd9112-c2e3-4f67-873a-e1001baeafd8",
+              "email": "sway@oloxa.ai",
+              "firstName": "Sway",
+              "lastName": "Clarke",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-12-31T15:54:37.562Z",
+                "personalization_survey_n8n_version": "2.1.4"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "zbxHkXOoD1qaz6OS",
+                "userActivatedAt": 1767398053308,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1767684846804
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-01-30",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-01-29T19:36:24.502Z",
+    "createdAt": "2026-01-29T19:36:24.502Z",
+    "versionId": "818cbf43-cf61-47b0-aa61-060ee70d1a14",
+    "workflowId": "nASL6hxNQGrNBTV4",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "expense-filing",
+          "options": {}
+        },
+        "id": "manual-trigger",
+        "name": "Webhook Trigger (Manual)",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          240,
+          304
+        ],
+        "webhookId": "d10293e4-5c82-41c9-96e8-f58d814ab294",
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Parse and validate Month/Year input\nconst input = $input.first().json;\n\n// Default to previous month if not provided\nlet monthYear;\nif (!input.month_year && !input.month && !input.year) {\n  const now = new Date();\n  const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);\n  const monthName = prevMonth.toLocaleString('en-US', { month: 'long' });\n  const yearNum = prevMonth.getFullYear();\n  monthYear = `${monthName} ${yearNum}`;\n} else if (input.month && input.year) {\n  monthYear = `${input.month} ${input.year}`;\n} else {\n  monthYear = input.month_year;\n}\n\nconst match = monthYear.match(/^([A-Za-z]+)\\s+(\\d{4})$/);\nif (!match) throw new Error('Format: \"Month YYYY\"');\n\nconst month = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();\nconst year = match[2];\n\nreturn {\n  json: {\n    month,\n    year,\n    folder_name: `VAT ${month} ${year}`,\n    base_folder_id: \"1fgJLso3FuZxX6JjUtN_PHsrIc-VCyl15\"\n  }\n};"
+        },
+        "id": "0cc096a9-b8d3-4806-b970-ef1104187ed2",
+        "name": "Parse Month/Year Input",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          464,
+          304
+        ]
+      },
+      {
+        "parameters": {
+          "resource": "folder",
+          "operation": "create"
+        },
+        "id": "f2e1a9e8-6c12-476a-9191-0472afb6e141",
+        "name": "Create Main VAT Folder",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          688,
+          304
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Prepare data for creating 4 bank folders\nconst mainFolder = $input.first().json;\nconst banks = ['ING Diba', 'Deutsche Bank', 'Barclay', 'Miles & More'];\n\nreturn banks.map(bank => ({\n  json: {\n    bank_name: bank,\n    main_vat_folder_id: mainFolder.id,\n    month: mainFolder.name.split(' ')[1],\n    year: mainFolder.name.split(' ')[2]\n  }\n}));"
+        },
+        "id": "a10154b7-d45e-4a11-b16d-1f9ac8ad3f6d",
+        "name": "Prepare Bank Folders",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          912,
+          304
+        ]
+      },
+      {
+        "parameters": {
+          "resource": "folder",
+          "operation": "create"
+        },
+        "id": "5218a2e1-0f67-4dcd-a445-97408b66eb49",
+        "name": "Create Bank Folder",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1136,
+          304
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resource": "folder",
+          "operation": "create"
+        },
+        "id": "5265ecca-1d77-4cc2-9c91-7d4b71d96f02",
+        "name": "Create Statements Subfolder",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1360,
+          208
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resource": "folder",
+          "operation": "create"
+        },
+        "id": "f80bc0d3-1ba9-4439-ba34-cadbdae51e49",
+        "name": "Create Receipts Subfolder",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1360,
+          400
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "mode": "combine",
+          "options": {}
+        },
+        "id": "d974e39b-6fd0-4e4b-9689-38abeebbed97",
+        "name": "Wait for Subfolders",
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3,
+        "position": [
+          1584,
+          304
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Get main VAT folder info\nconst mainFolderId = $('Create Main VAT Folder').first().json.id;\nconst folderName = $('Create Main VAT Folder').first().json.name;\nconst [_, month, year] = folderName.split(' ');\n\nreturn {\n  json: {\n    main_vat_folder_id: mainFolderId,\n    month,\n    year\n  }\n};"
+        },
+        "id": "8243d52c-bbd3-4cce-a7c7-ddffb08c22d0",
+        "name": "Get Main Folder Data",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1808,
+          304
+        ]
+      },
+      {
+        "parameters": {
+          "resource": "folder",
+          "operation": "create"
+        },
+        "id": "b2da83b0-91f4-441c-ae49-0b5ef3dee934",
+        "name": "Create Income Folder",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          2032,
+          304
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+          },
+          "sheetName": {
+            "__rl": true,
+            "mode": "name",
+            "value": "Statements"
+          },
+          "options": {}
+        },
+        "id": "5a2501ae-2153-4620-b03c-0e9a27fb5697",
+        "name": "Read Statements Sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          2256,
+          112
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+          },
+          "sheetName": {
+            "__rl": true,
+            "mode": "name",
+            "value": "Receipts"
+          },
+          "options": {}
+        },
+        "id": "571d9478-9767-4d08-abec-19e986462b8e",
+        "name": "Read Receipts Sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          2256,
+          304
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+          },
+          "sheetName": {
+            "__rl": true,
+            "mode": "name",
+            "value": "Transactions"
+          },
+          "options": {}
+        },
+        "id": "43ea2355-1275-4ff4-9aac-3ca0ba1ccb95",
+        "name": "Read Transactions Sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          2256,
+          496
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Process statements and prepare for moving\nconst statements = $input.all();\nconst month = $('Get Main Folder Data').first().json.month;\nconst year = $('Get Main Folder Data').first().json.year;\n\n// Bank folder mapping\nconst bankFolders = {\n  'ING Diba': null,\n  'Deutsche Bank': null,\n  'Barclay': null,\n  'Miles & More': null\n};\n\n// Get bank folder IDs from created folders\nconst createdBankFolders = $('Create Bank Folder').all();\ncreatedBankFolders.forEach(folder => {\n  const bankName = folder.json.bank_name;\n  if (bankFolders.hasOwnProperty(bankName)) {\n    bankFolders[bankName] = folder.json.id;\n  }\n});\n\n// Process each statement\nconst results = [];\nfor (const statement of statements) {\n  const bank = statement.json.Bank;\n  const fileId = statement.json.FileID;\n  const statementId = statement.json.StatementID;\n  \n  if (!bank || !fileId) {\n    results.push({\n      json: {\n        error: 'Missing Bank or FileID',\n        StatementID: statementId,\n        skipped: true\n      }\n    });\n    continue;\n  }\n  \n  const bankFolderId = bankFolders[bank];\n  if (!bankFolderId) {\n    results.push({\n      json: {\n        error: `Bank folder not found: ${bank}`,\n        StatementID: statementId,\n        skipped: true\n      }\n    });\n    continue;\n  }\n  \n  // Find Statements subfolder for this bank\n  const statementsSubfolder = $('Create Statements Subfolder').all()\n    .find(f => true);\n  \n  results.push({\n    json: {\n      StatementID: statementId,\n      fileId,\n      bank,\n      bankFolderId,\n      targetFolderId: statementsSubfolder?.json.id || bankFolderId,\n      month,\n      year,\n      FilePath: `VAT ${month} ${year}/${bank}/Statements/`\n    }\n  });\n}\n\nreturn results.length > 0 ? results : [{ json: { no_statements: true } }];"
+        },
+        "id": "b7757d65-040a-440c-b354-012aac700cff",
+        "name": "Process Statements",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2480,
+          112
+        ]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "skip-check",
+                "leftValue": "={{ $json.skipped }}",
+                "rightValue": true,
+                "operator": {
+                  "type": "boolean",
+                  "operation": "notEquals"
+                }
+              },
+              {
+                "id": "error-check",
+                "leftValue": "={{ $json.error }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              },
+              {
+                "id": "fileid-check",
+                "leftValue": "={{ $json.fileId }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "filter-valid-statements",
+        "name": "Filter Valid Statements",
+        "type": "n8n-nodes-base.filter",
+        "typeVersion": 2,
+        "position": [
+          2704,
+          112
+        ]
+      },
+      {
+        "parameters": {
+          "resource": "file",
+          "operation": "move"
+        },
+        "id": "327a3ac9-e88b-4343-a8aa-2999151f96a7",
+        "name": "Move Statement Files",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          2928,
+          112
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+          },
+          "sheetName": {
+            "__rl": true,
+            "mode": "name",
+            "value": "Statements"
+          },
+          "columns": {
+            "mappingMode": "autoMapInputData",
+            "value": {},
+            "matchingColumns": [
+              "StatementID"
+            ],
+            "schema": [
+              {
+                "id": "StatementID",
+                "displayName": "StatementID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Bank",
+                "displayName": "Bank",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Month",
+                "displayName": "Month",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Year",
+                "displayName": "Year",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "FileID",
+                "displayName": "FileID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "FilePath",
+                "displayName": "FilePath",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "ProcessedDate",
+                "displayName": "ProcessedDate",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "TransactionCount",
+                "displayName": "TransactionCount",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "a5d4745f-2622-4db7-bf36-3abb17b85f06",
+        "name": "Update Statements FilePath",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          3152,
+          112
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Process receipts and match to banks via transaction_id\nconst receipts = $input.all();\nconst transactions = $('Read Transactions Sheet').all();\nconst month = $('Get Main Folder Data').first().json.month;\nconst year = $('Get Main Folder Data').first().json.year;\n\n// Create transaction lookup map\nconst transactionMap = {};\ntransactions.forEach(t => {\n  transactionMap[t.json.TransactionID] = t.json.Bank;\n});\n\n// Bank folder mapping\nconst bankFolders = {\n  'ING Diba': null,\n  'Deutsche Bank': null,\n  'Barclay': null,\n  'Miles & More': null\n};\n\nconst createdBankFolders = $('Create Bank Folder').all();\ncreatedBankFolders.forEach(folder => {\n  const bankName = folder.json.bank_name;\n  if (bankFolders.hasOwnProperty(bankName)) {\n    bankFolders[bankName] = folder.json.id;\n  }\n});\n\n// Process each receipt\nconst results = [];\nfor (const receipt of receipts) {\n  const transactionId = receipt.json.transaction_id;\n  const receiptId = receipt.json.ReceiptID;\n  const fileId = receipt.json.FileID;\n  \n  if (!transactionId) {\n    results.push({\n      json: {\n        error: 'No transaction_id',\n        ReceiptID: receiptId,\n        skipped: true\n      }\n    });\n    continue;\n  }\n  \n  const bank = transactionMap[transactionId];\n  if (!bank) {\n    results.push({\n      json: {\n        error: `Transaction not found: ${transactionId}`,\n        ReceiptID: receiptId,\n        skipped: true\n      }\n    });\n    continue;\n  }\n  \n  const bankFolderId = bankFolders[bank];\n  if (!bankFolderId) {\n    results.push({\n      json: {\n        error: `Bank folder not found: ${bank}`,\n        ReceiptID: receiptId,\n        skipped: true\n      }\n    });\n    continue;\n  }\n  \n  results.push({\n    json: {\n      ReceiptID: receiptId,\n      fileId,\n      bank,\n      targetFolderId: bankFolderId,\n      month,\n      year,\n      FilePath: `VAT ${month} ${year}/${bank}/Receipts/`\n    }\n  });\n}\n\nreturn results.length > 0 ? results : [{ json: { no_receipts: true } }];"
+        },
+        "id": "74e62719-84ab-4a25-a077-3c90944016a5",
+        "name": "Process Receipts",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2480,
+          304
+        ]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "skip-check",
+                "leftValue": "={{ $json.skipped }}",
+                "rightValue": true,
+                "operator": {
+                  "type": "boolean",
+                  "operation": "notEquals"
+                }
+              },
+              {
+                "id": "error-check",
+                "leftValue": "={{ $json.error }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              },
+              {
+                "id": "fileid-check",
+                "leftValue": "={{ $json.fileId }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "filter-valid-receipts",
+        "name": "Filter Valid Receipts",
+        "type": "n8n-nodes-base.filter",
+        "typeVersion": 2,
+        "position": [
+          2704,
+          304
+        ]
+      },
+      {
+        "parameters": {
+          "resource": "file",
+          "operation": "move"
+        },
+        "id": "fe93d461-e0c0-4c23-8b0d-92e2dbad9ecb",
+        "name": "Move Receipt Files",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          2928,
+          304
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+          },
+          "sheetName": {
+            "__rl": true,
+            "mode": "name",
+            "value": "Receipts"
+          },
+          "columns": {
+            "mappingMode": "autoMapInputData",
+            "value": {},
+            "matchingColumns": [
+              "ReceiptID"
+            ],
+            "schema": [
+              {
+                "id": "ReceiptID",
+                "displayName": "ReceiptID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "FileName",
+                "displayName": "FileName",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Vendor",
+                "displayName": "Vendor",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Amount",
+                "displayName": "Amount",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "TransactionType",
+                "displayName": "TransactionType",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Date",
+                "displayName": "Date",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "FileID",
+                "displayName": "FileID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "DownloadDate",
+                "displayName": "DownloadDate",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "DownloadTimestamp",
+                "displayName": "DownloadTimestamp",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "SourceEmail",
+                "displayName": "SourceEmail",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Matched",
+                "displayName": "Matched",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Notes",
+                "displayName": "Notes",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "transaction_id",
+                "displayName": "transaction_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "ExpensifyNumber",
+                "displayName": "ExpensifyNumber",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "ReportID",
+                "displayName": "ReportID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "0d1c0a8a-7648-406c-bc92-c40f35524da0",
+        "name": "Update Receipts FilePath",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          3152,
+          304
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "H7ewI1sOrDYabelt",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "mode": "combine",
+          "options": {}
+        },
+        "id": "3f1bb91e-c51a-45a3-958e-8383b773630a",
+        "name": "Wait for Processing",
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3,
+        "position": [
+          3376,
+          208
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Collect all items from merge node\nconst allItems = $input.all();\n\n// Parse month/year from initial input\nconst monthYear = $node[\"Parse Month/Year Input\"].json;\nconst mainFolder = $node[\"Create Income Folder\"].json;\n\n// Count statements, receipts, and invoices processed\nconst statementItems = allItems.filter(item => \n  item.json.StatementID || item.json.BankName\n);\nconst receiptItems = allItems.filter(item => \n  item.json.ReceiptID && !item.json.StatementID\n);\nconst invoiceItems = allItems.filter(item => \n  item.json.InvoiceID && !item.json.ReceiptID\n);\n\nconst statementsProcessed = statementItems.length;\nconst receiptsProcessed = receiptItems.length;\nconst invoicesProcessed = invoiceItems.length;\n\n// Get folder structure info\nconst folderPath = `VAT ${monthYear.year}/${monthYear.month}`;\nconst incomePath = `${folderPath}/Income`;\n\n// Generate summary message\nconst summary = {\n  success: true,\n  month: monthYear.month,\n  year: monthYear.year,\n  folderPath: folderPath,\n  incomeFolderPath: incomePath,\n  mainFolderId: mainFolder.id,\n  statistics: {\n    statementsProcessed,\n    receiptsProcessed,\n    invoicesProcessed,\n    totalFilesOrganized: statementsProcessed + receiptsProcessed + invoicesProcessed\n  },\n  message: `Successfully organized ${monthYear.month} ${monthYear.year}:\\n` +\n    `- ${statementsProcessed} bank statements\\n` +\n    `- ${receiptsProcessed} expense receipts\\n` +\n    `- ${invoicesProcessed} invoices\\n` +\n    `Total: ${statementsProcessed + receiptsProcessed + invoicesProcessed} files organized`\n};\n\nreturn [{ json: summary }];"
+        },
+        "id": "020fa7b4-5f28-4148-9859-14eb32caff57",
+        "name": "Generate Summary Report",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3600,
+          208
+        ]
+      },
+      {
+        "id": "read-invoices-sheet",
+        "name": "Read Invoices Sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.5,
+        "position": [
+          2256,
+          688
+        ],
+        "parameters": {
+          "authentication": "oAuth2",
+          "operation": "read",
+          "documentId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+          },
+          "sheetName": {
+            "__rl": true,
+            "mode": "name",
+            "value": "Invoices"
+          },
+          "options": {
+            "rangeDefinition": "specifyRange",
+            "range": "A:Z"
+          }
+        }
+      },
+      {
+        "id": "process-invoices",
+        "name": "Process Invoices",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2480,
+          688
+        ],
+        "parameters": {
+          "mode": "runOnceForAllItems",
+          "jsCode": "const targetMonth = $node[\"Parse Month/Year Input\"].json.month;\nconst targetYear = $node[\"Parse Month/Year Input\"].json.year;\nconst incomeFolder = $node[\"Create Income Folder\"].json.id;\n\n// Filter invoices for this month that have been matched\nconst invoices = $input.all().filter(invoice => {\n  const invoiceDate = new Date(invoice.json.Date);\n  const invoiceMonth = invoiceDate.toLocaleString('en-US', { month: 'long' });\n  const invoiceYear = invoiceDate.getFullYear().toString();\n  \n  return (\n    invoiceMonth === targetMonth &&\n    invoiceYear === targetYear &&\n    invoice.json.InvoiceFileID &&\n    invoice.json.InvoiceFileID.trim() !== \"\"\n  );\n});\n\n// Return invoices with destination folder\nreturn invoices.map(invoice => ({\n  json: {\n    ...invoice.json,\n    destinationFolder: incomeFolder,\n    originalFileId: invoice.json.InvoiceFileID\n  }\n}));"
+        }
+      },
+      {
+        "id": "filter-valid-invoices",
+        "name": "Filter Valid Invoices",
+        "type": "n8n-nodes-base.filter",
+        "typeVersion": 2,
+        "position": [
+          2704,
+          688
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": false,
+              "leftValue": ""
+            },
+            "conditions": [
+              {
+                "leftValue": "={{ $json.InvoiceFileID }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEmpty"
+                }
+              }
+            ],
+            "combinator": "and"
+          }
+        }
+      },
+      {
+        "id": "move-invoice-files",
+        "name": "Move Invoice Files",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          2928,
+          688
+        ],
+        "parameters": {
+          "authentication": "oAuth2",
+          "resource": "file",
+          "operation": "move",
+          "fileId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $json.InvoiceFileID }}"
+          },
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": ""
+          },
+          "folderId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $json.destinationFolder }}"
+          }
+        },
+        "continueOnFail": true
+      },
+      {
+        "id": "update-invoices-filepath",
+        "name": "Update Invoices FilePath",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.5,
+        "position": [
+          3152,
+          688
+        ],
+        "parameters": {
+          "authentication": "oAuth2",
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "1l1uA8qA0DCGzGLBhmP2HqTzaajjbkURY2SLeqSuHMXM"
+          },
+          "sheetName": {
+            "__rl": true,
+            "mode": "name",
+            "value": "Invoices"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "FilePath": "=VAT {{ $node[\"Parse Month/Year Input\"].json.year }}/{{ $node[\"Parse Month/Year Input\"].json.month }}/Income/{{ $json.name }}",
+              "FileID": "={{ $json.id }}",
+              "OrganizedDate": "={{ $now }}"
+            },
+            "matchingColumns": [
+              "InvoiceID"
+            ],
+            "schema": []
+          },
+          "options": {}
+        },
+        "continueOnFail": true
+      },
+      {
+        "id": "check-vat-folder-exists",
+        "name": "Check if VAT Folder Exists",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          700,
+          304
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://www.googleapis.com/drive/v3/files",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "googleDriveOAuth2Api",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "q",
+                "value": "=name='{{ $json.folder_name }}' and '{{ $json.base_folder_id }}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false"
+              },
+              {
+                "name": "fields",
+                "value": "files(id, name)"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "id": "check-folder-exists-switch",
+        "name": "VAT Folder Exists?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          920,
+          304
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "folder-exists",
+                "leftValue": "={{ $json.files ? $json.files.length : 0 }}",
+                "rightValue": 0,
+                "operator": {
+                  "type": "number",
+                  "operation": "gt"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "use-existing-vat-folder",
+        "name": "Use Existing VAT Folder",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1140,
+          180
+        ],
+        "parameters": {
+          "jsCode": "// Use the existing folder that was found\nconst searchResult = $input.first().json;\nconst existingFolder = searchResult.files[0];\nconst parsedData = $('Parse Month/Year Input').json;\n\nreturn {\n  json: {\n    id: existingFolder.id,\n    name: existingFolder.name,\n    month: parsedData.month,\n    year: parsedData.year\n  }\n};"
+        }
+      },
+      {
+        "id": "merge-vat-folder-paths",
+        "name": "Merge VAT Folder",
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3,
+        "position": [
+          1360,
+          304
+        ],
+        "parameters": {
+          "mode": "combine",
+          "combineBy": "combineAll"
+        }
+      },
+      {
+        "id": "check-bank-folder-exists",
+        "name": "Check if Bank Folder Exists",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1740,
+          304
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://www.googleapis.com/drive/v3/files",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "googleDriveOAuth2Api",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "q",
+                "value": "=name='Bank {{ $json.month }} {{ $json.year }}' and '{{ $json.vat_folder_id }}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false"
+              },
+              {
+                "name": "fields",
+                "value": "files(id, name)"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "id": "bank-folder-exists-switch",
+        "name": "Bank Folder Exists?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          1960,
+          304
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "folder-exists",
+                "leftValue": "={{ $json.files ? $json.files.length : 0 }}",
+                "rightValue": 0,
+                "operator": {
+                  "type": "number",
+                  "operation": "gt"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "use-existing-bank-folder",
+        "name": "Use Existing Bank Folder",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2180,
+          180
+        ],
+        "parameters": {
+          "jsCode": "// Use the existing bank folder\nconst searchResult = $input.first().json;\nconst existingFolder = searchResult.files[0];\nconst bankData = $('Prepare Bank Folders').json;\n\nreturn {\n  json: {\n    id: existingFolder.id,\n    name: existingFolder.name,\n    bank_name: bankData.bank_name,\n    month: bankData.month,\n    year: bankData.year\n  }\n};"
+        }
+      },
+      {
+        "id": "merge-bank-folder-paths",
+        "name": "Merge Bank Folder",
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3,
+        "position": [
+          2400,
+          304
+        ],
+        "parameters": {
+          "mode": "combine",
+          "combineBy": "combineAll"
+        }
+      },
+      {
+        "id": "check-statements-subfolder-exists",
+        "name": "Check Statements Subfolder",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2620,
+          220
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://www.googleapis.com/drive/v3/files",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "googleDriveOAuth2Api",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "q",
+                "value": "=name='Statements' and '{{ $json.bank_folder_id }}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false"
+              },
+              {
+                "name": "fields",
+                "value": "files(id, name)"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "id": "statements-subfolder-exists-switch",
+        "name": "Statements Exists?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          2840,
+          220
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "folder-exists",
+                "leftValue": "={{ $json.files ? $json.files.length : 0 }}",
+                "rightValue": 0,
+                "operator": {
+                  "type": "number",
+                  "operation": "gt"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "use-existing-statements-folder",
+        "name": "Use Existing Statements",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3060,
+          120
+        ],
+        "parameters": {
+          "jsCode": "// Use the existing statements folder\nconst searchResult = $input.first().json;\nconst existingFolder = searchResult.files[0];\nconst bankData = $input.item.json;\n\nreturn {\n  json: {\n    subfolder_id: existingFolder.id,\n    subfolder_name: existingFolder.name,\n    subfolder_type: 'Statements',\n    bank_folder_id: bankData.bank_folder_id,\n    bank_name: bankData.bank_name,\n    month: bankData.month,\n    year: bankData.year\n  }\n};"
+        }
+      },
+      {
+        "id": "merge-statements-paths",
+        "name": "Merge Statements",
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3,
+        "position": [
+          3280,
+          220
+        ],
+        "parameters": {
+          "mode": "combine",
+          "combineBy": "combineAll"
+        }
+      },
+      {
+        "id": "check-receipts-subfolder-exists",
+        "name": "Check Receipts Subfolder",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2620,
+          420
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://www.googleapis.com/drive/v3/files",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "googleDriveOAuth2Api",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "q",
+                "value": "=name='Receipts' and '{{ $json.bank_folder_id }}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false"
+              },
+              {
+                "name": "fields",
+                "value": "files(id, name)"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "id": "receipts-subfolder-exists-switch",
+        "name": "Receipts Exists?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          2840,
+          420
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "folder-exists",
+                "leftValue": "={{ $json.files ? $json.files.length : 0 }}",
+                "rightValue": 0,
+                "operator": {
+                  "type": "number",
+                  "operation": "gt"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "use-existing-receipts-folder",
+        "name": "Use Existing Receipts",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3060,
+          520
+        ],
+        "parameters": {
+          "jsCode": "// Use the existing receipts folder\nconst searchResult = $input.first().json;\nconst existingFolder = searchResult.files[0];\nconst bankData = $input.item.json;\n\nreturn {\n  json: {\n    subfolder_id: existingFolder.id,\n    subfolder_name: existingFolder.name,\n    subfolder_type: 'Receipts',\n    bank_folder_id: bankData.bank_folder_id,\n    bank_name: bankData.bank_name,\n    month: bankData.month,\n    year: bankData.year\n  }\n};"
+        }
+      },
+      {
+        "id": "merge-receipts-paths",
+        "name": "Merge Receipts",
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3,
+        "position": [
+          3280,
+          420
+        ],
+        "parameters": {
+          "mode": "combine",
+          "combineBy": "combineAll"
+        }
+      },
+      {
+        "id": "check-income-folder-exists",
+        "name": "Check Income Folder",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1740,
+          620
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://www.googleapis.com/drive/v3/files",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "googleDriveOAuth2Api",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "q",
+                "value": "=name='Income {{ $json.month }} {{ $json.year }}' and '{{ $json.vat_folder_id }}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false"
+              },
+              {
+                "name": "fields",
+                "value": "files(id, name)"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "a4m50EefR3DJoU0R",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "id": "income-folder-exists-switch",
+        "name": "Income Exists?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          1960,
+          620
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "folder-exists",
+                "leftValue": "={{ $json.files ? $json.files.length : 0 }}",
+                "rightValue": 0,
+                "operator": {
+                  "type": "number",
+                  "operation": "gt"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "use-existing-income-folder",
+        "name": "Use Existing Income",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2180,
+          520
+        ],
+        "parameters": {
+          "jsCode": "// Use the existing income folder\nconst searchResult = $input.first().json;\nconst existingFolder = searchResult.files[0];\nconst monthYearData = $('Merge Month/Year').json;\n\nreturn {\n  json: {\n    id: existingFolder.id,\n    name: existingFolder.name,\n    vat_folder_id: monthYearData.vat_folder_id,\n    month: monthYearData.month,\n    year: monthYearData.year\n  }\n};"
+        }
+      },
+      {
+        "id": "merge-income-paths",
+        "name": "Merge Income",
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3,
+        "position": [
+          2400,
+          620
+        ],
+        "parameters": {
+          "mode": "combine",
+          "combineBy": "combineAll"
+        }
+      },
+      {
+        "id": "filter-statements-by-month",
+        "name": "Filter Statements by Month",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3000,
+          800
+        ],
+        "parameters": {
+          "jsCode": "const targetMonth = $('Parse Month/Year Input').json.month;\nconst targetYear = $('Parse Month/Year Input').json.year;\n\nconst statements = $input.all().filter(statement => {\n  const statementDate = new Date(statement.json.StatementDate);\n  const statementMonth = statementDate.toLocaleString('en-US', { month: 'long' });\n  const statementYear = statementDate.getFullYear().toString();\n  \n  return (\n    statementMonth === targetMonth &&\n    statementYear === targetYear\n  );\n});\n\nreturn statements.map(s => ({ json: s.json }));"
+        }
+      },
+      {
+        "id": "filter-receipts-by-month",
+        "name": "Filter Receipts by Month",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3000,
+          1000
+        ],
+        "parameters": {
+          "jsCode": "const targetMonth = $('Parse Month/Year Input').json.month;\nconst targetYear = $('Parse Month/Year Input').json.year;\nconst transactions = $('Read Transactions Sheet').all();\n\n// Create transaction date lookup\nconst transactionDates = {};\ntransactions.forEach(t => {\n  transactionDates[t.json.TransactionID] = t.json.Date;\n});\n\nconst receipts = $input.all().filter(receipt => {\n  const transactionId = receipt.json.transaction_id;\n  if (!transactionId) return false;\n  \n  const transactionDate = new Date(transactionDates[transactionId]);\n  const transactionMonth = transactionDate.toLocaleString('en-US', { month: 'long' });\n  const transactionYear = transactionDate.getFullYear().toString();\n  \n  return (\n    transactionMonth === targetMonth &&\n    transactionYear === targetYear\n  );\n});\n\nreturn receipts.map(r => ({ json: r.json }));"
+        }
+      }
+    ],
+    "connections": {
+      "Webhook Trigger (Manual)": {
+        "main": [
+          [
+            {
+              "node": "Parse Month/Year Input",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Statements Subfolder": {
+        "main": [
+          [
+            {
+              "node": "Wait for Subfolders",
+              "type": "input1",
+              "index": 0
+            },
+            {
+              "node": "Merge Statements",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Receipts Subfolder": {
+        "main": [
+          [
+            {
+              "node": "Wait for Subfolders",
+              "type": "input2",
+              "index": 0
+            },
+            {
+              "node": "Merge Receipts",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait for Subfolders": {
+        "main": [
+          [
+            {
+              "node": "Get Main Folder Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Income Folder": {
+        "main": [
+          [
+            {
+              "node": "Read Statements Sheet",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Read Receipts Sheet",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Read Transactions Sheet",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Read Invoices Sheet",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Merge Income",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Process Statements": {
+        "main": [
+          [
+            {
+              "node": "Filter Valid Statements",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter Valid Statements": {
+        "main": [
+          [
+            {
+              "node": "Move Statement Files",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Move Statement Files": {
+        "main": [
+          [
+            {
+              "node": "Update Statements FilePath",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Process Receipts": {
+        "main": [
+          [
+            {
+              "node": "Filter Valid Receipts",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter Valid Receipts": {
+        "main": [
+          [
+            {
+              "node": "Move Receipt Files",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Move Receipt Files": {
+        "main": [
+          [
+            {
+              "node": "Update Receipts FilePath",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update Statements FilePath": {
+        "main": [
+          [
+            {
+              "node": "Wait for Processing",
+              "type": "input1",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update Receipts FilePath": {
+        "main": [
+          [
+            {
+              "node": "Wait for Processing",
+              "type": "input2",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait for Processing": {
+        "main": [
+          [
+            {
+              "node": "Generate Summary Report",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Read Invoices Sheet": {
+        "main": [
+          [
+            {
+              "node": "Process Invoices",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Process Invoices": {
+        "main": [
+          [
+            {
+              "node": "Filter Valid Invoices",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter Valid Invoices": {
+        "main": [
+          [
+            {
+              "node": "Move Invoice Files",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Move Invoice Files": {
+        "main": [
+          [
+            {
+              "node": "Update Invoices FilePath",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update Invoices FilePath": {
+        "main": [
+          [
+            {
+              "node": "Wait for Processing",
+              "type": "input3",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Month/Year Input": {
+        "main": [
+          [
+            {
+              "node": "Check if VAT Folder Exists",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check if VAT Folder Exists": {
+        "main": [
+          [
+            {
+              "node": "VAT Folder Exists?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "VAT Folder Exists?": {
+        "true": [
+          [
+            {
+              "node": "Use Existing VAT Folder",
+              "type": "true",
+              "index": 0
+            }
+          ]
+        ],
+        "false": [
+          [
+            {
+              "node": "Create Main VAT Folder",
+              "type": "false",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Use Existing VAT Folder": {
+        "main": [
+          [
+            {
+              "node": "Merge VAT Folder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Main VAT Folder": {
+        "main": [
+          [
+            {
+              "node": "Merge VAT Folder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge VAT Folder": {
+        "main": [
+          [
+            {
+              "node": "Prepare Bank Folders",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Bank Folders": {
+        "main": [
+          [
+            {
+              "node": "Check if Bank Folder Exists",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check if Bank Folder Exists": {
+        "main": [
+          [
+            {
+              "node": "Bank Folder Exists?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Bank Folder Exists?": {
+        "true": [
+          [
+            {
+              "node": "Use Existing Bank Folder",
+              "type": "true",
+              "index": 0
+            }
+          ]
+        ],
+        "false": [
+          [
+            {
+              "node": "Create Bank Folder",
+              "type": "false",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Use Existing Bank Folder": {
+        "main": [
+          [
+            {
+              "node": "Merge Bank Folder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Bank Folder": {
+        "main": [
+          [
+            {
+              "node": "Merge Bank Folder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge Bank Folder": {
+        "main": [
+          [
+            {
+              "node": "Check Statements Subfolder",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Check Receipts Subfolder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Statements Subfolder": {
+        "main": [
+          [
+            {
+              "node": "Statements Exists?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Statements Exists?": {
+        "true": [
+          [
+            {
+              "node": "Use Existing Statements",
+              "type": "true",
+              "index": 0
+            }
+          ]
+        ],
+        "false": [
+          [
+            {
+              "node": "Create Statements Subfolder",
+              "type": "false",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Use Existing Statements": {
+        "main": [
+          [
+            {
+              "node": "Merge Statements",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Receipts Subfolder": {
+        "main": [
+          [
+            {
+              "node": "Receipts Exists?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Receipts Exists?": {
+        "true": [
+          [
+            {
+              "node": "Use Existing Receipts",
+              "type": "true",
+              "index": 0
+            }
+          ]
+        ],
+        "false": [
+          [
+            {
+              "node": "Create Receipts Subfolder",
+              "type": "false",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Use Existing Receipts": {
+        "main": [
+          [
+            {
+              "node": "Merge Receipts",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Main Folder Data": {
+        "main": [
+          [
+            {
+              "node": "Check Income Folder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Income Folder": {
+        "main": [
+          [
+            {
+              "node": "Income Exists?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Income Exists?": {
+        "true": [
+          [
+            {
+              "node": "Use Existing Income",
+              "type": "true",
+              "index": 0
+            }
+          ]
+        ],
+        "false": [
+          [
+            {
+              "node": "Create Income Folder",
+              "type": "false",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Use Existing Income": {
+        "main": [
+          [
+            {
+              "node": "Merge Income",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge Income": {
+        "main": [
+          [
+            {
+              "node": "Read Statements Sheet",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Read Receipts Sheet",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Read Transactions Sheet",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Read Invoices Sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Read Statements Sheet": {
+        "main": [
+          [
+            {
+              "node": "Filter Statements by Month",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter Statements by Month": {
+        "main": [
+          [
+            {
+              "node": "Process Statements",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Read Receipts Sheet": {
+        "main": [
+          [
+            {
+              "node": "Filter Receipts by Month",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter Receipts by Month": {
+        "main": [
+          [
+            {
+              "node": "Process Receipts",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Sway Clarke",
+    "name": null,
+    "description": null,
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-01-29T19:36:24.623Z",
+        "id": 1812,
+        "workflowId": "nASL6hxNQGrNBTV4",
+        "versionId": "818cbf43-cf61-47b0-aa61-060ee70d1a14",
+        "event": "activated",
+        "userId": "e9bd9112-c2e3-4f67-873a-e1001baeafd8"
+      }
+    ]
+  }
+}
